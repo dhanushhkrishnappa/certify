@@ -1,0 +1,249 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Surface & Background Tokens */
+  --certify-bg-canvas: #F8F7F4;
+  --certify-bg-surface: #FFFFFF;
+  --certify-bg-surface-subtle: #F3F1EC;
+  --certify-bg-surface-muted: #EBE8E1;
+  --certify-bg-sidebar: #F5F2EB;
+  --certify-bg-code-ide: #13151A;
+  --certify-bg-code-header: #1B1E26;
+
+  /* Text & Ink Tokens */
+  --certify-text-primary: #0F1117;
+  --certify-text-secondary: #525866;
+  --certify-text-muted: #8A909E;
+  --certify-text-disabled: #B4B8C4;
+  --certify-text-on-dark: #FFFFFF;
+
+  /* Primary Brand & Interactive Tokens */
+  --certify-brand-purple: #5B4DF0;
+  --certify-brand-purple-hover: #4C3DE0;
+  --certify-brand-purple-active: #4032C9;
+  --certify-brand-purple-light: #EEF0FF;
+  --certify-brand-purple-border: #D6D2FA;
+
+  /* Semantic Mastery & Status Tokens */
+  --certify-status-success: #10B981;
+  --certify-status-success-bg: #ECFDF5;
+  --certify-status-success-border: #A7F3D0;
+
+  --certify-status-warning: #F59E0B;
+  --certify-status-warning-bg: #FFFBEB;
+  --certify-status-warning-border: #FDE68A;
+
+  --certify-status-danger: #EF4444;
+  --certify-status-danger-bg: #FEF2F2;
+  --certify-status-danger-border: #FECACA;
+
+  --certify-status-info: #3B82F6;
+  --certify-status-info-bg: #EFF6FF;
+  --certify-status-info-border: #BFDBFE;
+
+  /* Hairlines, Rules & Outlines */
+  --certify-border-subtle: #E8E5DF;
+  --certify-border-medium: #D5D1C8;
+  --certify-border-focus: #5B4DF0;
+
+  /* Gold & Certificate Embellishments */
+  --certify-gold-primary: #C59B27;
+  --certify-gold-secondary: #E3B341;
+  --certify-gold-bg: #FDF9EC;
+
+  /* Typography Stack */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Newsreader', 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 2px 8px rgba(15, 17, 23, 0.04), 0 1px 2px rgba(15, 17, 23, 0.02);
+  --shadow-elevated: 0 8px 24px rgba(15, 17, 23, 0.08), 0 2px 6px rgba(15, 17, 23, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--certify-bg-canvas);
+  color: var(--certify-text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom Editorial Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8D2C6;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B5AE9E;
+}
+
+/* Circular Gauge Meter Styling */
+.meter-circle {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* Hero card radial glow matching approved Stitch screen */
+.hero-glow-bg {
+  background: radial-gradient(circle at 80% 40%, rgba(217, 119, 6, 0.22) 0%, rgba(30, 27, 75, 0.6) 40%, rgba(13, 14, 18, 0.98) 80%),
+              linear-gradient(135deg, #121318 0%, #0F1015 100%);
+}
+
+/* Sidebar motivation card gradient */
+.sidebar-art-bg {
+  background: linear-gradient(145deg, #181920 0%, #101115 100%);
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-art-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  right: -20%;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.3) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(10px);
+}
+
+/* Base Component Classes */
+.btn-primary {
+  background-color: var(--certify-brand-purple);
+  color: #FFFFFF;
+  border: 1px solid transparent;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover {
+  background-color: var(--certify-brand-purple-hover);
+  transform: translateY(-0.5px);
+}
+
+.btn-primary:active {
+  background-color: var(--certify-brand-purple-active);
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: var(--certify-text-primary);
+  border: 1px solid var(--certify-border-subtle);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease-out;
+}
+
+.btn-secondary:hover {
+  background-color: var(--certify-bg-surface-subtle);
+  border-color: var(--certify-border-medium);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Card Utility */
+.certify-card {
+  background-color: var(--certify-bg-surface);
+  border: 1px solid var(--certify-border-subtle);
+  border-radius: 20px;
+  box-shadow: var(--shadow-subtle);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.certify-card:hover {
+  border-color: #DDD9D0;
+  box-shadow: var(--shadow-card);
+}
+
+/* Badges */
+.badge-tier {
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-easy {
+  background-color: var(--certify-status-success-bg);
+  color: #047857;
+  border: 1px solid var(--certify-status-success-border);
+}
+
+.badge-medium {
+  background-color: var(--certify-brand-purple-light);
+  color: var(--certify-brand-purple);
+  border: 1px solid var(--certify-brand-purple-border);
+}
+
+.badge-hard {
+  background-color: var(--certify-status-warning-bg);
+  color: #B45309;
+  border: 1px solid var(--certify-status-warning-border);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

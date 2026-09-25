@@ -1,0 +1,237 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  fullName     String
+  role         String       @default("STUDENT") // STUDENT, INSTRUCTOR, ADMIN
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  enrollments  Enrollment[]
+}
+
+model Course {
+  id          String          @id @default(uuid())
+  slug        String          @unique
+  title       String
+  summary     String
+  description String
+  status      String          @default("PUBLISHED") // DRAFT, REVIEW, PUBLISHED, ARCHIVED
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  versions    CourseVersion[]
+}
+
+model CourseVersion {
+  id            String       @id @default(uuid())
+  courseId      String
+  course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  versionNumber String       @default("1.0.0")
+  changelog     String?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  modules       Module[]
+  enrollments   Enrollment[]
+
+  @@unique([courseId, versionNumber])
+}
+
+model Module {
+  id              String        @id @default(uuid())
+  courseVersionId String
+  courseVersion   CourseVersion @relation(fields: [courseVersionId], references: [id], onDelete: Cascade)
+  title           String
+  sequenceOrder   Int
+  createdAt       DateTime      @default(now())
+  chapters        Chapter[]
+}
+
+model Chapter {
+  id             String           @id @default(uuid())
+  moduleId       String
+  module         Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title          String
+  sequenceOrder  Int
+  teachingContent String
+  createdAt      DateTime         @default(now())
+  concepts       Concept[]
+  questions      Question[]
+  sessions       LearningSession[]
+}
+
+model Concept {
+  id            String           @id @default(uuid())
+  chapterId     String
+  chapter       Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  slug          String
+  name          String
+  description   String
+  sequenceOrder Int
+  createdAt     DateTime         @default(now())
+  rubrics       Rubric[]
+  conceptMastery ConceptMastery[]
+
+  @@unique([chapterId, slug])
+}
+
+model Rubric {
+  id          String           @id @default(uuid())
+  conceptId   String
+  concept     Concept          @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  title       String
+  createdAt   DateTime         @default(now())
+  criteria    RubricCriterion[]
+}
+
+model RubricCriterion {
+  id                  String             @id @default(uuid())
+  rubricId            String
+  rubric              Rubric             @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+  criterionStatement  String
+  weight              Float              @default(1.0)
+  tierRequired        String             @default("EASY") // EASY, MEDIUM, HARD
+  createdAt           DateTime           @default(now())
+  masteryEvidences    MasteryEvidence[]
+  rubricEvaluations   RubricEvaluation[]
+}
+
+model Question {
+  id           String            @id @default(uuid())
+  chapterId    String
+  chapter      Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questionType String            // RECALL, EXPLAIN, REASON, DEBUG, APPLY, VIVA
+  prompt       String
+  tier         String            @default("EASY")
+  parameters   String?           // JSON string for dynamic variants
+  createdAt    DateTime          @default(now())
+  answers      AssessmentAnswer[]
+}
+
+model Enrollment {
+  id               String            @id @default(uuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseVersionId  String
+  courseVersion    CourseVersion     @relation(fields: [courseVersionId], references: [id], onDelete: Restrict)
+  status           String            @default("ACTIVE") // ACTIVE, COMPLETED, DROPPED
+  currentTier      String            @default("EASY") // EASY, MEDIUM, HARD
+  enrolledAt       DateTime          @default(now())
+  completedAt      DateTime?
+  sessions         LearningSession[]
+  conceptMasteries ConceptMastery[]
+  assessments      AssessmentAttempt[]
+  certificate      Certificate?
+
+  @@unique([userId, courseVersionId])
+}
+
+model LearningSession {
+  id           String        @id @default(uuid())
+  enrollmentId String
+  enrollment   Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  chapterId    String
+  chapter      Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  phase        String        @default("TEACHING") // DIAGNOSTIC, TEACHING, CHECKING, REMEDIATING, ASSESSING
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  messages     ChatMessage[]
+}
+
+model ChatMessage {
+  id        String          @id @default(uuid())
+  sessionId String
+  session   LearningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sender    String          // USER, AI_TUTOR, AI_EVALUATOR, SYSTEM
+  role      String          @default("user") // user, assistant, system
+  content   String
+  metadata  String?         // JSON metadata (tokens, latency, model)
+  createdAt DateTime        @default(now())
+}
+
+model ConceptMastery {
+  id                String            @id @default(uuid())
+  enrollmentId      String
+  enrollment        Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  conceptId         String
+  concept           Concept           @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  pMastery          Float             @default(0.1500) // BKT Probability [0.0 - 1.0]
+  confidence        Float             @default(0.2000)
+  state             String            @default("UNENCOUNTERED") // UNENCOUNTERED, LEARNING, NEEDS_REMEDIATION, MASTERED, ADVANCED
+  remediationCycles Int               @default(0)
+  lastAssessedAt    DateTime?
+  evidences         MasteryEvidence[]
+
+  @@unique([enrollmentId, conceptId])
+}
+
+model MasteryEvidence {
+  id                  String           @id @default(uuid())
+  conceptMasteryId    String
+  conceptMastery      ConceptMastery   @relation(fields: [conceptMasteryId], references: [id], onDelete: Cascade)
+  rubricCriterionId   String?
+  rubricCriterion     RubricCriterion? @relation(fields: [rubricCriterionId], references: [id])
+  evidenceType        String           // DIALOGUE_PROBE, CHAPTER_ASSESSMENT, PRACTICAL_TASK, VIVA
+  isDemonstrated      Boolean
+  evidenceQuote       String?
+  evaluatorReasoning  String?
+  createdAt           DateTime         @default(now())
+}
+
+model AssessmentAttempt {
+  id           String             @id @default(uuid())
+  enrollmentId String
+  enrollment   Enrollment         @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  assessmentType String           // DIAGNOSTIC, CHAPTER, FINAL_KNOWLEDGE, PRACTICAL, VIVA
+  targetId     String?            // ChapterId or TaskId
+  status       String             @default("IN_PROGRESS") // IN_PROGRESS, SUBMITTED, EVALUATED
+  score        Float?
+  createdAt    DateTime           @default(now())
+  completedAt  DateTime?
+  answers      AssessmentAnswer[]
+}
+
+model AssessmentAnswer {
+  id                  String             @id @default(uuid())
+  attemptId           String
+  attempt             AssessmentAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId          String
+  question            Question           @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  studentAnswer       String
+  score               Float?
+  createdAt           DateTime           @default(now())
+  evaluations         RubricEvaluation[]
+}
+
+model RubricEvaluation {
+  id                  String           @id @default(uuid())
+  answerId            String
+  answer              AssessmentAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  rubricCriterionId   String
+  rubricCriterion     RubricCriterion  @relation(fields: [rubricCriterionId], references: [id], onDelete: Cascade)
+  isDemonstrated      Boolean
+  evidenceQuote       String?
+  reasoning           String?
+  createdAt           DateTime         @default(now())
+}
+
+model Certificate {
+  id              String      @id @default(uuid())
+  credentialId    String      @unique // e.g. 'CERT-2026-PY-98124'
+  enrollmentId    String      @unique
+  enrollment      Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Restrict)
+  tier            String      // FOUNDATION, PROFICIENT, ADVANCED
+  compositeScore  Float
+  evidenceSummary String      // JSON stringified
+  signatureHash   String
+  status          String      @default("VALID") // VALID, REVOKED, SUSPENDED
+  issuedAt        DateTime    @default(now())
+}

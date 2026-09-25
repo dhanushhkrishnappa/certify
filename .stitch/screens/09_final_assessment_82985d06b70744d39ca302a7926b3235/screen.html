@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Final Assessment | CERTIFY</title>
+<!-- Fonts: Plus Jakarta Sans for UI, Newsreader for editorial headlines, JetBrains Mono for Code -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,600;0,6..72,700;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Newsreader"', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            canvas: '#fbfaf7',
+            panel: '#ffffff',
+            borderLight: '#e9e7e1',
+            brand: {
+              50: '#f2f0fe',
+              100: '#e5e1fc',
+              500: '#5a3ee6',
+              600: '#4f38e4',
+              700: '#432ecc',
+            },
+            editor: {
+              bg: '#181b24',
+              header: '#212531',
+              comment: '#6b7280',
+              keyword: '#c084fc',
+              func: '#60a5fa',
+              param: '#fdba74'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for pristine alignment & fine borders -->
+<style data-purpose="base-styling">
+    body {
+      background-color: #fbfaf7;
+      color: #1a1c23;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom scrollbars for code area */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-row antialiased selection:bg-brand-500 selection:text-white">
+<!-- BEGIN: LeftSidebar -->
+<aside class="w-[230px] flex-shrink-0 bg-[#fbfaf7] border-r border-[#ece9df] flex flex-col justify-between p-4 sticky top-0 h-screen select-none z-20">
+<div class="flex flex-col">
+<!-- Logo Branding -->
+<div class="flex items-center space-x-2.5 px-2 py-2 mb-6">
+<svg class="w-8 h-8 text-black flex-shrink-0" fill="none" viewbox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 2L3 9.5V22.5L16 30L29 22.5V9.5L16 2Z" stroke="currentColor" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M16 2L16 16.5M16 16.5L3 9.5M16 16.5L29 9.5M16 16.5V30" stroke="currentColor" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<div class="flex flex-col">
+<span class="font-extrabold tracking-wider text-black text-sm uppercase leading-tight">CERTIFY</span>
+<span class="text-[8px] font-semibold text-gray-500 tracking-tight whitespace-nowrap">LEARN • DEMONSTRATE • EARN</span>
+</div>
+</div>
+<!-- Main Navigation Menu -->
+<nav class="space-y-1">
+<!-- Dashboard -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-black hover:bg-black/5 transition" href="#">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Dashboard</span>
+</a>
+<!-- Explore Courses -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-black hover:bg-black/5 transition" href="#">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Explore Courses</span>
+</a>
+<!-- My Learning -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-black hover:bg-black/5 transition" href="#">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>My Learning</span>
+</a>
+<!-- Assessments (Active) -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold text-gray-900 bg-[#efece4] shadow-sm transition" href="#">
+<svg class="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Assessments</span>
+</a>
+<!-- Credentials -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-black hover:bg-black/5 transition" href="#">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Credentials</span>
+</a>
+<!-- Progress -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-black hover:bg-black/5 transition" href="#">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Progress</span>
+</a>
+<!-- Secondary Section Spacer -->
+<div class="pt-6 pb-2">
+<!-- AI Tutor / Ask Certify -->
+<a class="flex items-center space-x-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-700 hover:text-purple-700 hover:bg-purple-50 transition group" href="#">
+<span class="text-purple-600 font-bold text-base leading-none">✦</span>
+<span class="font-medium">AI Tutor / Ask Certify</span>
+</a>
+<!-- Profile -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-black hover:bg-black/5 transition" href="#">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Profile</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-gray-600 hover:text-black hover:bg-black/5 transition" href="#">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+</div>
+<!-- Bottom User Profile Card -->
+<div class="pt-4 border-t border-[#ebe8df] flex items-center justify-between">
+<div class="flex items-center space-x-2.5 min-w-0">
+<div class="w-8 h-8 rounded-full bg-black text-white font-semibold text-xs flex items-center justify-center flex-shrink-0">
+          DK
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-semibold text-gray-900 truncate leading-snug">Dhanush</span>
+<span class="text-[10px] text-gray-500 truncate leading-none">dhanushk2204@gmail.com</span>
+</div>
+</div>
+<button aria-label="Sign out" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-md hover:bg-black/5 transition" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContentArea -->
+<main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+<!-- Top Header Bar -->
+<header class="h-16 px-8 flex items-center justify-between border-b border-[#ece9df] bg-[#fbfaf7]/80 backdrop-blur sticky top-0 z-10">
+<!-- Breadcrumb Navigation -->
+<nav class="flex items-center text-xs font-medium text-gray-500 space-x-2">
+<svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="hover:text-gray-800 cursor-pointer transition">Python Fundamentals</span>
+<span class="text-gray-400 font-normal">&gt;</span>
+<span class="font-semibold text-gray-900">Final Assessment</span>
+</nav>
+<!-- Right Header Actions & Profile -->
+<div class="flex items-center space-x-6">
+<span class="text-xs italic text-gray-500 font-serif tracking-tight">"Discipline today, opportunities tomorrow."</span>
+<!-- Notification Bell with Counter -->
+<button class="relative text-gray-700 hover:text-black transition">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
+            3
+          </span>
+</button>
+<!-- DK Avatar -->
+<div class="w-8 h-8 rounded-full bg-black text-white font-semibold text-xs flex items-center justify-center cursor-pointer shadow-sm">
+          DK
+        </div>
+</div>
+</header>
+<div class="px-8 py-6 max-w-[1400px] w-full mx-auto space-y-6">
+<!-- Title & Subtitle -->
+<div>
+<h1 class="font-serif text-3xl font-bold tracking-tight text-gray-950">Final Assessment</h1>
+<p class="text-xs text-gray-500 mt-1 font-medium">Demonstrate your understanding and earn your certification.</p>
+</div>
+<!-- 5 Information Cards Strip -->
+<section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5" data-purpose="meta-info-strip">
+<!-- Card 1: Questions -->
+<div class="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+<div class="w-9 h-9 rounded-lg bg-purple-50 text-brand-600 flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-900 leading-tight">12 Questions</div>
+<div class="text-[11px] text-gray-400 font-medium">Multiple formats</div>
+</div>
+</div>
+<!-- Card 2: Time limit -->
+<div class="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+<div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-900 leading-tight">30 Minutes</div>
+<div class="text-[11px] text-gray-400 font-medium">Time limit</div>
+</div>
+</div>
+<!-- Card 3: Mixed Difficulty -->
+<div class="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+<div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-900 leading-tight">Mixed Difficulty</div>
+<div class="text-[11px] text-gray-400 font-medium">Conceptual, Coding, Application</div>
+</div>
+</div>
+<!-- Card 4: Proctored -->
+<div class="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+<div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<div class="text-xs font-bold text-gray-900 leading-tight">Proctored</div>
+<div class="text-[11px] text-gray-400 font-medium">Academic integrity</div>
+</div>
+</div>
+<!-- Card 5: Passing criteria -->
+<div class="bg-[#fef9ee] border border-[#fae8c8] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+<div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<div class="text-[11px] font-bold text-gray-900 leading-tight">Complete with 70% or above</div>
+<div class="text-[10px] text-gray-500 font-medium">to earn your certificate</div>
+</div>
+</div>
+</section>
+<!-- Two-Column Assessment Workspace -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-12">
+<!-- Left Main Panel (Col 8) -->
+<div class="lg:col-span-8 bg-white border border-[#eae8e0] rounded-2xl p-6 shadow-sm space-y-5">
+<!-- Question Header Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<span class="text-base font-bold text-gray-900">Question 4 of 12</span>
+<span class="bg-[#f0edfc] text-brand-600 font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
+                Coding Question
+              </span>
+</div>
+</div>
+<!-- Question Prompt -->
+<p class="text-[13px] text-gray-800 font-medium leading-relaxed">
+            Write a Python function that takes a list of integers and returns a new list containing only the even numbers, in the same order as they appear in the original list.
+          </p>
+<!-- Example Box -->
+<div class="bg-[#f7f6f2] border border-[#ece9df] rounded-xl p-4 font-mono text-[12px] leading-relaxed text-gray-700">
+<div class="font-sans text-[11px] font-semibold text-gray-500 mb-1">Example:</div>
+<div>Input: [1, 2, 3, 4, 6, 7]</div>
+<div>Output: [2, 4, 6]</div>
+</div>
+<!-- Interactive Code Editor -->
+<div class="rounded-xl overflow-hidden border border-[#272b36] bg-editor-bg shadow-sm">
+<!-- Code Editor Header Bar -->
+<div class="bg-[#20242f] px-4 py-2 flex items-center justify-between border-b border-[#2d3240]">
+<span class="text-xs text-gray-300 font-mono font-medium">Your Code (Python 3)</span>
+<!-- Light/Dark Toggle -->
+<div class="flex items-center bg-[#171922] p-0.5 rounded-full border border-gray-700/60 text-[10px] font-semibold text-gray-400">
+<button class="px-2 py-0.5 rounded-full hover:text-white transition" type="button">Light</button>
+<button class="px-2 py-0.5 rounded-full bg-[#5a3ee6] text-white shadow-sm" type="button">Dark</button>
+</div>
+</div>
+<!-- Code Editor Workspace Body -->
+<div class="p-4 font-mono text-[13px] leading-6 text-gray-200 select-text flex min-h-[140px]">
+<!-- Line Numbers -->
+<div class="text-gray-600 pr-4 select-none text-right font-mono flex flex-col">
+<span>1</span>
+<span>2</span>
+<span>3</span>
+</div>
+<!-- Code Lines with Syntax Coloring -->
+<div class="flex-1 flex flex-col font-mono">
+<div class="text-gray-400"><span class="text-gray-500"># Write your code here</span></div>
+<div>
+<span class="text-blue-400 font-semibold">def</span> <span class="text-yellow-200">get_even_numbers</span>(<span class="text-orange-300">nums</span>):
+                </div>
+<div class="flex items-center">
+<span class="w-6"> </span>
+<!-- Blinking interactive cursor bar -->
+<span class="inline-block w-[1.5px] h-4 bg-white animate-pulse"></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Code Action Buttons -->
+<div class="flex items-center space-x-3 pt-1">
+<button class="inline-flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-sm transition active:scale-[0.98]">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<polygon points="5 3 19 12 5 21 5 3"></polygon>
+</svg>
+<span>Run Code</span>
+</button>
+<button class="inline-flex items-center space-x-2 border border-brand-600 text-brand-600 hover:bg-purple-50 font-semibold text-xs px-4 py-2.5 rounded-lg transition active:scale-[0.98]">
+<span class="font-bold text-xs">&gt;</span>
+<span>Run Tests</span>
+</button>
+<button class="inline-flex items-center space-x-2 border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold text-xs px-4 py-2.5 rounded-lg transition active:scale-[0.98]">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Reset</span>
+</button>
+</div>
+<!-- Tabs & Test Cases Section -->
+<div class="pt-3">
+<div class="flex items-center justify-between border-b border-gray-200 mb-3 pb-0.5">
+<div class="flex space-x-6 text-xs font-semibold">
+<button class="text-brand-600 border-b-2 border-brand-600 pb-2 flex items-center space-x-1">
+<span>Test Cases</span>
+</button>
+<button class="text-gray-500 hover:text-gray-800 pb-2 transition">
+<span>Custom Input</span>
+</button>
+</div>
+<!-- Python 3.10 Dropdown Indicator -->
+<div class="flex items-center space-x-1.5 text-xs text-gray-700 pb-2 cursor-pointer font-medium">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Python 3.10</span>
+<svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Test Cases Table -->
+<div class="overflow-hidden border border-gray-200 rounded-lg">
+<table class="w-full text-left text-xs">
+<thead class="bg-gray-50/75 border-b border-gray-200 text-gray-700 font-semibold">
+<tr>
+<th class="py-2.5 px-4 w-10" scope="col">#</th>
+<th class="py-2.5 px-4 font-mono font-medium" scope="col">Input</th>
+<th class="py-2.5 px-4 font-mono font-medium" scope="col">Expected Output</th>
+<th class="py-2.5 px-4" scope="col">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100 text-gray-800 font-mono text-[12px]">
+<!-- Row 1 -->
+<tr class="hover:bg-gray-50/50">
+<td class="py-2.5 px-4 font-sans font-medium text-gray-600">1</td>
+<td class="py-2.5 px-4 text-gray-700">[1, 2, 3, 4, 6]</td>
+<td class="py-2.5 px-4 text-gray-700">[2, 4, 6]</td>
+<td class="py-2.5 px-4 font-sans text-xs text-gray-500 flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-gray-400"></span>
+<span>Not run</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-gray-50/50">
+<td class="py-2.5 px-4 font-sans font-medium text-gray-600">2</td>
+<td class="py-2.5 px-4 text-gray-700">[10, 15, 22, 33]</td>
+<td class="py-2.5 px-4 text-gray-700">[10, 22]</td>
+<td class="py-2.5 px-4 font-sans text-xs text-gray-500 flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-gray-400"></span>
+<span>Not run</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-gray-50/50">
+<td class="py-2.5 px-4 font-sans font-medium text-gray-600">3</td>
+<td class="py-2.5 px-4 text-gray-700">[]</td>
+<td class="py-2.5 px-4 text-gray-700">[]</td>
+<td class="py-2.5 px-4 font-sans text-xs text-gray-500 flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-gray-400"></span>
+<span>Not run</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-gray-50/50">
+<td class="py-2.5 px-4 font-sans font-medium text-gray-600">4</td>
+<td class="py-2.5 px-4 text-gray-700">[5]</td>
+<td class="py-2.5 px-4 text-gray-700">[]</td>
+<td class="py-2.5 px-4 font-sans text-xs text-gray-500 flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-gray-400"></span>
+<span>Not run</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column / Assessment Sidebar (Col 4) -->
+<div class="lg:col-span-4 space-y-4">
+<!-- Card: Timer & Question Navigation Grid -->
+<div class="bg-white border border-[#eae8e0] rounded-2xl p-5 shadow-sm space-y-4">
+<!-- Timer & Pause Header -->
+<div class="flex items-center justify-between">
+<!-- Radial circular timer -->
+<div class="flex items-center space-x-3.5">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<!-- SVG Circular Progress Bar -->
+<svg class="w-12 h-12 transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-indigo-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="75, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+</div>
+<div>
+<div class="text-xl font-bold tracking-tight text-gray-900 leading-none">24:37</div>
+<div class="text-[11px] text-gray-400 font-medium mt-0.5">Time Remaining</div>
+</div>
+</div>
+<!-- Pause Button -->
+<button class="inline-flex items-center space-x-1.5 border border-gray-300 hover:border-gray-400 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-[0.98]">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M6 4h4v16H6zm8 0h4v16h-4z"></path>
+</svg>
+<span>Pause</span>
+</button>
+</div>
+<!-- Horizontal Progress Bar -->
+<div>
+<div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+<div class="bg-brand-600 h-1.5 rounded-full" style="width: 35%"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] font-medium text-gray-500 mt-1.5">
+<span class="font-semibold text-gray-800">Question 4 of 12</span>
+<span class="font-bold text-gray-800">35%</span>
+</div>
+</div>
+<!-- Status Legend Pills -->
+<div class="grid grid-cols-2 gap-y-1.5 text-[10px] text-gray-600 pt-1">
+<div class="flex items-center space-x-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+<span>Answered</span>
+</div>
+<div class="flex items-center space-x-1.5">
+<span class="w-2 h-2 rounded-full border-2 border-brand-600 flex-shrink-0"></span>
+<span>Current</span>
+</div>
+<div class="flex items-center space-x-1.5">
+<span class="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></span>
+<span>Not Answered</span>
+</div>
+<div class="flex items-center space-x-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></span>
+<span>Marked for Review</span>
+</div>
+</div>
+<!-- 12-Question Grid -->
+<div class="grid grid-cols-6 gap-2 pt-2">
+<!-- Q1 (Answered - Green) -->
+<button class="h-9 w-full rounded-lg bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center hover:opacity-90 transition">1</button>
+<!-- Q2 (Answered - Green) -->
+<button class="h-9 w-full rounded-lg bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center hover:opacity-90 transition">2</button>
+<!-- Q3 (Answered - Green) -->
+<button class="h-9 w-full rounded-lg bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center hover:opacity-90 transition">3</button>
+<!-- Q4 (Current - White with Purple outline) -->
+<button class="h-9 w-full rounded-lg bg-white border-2 border-brand-600 text-brand-600 font-bold text-xs flex items-center justify-center shadow-sm">4</button>
+<!-- Q5 to Q12 (Not Answered - Light Gray) -->
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">5</button>
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">6</button>
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">7</button>
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">8</button>
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">9</button>
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">10</button>
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">11</button>
+<button class="h-9 w-full rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs flex items-center justify-center transition">12</button>
+</div>
+<!-- Submit Assessment Big CTA -->
+<div class="pt-2">
+<button class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-xl shadow-md flex items-center justify-center space-x-2 transition active:scale-[0.98]">
+<span>Submit Assessment</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Question Tools Card -->
+<div class="bg-white border border-[#eae8e0] rounded-2xl p-4 shadow-sm space-y-2.5">
+<span class="text-xs font-bold text-gray-800">Question Tools</span>
+<div class="grid grid-cols-3 gap-2 pt-1">
+<!-- Mark for Review -->
+<button class="flex flex-col items-center justify-center border border-gray-200 hover:border-gray-300 rounded-xl p-2.5 space-y-1.5 text-center transition group">
+<svg class="w-4 h-4 text-gray-600 group-hover:text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-semibold text-gray-600 leading-tight group-hover:text-gray-900">Mark for Review</span>
+</button>
+<!-- Clear Answer -->
+<button class="flex flex-col items-center justify-center border border-gray-200 hover:border-gray-300 rounded-xl p-2.5 space-y-1.5 text-center transition group">
+<svg class="w-4 h-4 text-gray-600 group-hover:text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-semibold text-gray-600 leading-tight group-hover:text-gray-900">Clear Answer</span>
+</button>
+<!-- Report an Issue -->
+<button class="flex flex-col items-center justify-center border border-gray-200 hover:border-gray-300 rounded-xl p-2.5 space-y-1.5 text-center transition group">
+<svg class="w-4 h-4 text-gray-600 group-hover:text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-semibold text-gray-600 leading-tight group-hover:text-gray-900">Report an Issue</span>
+</button>
+</div>
+</div>
+<!-- Instructions Accordion Card -->
+<div class="bg-[#f6f5fe] border border-[#e6e2fa] rounded-2xl p-4 shadow-sm">
+<div class="flex items-center justify-between cursor-pointer">
+<div class="flex items-center space-x-2 text-brand-600 font-bold text-xs">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Instructions</span>
+</div>
+<svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<!-- Bullet List -->
+<ul class="mt-3 space-y-1.5 text-[11px] text-gray-600 font-normal leading-relaxed list-disc list-inside">
+<li>Read each question carefully.</li>
+<li>Write and test your code before submitting.</li>
+<li>You can navigate between questions using the panel.</li>
+<li>The assessment will be auto-submitted when time ends.</li>
+<li>Do not use external resources or AI tools.</li>
+<li>Ensure a stable internet connection.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- END: MainContentArea -->
+</body></html>

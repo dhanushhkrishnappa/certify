@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Certify | Remediation Deep-Dive Studio</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration verbatim from Design System -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-error-container": "#ffdad6",
+            "on-tertiary-container": "#392700",
+            "inverse-primary": "#6844c7",
+            "inverse-on-surface": "#322f38",
+            "secondary": "#b3d33b",
+            "on-secondary-fixed-variant": "#3e4c00",
+            "outline": "#948e9f",
+            "surface-container-highest": "#36333c",
+            "surface-container-high": "#2b2931",
+            "surface-tint": "#cebdff",
+            "secondary-container": "#89a700",
+            "primary-fixed": "#e8ddff",
+            "surface": "#14121a",
+            "tertiary-container": "#bb8900",
+            "remediation": "#E06A55",
+            "outline-variant": "#494553",
+            "tertiary-fixed": "#ffdea3",
+            "tertiary": "#f6be41",
+            "primary-fixed-dim": "#cebdff",
+            "inverse-surface": "#e6e0ec",
+            "surface-dim": "#14121a",
+            "tertiary-fixed-dim": "#f6be41",
+            "surface-bright": "#3b3841",
+            "on-primary-container": "#320085",
+            "text-primary": "#FBF9F5",
+            "on-tertiary-fixed": "#261900",
+            "on-error": "#690005",
+            "surface-variant": "#36333c",
+            "surface-container-low": "#1d1a22",
+            "surface-container": "#211e26",
+            "error": "#ffb4ab",
+            "modal": "#1A1325",
+            "background": "#14121a",
+            "on-primary": "#390094",
+            "on-tertiary-fixed-variant": "#5d4200",
+            "on-tertiary": "#412d00",
+            "on-secondary-fixed": "#171e00",
+            "text-prose": "#EDE8DF",
+            "surface-l2": "#171922",
+            "error-container": "#93000a",
+            "primary": "#cebdff",
+            "surface-l3": "#1E222D",
+            "on-primary-fixed": "#21005e",
+            "text-secondary": "#8E93A6",
+            "canvas": "#0C0D11",
+            "primary-container": "#9d7bff",
+            "on-surface": "#e6e0ec",
+            "on-secondary-container": "#2c3700",
+            "secondary-fixed": "#cef056",
+            "surface-l1": "#13151A",
+            "secondary-fixed-dim": "#b3d33b",
+            "surface-container-lowest": "#0f0d15",
+            "on-primary-fixed-variant": "#5028ae",
+            "on-background": "#e6e0ec",
+            "on-surface-variant": "#cbc3d5",
+            "on-secondary": "#2a3500"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "margin": "2rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "gutter": "1.5rem"
+          },
+          "fontFamily": {
+            "body-lg": ["Plus Jakarta Sans"],
+            "code": ["JetBrains Mono"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "code": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "fontWeight": "700" }],
+            "label": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Subtle orbital rotation for AI Presence beacon */
+    @keyframes orbit-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    .animate-orbit {
+      animation: orbit-slow 18s linear infinite;
+    }
+    .animate-beacon-pulse {
+      animation: pulse-subtle 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-text-primary min-h-screen flex flex-col font-body-sm selection:bg-primary-container selection:text-text-primary antialiased">
+<!-- ==================== HEADER BAR ==================== -->
+<header class="sticky top-0 z-50 bg-canvas/95 backdrop-blur border-b border-outline-variant/40 px-6 py-3">
+<div class="max-w-[1720px] mx-auto flex items-center justify-between gap-4">
+<!-- Left: Certify mark & Breadcrumb -->
+<div class="flex items-center gap-3 min-w-0">
+<a class="flex items-center gap-2 group flex-shrink-0" href="#">
+<div class="w-8 h-8 rounded-lg bg-surface-l2 border border-outline-variant flex items-center justify-center text-primary group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-lg">verified</span>
+</div>
+<span class="font-headline-sm text-headline-sm font-semibold tracking-tight text-text-primary">Certify</span>
+</a>
+<div class="h-4 w-px bg-outline-variant/60 flex-shrink-0"></div>
+<nav class="flex items-center gap-2 text-label font-label text-text-secondary truncate">
+<span class="hover:text-text-primary transition-colors cursor-pointer truncate">Distributed Systems Architecture</span>
+<span class="text-outline-variant">/</span>
+<span class="hover:text-text-primary transition-colors cursor-pointer truncate">Chapter 2: Quorum Systems</span>
+<span class="text-outline-variant">/</span>
+<span class="text-text-primary font-medium truncate flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-remediation"></span>
+            Remediation: Vector Clocks &amp; Causality
+          </span>
+</nav>
+</div>
+<!-- Center: Non-Punitive Status Pill -->
+<div class="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-surface-l2 border border-outline-variant/70 shadow-sm flex-shrink-0">
+<span class="w-2 h-2 rounded-full bg-remediation animate-pulse"></span>
+<span class="font-code text-code font-medium text-text-prose tracking-wider uppercase">
+          CONCEPT PIVOT (Non-Punitive Socratic Deep-Dive)
+        </span>
+</div>
+<!-- Right: Sub-actions & Avatar -->
+<div class="flex items-center gap-4 flex-shrink-0">
+<button class="flex items-center gap-2 px-3.5 py-1.5 rounded bg-surface-l1 hover:bg-surface-l2 border border-outline-variant text-text-secondary hover:text-text-primary transition-all duration-150 font-label text-label">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+<span>Return to Chapter 2 Studio</span>
+</button>
+<div class="flex items-center gap-2 pl-2 border-l border-outline-variant/60">
+<div class="relative">
+<div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center font-code text-primary font-semibold text-xs">
+              AR
+            </div>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-secondary ring-2 ring-canvas" title="Verified Session Active"></span>
+</div>
+<span class="hidden sm:inline font-label text-label text-text-secondary font-medium">Alex Rivera</span>
+</div>
+</div>
+</div>
+</header>
+<!-- ==================== MAIN 3-COLUMN STUDIO ==================== -->
+<main class="flex-1 w-full max-w-[1720px] mx-auto px-6 py-6 grid grid-cols-1 xl:grid-cols-[330px_minmax(0,1fr)_330px] gap-6 items-start">
+<!-- ==================== LEFT COLUMN: Diagnosis & Misconception Breakdown ==================== -->
+<aside class="space-y-5">
+<!-- Misconception Card -->
+<div class="rounded-lg bg-surface-l1 border border-outline-variant/60 p-5 shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-remediation/10 border border-remediation/30 text-remediation font-code text-[11px] font-semibold tracking-wider">
+<span class="material-symbols-outlined text-xs">warning</span>
+            DIAGNOSED CONCEPTUAL MISCONCEPTION
+          </span>
+<span class="font-code text-xs text-text-secondary font-medium">INV-02</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-primary font-semibold">Scalar vs Vector Causality Confusion</h2>
+<p class="mt-2 font-body-sm text-body-sm text-text-secondary leading-relaxed">
+            In the previous demonstration, the submission assumed Lamport Timestamps could detect concurrent conflicting writes. Lamport clocks establish a total order but cannot detect concurrency.
+          </p>
+</div>
+<!-- Prior Submission Code Snippet -->
+<div class="rounded bg-surface-l2 border border-outline-variant/50 p-3 font-code text-code overflow-x-auto">
+<div class="flex items-center justify-between text-outline text-[11px] mb-2 border-b border-outline-variant/40 pb-1.5">
+<span>Prior Submission: line 42</span>
+<span class="text-remediation">Assertion Failed</span>
+</div>
+<pre class="text-text-prose leading-5"><code><span class="text-primary font-semibold">if</span> (nodeA.timestamp &lt; nodeB.timestamp) {
+  <span class="text-text-primary font-bold">return</span> PRECEDES; 
+} <span class="text-remediation">// False causality assertion</span></code></pre>
+</div>
+</div>
+<!-- Topology Mini-Map Card -->
+<div class="rounded-lg bg-surface-l1 border border-outline-variant/60 p-5 shadow-sm space-y-3">
+<div class="flex items-center justify-between">
+<h3 class="font-label text-label uppercase tracking-wider text-text-secondary font-semibold">Divergence Topology</h3>
+<span class="font-code text-xs text-outline">Network Graph</span>
+</div>
+<!-- Timeline Graph Diagram -->
+<div class="bg-surface-l2 rounded p-4 border border-outline-variant/40 space-y-4 relative overflow-hidden">
+<div class="absolute right-2 top-2 px-1.5 py-0.5 rounded bg-surface-l3 text-text-secondary font-code text-[10px] border border-outline-variant/40">
+            No Network Link
+          </div>
+<!-- Node A Track -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center text-xs font-code">
+<span class="text-primary font-medium">Node A</span>
+<span class="text-text-secondary">Scalar L = 3</span>
+</div>
+<div class="relative h-6 flex items-center">
+<div class="w-full h-0.5 bg-outline-variant/70"></div>
+<div class="absolute left-1/3 w-3.5 h-3.5 rounded-full bg-primary ring-4 ring-canvas flex items-center justify-center text-[9px] font-code text-canvas font-bold">
+                E1
+              </div>
+</div>
+</div>
+<!-- Disconnected Causality Gap indicator -->
+<div class="flex items-center justify-center gap-2 py-0.5">
+<div class="h-px flex-1 border-t border-dashed border-remediation/40"></div>
+<span class="font-code text-[10px] text-remediation bg-remediation/10 px-2 py-0.5 rounded border border-remediation/20">
+              E1 || E2 (Concurrently Independent)
+            </span>
+<div class="h-px flex-1 border-t border-dashed border-remediation/40"></div>
+</div>
+<!-- Node B Track -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center text-xs font-code">
+<span class="text-secondary font-medium">Node B</span>
+<span class="text-text-secondary">Scalar L = 4</span>
+</div>
+<div class="relative h-6 flex items-center">
+<div class="w-full h-0.5 bg-outline-variant/70"></div>
+<div class="absolute right-1/4 w-3.5 h-3.5 rounded-full bg-secondary ring-4 ring-canvas flex items-center justify-center text-[9px] font-code text-canvas font-bold">
+                E2
+              </div>
+</div>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 text-[11px] font-code text-outline leading-tight">
+            Scalar assumption: L(E1) &lt; L(E2) mistakenly asserts E1 preceded E2 despite disjoint partitions.
+          </div>
+</div>
+</div>
+<!-- Socratic Diagnostic Trace -->
+<div class="rounded-lg bg-surface-l1 border border-outline-variant/60 p-4 space-y-2.5">
+<span class="font-label text-label uppercase tracking-wider text-text-secondary font-semibold block">Bayesian Diagnostic Trace</span>
+<div class="space-y-1.5 font-code text-code">
+<div class="flex justify-between py-1 border-b border-outline-variant/30">
+<span class="text-text-secondary">Prior Drop P(L):</span>
+<span class="text-remediation font-medium">0.58 (-0.27)</span>
+</div>
+<div class="flex justify-between py-1 border-b border-outline-variant/30">
+<span class="text-text-secondary">Diagnostic Trigger:</span>
+<span class="text-text-prose truncate max-w-[170px]" title="Criterion 2 Invariant Violation">Criterion 2 Violation</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="text-text-secondary">Remediation Mode:</span>
+<span class="text-primary">Socratic Inquiry</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- ==================== CENTER COLUMN: Socratic Mental Model Pivot ==================== -->
+<section class="space-y-6 max-w-[800px] mx-auto w-full">
+<!-- AI Presence Beacon Orbit -->
+<div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-surface-l1 via-surface-l2 to-surface-l1 border border-outline-variant/60 relative overflow-hidden">
+<div class="relative w-12 h-12 flex-shrink-0 flex items-center justify-center">
+<div class="absolute inset-0 rounded-full border border-primary/30 animate-orbit"></div>
+<div class="absolute inset-1 rounded-full border border-tertiary/20 animate-beacon-pulse"></div>
+<div class="w-7 h-7 rounded-full bg-primary/20 backdrop-blur border border-primary flex items-center justify-center text-primary shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-base">psychology</span>
+</div>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-sm font-semibold text-text-primary">Certify Socratic Mentor</span>
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-code text-[10px]">Adaptive Dialogue</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary">
+            Synthesizing vector invariants through exploratory first principles.
+          </p>
+</div>
+</div>
+<!-- Socratic Guidance Card -->
+<div class="rounded-xl bg-surface-l1 border border-outline-variant/60 p-6 md:p-8 space-y-4 shadow-sm">
+<div class="inline-flex items-center gap-2 text-primary font-label text-label font-semibold">
+<span class="material-symbols-outlined text-sm">lightbulb</span>
+          FIRST PRINCIPLE RE-ORIENTATION
+        </div>
+<h1 class="font-headline-md text-headline-md text-text-primary font-bold">
+          Let’s approach this from a different angle.
+        </h1>
+<div class="font-body-lg text-body-lg text-text-prose space-y-4 leading-relaxed">
+<p>
+            Consider two isolated nodes, <strong class="text-primary font-medium">Node A</strong> and <strong class="text-secondary font-medium">Node B</strong>. Node A executes event <span class="font-code text-sm px-1.5 py-0.5 bg-surface-l2 rounded border border-outline-variant/60">E1</span> at scalar tick 3. Simultaneously, Node B executes event <span class="font-code text-sm px-1.5 py-0.5 bg-surface-l2 rounded border border-outline-variant/60">E2</span> at scalar tick 4 without a single packet passing between them.
+          </p>
+<p class="text-text-secondary text-body-md font-body-md">
+            Why does a scalar clock mislead us into thinking <span class="text-text-primary font-medium">E1 caused E2</span>? Because scalar numbers always provide a total order (<code class="font-code text-xs text-text-primary">3 &lt; 4</code>), conflating <em class="text-text-primary">arbitrary serialization</em> with <em class="text-text-primary">physical causality</em>.
+          </p>
+</div>
+</div>
+<!-- Interactive Sandbox Thought Experiment -->
+<div class="rounded-xl bg-surface-l1 border border-outline-variant/60 p-6 space-y-6 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-outline-variant/40 pb-4">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary font-semibold">Vector Sandbox Experiment</h3>
+<p class="font-body-sm text-body-sm text-text-secondary">Simulate causal tracking across independent timelines</p>
+</div>
+<!-- Step Controls -->
+<div class="inline-flex rounded-lg bg-surface-l2 p-1 border border-outline-variant/60">
+<button class="px-3 py-1.5 rounded font-label text-label font-medium bg-primary text-on-primary shadow-sm transition-all">
+              Step 1: Local Event
+            </button>
+<button class="px-3 py-1.5 rounded font-label text-label font-medium text-text-secondary hover:text-text-primary transition-all">
+              Step 2: Send Msg
+            </button>
+<button class="px-3 py-1.5 rounded font-label text-label font-medium text-text-secondary hover:text-text-primary transition-all">
+              Step 3: Merge Vector
+            </button>
+</div>
+</div>
+<!-- Dynamic Message Exchange Diagram -->
+<div class="bg-surface-l2/80 rounded-lg border border-outline-variant/60 p-6 space-y-6">
+<!-- Node A Vector Track -->
+<div class="flex items-center gap-4">
+<div class="w-20 font-code text-xs text-primary font-semibold flex-shrink-0">Node A:</div>
+<div class="flex-1 relative h-10 flex items-center">
+<div class="w-full h-0.5 bg-outline-variant"></div>
+<!-- Initial state -->
+<div class="absolute left-4 -top-1 flex flex-col items-center">
+<span class="w-2.5 h-2.5 rounded-full bg-outline ring-2 ring-surface-l2"></span>
+<span class="font-code text-[10px] text-text-secondary mt-1">[0, 0]</span>
+</div>
+<!-- Event E1 -->
+<div class="absolute left-1/2 -top-2 flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center font-code text-xs text-primary font-bold">
+                  E1
+                </div>
+<div class="mt-1 px-2 py-0.5 rounded bg-surface-l3 border border-primary/40 font-code text-xs text-primary font-semibold">
+                  V_A = [1, 0]
+                </div>
+</div>
+</div>
+</div>
+<!-- Causality Independence Zone -->
+<div class="py-2 px-4 rounded bg-surface-l3/50 border border-outline-variant/30 flex items-center justify-between text-xs font-code text-text-secondary">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-outline">call_split</span>
+              Disjoint Memory Contexts
+            </span>
+<span class="text-tertiary font-mono">Neither component dominates</span>
+</div>
+<!-- Node B Vector Track -->
+<div class="flex items-center gap-4">
+<div class="w-20 font-code text-xs text-secondary font-semibold flex-shrink-0">Node B:</div>
+<div class="flex-1 relative h-10 flex items-center">
+<div class="w-full h-0.5 bg-outline-variant"></div>
+<!-- Initial state -->
+<div class="absolute left-4 -top-1 flex flex-col items-center">
+<span class="w-2.5 h-2.5 rounded-full bg-outline ring-2 ring-surface-l2"></span>
+<span class="font-code text-[10px] text-text-secondary mt-1">[0, 0]</span>
+</div>
+<!-- Event E2 -->
+<div class="absolute left-2/3 -top-2 flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-secondary/20 border-2 border-secondary flex items-center justify-center font-code text-xs text-secondary font-bold">
+                  E2
+                </div>
+<div class="mt-1 px-2 py-0.5 rounded bg-surface-l3 border border-secondary/40 font-code text-xs text-secondary font-semibold">
+                  V_B = [0, 1]
+                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Monospace Expression Comparison Box -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-code text-code">
+<div class="p-3.5 rounded bg-surface-l2 border border-remediation/40">
+<div class="text-[11px] text-remediation font-semibold mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">close</span>
+              SCALAR CLOCK INFERENCE
+            </div>
+<div class="text-text-primary font-medium">L(E1) &lt; L(E2) =&gt; True</div>
+<div class="text-xs text-text-secondary mt-1">False positive causality assertion</div>
+</div>
+<div class="p-3.5 rounded bg-surface-l2 border border-secondary/50">
+<div class="text-[11px] text-secondary font-semibold mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">check</span>
+              VECTOR CLOCK INFERENCE
+            </div>
+<div class="text-text-primary font-medium">V(E1) || V(E2) =&gt; Concurrent</div>
+<div class="text-xs text-secondary-fixed-dim mt-1">Correctly captures concurrent independence</div>
+</div>
+</div>
+</div>
+<!-- Micro-Exercise Conceptual Check -->
+<div class="rounded-xl bg-surface-l1 border border-outline-variant/60 p-6 space-y-5 shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label text-label uppercase tracking-wider text-text-secondary font-semibold">
+            Interactive Diagnostic Probe
+          </span>
+<span class="px-2 py-0.5 rounded bg-surface-l2 text-secondary font-code text-xs border border-secondary/30">
+            Recovery Criterion
+          </span>
+</div>
+<p class="font-headline-sm text-base text-text-primary font-medium">
+          If node vector clocks evaluate to <code class="font-code text-primary bg-surface-l2 px-2 py-0.5 rounded border border-outline-variant/60">V_A = [2, 0]</code> and <code class="font-code text-secondary bg-surface-l2 px-2 py-0.5 rounded border border-outline-variant/60">V_B = [1, 2]</code>, what is the exact causal relationship between their events?
+        </p>
+<!-- Selectable Option Pills -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<button class="p-3.5 rounded-lg bg-surface-l2 border border-outline-variant/60 hover:border-outline text-left transition-colors font-body-sm text-body-sm text-text-secondary">
+<div class="font-code text-xs text-outline mb-1">Option 1</div>
+<span class="text-text-primary">A caused B</span>
+</button>
+<button class="p-3.5 rounded-lg bg-surface-l2 border border-outline-variant/60 hover:border-outline text-left transition-colors font-body-sm text-body-sm text-text-secondary">
+<div class="font-code text-xs text-outline mb-1">Option 2</div>
+<span class="text-text-primary">B caused A</span>
+</button>
+<button class="p-3.5 rounded-lg bg-secondary/10 border-2 border-secondary text-left transition-all font-body-sm text-body-sm text-text-primary ring-2 ring-secondary/20">
+<div class="font-code text-xs text-secondary font-semibold mb-1 flex items-center justify-between">
+<span>Option 3 (Active)</span>
+<span class="material-symbols-outlined text-xs">check_circle</span>
+</div>
+<span class="font-medium">Concurrent (Neither dominates)</span>
+</button>
+</div>
+<!-- Rationale Feedback Preview -->
+<div class="rounded-lg bg-surface-l2 border border-secondary/40 p-4 flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg mt-0.5 flex-shrink-0">check_circle</span>
+<div class="space-y-1">
+<span class="font-code text-xs font-semibold text-secondary uppercase tracking-wider block">Invariant Validated</span>
+<p class="font-body-sm text-body-sm text-text-prose">
+<strong>Correct:</strong> Neither vector component-wise dominates the other (<code class="font-code text-xs text-primary">2 &gt; 1</code>, but <code class="font-code text-secondary text-xs">0 &lt; 2</code>), proving mutual causal independence. Vector comparisons guarantee <em>iff</em> causal consistency.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- ==================== RIGHT COLUMN: Mastery Restoration Ledger ==================== -->
+<aside class="space-y-5">
+<!-- Calibration Recovery Card -->
+<div class="rounded-lg bg-surface-l1 border border-outline-variant/60 p-5 shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<span class="font-label text-label uppercase tracking-wider text-text-secondary font-semibold">Mastery Ledger</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/15 text-secondary border border-secondary/30 font-code text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+            Recalibrating
+          </span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-baseline">
+<span class="font-body-sm text-body-sm text-text-secondary">Bayesian Prior P(L):</span>
+<div class="font-code text-sm font-semibold flex items-center gap-1.5">
+<span class="text-text-secondary line-through">0.58</span>
+<span class="text-outline">→</span>
+<span class="text-secondary text-base">0.85</span>
+<span class="text-secondary font-code text-xs">(+0.27 Δ)</span>
+</div>
+</div>
+<!-- Progress Bar showing Delta -->
+<div class="w-full h-2.5 rounded-full bg-surface-l2 border border-outline-variant/50 relative overflow-hidden flex">
+<div class="h-full bg-outline-variant/80 w-[58%]"></div>
+<div class="h-full bg-secondary w-[27%] transition-all duration-700 animate-pulse"></div>
+</div>
+</div>
+<div class="p-3 rounded bg-surface-l2 border border-outline-variant/40 space-y-2">
+<div class="flex items-center gap-2 text-text-primary font-medium text-xs">
+<span class="material-symbols-outlined text-secondary text-sm">shield</span>
+            Defensible Credential Guarantee
+          </div>
+<p class="font-body-sm text-xs text-text-secondary leading-relaxed">
+            Certify never penalizes exploration or remediation. Demonstrating the concept will fully restore your mastery ledger and unlock Criterion 2 in Chapter 2.
+          </p>
+</div>
+</div>
+<!-- Concept Mastery Vector Breakdown -->
+<div class="rounded-lg bg-surface-l1 border border-outline-variant/60 p-5 shadow-sm space-y-4">
+<h3 class="font-label text-label uppercase tracking-wider text-text-secondary font-semibold">
+          Criterion 2 Vectors
+        </h3>
+<div class="space-y-3 font-code text-code">
+<!-- Item 1 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-xs">
+<span class="text-text-prose">Lamport Total Ordering</span>
+<span class="text-secondary font-semibold">94% Mastered</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-l2 overflow-hidden">
+<div class="h-full bg-secondary w-[94%]"></div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-xs">
+<span class="text-text-prose">Vector Clock Invariants</span>
+<span class="text-secondary font-semibold">58% → 85%</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-l2 overflow-hidden flex">
+<div class="h-full bg-outline w-[58%]"></div>
+<div class="h-full bg-secondary w-[27%]"></div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-xs">
+<span class="text-text-secondary">Causal Domination Check</span>
+<span class="text-outline text-[11px]">Pending Re-evaluation</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-l2 overflow-hidden">
+<div class="h-full bg-outline-variant/60 w-[30%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Panel & Primary CTA -->
+<div class="rounded-lg bg-surface-l1 border border-outline-variant/60 p-5 shadow-sm space-y-4">
+<button class="w-full py-3 px-4 rounded-lg bg-secondary hover:bg-secondary-fixed text-on-secondary font-headline-sm text-sm font-bold shadow-lg shadow-secondary/15 transition-all duration-150 flex items-center justify-center gap-2 group active:scale-[0.98]">
+<span>Return to Demonstration Mode</span>
+<span class="font-code text-xs px-1.5 py-0.5 rounded bg-on-secondary/20 text-on-secondary font-medium">[⌘↵]</span>
+</button>
+<a class="block text-center font-label text-xs text-text-secondary hover:text-primary transition-colors py-1" href="#">
+          Explore Academic Reference Paper (Fidge &amp; Mattern 1988) ↗
+        </a>
+<!-- Cryptographic Ledger Seal Anchor -->
+<div class="pt-3 border-t border-outline-variant/40 flex items-center justify-between text-[11px] font-code text-text-secondary">
+<span class="truncate flex items-center gap-1.5" title="Ed25519 Cryptographic Hash Session Signature">
+<span class="material-symbols-outlined text-xs text-primary">key</span>
+            Ed25519: 98a4...e210
+          </span>
+<span class="text-secondary text-[10px] font-medium uppercase tracking-wider flex-shrink-0">
+            Anchored
+          </span>
+</div>
+</div>
+</aside>
+</main>
+<!-- ==================== SHARED FOOTER ==================== -->
+<footer class="mt-auto bg-surface-l1 border-t border-outline-variant">
+<div class="w-full px-8 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="space-y-1 text-center md:text-left">
+<div class="font-headline-sm text-headline-sm font-semibold text-text-primary">Certify</div>
+<p class="font-body-sm text-body-sm text-text-secondary max-w-xl">
+          © 2025 Certify Protocol. All cryptographic credentials backed by verifiable Ed25519 signatures. Defensible mastery engine.
+        </p>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-6 font-body-sm text-body-sm">
+<a class="text-text-secondary hover:text-text-primary transition-colors duration-150" href="#">Ed25519 Registry</a>
+<a class="text-text-secondary hover:text-text-primary transition-colors duration-150" href="#">Verification Node</a>
+<a class="text-text-secondary hover:text-text-primary transition-colors duration-150" href="#">Audit Logs</a>
+<a class="text-text-secondary hover:text-text-primary transition-colors duration-150" href="#">Privacy</a>
+<a class="text-text-secondary hover:text-text-primary transition-colors duration-150" href="#">Terms</a>
+</div>
+</div>
+</footer>
+<!-- Light micro-interaction logic for keyboard shortcut Return -->
+<script>
+    document.addEventListener('keydown', function(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        alert('Returning to Chapter 2 Demonstration Studio with refreshed vector clock invariants...');
+      }
+    });
+  </script>
+</body></html>

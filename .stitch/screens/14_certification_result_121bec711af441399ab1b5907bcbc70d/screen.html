@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Certification Result - Certify</title>
+<!-- Tailwind CSS CDN with forms & container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter, Plus Jakarta Sans, Newsreader, JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Newsreader"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            certify: {
+              purple: '#5d3df3',
+              purpleHover: '#4e2fe0',
+              sidebar: '#f7f6f4',
+              sidebarActive: '#ebe8e1',
+              cardBg: '#ffffff',
+              border: '#e8e6e1',
+              emerald: '#00c48c'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom CSS for specialized components & badges -->
+<style data-purpose="custom-styling">
+    body {
+      background-color: #fbfbf9;
+      color: #17171a;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d4d0c8;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-[#19191d] bg-[#fbfbf9] min-h-screen flex">
+<!-- BEGIN: LeftSidebar -->
+<aside class="w-64 flex-shrink-0 bg-[#f7f6f4] border-r border-[#e7e5e0] min-h-screen flex flex-col justify-between sticky top-0 h-screen select-none z-30" data-purpose="primary-sidebar">
+<!-- Top Branding & Navigation -->
+<div class="p-6 pb-2">
+<!-- Certify Brand Header -->
+<div class="flex items-center gap-3 mb-8" data-purpose="brand-logo">
+<div class="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white shadow-sm flex-shrink-0">
+<!-- Isometric Cube SVG Logo -->
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+<polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+<line x1="12" x2="12" y1="22.08" y2="12"></line>
+</svg>
+</div>
+<div>
+<span class="font-black tracking-wider text-xl font-display text-black block leading-none">CERTIFY</span>
+<span class="text-[9px] font-semibold text-gray-500 tracking-widest uppercase block mt-1">Learn • Demonstrate • Earn</span>
+</div>
+</div>
+<!-- Main Navigation Menu -->
+<nav class="space-y-1" data-purpose="nav-primary">
+<a class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-gray-600 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Dashboard
+        </a>
+<a class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-gray-600 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Explore Courses
+        </a>
+<a class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-gray-600 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          My Learning
+        </a>
+<a class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-gray-600 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Assessments
+        </a>
+<!-- Active Menu Item: Credentials -->
+<a class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl bg-[#eeebe4] text-black font-semibold text-sm shadow-sm" href="#">
+<svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Credentials
+        </a>
+<a class="flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-gray-600 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Progress
+        </a>
+</nav>
+<!-- Secondary Navigation -->
+<div class="mt-8 pt-6 border-t border-[#e5e2db] space-y-1" data-purpose="nav-secondary">
+<a class="flex items-center gap-3.5 px-3.5 py-2 rounded-xl text-gray-700 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-purple-600" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z"></path>
+</svg>
+          AI Tutor / Ask Certify
+        </a>
+<a class="flex items-center gap-3.5 px-3.5 py-2 rounded-xl text-gray-600 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Profile
+        </a>
+<a class="flex items-center gap-3.5 px-3.5 py-2 rounded-xl text-gray-600 hover:text-black hover:bg-[#ece9e2] transition-colors font-medium text-sm" href="#">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+          Settings
+        </a>
+</div>
+</div>
+<!-- User Profile Card in Sidebar Bottom -->
+<div class="p-4 m-3 rounded-2xl bg-white/70 border border-[#e8e6e1] flex items-center justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)]" data-purpose="user-profile">
+<div class="flex items-center gap-3 overflow-hidden">
+<div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs flex-shrink-0 tracking-wide">
+          DK
+        </div>
+<div class="truncate">
+<p class="font-bold text-xs text-gray-900 leading-tight">Dhanush</p>
+<p class="text-[11px] text-gray-400 truncate">dhanushk2204@gmail.com</p>
+</div>
+</div>
+<button aria-label="Sign out" class="text-gray-400 hover:text-gray-700 p-1 rounded-lg transition-colors flex-shrink-0" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContentWrapper -->
+<div class="flex-1 flex flex-col min-w-0">
+<!-- BEGIN: TopBar -->
+<header class="h-20 px-8 flex items-center justify-between border-b border-[#e9e7e2] bg-[#fbfbf9] sticky top-0 z-20" data-purpose="top-navigation-bar">
+<!-- Breadcrumb Navigation -->
+<nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-gray-500 font-medium">
+<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="hover:text-gray-800 cursor-pointer">My Credentials</span>
+<span class="text-gray-400 font-normal">&gt;</span>
+<span class="hover:text-gray-800 cursor-pointer">Python Fundamentals</span>
+<span class="text-gray-400 font-normal">&gt;</span>
+<span class="text-gray-900 font-semibold">Result</span>
+</nav>
+<!-- Center Search Pill -->
+<div class="w-[440px] relative">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<input class="w-full bg-[#f1efe9] text-gray-800 placeholder-gray-400 text-xs rounded-full pl-10 pr-4 py-2 border-0 focus:ring-1 focus:ring-black focus:bg-white transition-all shadow-inner" placeholder="Search courses, concepts or ask anything..." type="text" value="Result|"/>
+</div>
+<!-- Right Section: Quote & Notification -->
+<div class="flex items-center gap-6">
+<p class="font-serif italic text-sm text-gray-600 hidden xl:block tracking-wide">
+          “A certified you, a more capable tomorrow.”
+        </p>
+<div class="flex items-center gap-3">
+<!-- Notification Bell with Red Badge -->
+<button class="relative p-2 text-gray-600 hover:text-black transition-colors rounded-full hover:bg-gray-100">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="absolute top-1 right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">3</span>
+</button>
+<!-- Top-Right User Badge -->
+<div class="w-9 h-9 rounded-full bg-[#111113] text-white flex items-center justify-center font-bold text-xs shadow-sm">
+            DK
+          </div>
+</div>
+</div>
+</header>
+<!-- END: TopBar -->
+<!-- Main Container Content -->
+<main class="flex-1 p-8 space-y-6 max-w-[1520px] mx-auto w-full">
+<!-- BEGIN: PageHeaderTitleRow -->
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div>
+<h1 class="text-3xl font-serif font-bold text-gray-950 tracking-tight">Certification Result</h1>
+<p class="text-sm text-gray-500 mt-1 font-normal">Here's how you performed and how your certification was earned.</p>
+</div>
+<div class="flex items-center gap-3">
+<!-- Share Result Button -->
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 text-xs font-semibold shadow-sm transition active:scale-[0.98]">
+<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+            Share Result
+          </button>
+<!-- View Certificate Action Button -->
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-certify-purple hover:bg-certify-purpleHover text-white text-xs font-semibold shadow-md shadow-indigo-200 transition active:scale-[0.98]">
+            View Certificate
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- END: PageHeaderTitleRow -->
+<!-- Content Grid: Left Main Panel (73%) + Right Rail (27%) -->
+<div class="grid grid-cols-12 gap-6 items-start">
+<!-- BEGIN: LeftPrimaryColumn -->
+<div class="col-span-12 xl:col-span-9 space-y-6">
+<!-- BEGIN: HeroCelebrationCard -->
+<section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#eef2fc] via-[#f5f6fb] to-[#faf8f5] border border-[#e1e6f5] p-7 shadow-sm" data-purpose="hero-celebration-banner">
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+<!-- Left Info Details -->
+<div class="max-w-xl space-y-4">
+<!-- Python Course Header Tag -->
+<div class="flex items-center gap-3.5">
+<div class="w-12 h-12 rounded-xl bg-[#0e1628] flex items-center justify-center shadow-sm p-2 flex-shrink-0">
+<!-- Python Dual-snake Official SVG Logo -->
+<svg class="w-full h-full" fill="none" viewbox="0 0 110 110">
+<path d="M54.1 2C27.5 2 29.1 13.5 29.1 13.5L29.2 25.4H55V29H18.2C1.7 29 0 42.4 0 42.4L0 55.4C0 67.5 10.7 68.3 10.7 68.3H18.1V58C18.1 45.4 29 45.6 29 45.6H54.4C64.6 45.6 64.9 35.8 64.9 35.8V11.8C64.9 11.8 66.8 2 54.1 2ZM39.6 9.4C43.1 9.4 46 12.3 46 15.8C46 19.3 43.1 22.2 39.6 22.2C36.1 22.2 33.2 19.3 33.2 15.8C33.2 12.3 36.1 9.4 39.6 9.4Z" fill="#387eb8"></path>
+<path d="M55.9 108C82.5 108 80.9 96.5 80.9 96.5L80.8 84.6H55V81H91.8C108.3 81 110 67.6 110 67.6L110 54.6C110 42.5 99.3 41.7 99.3 41.7H91.9V52C91.9 64.6 81 64.4 81 64.4H55.6C45.4 64.4 45.1 74.2 45.1 74.2V98.2C45.1 98.2 43.2 108 55.9 108ZM70.4 100.6C66.9 100.6 64 97.7 64 94.2C64 90.7 66.9 87.8 70.4 87.8C73.9 87.8 76.8 90.7 76.8 94.2C76.8 97.7 73.9 100.6 70.4 100.6Z" fill="#ffe052"></path>
+</svg>
+</div>
+<div>
+<h2 class="text-xl font-bold font-display text-gray-900 leading-snug">Python Fundamentals</h2>
+<p class="text-xs text-gray-500 font-medium">Certification Successfully Earned</p>
+</div>
+</div>
+<!-- Congratulations Message -->
+<div class="pt-1">
+<h3 class="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    Congratulations, Dhanush! <span class="text-2xl">🎉</span>
+</h3>
+<p class="text-sm text-gray-600 mt-1 leading-relaxed">
+                    You have demonstrated strong understanding and practical skills in Python Fundamentals.
+                  </p>
+</div>
+<!-- Primary Action Buttons -->
+<div class="flex items-center gap-3 pt-2">
+<button class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-certify-purple hover:bg-certify-purpleHover text-white text-xs font-semibold shadow-md shadow-indigo-200 transition active:scale-[0.98]">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+                    View Certificate
+                  </button>
+<button class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 text-xs font-semibold shadow-sm transition active:scale-[0.98]">
+<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+                    Download PDF
+                  </button>
+</div>
+</div>
+<!-- Right Medallion & Quote -->
+<div class="flex items-center gap-6 lg:border-l lg:border-gray-200/80 lg:pl-8">
+<!-- Golden Seal Medallion Graphic -->
+<div class="relative flex flex-col items-center flex-shrink-0" data-purpose="gold-seal-badge">
+<div class="w-36 h-36 relative flex items-center justify-center">
+<!-- SVG Laurel & Gold Medal Ring -->
+<svg class="absolute inset-0 w-full h-full drop-shadow-md" viewbox="0 0 160 160">
+<!-- Laurel Wreath Leaves Left -->
+<g fill="#d49b28">
+<path d="M42 110C35 98 32 82 36 67C37 63 35 60 32 62C28 66 26 77 28 89C30 100 36 111 42 118Z" opacity="0.8"></path>
+<path d="M48 90C43 80 42 66 47 54C48 51 45 49 43 51C39 55 37 66 38 76C40 85 44 94 48 98Z"></path>
+<path d="M56 70C53 60 54 48 60 38C61 35 59 33 57 35C53 39 50 49 50 58C51 66 54 73 57 77Z"></path>
+</g>
+<!-- Laurel Wreath Leaves Right -->
+<g fill="#d49b28">
+<path d="M118 110C125 98 128 82 124 67C123 63 125 60 128 62C132 66 134 77 132 89C130 100 124 111 118 118Z" opacity="0.8"></path>
+<path d="M112 90C117 80 118 66 113 54C112 51 115 49 117 51C121 55 123 66 122 76C120 85 116 94 112 98Z"></path>
+<path d="M104 70C107 60 106 48 100 38C99 35 101 33 103 35C107 39 110 49 110 58C109 66 106 73 103 77Z"></path>
+</g>
+<!-- Medallion Center Gold Circle with border -->
+<circle cx="80" cy="72" fill="url(#goldGrad)" r="48" stroke="#c48f22" stroke-width="2.5"></circle>
+<circle cx="80" cy="72" fill="none" r="44" stroke="#fef08a" stroke-dasharray="3 2" stroke-width="1.2"></circle>
+<!-- Ribbon Hanging Down -->
+<path d="M68 114L60 148L72 140L80 148L80 114Z" fill="#1e293b" opacity="0.9"></path>
+<path d="M92 114L100 148L88 140L80 148L80 114Z" fill="#0f172a"></path>
+<!-- Gradients -->
+<defs>
+<lineargradient id="goldGrad" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#fef08a"></stop>
+<stop offset="45%" stop-color="#facc15"></stop>
+<stop offset="75%" stop-color="#eab308"></stop>
+<stop offset="100%" stop-color="#ca8a04"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Text Inside Medallion -->
+<div class="relative z-10 text-center flex flex-col items-center justify-center -mt-3">
+<!-- Hexagon/Cube mini emblem -->
+<div class="w-3.5 h-3.5 border border-amber-900/60 rotate-45 mb-0.5"></div>
+<span class="text-[9px] font-black tracking-widest text-amber-950 uppercase leading-none">CERTIFY</span>
+<span class="text-[8.5px] font-extrabold text-amber-900 mt-1 uppercase tracking-wider">INTERMEDIATE</span>
+<div class="flex items-center gap-0.5 my-0.5 text-amber-900 text-[8px]">
+                        ★ ★ ★ ★ ★
+                      </div>
+<span class="text-[7.5px] font-bold text-amber-950 tracking-wider">LEVEL</span>
+</div>
+</div>
+</div>
+<!-- Celebratory Quote Beside Medallion -->
+<div class="max-w-[160px] text-left">
+<p class="font-serif italic text-gray-800 text-sm leading-snug">
+                    “Discipline today, expertise tomorrow.”
+                  </p>
+<div class="w-8 h-0.5 bg-amber-500 my-2"></div>
+<p class="text-[11px] text-gray-500 font-medium">Keep learning.<br/>Keep building.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: HeroCelebrationCard -->
+<!-- BEGIN: PerformanceRow (3 Cards) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5" data-purpose="kpi-metrics-row">
+<!-- Card 1: Overall Result -->
+<div class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm flex flex-col justify-between" data-purpose="metric-overall-score">
+<h4 class="text-sm font-bold text-gray-900">Overall Result</h4>
+<!-- Circular Progress Gauge -->
+<div class="relative w-32 h-32 mx-auto my-3 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 120 120">
+<circle cx="60" cy="60" fill="transparent" r="50" stroke="#f1efe9" stroke-width="9"></circle>
+<!-- 87% circumference: 2 * pi * 50 = 314.15; stroke-dasharray = 314.15; offset = 314.15 * (1 - 0.87) = 40.8 -->
+<circle cx="60" cy="60" fill="transparent" r="50" stroke="#00c48c" stroke-dasharray="314.15" stroke-dashoffset="40.8" stroke-linecap="round" stroke-width="9"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="text-2xl font-bold font-display text-gray-900 tracking-tight leading-none">87%</span>
+<span class="text-[10px] text-gray-400 font-medium mt-1">Overall Score</span>
+</div>
+</div>
+<!-- Pass Badge Note -->
+<div class="flex items-center gap-2.5 p-2 bg-[#eafbf4] border border-[#bbf3dd] rounded-xl text-xs">
+<div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">
+                  ✓
+                </div>
+<div class="leading-tight">
+<span class="font-bold text-emerald-800 text-[11px] block uppercase">PASSED</span>
+<span class="text-[10px] text-emerald-700">You've met all the requirements for certification at the Intermediate level.</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Performance Breakdown -->
+<div class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm flex flex-col justify-between" data-purpose="metric-breakdown">
+<h4 class="text-sm font-bold text-gray-900 mb-2">Performance Breakdown</h4>
+<div class="space-y-3.5 my-auto">
+<!-- Bar 1: Conceptual Understanding -->
+<div>
+<div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+<span>Conceptual Understanding</span>
+<span class="text-gray-900">92%</span>
+</div>
+<div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 rounded-full" style="width: 92%"></div>
+</div>
+</div>
+<!-- Bar 2: Practical Implementation -->
+<div>
+<div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+<span>Practical Implementation</span>
+<span class="text-gray-900">84%</span>
+</div>
+<div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+<div class="h-full bg-indigo-500 rounded-full" style="width: 84%"></div>
+</div>
+</div>
+<!-- Bar 3: Problem Solving & Reasoning -->
+<div>
+<div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+<span>Problem Solving &amp; Reasoning</span>
+<span class="text-gray-900">81%</span>
+</div>
+<div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+<div class="h-full bg-teal-500 rounded-full" style="width: 81%"></div>
+</div>
+</div>
+<!-- Bar 4: AI Viva / Defense -->
+<div>
+<div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+<span>AI Viva / Defense</span>
+<span class="text-gray-900">88%</span>
+</div>
+<div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 rounded-full" style="width: 88%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3: Percentile Rank -->
+<div class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm flex flex-col justify-between" data-purpose="metric-percentile-rank">
+<div>
+<h4 class="text-sm font-bold text-gray-900">Percentile Rank</h4>
+<div class="mt-2">
+<h3 class="text-2xl font-bold font-display text-gray-900">Top 12%</h3>
+<p class="text-xs text-gray-500 mt-0.5">You performed better than 88% of learners.</p>
+</div>
+</div>
+<!-- Bar Histogram Graphic with 'You' Indicator -->
+<div class="pt-4 flex flex-col items-center">
+<div class="w-full flex items-end justify-between h-20 gap-1.5 px-2">
+<div class="w-full bg-gray-100 rounded-t h-[20%]"></div>
+<div class="w-full bg-gray-100 rounded-t h-[30%]"></div>
+<div class="w-full bg-gray-200 rounded-t h-[48%]"></div>
+<div class="w-full bg-gray-200 rounded-t h-[65%]"></div>
+<div class="w-full bg-indigo-100 rounded-t h-[80%]"></div>
+<!-- The Highlighted bar for Dhanush (Top percentile) -->
+<div class="w-full bg-certify-purple rounded-t h-[98%] shadow-sm relative"></div>
+<div class="w-full bg-indigo-100 rounded-t h-[86%]"></div>
+<div class="w-full bg-gray-200 rounded-t h-[68%]"></div>
+</div>
+<div class="w-full border-t border-gray-200 mt-1 flex justify-center">
+<span class="text-[10px] font-semibold text-gray-600 uppercase tracking-wider mt-1">You</span>
+</div>
+</div>
+</div>
+</div>
+<!-- END: PerformanceRow -->
+<!-- BEGIN: EvaluationComponentsPipeline -->
+<section class="bg-white rounded-2xl border border-gray-200/90 p-6 shadow-sm" data-purpose="evaluation-components">
+<div class="flex items-center justify-between mb-1">
+<h3 class="text-base font-bold text-gray-900">Evaluation Components</h3>
+<a class="text-xs font-semibold text-certify-purple hover:underline" href="#">View Details</a>
+</div>
+<p class="text-xs text-gray-500 mb-5">Your certification is based on multiple checkpoints to ensure a comprehensive evaluation.</p>
+<!-- Connected Horizontal Process Nodes -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-3 relative">
+<!-- Node 1: Learning Progress -->
+<div class="relative bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between hover:border-gray-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<!-- Green Checkmark -->
+<div class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
+</div>
+<div class="mt-3">
+<p class="text-[11px] font-semibold text-gray-500">Learning Progress</p>
+<p class="text-lg font-bold text-gray-900 leading-tight">100%</p>
+<p class="text-[10px] text-gray-400 mt-0.5">8/8 modules</p>
+</div>
+</div>
+<!-- Node 2: Chapter Assessments -->
+<div class="relative bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between hover:border-gray-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
+</div>
+<div class="mt-3">
+<p class="text-[11px] font-semibold text-gray-500">Chapter Assessments</p>
+<p class="text-lg font-bold text-gray-900 leading-tight">88%</p>
+<p class="text-[10px] text-gray-400 mt-0.5">32/36 questions</p>
+</div>
+</div>
+<!-- Node 3: Practical Project -->
+<div class="relative bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between hover:border-gray-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center font-mono font-bold text-xs">
+                    &lt;/&gt;
+                  </div>
+<div class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
+</div>
+<div class="mt-3">
+<p class="text-[11px] font-semibold text-gray-500">Practical Project</p>
+<p class="text-lg font-bold text-gray-900 leading-tight">85%</p>
+<p class="text-[10px] text-gray-400 mt-0.5">Project completed</p>
+</div>
+</div>
+<!-- Node 4: Final Assessment -->
+<div class="relative bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between hover:border-gray-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
+</div>
+<div class="mt-3">
+<p class="text-[11px] font-semibold text-gray-500">Final Assessment</p>
+<p class="text-lg font-bold text-gray-900 leading-tight">82%</p>
+<p class="text-[10px] text-gray-400 mt-0.5">41/50 questions</p>
+</div>
+</div>
+<!-- Node 5: AI Viva / Defense -->
+<div class="relative bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between hover:border-gray-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
+</div>
+<div class="mt-3">
+<p class="text-[11px] font-semibold text-gray-500">AI Viva / Defense</p>
+<p class="text-lg font-bold text-gray-900 leading-tight">88%</p>
+<p class="text-[10px] text-gray-400 mt-0.5">Completed</p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: EvaluationComponentsPipeline -->
+<!-- BEGIN: BottomModulesAndSkillsGrid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Left: Detailed Performance Table -->
+<div class="lg:col-span-8 bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm" data-purpose="detailed-performance-table">
+<h3 class="text-sm font-bold text-gray-900 mb-4">Detailed Performance</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs">
+<thead>
+<tr class="text-gray-400 font-medium border-b border-gray-100">
+<th class="pb-2.5 font-medium">Component</th>
+<th class="pb-2.5 font-medium">Score</th>
+<th class="pb-2.5 font-medium">Status</th>
+<th class="pb-2.5 font-medium">Details</th>
+<th class="pb-2.5 text-right font-medium"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 1: Introduction</td>
+<td class="py-2.5 font-semibold text-gray-900">95%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 font-mono text-[11px]">19/20</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 2: Control Flow</td>
+<td class="py-2.5 font-semibold text-gray-900">88%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 font-mono text-[11px]">22/25</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 3: Functions</td>
+<td class="py-2.5 font-semibold text-gray-900">80%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 font-mono text-[11px]">16/20</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 4: Data Structures</td>
+<td class="py-2.5 font-semibold text-gray-900">85%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 font-mono text-[11px]">17/20</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 5: File Handling</td>
+<td class="py-2.5 font-semibold text-gray-900">90%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 font-mono text-[11px]">18/20</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 6: OOP in Python</td>
+<td class="py-2.5 font-semibold text-gray-900">82%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 font-mono text-[11px]">18/22</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 7: Modules &amp; Packages</td>
+<td class="py-2.5 font-semibold text-gray-900">78%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 font-mono text-[11px]">14/18</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+<tr class="hover:bg-gray-50/70 transition-colors">
+<td class="py-2.5 font-medium text-gray-800">Module 8: Final Project</td>
+<td class="py-2.5 font-semibold text-gray-900">92%</td>
+<td class="py-2.5">
+<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                        </span>
+</td>
+<td class="py-2.5 text-gray-500 text-[11px]">Project evaluated</td>
+<td class="py-2.5 text-right"><a class="text-certify-purple hover:underline font-medium text-[11px]" href="#">View →</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right: Skills Demonstrated Tag Pills -->
+<div class="lg:col-span-4 bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm" data-purpose="skills-demonstrated-panel">
+<h3 class="text-sm font-bold text-gray-900 mb-4">Skills Demonstrated</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Python Syntax</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Data Types</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Control Flow</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Functions</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Data Structures</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">File Handling</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">OOP</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Modules &amp; Packages</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Error Handling</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Problem Solving</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Code Organization</span>
+<span class="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default">Project Development</span>
+</div>
+</div>
+</div>
+<!-- END: BottomModulesAndSkillsGrid -->
+</div>
+<!-- END: LeftPrimaryColumn -->
+<!-- BEGIN: RightSidebarRail -->
+<aside class="col-span-12 xl:col-span-3 space-y-5" data-purpose="right-rail">
+<!-- Card 1: Credential Information -->
+<div class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4" data-purpose="credential-metadata">
+<h4 class="text-sm font-bold text-gray-900 border-b border-gray-100 pb-3">Credential Information</h4>
+<div class="space-y-3.5 text-xs">
+<!-- Item 1: Credential ID -->
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 text-certify-purple flex items-center justify-center flex-shrink-0">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex-1 min-w-0">
+<span class="text-gray-400 block text-[11px]">Credential ID</span>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="font-mono font-medium text-gray-900 text-xs truncate">CERT-PY-2026-001842</span>
+<button class="text-gray-400 hover:text-gray-700 transition" title="Copy ID">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2: Course -->
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 text-certify-purple flex items-center justify-center flex-shrink-0">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<span class="text-gray-400 block text-[11px]">Course</span>
+<span class="font-semibold text-gray-900 mt-0.5 block">Python Fundamentals</span>
+</div>
+</div>
+<!-- Item 3: Credential Level -->
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<span class="text-gray-400 block text-[11px]">Credential Level</span>
+<span class="font-semibold text-gray-900 mt-0.5 block">Intermediate</span>
+</div>
+</div>
+<!-- Item 4: Issue Date -->
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 text-certify-purple flex items-center justify-center flex-shrink-0">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<span class="text-gray-400 block text-[11px]">Issue Date</span>
+<span class="font-semibold text-gray-900 mt-0.5 block">23 September 2026</span>
+</div>
+</div>
+<!-- Item 5: Valid Through -->
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 text-certify-purple flex items-center justify-center flex-shrink-0 font-bold text-base leading-none">
+                  ∞
+                </div>
+<div>
+<span class="text-gray-400 block text-[11px]">Valid Through</span>
+<span class="font-semibold text-gray-900 mt-0.5 block">Lifetime</span>
+</div>
+</div>
+<!-- Item 6: Verification URL -->
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 text-certify-purple flex items-center justify-center flex-shrink-0">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex-1 min-w-0">
+<span class="text-gray-400 block text-[11px]">Verification URL</span>
+<a class="text-[11px] text-gray-700 hover:text-certify-purple truncate block mt-0.5 flex items-center gap-1" href="#">
+<span class="truncate font-mono">https://certify.edu/verify/CERT-PY-2026-001842</span>
+<svg class="w-3.5 h-3.5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Share Your Achievement -->
+<div class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-3" data-purpose="share-achievement-actions">
+<div>
+<h4 class="text-sm font-bold text-gray-900">Share Your Achievement</h4>
+<p class="text-xs text-gray-500 mt-0.5">Let the world know about your new credential.</p>
+</div>
+<!-- Social Share Dual Buttons -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<!-- LinkedIn Button -->
+<button class="flex items-center justify-center gap-2 py-2 px-3 border border-gray-200 rounded-xl hover:bg-gray-50 text-xs font-semibold text-gray-800 transition active:scale-[0.98]">
+<svg class="w-4 h-4 text-[#0077b5]" fill="currentColor" viewbox="0 0 24 24">
+<path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.45 1.45 0 0 0 1.45-1.45 1.45 1.45 0 0 0-1.45-1.45 1.45 1.45 0 0 0-1.45 1.45 1.45 1.45 0 0 0 1.45 1.45m1.37 9.74v-8.37H5.09v8.37h2.74z"></path>
+</svg>
+                Share on LinkedIn
+              </button>
+<!-- X (Twitter) Button -->
+<button class="flex items-center justify-center gap-2 py-2 px-3 border border-gray-200 rounded-xl hover:bg-gray-50 text-xs font-semibold text-gray-800 transition active:scale-[0.98]">
+<svg class="w-3.5 h-3.5 text-black" fill="currentColor" viewbox="0 0 24 24">
+<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+</svg>
+                Share on X
+              </button>
+</div>
+<!-- Full-width Action: Download Certificate Image -->
+<button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 text-xs font-semibold text-gray-800 transition active:scale-[0.98]">
+<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+              Download Certificate Image
+            </button>
+<!-- Full-width Action: Copy Verification Link -->
+<button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-200 rounded-xl hover:bg-gray-50 text-xs font-semibold text-gray-800 transition active:scale-[0.98]">
+<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+              Copy Verification Link
+            </button>
+</div>
+<!-- Card 3: Continuous Learner Milestone -->
+<div class="bg-white rounded-2xl border border-gray-200/90 p-4 shadow-sm flex items-center justify-between hover:border-gray-300 transition-all cursor-pointer">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-xl bg-purple-50 text-certify-purple flex items-center justify-center flex-shrink-0">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div>
+<p class="font-bold text-xs text-gray-900">Continuous Learner</p>
+<p class="text-[11px] text-gray-500">You've completed 2 certifications.</p>
+</div>
+</div>
+<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<!-- Card 4: Inspirational Quote Callout -->
+<div class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-2" data-purpose="quote-widget">
+<div class="text-certify-purple text-xl font-serif leading-none">“</div>
+<p class="font-serif italic text-gray-800 text-sm leading-snug">
+              “The expert in anything was once a beginner.”
+            </p>
+<p class="text-[11px] text-gray-500 font-medium pt-1">— Helen Hayes</p>
+</div>
+<!-- Card 5: Explore More Courses CTA Banner -->
+<div class="rounded-2xl bg-gradient-to-br from-[#5333ed] via-[#5c3bf2] to-[#794efb] p-5 text-white shadow-md shadow-indigo-200 flex flex-col justify-between relative overflow-hidden group cursor-pointer" data-purpose="explore-more-banner">
+<!-- Subtle background shimmer -->
+<div class="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-300"></div>
+<div class="relative z-10 flex items-start gap-3 mb-4">
+<div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+<svg class="w-4 h-4 text-white" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z"></path>
+</svg>
+</div>
+<div>
+<h4 class="font-bold text-sm tracking-tight">Explore More Courses</h4>
+<p class="text-xs text-indigo-100 mt-1 leading-snug">Keep building your skills with new certifications.</p>
+</div>
+</div>
+<div class="relative z-10 flex justify-end">
+<span class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-transform group-hover:translate-x-1">
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</span>
+</div>
+</div>
+</aside>
+<!-- END: RightSidebarRail -->
+</div>
+</main>
+</div>
+<!-- END: MainContentWrapper -->
+</body></html>
