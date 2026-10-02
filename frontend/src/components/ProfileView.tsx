@@ -24,16 +24,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-slate-950 tracking-tight">
-          Learner Profile
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Academic identity, verified credentials, and institutional activity.
-        </p>
-      </div>
-
       {/* Main Profile Identity Card */}
       <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-5">

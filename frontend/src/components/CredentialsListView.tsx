@@ -42,14 +42,9 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
 
   return (
     <div className="space-y-6" data-purpose="credentials-list-page">
-      {/* Title & Filter Tabs */}
+      {/* Filter Tabs */}
       <section data-purpose="page-title-and-tabs">
-        <h1 className="text-3xl lg:text-4xl font-serif text-slate-950 tracking-tight mb-1">
-          My Credentials
-        </h1>
-        <p className="text-xs text-slate-500">Your achievements. Real skills. Verified and shareable.</p>
-
-        <div className="flex items-center gap-2 mt-5">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setFilter("earned")}
             className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${

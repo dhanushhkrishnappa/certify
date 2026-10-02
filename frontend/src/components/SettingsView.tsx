@@ -19,16 +19,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, onLogout }) =>
 
   return (
     <div className="space-y-6 pb-12 max-w-4xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-slate-950 tracking-tight">
-          Settings & Preferences
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Manage your learning environment, Socratic mentor settings, and account details.
-        </p>
-      </div>
-
       {saveSuccess && (
         <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold">
           Preferences saved successfully.

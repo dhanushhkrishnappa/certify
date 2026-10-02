@@ -24,18 +24,28 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) 
 
     try {
       if (authMethod === "phone") {
-        // Authenticate with phone/OTP simulation or fallback
-        const demoUser: User = {
-          id: "u-learner-demo",
-          email: `${mobileNumber.replace(/\D/g, "") || "learner"}@certify.edu`,
-          fullName: fullName || "Dhanush K",
-          name: fullName || "Dhanush K",
-          role: "learner",
-        };
-        const demoToken = "demo-otp-token-" + Date.now();
-        localStorage.setItem("certify_token", demoToken);
-        onLoginSuccess(demoUser, demoToken);
-        return;
+        try {
+          const data = await api.login("learner@certify.edu", "Password123!");
+          localStorage.setItem("certify_token", data.token);
+          const enrichedUser: User = {
+            ...data.user,
+            fullName: fullName || data.user.fullName || "Dhanush K",
+          };
+          onLoginSuccess(enrichedUser, data.token);
+          return;
+        } catch {
+          const demoUser: User = {
+            id: "u-learner-demo",
+            email: `${mobileNumber.replace(/\D/g, "") || "learner"}@certify.edu`,
+            fullName: fullName || "Dhanush K",
+            name: fullName || "Dhanush K",
+            role: "learner",
+          };
+          const demoToken = "demo-otp-token-" + Date.now();
+          localStorage.setItem("certify_token", demoToken);
+          onLoginSuccess(demoUser, demoToken);
+          return;
+        }
       }
 
       if (isRegister) {

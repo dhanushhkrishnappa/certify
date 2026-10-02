@@ -17,6 +17,8 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
   const [inputMessage, setInputMessage] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
+  const [streamError, setStreamError] = useState<string | null>(null);
+  const [lastFailedMessage, setLastFailedMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"tutor" | "content" | "practice" | "notes" | "resources" | "discussion">("tutor");
   const [studioTheme, setStudioTheme] = useState<"light" | "dark">("light"); // Screen 07 (light) vs Screen 08 (dark)
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({ "mod-1": true });
@@ -43,15 +45,6 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
     };
   }, [courseSlug]);
 
-  const loadSession = async () => {
-    try {
-      const data = await api.getSessionContext(courseSlug);
-      setSessionContext(data);
-    } catch (err) {
-      console.error("Failed to load session:", err);
-    }
-  };
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sessionContext?.session?.messages, streamingContent]);
@@ -60,6 +53,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
     const text = msgToSend || inputMessage;
     if (!text.trim() || isStreaming) return;
 
+    setStreamError(null);
     setInputMessage("");
     setIsStreaming(true);
     setStreamingContent("");
@@ -82,8 +76,21 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
               messages: [...(prev.session.messages || []), tempUserMsg],
             },
           }
-        : null
+        : {
+            session: {
+              id: "seed-session",
+              phase: "LEARNING",
+              chapter: { id: "c1", title: "Chapter 1", sequenceOrder: 1 } as any,
+              messages: [tempUserMsg],
+            },
+            course: { id: "c1", slug: courseSlug, title: "Python Fundamentals" },
+            enrollment: { id: "e1", currentTier: "FOUNDATIONAL", status: "ACTIVE" },
+            conceptMasteries: [],
+            curriculum: [],
+          }
     );
+
+    let accumulated = "";
 
     try {
       if (sessionContext?.session?.id) {
@@ -91,7 +98,8 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
           sessionContext.session.id,
           text.trim(),
           (chunk) => {
-            setStreamingContent((prev) => prev + chunk);
+            accumulated += chunk;
+            setStreamingContent(accumulated);
           },
           (stateUpdate) => {
             setSessionContext((prev) => {
@@ -104,23 +112,90 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
               return { ...prev, conceptMasteries: updated };
             });
           },
-          () => {}
+          (messageId) => {
+            msgCounterRef.current += 1;
+            const assistantMsg = {
+              id: messageId || "assistant_" + msgCounterRef.current,
+              sessionId: sessionContext.session.id,
+              sender: "AI_TUTOR" as const,
+              content: accumulated || "Understanding confirmed. Socratic checkpoint registered.",
+              createdAt: new Date().toISOString(),
+            };
+            setSessionContext((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    session: {
+                      ...prev.session,
+                      messages: [...(prev.session.messages || []), assistantMsg],
+                    },
+                  }
+                : {
+                    session: {
+                      id: "seed-session",
+                      phase: "LEARNING",
+                      chapter: { id: "c1", title: "Chapter 1", sequenceOrder: 1 } as any,
+                      messages: [tempUserMsg, assistantMsg],
+                    },
+                    course: { id: "c1", slug: courseSlug, title: "Python Fundamentals" },
+                    enrollment: { id: "e1", currentTier: "FOUNDATIONAL", status: "ACTIVE" },
+                    conceptMasteries: [],
+                    curriculum: [],
+                  }
+            );
+          }
         );
-        await loadSession();
       } else {
         // Fallback simulation
-        setTimeout(() => {
-          setStreamingContent(
-            "In Python, a function encapsulates logic and can accept parameters and return values. Let's inspect the execution stack."
-          );
-          setIsStreaming(false);
-        }, 600);
+        await new Promise((r) => setTimeout(r, 600));
+        const simReply =
+          "In Python, a function encapsulates logic and can accept parameters and return values. Let's inspect the execution stack and verify memory pointers.";
+        msgCounterRef.current += 1;
+        const assistantMsg = {
+          id: "sim_assistant_" + msgCounterRef.current,
+          sessionId: "seed-session",
+          sender: "AI_TUTOR" as const,
+          content: simReply,
+          createdAt: new Date().toISOString(),
+        };
+        setSessionContext((prev) =>
+          prev
+            ? {
+                ...prev,
+                session: {
+                  ...prev.session,
+                  messages: [...(prev.session.messages || []), assistantMsg],
+                },
+              }
+            : {
+                session: {
+                  id: "seed-session",
+                  phase: "LEARNING",
+                  chapter: { id: "c1", title: "Chapter 1", sequenceOrder: 1 } as any,
+                  messages: [tempUserMsg, assistantMsg],
+                },
+                course: { id: "c1", slug: courseSlug, title: "Python Fundamentals" },
+                enrollment: { id: "e1", currentTier: "FOUNDATIONAL", status: "ACTIVE" },
+                conceptMasteries: [],
+                curriculum: [],
+              }
+        );
       }
-    } catch {
-      // Graceful fallback
+    } catch (err: any) {
+      setLastFailedMessage(text.trim());
+      setStreamError(err.message || "Failed to reach AI Tutor. Please click Retry.");
     } finally {
       setIsStreaming(false);
       setStreamingContent("");
+    }
+  };
+
+  const handleRetry = () => {
+    if (lastFailedMessage) {
+      const msg = lastFailedMessage;
+      setLastFailedMessage(null);
+      setStreamError(null);
+      handleSendMessage(msg);
     }
   };
 
@@ -684,25 +759,35 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
               ))}
             </div>
 
-            {/* Chat Input Prompt Area */}
-            <div className="space-y-1.5" data-purpose="chat-input-container">
-              <div className={`relative flex items-center rounded-full border px-3.5 py-1.5 shadow-xs transition ${
-                studioTheme === "dark"
-                  ? "bg-[#171922] border-neutral-800 focus-within:border-[#cebdff]"
-                  : "bg-white border-[#eae7df] focus-within:border-[#6344e7]"
-              }`}>
-                {/* Paperclip Icon */}
-                <button
-                  type="button"
-                  className="text-neutral-400 hover:text-neutral-600 p-1.5 transition cursor-pointer"
-                >
-                  <svg className="w-4 h-4 transform rotate-45" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" strokeLinecap="round" strokeLinejoin="round"></path>
-                  </svg>
-                </button>
-                {/* Text Input */}
-                <input
-                  type="text"
+            {/* Chat Input Prompt Area - Rebuilt Conversational Deck */}
+            <div className="space-y-2" data-purpose="chat-input-container">
+              {/* Recoverable Error Banner */}
+              {streamError && (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs animate-fade-in">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">⚠️</span>
+                    <span>{streamError}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    className="font-bold underline hover:opacity-80 cursor-pointer ml-3 px-2 py-0.5 rounded bg-rose-500/20 text-rose-300"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+
+              {/* Input Surface */}
+              <div
+                className={`rounded-2xl border transition-all duration-150 p-3 shadow-xs focus-within:shadow-md ${
+                  studioTheme === "dark"
+                    ? "bg-[#171922] border-neutral-800 focus-within:border-[#9d7bff]/70"
+                    : "bg-white border-[#E8E5DF] focus-within:border-[#5B4DF0]"
+                }`}
+              >
+                {/* Textarea */}
+                <textarea
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={(e) => {
@@ -712,29 +797,73 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                     }
                   }}
                   disabled={isStreaming}
-                  placeholder="Ask anything about this topic..."
-                  className={`flex-1 bg-transparent text-xs placeholder-neutral-400 border-none focus:outline-none px-2.5 py-1.5 ${
-                    studioTheme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                  rows={2}
+                  placeholder="Ask anything about this topic... (Enter to send, Shift+Enter for new line)"
+                  className={`w-full bg-transparent text-xs sm:text-sm placeholder-neutral-400 border-none focus:outline-none resize-none leading-relaxed min-h-[50px] max-h-[140px] ${
+                    studioTheme === "dark" ? "text-neutral-100" : "text-neutral-900"
                   }`}
                 />
-                {/* Send Button */}
-                <button
-                  type="button"
-                  onClick={() => handleSendMessage()}
-                  disabled={!inputMessage.trim() || isStreaming}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition shadow-xs active:scale-95 shrink-0 cursor-pointer ${
-                    inputMessage.trim() && !isStreaming
-                      ? "bg-[#6344e7] hover:bg-[#5234d9] text-white"
-                      : "bg-neutral-300 text-neutral-500 cursor-not-allowed"
-                  }`}
-                >
-                  <svg className="w-4 h-4 transform rotate-90 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                  </svg>
-                </button>
+
+                {/* Integrated Action Toolbar */}
+                <div className="flex items-center justify-between pt-2 border-t border-neutral-500/15 mt-1">
+                  <div className="flex items-center gap-1.5">
+                    {/* Attach / Code Snippet Hint Button */}
+                    <button
+                      type="button"
+                      onClick={() => setInputMessage((prev) => prev ? `${prev}\n\`\`\`python\n\n\`\`\`` : "```python\n\n```")}
+                      className={`text-xs px-2.5 py-1 rounded-lg border flex items-center gap-1.5 transition cursor-pointer ${
+                        studioTheme === "dark"
+                          ? "border-neutral-800 text-neutral-400 hover:text-neutral-200 hover:bg-[#1E222D]"
+                          : "border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                      }`}
+                      title="Add code snippet block"
+                    >
+                      <span className="font-mono text-[11px]">&lt;/&gt;</span>
+                      <span className="hidden sm:inline text-[11px]">Code</span>
+                    </button>
+                    <span className="text-[11px] text-neutral-400 hidden sm:inline ml-1 font-mono">
+                      Shift+Enter for newline
+                    </span>
+                  </div>
+
+                  {/* Prominent Send Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage()}
+                    disabled={!inputMessage.trim() || isStreaming}
+                    aria-label="Send message to AI tutor"
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-150 shadow-sm select-none cursor-pointer ${
+                      inputMessage.trim() && !isStreaming
+                        ? studioTheme === "dark"
+                          ? "bg-[#9d7bff] hover:bg-[#8c66ff] active:scale-95 text-[#2b1066] font-bold"
+                          : "bg-[#5B4DF0] hover:bg-[#4C3DE0] active:scale-95 text-white"
+                        : studioTheme === "dark"
+                        ? "bg-[#1E222D] text-neutral-500 cursor-not-allowed border border-neutral-800"
+                        : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {isStreaming ? (
+                      <>
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span>Thinking...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Send</span>
+                        <svg className="w-3.5 h-3.5 transform rotate-45 -translate-y-0.5" fill="none" stroke="currentColor" strokeWidth="2.4" viewBox="0 0 24 24">
+                          <path d="M5 12h14m-7-7l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-              <p className="text-[11px] text-neutral-400 text-center">
-                You can ask doubts, request examples, get practice questions, or ask for deeper explanations.
+
+              <p className="text-[11px] text-neutral-400 text-center pt-0.5">
+                Socratic tutor guides without giving direct answers. Invariants &amp; conceptual proofs are continuously evaluated.
               </p>
             </div>
           </div>

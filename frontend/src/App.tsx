@@ -34,6 +34,7 @@ export type CertifyView =
   | "diagnostic"
   | "remediation"
   | "final-assessment"
+  | "practical"
   | "viva"
   | "result"
   | "credentials"
@@ -45,8 +46,11 @@ export type CertifyView =
   | "landing"
   | "auth";
 
+const PUBLIC_VIEWS: CertifyView[] = ["auth", "landing", "verify"];
+
 const getViewFromPath = (): CertifyView => {
   const p = window.location.pathname.replace(/^\//, "").toLowerCase();
+  const token = localStorage.getItem("certify_token");
   const validViews: Record<string, CertifyView> = {
     landing: "landing",
     auth: "auth",
@@ -60,6 +64,7 @@ const getViewFromPath = (): CertifyView => {
     remediation: "remediation",
     "final-assessment": "final-assessment",
     assessments: "final-assessment",
+    practical: "practical",
     viva: "viva",
     result: "result",
     credentials: "credentials",
@@ -69,7 +74,20 @@ const getViewFromPath = (): CertifyView => {
     profile: "profile",
     settings: "settings",
   };
-  return validViews[p] || "dashboard";
+
+  const requestedView = validViews[p];
+
+  // RULE 11: Unauthenticated entry MUST be Login/Signup (or public landing / verify)
+  if (!token) {
+    if (requestedView === "landing") return "landing";
+    if (requestedView === "verify") return "verify";
+    return "auth";
+  }
+
+  // Authenticated user opening auth route goes straight to Dashboard
+  if (requestedView === "auth") return "dashboard";
+
+  return requestedView || "dashboard";
 };
 
 export const App: React.FC = () => {
@@ -98,45 +116,20 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("certify_token");
+    if (!token) return;
 
-    if (!token) {
-      // Connect to real backend seeded session
-      api.login("learner@certify.edu", "Password123!")
-        .then((data) => {
-          localStorage.setItem("certify_token", data.token);
-          setCurrentUser(data.user);
-        })
-        .catch(() => {
-          // If network error, set graceful default user
-          setCurrentUser({
-            id: "u-seed-learner",
-            fullName: "Dhanush K",
-            name: "Dhanush K",
-            email: "learner@certify.edu",
-            role: "learner",
-          });
-        });
-    } else {
-      api.getMe()
-        .then((data) => setCurrentUser(data.user))
-        .catch(() => {
-          api.login("learner@certify.edu", "Password123!")
-            .then((data) => {
-              localStorage.setItem("certify_token", data.token);
-              setCurrentUser(data.user);
-            })
-            .catch(() => {
-              setCurrentUser({
-                id: "u-seed-learner",
-                fullName: "Dhanush K",
-                name: "Dhanush K",
-                email: "learner@certify.edu",
-                role: "learner",
-              });
-            });
-        });
-    }
-
+    // Verify existing token against backend
+    api.getMe()
+      .then((data) => {
+        setCurrentUser(data.user);
+        setCurrentView((prev) => (prev === "auth" ? "dashboard" : prev));
+      })
+      .catch(() => {
+        // Token expired or invalid: clear and force login
+        localStorage.removeItem("certify_token");
+        setCurrentUser(null);
+        setCurrentView((prev) => (!PUBLIC_VIEWS.includes(prev) ? "auth" : prev));
+      });
   }, []);
 
   const handleSelectCourse = (slug: string) => {
@@ -162,10 +155,11 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("certify_token");
     setCurrentUser(null);
-    setCurrentView("landing");
+    setCurrentView("auth");
   };
 
-  const handleLoginSuccess = (user: User, _token: string) => {
+  const handleLoginSuccess = (user: User, token: string) => {
+    localStorage.setItem("certify_token", token);
     setCurrentUser(user);
     setCurrentView("dashboard");
   };
@@ -174,8 +168,8 @@ export const App: React.FC = () => {
   if (currentView === "landing") {
     return (
       <LandingPageView
-        onExploreCourses={() => setCurrentView("catalog")}
-        onBeginDiagnostic={() => setCurrentView("diagnostic")}
+        onExploreCourses={() => setCurrentView(currentUser ? "catalog" : "auth")}
+        onBeginDiagnostic={() => setCurrentView(currentUser ? "diagnostic" : "auth")}
         onVerifyLedger={() => setCurrentView("verify")}
         onSignIn={() => setCurrentView("auth")}
       />
@@ -186,7 +180,17 @@ export const App: React.FC = () => {
     return (
       <AuthView
         onLoginSuccess={handleLoginSuccess}
-        onCancel={() => setCurrentView("dashboard")}
+        onCancel={() => setCurrentView("landing")}
+      />
+    );
+  }
+
+  // Security barrier: Ensure unauthenticated users cannot access protected views
+  if (!currentUser && !PUBLIC_VIEWS.includes(currentView)) {
+    return (
+      <AuthView
+        onLoginSuccess={handleLoginSuccess}
+        onCancel={() => setCurrentView("landing")}
       />
     );
   }
@@ -233,6 +237,7 @@ export const App: React.FC = () => {
     "diagnostic",
     "remediation",
     "final-assessment",
+    "practical",
     "viva",
     "result",
     "credential-details",
@@ -358,8 +363,21 @@ export const App: React.FC = () => {
               <FinalAssessmentView
                 courseSlug={selectedCourseSlug}
                 onNavigate={(v) => setCurrentView(v as CertifyView)}
-                onSubmitForViva={() => setCurrentView("viva")}
+                onSubmitForViva={() => setCurrentView("practical")}
+                onSubmitAssessment={() => setCurrentView("practical")}
                 onCancel={() => setCurrentView("dashboard")}
+              />
+            )}
+
+            {/* Screen: Practical Implementation Sandbox Milestone */}
+            {currentView === "practical" && (
+              <ChapterAssessmentView
+                courseSlug={selectedCourseSlug}
+                chapterTitle="Practical Capstone: Quorum Invariants & In-Memory State"
+                onNavigate={(v) => setCurrentView(v as CertifyView)}
+                onComplete={() => setCurrentView("viva")}
+                onPassed={() => setCurrentView("viva")}
+                onNavigateRemediation={() => setCurrentView("remediation")}
               />
             )}
 

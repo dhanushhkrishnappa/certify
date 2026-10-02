@@ -10,16 +10,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-slate-950 tracking-tight">
-          Learning Progress & Mastery
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Detailed cognitive model tracking your knowledge state across syllabus modules.
-        </p>
-      </div>
-
       {/* Hero Overview Card */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-2">

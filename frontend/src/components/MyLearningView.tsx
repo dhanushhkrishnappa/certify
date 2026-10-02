@@ -41,16 +41,6 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
 
   return (
     <div className="space-y-6 max-w-[1600px] w-full mx-auto" data-purpose="my-learning-page">
-      {/* Page Title & Subtitle */}
-      <div className="mb-2">
-        <h1 className="text-3xl lg:text-4xl font-serif text-[#121316] tracking-tight font-medium">
-          My Learning
-        </h1>
-        <p className="text-xs lg:text-[13px] text-[#676b74] mt-1 font-normal">
-          Your learning journey. One step closer to certified.
-        </p>
-      </div>
-
       {/* Content Two-Column Grid: (Main Learning Track + Right Stats Widgets) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
         {/* Left 8-Column Block */}

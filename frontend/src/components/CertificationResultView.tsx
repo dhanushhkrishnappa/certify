@@ -30,7 +30,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
   };
 
   return (
-    <div className="space-y-6 pb-12 font-['Inter',sans-serif] text-[#19191d]">
+    <div className="space-y-6 pb-12 font-sans text-[#19191d]">
       {/* Page Header Title Row */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

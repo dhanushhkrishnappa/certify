@@ -347,6 +347,8 @@ export const RemediationStudioView: React.FC<RemediationStudioViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
+                type="button"
+                data-purpose="remediation-option-1"
                 onClick={() => setSelectedOption(1)}
                 className={`p-3.5 rounded-lg border text-left transition-colors text-sm ${
                   selectedOption === 1 ? "bg-[#b3d33b]/10 border-2 border-[#b3d33b] text-[#FBF9F5]" : "bg-[#171922] border-[#494553]/60 text-[#8E93A6] hover:border-[#948e9f]"
@@ -357,6 +359,8 @@ export const RemediationStudioView: React.FC<RemediationStudioViewProps> = ({
               </button>
 
               <button
+                type="button"
+                data-purpose="remediation-option-2"
                 onClick={() => setSelectedOption(2)}
                 className={`p-3.5 rounded-lg border text-left transition-colors text-sm ${
                   selectedOption === 2 ? "bg-[#b3d33b]/10 border-2 border-[#b3d33b] text-[#FBF9F5]" : "bg-[#171922] border-[#494553]/60 text-[#8E93A6] hover:border-[#948e9f]"
@@ -367,6 +371,8 @@ export const RemediationStudioView: React.FC<RemediationStudioViewProps> = ({
               </button>
 
               <button
+                type="button"
+                data-purpose="remediation-option-3"
                 onClick={() => setSelectedOption(3)}
                 className={`p-3.5 rounded-lg border-2 text-left transition-all text-sm ${
                   selectedOption === 3 ? "bg-[#b3d33b]/10 border-[#b3d33b] text-[#FBF9F5] ring-2 ring-[#b3d33b]/20" : "bg-[#171922] border-[#494553]/60 text-[#8E93A6]"
@@ -381,15 +387,27 @@ export const RemediationStudioView: React.FC<RemediationStudioViewProps> = ({
             </div>
 
             {/* Rationale Feedback Preview */}
-            <div className="rounded-lg bg-[#171922] border border-[#b3d33b]/40 p-4 flex items-start gap-3">
-              <span className="material-symbols-outlined text-[#b3d33b] text-lg mt-0.5 flex-shrink-0">check_circle</span>
-              <div className="space-y-1">
-                <span className="font-mono text-xs font-semibold text-[#b3d33b] uppercase tracking-wider block">Invariant Validated</span>
-                <p className="text-[14px] text-[#EDE8DF]">
-                  <strong>Correct:</strong> Neither vector component-wise dominates the other (<code className="font-mono text-xs text-[#cebdff]">2 &gt; 1</code>, but <code className="font-mono text-xs text-[#b3d33b]">0 &lt; 2</code>), proving mutual causal independence. Vector comparisons guarantee <em>iff</em> causal consistency.
-                </p>
+            {selectedOption === 3 ? (
+              <div className="rounded-lg bg-[#171922] border border-[#b3d33b]/40 p-4 flex items-start gap-3">
+                <span className="material-symbols-outlined text-[#b3d33b] text-lg mt-0.5 flex-shrink-0">check_circle</span>
+                <div className="space-y-1">
+                  <span className="font-mono text-xs font-semibold text-[#b3d33b] uppercase tracking-wider block">Invariant Validated</span>
+                  <p className="text-[14px] text-[#EDE8DF]">
+                    <strong>Correct:</strong> Neither vector component-wise dominates the other (<code className="font-mono text-xs text-[#cebdff]">2 &gt; 1</code>, but <code className="font-mono text-xs text-[#b3d33b]">0 &lt; 2</code>), proving mutual causal independence. Vector comparisons guarantee <em>iff</em> causal consistency.
+                  </p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="rounded-lg bg-[#171922] border border-[#E06A55]/40 p-4 flex items-start gap-3">
+                <span className="material-symbols-outlined text-[#E06A55] text-lg mt-0.5 flex-shrink-0">error</span>
+                <div className="space-y-1">
+                  <span className="font-mono text-xs font-semibold text-[#E06A55] uppercase tracking-wider block">Invalid Causal Invariant</span>
+                  <p className="text-[14px] text-[#EDE8DF]">
+                    <strong>Misconception:</strong> For event X to cause event Y, all components of V_X must be &le; V_Y. Since V_A[0] = 2 &gt; V_B[0] = 1, Node A could not have preceded Node B.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

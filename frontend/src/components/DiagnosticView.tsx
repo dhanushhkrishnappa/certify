@@ -7,6 +7,99 @@ interface DiagnosticViewProps {
   onNavigate: (view: string) => void;
 }
 
+interface ProbeItem {
+  id: number;
+  code: string;
+  conceptTitle: string;
+  scenario: string;
+  topology?: {
+    label: string;
+    status: string;
+    details: string;
+    nodes: string;
+  };
+  options: {
+    key: string;
+    text: string;
+    isHonest?: boolean;
+  }[];
+}
+
+const PROBES: ProbeItem[] = [
+  {
+    id: 1,
+    code: "DIAG-PROBE-01-MEM",
+    conceptTitle: "CONCEPT: CPYTHON MEMORY ALLOCATION & MUTABILITY",
+    scenario: "In CPython 3.12+, consider an application evaluating identity comparisons (a is b) on small integer objects. What memory invariant guarantees deterministic behavior for integer objects within [-5, 256]?",
+    topology: {
+      label: "ALLOCATION STATE",
+      status: "SINGLETON POOL ACTIVE",
+      details: "Small Integer Cache: [-5 ... 256]",
+      nodes: "Memory Invariant: id(a) == id(b) for cached literals",
+    },
+    options: [
+      { key: "A", text: "Small integers are pre-allocated singletons on runtime initialization; references share identical memory addresses." },
+      { key: "B", text: "All integers are allocated fresh heap memory regardless of numerical value." },
+      { key: "C", text: "Garbage collection automatically reclaims small integer objects on each iteration tick." },
+      { key: "D", text: "I haven't analyzed CPython memory mutability yet (honest calibration).", isHonest: true },
+    ],
+  },
+  {
+    id: 2,
+    code: "DIAG-PROBE-02-RAFT",
+    conceptTitle: "CONCEPT: RAFT CONSENSUS & LEADER ELECTION",
+    scenario: "Consider a 5-node Raft cluster. Network partition separates Nodes A and B from Nodes C, D, and E. Node A enters candidate state and increments its term from 3 to 4. What happens when Node A requests votes from Node B?",
+    topology: {
+      label: "TOPOLOGY STATE",
+      status: "PARTITION ACTIVE",
+      details: "Cluster Partition: [Node A, Node B] ⚡ [Node C, Node D, Node E]",
+      nodes: "Candidate: Node A • Term: 3 → 4 • Quorum Requirement: 3 / 5",
+    },
+    options: [
+      { key: "A", text: "Node B grants the vote, but Node A cannot achieve quorum because it can only receive 2 of 5 required votes." },
+      { key: "B", text: "Node B immediately rejects the vote because Node A is isolated from the cluster majority." },
+      { key: "C", text: "Node A transitions to Leader immediately within its partition and commits local log entries." },
+      { key: "D", text: "I haven't worked with Raft consensus leader election yet (honest calibration).", isHonest: true },
+    ],
+  },
+  {
+    id: 3,
+    code: "DIAG-PROBE-03-CONC",
+    conceptTitle: "CONCEPT: ASYNCIO COROUTINE PIPELINES & EVENT LOOP ATOMICITY",
+    scenario: "In an asyncio coroutine pipeline handling concurrent I/O operations, what invariant prevents race conditions when multiple coroutines access a shared mutable dictionary without explicit threading locks?",
+    topology: {
+      label: "RUNTIME STATE",
+      status: "SINGLE-THREAD EVENT LOOP",
+      details: "Coroutines: Task-1, Task-2 concurrent dispatch",
+      nodes: "Atomicity Boundary: Interleaving only occurs at explicit await points",
+    },
+    options: [
+      { key: "A", text: "Cooperative multitasking guarantees that synchronous operations between await points execute atomically on the single thread." },
+      { key: "B", text: "The GIL automatically manages atomic write serialization across independent OS processes." },
+      { key: "C", text: "Dictionaries in Python throw ConcurrentModificationException on simultaneous lookups." },
+      { key: "D", text: "I haven't worked with asyncio concurrency invariants yet (honest calibration).", isHonest: true },
+    ],
+  },
+  {
+    id: 4,
+    code: "DIAG-PROBE-04-QUORUM",
+    conceptTitle: "CONCEPT: STATE MACHINE REPLICATION & QUORUM INTERSECTION",
+    scenario: "In a quorum-replicated distributed datastore with N=5 nodes, read quorum R=3, and write quorum W=3, what mathematical invariant guarantees that any successful read contains the latest committed write?",
+    topology: {
+      label: "QUORUM OVERLAP",
+      status: "STRICT INVARIANT: R + W > N",
+      details: "Parameters: N = 5, R = 3, W = 3",
+      nodes: "Intersection: |R ∩ W| ≥ 1 by Pigeonhole Principle",
+    },
+    options: [
+      { key: "A", text: "By the Pigeonhole Principle, R + W = 6 > 5 guarantees at least one node in the read quorum intersects with the latest write quorum." },
+      { key: "B", text: "Hardware clocks are synchronized via GPS atomic receivers across all cluster nodes." },
+      { key: "C", text: "Every read operation performs a full 5-node cluster broadcast before returning." },
+      { key: "D", text: "I haven't analyzed distributed quorum intersection theorems yet (honest calibration).", isHonest: true },
+    ],
+  },
+];
+
 export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   courseSlug: _courseSlug,
   onComplete,
@@ -15,13 +108,17 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
 }) => {
   const [selectedOption, setSelectedOption] = useState<string>("A");
   const [justification, setJustification] = useState("");
-  const [probeIndex, setProbeIndex] = useState(2); // 1-based index (Probe 2 of 4 as in Stitch)
+  const [probeIndex, setProbeIndex] = useState(1);
+
+  const currentProbe = PROBES[probeIndex - 1] || PROBES[0];
 
   const handleContinue = () => {
     if (probeIndex >= 4) {
       onComplete();
     } else {
       setProbeIndex((prev) => prev + 1);
+      setSelectedOption("A");
+      setJustification("");
     }
   };
 
@@ -62,13 +159,13 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
               <span className="text-[12px] uppercase text-[#8E93A6]">Probe {probeIndex} of 4</span>
               <div className="flex items-center space-x-1.5">
                 {/* Segment 1 */}
-                <div className="w-7 h-1.5 rounded-full bg-[#cef056]"></div>
+                <div className={`w-7 h-1.5 rounded-full ${probeIndex >= 1 ? "bg-[#cef056]" : "bg-[#2b2931] border border-[#494553]"}`}></div>
                 {/* Segment 2 */}
-                <div className={`w-7 h-1.5 rounded-full ${probeIndex >= 2 ? "bg-[#9d7bff] shadow-[0_0_8px_rgba(157,123,255,0.6)]" : "bg-[#2b2931] border border-[#494553]"}`}></div>
+                <div className={`w-7 h-1.5 rounded-full ${probeIndex >= 2 ? "bg-[#cef056] shadow-[0_0_8px_rgba(206,240,86,0.6)]" : "bg-[#2b2931] border border-[#494553]"}`}></div>
                 {/* Segment 3 */}
-                <div className={`w-7 h-1.5 rounded-full ${probeIndex >= 3 ? "bg-[#9d7bff] shadow-[0_0_8px_rgba(157,123,255,0.6)]" : "bg-[#2b2931] border border-[#494553]"}`}></div>
+                <div className={`w-7 h-1.5 rounded-full ${probeIndex >= 3 ? "bg-[#cef056] shadow-[0_0_8px_rgba(206,240,86,0.6)]" : "bg-[#2b2931] border border-[#494553]"}`}></div>
                 {/* Segment 4 */}
-                <div className={`w-7 h-1.5 rounded-full ${probeIndex >= 4 ? "bg-[#9d7bff] shadow-[0_0_8px_rgba(157,123,255,0.6)]" : "bg-[#2b2931] border border-[#494553]"}`}></div>
+                <div className={`w-7 h-1.5 rounded-full ${probeIndex >= 4 ? "bg-[#cef056] shadow-[0_0_8px_rgba(206,240,86,0.6)]" : "bg-[#2b2931] border border-[#494553]"}`}></div>
               </div>
             </div>
             <span className="font-mono text-[11px] text-[#cebdff] opacity-80 tracking-wide">
@@ -121,148 +218,80 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
               <div className="flex items-center space-x-2">
                 <span className="material-symbols-outlined text-[#cebdff] text-base">hub</span>
                 <span className="font-mono text-[13px] text-[#FBF9F5] font-medium tracking-wider">
-                  CONCEPT: RAFT CONSENSUS &amp; LEADER ELECTION
+                  {currentProbe.conceptTitle}
                 </span>
               </div>
-              <span className="font-mono text-[12px] text-[#8E93A6]">DIAG-PROBE-02-RAFT</span>
+              <span className="font-mono text-[12px] text-[#8E93A6]">{currentProbe.code}</span>
             </div>
 
             {/* Scenario Description */}
             <div className="space-y-4">
               <p className="text-[16px] text-[#EDE8DF] leading-relaxed">
-                Consider a 5-node Raft cluster. Network partition separates Nodes A and B from Nodes C, D, and E. Node A enters candidate state and increments its term from 3 to 4. What happens when Node A requests votes from Node B?
+                {currentProbe.scenario}
               </p>
 
               {/* Topology Monospace Snippet Box */}
-              <div className="bg-[#0f0d15] border border-[#494553]/50 rounded-lg p-4 font-mono text-[13px] space-y-2">
-                <div className="flex items-center justify-between text-[#8E93A6] text-[11px] pb-1 border-b border-[#494553]/30">
-                  <span className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-xs">lan</span>
-                    TOPOLOGY STATE
-                  </span>
-                  <span className="text-[#ffdea3] font-medium">PARTITION ACTIVE</span>
+              {currentProbe.topology && (
+                <div className="bg-[#0f0d15] border border-[#494553]/50 rounded-lg p-4 font-mono text-[13px] space-y-2">
+                  <div className="flex items-center justify-between text-[#8E93A6] text-[11px] pb-1 border-b border-[#494553]/30">
+                    <span className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-xs">lan</span>
+                      {currentProbe.topology.label}
+                    </span>
+                    <span className="text-[#ffdea3] font-medium">{currentProbe.topology.status}</span>
+                  </div>
+                  <div className="text-[#cebdff] pt-1 flex items-center space-x-2">
+                    <span className="text-[#8E93A6]">{currentProbe.topology.details}</span>
+                  </div>
+                  <div className="text-[#8E93A6] text-[12px] flex items-center gap-4 pt-0.5">
+                    <span>{currentProbe.topology.nodes}</span>
+                  </div>
                 </div>
-                <div className="text-[#cebdff] pt-1 flex items-center space-x-2">
-                  <span className="text-[#8E93A6]">Cluster Partition:</span>
-                  <span className="text-[#FBF9F5] font-semibold">[Node A, Node B]</span>
-                  <span className="text-[#f6be41]">⚡</span>
-                  <span className="text-[#FBF9F5] font-semibold">[Node C, Node D, Node E]</span>
-                </div>
-                <div className="text-[#8E93A6] text-[12px] flex items-center gap-4 pt-0.5">
-                  <span>Candidate: <span className="text-[#FBF9F5] font-medium">Node A</span></span>
-                  <span>•</span>
-                  <span>Term: <span className="text-[#FBF9F5] font-medium">3 → 4</span></span>
-                  <span>•</span>
-                  <span>Quorum Requirement: <span className="text-[#cef056] font-medium">3 / 5</span></span>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Response Options */}
             <div className="space-y-3" role="radiogroup">
-              {/* Option A */}
-              <label
-                onClick={() => setSelectedOption("A")}
-                className={`group relative flex items-start p-4 rounded-lg bg-[#171922] border cursor-pointer transition-all duration-150 ${
-                  selectedOption === "A"
-                    ? "border-[#cef056]/50 shadow-[0_0_0_1.5px_#cef056,inset_0_0_12px_rgba(206,240,86,0.05)]"
-                    : "border-[#494553]/60 hover:border-[#948e9f]"
-                }`}
-              >
-                <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 mt-0.5 mr-3.5 flex-shrink-0 bg-[#0C0D11] ${
-                  selectedOption === "A" ? "border-[#cef056]" : "border-[#948e9f]"
-                }`}>
-                  {selectedOption === "A" && <div className="w-2.5 h-2.5 rounded-full bg-[#cef056]"></div>}
-                </div>
-                <div className="flex-1 pr-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-[13px] text-[#cef056] font-medium">OPTION A</span>
-                    {selectedOption === "A" && (
-                      <span className="text-[10px] text-[#cef056] bg-[#cef056]/10 px-1.5 py-0.2 rounded border border-[#cef056]/30">
-                        SELECTED
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[14px] text-[#FBF9F5] leading-normal">
-                    Node B grants the vote, but Node A cannot achieve quorum because it can only receive 2 of 5 required votes.
-                  </p>
-                </div>
-              </label>
-
-              {/* Option B */}
-              <label
-                onClick={() => setSelectedOption("B")}
-                className={`group relative flex items-start p-4 rounded-lg bg-[#171922]/60 border cursor-pointer transition-all duration-150 ${
-                  selectedOption === "B"
-                    ? "border-[#cef056]/50 shadow-[0_0_0_1.5px_#cef056,inset_0_0_12px_rgba(206,240,86,0.05)]"
-                    : "border-[#494553]/60 hover:border-[#948e9f]"
-                }`}
-              >
-                <div className={`flex items-center justify-center w-5 h-5 rounded-full border mt-0.5 mr-3.5 flex-shrink-0 bg-[#0f0d15] ${
-                  selectedOption === "B" ? "border-[#cef056]" : "border-[#948e9f]"
-                }`}>
-                  {selectedOption === "B" && <div className="w-2.5 h-2.5 rounded-full bg-[#cef056]"></div>}
-                </div>
-                <div className="flex-1 pr-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-[13px] text-[#8E93A6]">OPTION B</span>
-                  </div>
-                  <p className="text-[14px] text-[#EDE8DF] leading-normal">
-                    Node B immediately rejects the vote because Node A is isolated from the cluster majority.
-                  </p>
-                </div>
-              </label>
-
-              {/* Option C */}
-              <label
-                onClick={() => setSelectedOption("C")}
-                className={`group relative flex items-start p-4 rounded-lg bg-[#171922]/60 border cursor-pointer transition-all duration-150 ${
-                  selectedOption === "C"
-                    ? "border-[#cef056]/50 shadow-[0_0_0_1.5px_#cef056,inset_0_0_12px_rgba(206,240,86,0.05)]"
-                    : "border-[#494553]/60 hover:border-[#948e9f]"
-                }`}
-              >
-                <div className={`flex items-center justify-center w-5 h-5 rounded-full border mt-0.5 mr-3.5 flex-shrink-0 bg-[#0f0d15] ${
-                  selectedOption === "C" ? "border-[#cef056]" : "border-[#948e9f]"
-                }`}>
-                  {selectedOption === "C" && <div className="w-2.5 h-2.5 rounded-full bg-[#cef056]"></div>}
-                </div>
-                <div className="flex-1 pr-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-[13px] text-[#8E93A6]">OPTION C</span>
-                  </div>
-                  <p className="text-[14px] text-[#EDE8DF] leading-normal">
-                    Node A transitions to Leader immediately within its partition and commits local log entries.
-                  </p>
-                </div>
-              </label>
-
-              {/* Option D */}
-              <label
-                onClick={() => setSelectedOption("D")}
-                className={`group relative flex items-start p-4 rounded-lg bg-[#171922]/30 border border-dashed cursor-pointer transition-all duration-150 ${
-                  selectedOption === "D"
-                    ? "border-[#cef056]/50 shadow-[0_0_0_1.5px_#cef056,inset_0_0_12px_rgba(206,240,86,0.05)]"
-                    : "border-[#494553]/60 hover:border-[#948e9f]"
-                }`}
-              >
-                <div className={`flex items-center justify-center w-5 h-5 rounded-full border mt-0.5 mr-3.5 flex-shrink-0 bg-[#0f0d15] ${
-                  selectedOption === "D" ? "border-[#cef056]" : "border-[#948e9f]"
-                }`}>
-                  {selectedOption === "D" && <div className="w-2.5 h-2.5 rounded-full bg-[#cef056]"></div>}
-                </div>
-                <div className="flex-1 pr-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-[13px] text-[#8E93A6]">OPTION D</span>
-                    <span className="text-[10px] text-[#cebdff] bg-[#9d7bff]/10 px-2 py-0.5 rounded border border-[#9d7bff]/20">
-                      HONEST CALIBRATION
-                    </span>
-                  </div>
-                  <p className="text-[14px] text-[#8E93A6] leading-normal">
-                    I haven't worked with Raft consensus leader election yet (honest calibration).
-                  </p>
-                </div>
-              </label>
+              {currentProbe.options.map((opt) => {
+                const isSelected = selectedOption === opt.key;
+                return (
+                  <label
+                    key={opt.key}
+                    onClick={() => setSelectedOption(opt.key)}
+                    className={`group relative flex items-start p-4 rounded-lg bg-[#171922] border cursor-pointer transition-all duration-150 ${
+                      isSelected
+                        ? "border-[#cef056]/50 shadow-[0_0_0_1.5px_#cef056,inset_0_0_12px_rgba(206,240,86,0.05)]"
+                        : "border-[#494553]/60 hover:border-[#948e9f]"
+                    }`}
+                  >
+                    <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 mt-0.5 mr-3.5 flex-shrink-0 bg-[#0C0D11] ${
+                      isSelected ? "border-[#cef056]" : "border-[#948e9f]"
+                    }`}>
+                      {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#cef056]"></div>}
+                    </div>
+                    <div className="flex-1 pr-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`font-mono text-[13px] font-medium ${isSelected ? "text-[#cef056]" : "text-[#8E93A6]"}`}>
+                          OPTION {opt.key}
+                        </span>
+                        {isSelected && (
+                          <span className="text-[10px] text-[#cef056] bg-[#cef056]/10 px-1.5 py-0.2 rounded border border-[#cef056]/30">
+                            SELECTED
+                          </span>
+                        )}
+                        {opt.isHonest && (
+                          <span className="text-[10px] text-[#cebdff] bg-[#9d7bff]/10 px-2 py-0.5 rounded border border-[#9d7bff]/20">
+                            HONEST CALIBRATION
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[14px] leading-normal ${isSelected ? "text-[#FBF9F5]" : "text-[#EDE8DF]"}`}>
+                        {opt.text}
+                      </p>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
 
             {/* Optional Justification Input Field */}
