@@ -78,12 +78,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           { opacity: 0, y: 14 },
           { opacity: 1, y: 0, duration: 0.6, clearProps: "all" },
           "-=0.45"
-        )
-        .fromTo(
-          ".hero-stat-card",
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, stagger: 0.07, duration: 0.6, clearProps: "all" },
-          "-=0.35"
         );
 
       // 2. 4-SIGNAL PROOF ARCHITECTURE
@@ -240,7 +234,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* TOP NAVBAR — Exact Color Palette & Design from Reference Image */}
       {/* ============================================================== */}
       <header className="sticky top-0 z-50 bg-[#351F15] border-b border-[#4E3123]/80 shadow-md">
-        <div className="flex justify-between items-center w-full px-6 lg:px-12 h-16 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center w-full px-6 sm:px-8 lg:px-10 h-16 max-w-[1440px] mx-auto">
           {/* Brand Anchor */}
           <div
             onClick={onExploreCourses}
@@ -262,40 +256,41 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             </div>
           </div>
 
-          {/* Center Links (About, How It Works, Courses, Contact) */}
-          <nav className="hidden md:flex items-center gap-9">
+          {/* Center Links (About, How It Works, Courses, Contact) in Editorial Serif */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 font-['Newsreader',Georgia,serif] text-[14.5px] shrink-0">
             <a
               href="#pedagogy"
-              className="text-[#EDE4D8] hover:text-[#FEF5E5] text-[14.5px] font-normal transition-colors"
+              className="text-[#E8D8C8] hover:text-[#FEF5E5] font-normal transition-colors whitespace-nowrap"
             >
               About
             </a>
             <a
               href="#pedagogy"
-              className="text-[#EDE4D8] hover:text-[#FEF5E5] text-[14.5px] font-normal transition-colors"
+              className="text-[#E8D8C8] hover:text-[#FEF5E5] font-normal transition-colors whitespace-nowrap"
             >
               How It Works
             </a>
             <button
               onClick={onExploreCourses}
-              className="text-[#EDE4D8] hover:text-[#FEF5E5] text-[14.5px] font-normal transition-colors cursor-pointer"
+              className="text-[#E8D8C8] hover:text-[#FEF5E5] font-normal transition-colors cursor-pointer whitespace-nowrap"
             >
               Courses
             </button>
             <a
               href="#diagnostic"
-              className="text-[#EDE4D8] hover:text-[#FEF5E5] text-[14.5px] font-normal transition-colors"
+              className="text-[#E8D8C8] hover:text-[#FEF5E5] font-normal transition-colors whitespace-nowrap"
             >
               Contact
             </a>
           </nav>
 
           {/* Trailing Actions: Sign In, Register, Begin Diagnostic */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 font-['Newsreader',Georgia,serif]">
             {/* Sign In action */}
             <button
               onClick={onSignIn}
-              className="px-4.5 py-2 rounded-lg text-[13.5px] font-normal text-[#F4EBE1] bg-[#2E1A11]/60 hover:bg-[#3E2519] border border-[#6D4933]/70 hover:border-[#967055] transition-colors cursor-pointer"
+              style={{ padding: "6px 16px", whiteSpace: "nowrap" }}
+              className="h-[36px] inline-flex items-center justify-center rounded-[10px] text-[14px] font-normal text-[#F3E7D8] bg-[#2C1910]/45 hover:bg-[#3D2317] border border-[#846146]/80 hover:border-[#A48265] transition-colors cursor-pointer select-none shrink-0"
             >
               Sign In
             </button>
@@ -303,7 +298,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             {/* Register action */}
             <button
               onClick={onSignIn}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4.5 py-2 rounded-lg text-[13.5px] font-normal text-[#F4EBE1] bg-[#2E1A11]/60 hover:bg-[#3E2519] border border-[#6D4933]/70 hover:border-[#967055] transition-colors cursor-pointer"
+              style={{ padding: "6px 16px", whiteSpace: "nowrap" }}
+              className="h-[36px] inline-flex items-center justify-center gap-2 rounded-[10px] text-[14px] font-normal text-[#F3E7D8] bg-[#2C1910]/45 hover:bg-[#3D2317] border border-[#846146]/80 hover:border-[#A48265] transition-colors cursor-pointer select-none shrink-0"
             >
               <span>Register</span>
               <span className="text-[13px] leading-none">→</span>
@@ -312,10 +308,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             {/* Primary Action Button (Warm Golden Biscuit / Sandstone) */}
             <button
               onClick={onBeginDiagnostic}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#F3DEBE] hover:bg-[#EBD2AF] text-[#301B12] text-[13.5px] font-semibold shadow-xs transition-all duration-150 active:scale-95 cursor-pointer"
+              style={{ padding: "6px 18px", whiteSpace: "nowrap" }}
+              className="h-[36px] inline-flex items-center justify-center gap-2 rounded-[10px] bg-gradient-to-b from-[#F6E4CB] to-[#ECCAA2] hover:from-[#F8E9D4] hover:to-[#F1D2AC] text-[#28150C] text-[14px] font-medium border border-[#ECCAA1] shadow-xs transition-all duration-150 active:scale-95 cursor-pointer select-none shrink-0"
             >
               <span>Begin Diagnostic</span>
-              <span className="text-[13px] font-bold leading-none">→</span>
+              <span className="text-[13px] font-medium leading-none">→</span>
             </button>
           </div>
         </div>
@@ -365,13 +362,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               />
             </svg>
 
-            {/* Eyebrow Pill */}
-            <div className="hero-pill relative z-10 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#2A160E]/80 border border-[#684632]/80 shadow-xs mb-8">
-              <span className="w-2 h-2 rounded-full bg-[#C59BFA] shadow-[0_0_8px_rgba(197,155,250,0.8)]"></span>
-              <span className="font-mono text-[10.5px] sm:text-[11px] font-semibold tracking-[0.14em] uppercase text-[#DDD1C4]">
-                THE DEFENSIBLE CREDENTIAL PROTOCOL • ZERO PASSIVE COMPLETION
-              </span>
-            </div>
+
+
 
             {/* Grand Display Headline with Serif Cream & Italic Lavender Accent (4-line cadence matching reference) */}
             <h1 className="relative z-10 font-['Newsreader',Georgia,serif] text-4xl sm:text-6xl md:text-[68px] font-normal tracking-tight text-[#FAF0E6] leading-[1.08] mb-8 max-w-3xl mx-auto">
@@ -390,10 +382,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             </h1>
 
             {/* Subtitle */}
-            <p className="hero-subtext relative z-10 text-[16px] sm:text-[17.5px] leading-[28px] text-[#CFC2B4] max-w-2xl leading-relaxed mb-8">
-              Certify replaces multiple-choice quizzes with live Socratic dialogues,
-              code invariant proofs, and high-stakes oral viva defenses under continuous
-              Bayesian Knowledge Tracing.
+            <p className="hero-subtext relative z-10 text-[16px] sm:text-[17.5px] leading-[28px] text-[#CFC2B4] max-w-2xl leading-relaxed mb-9">
+              Learn with AI. Prove your skills through real understanding. Earn a credential that reflects what you actually know.
             </p>
 
             {/* CTA Row */}
@@ -414,46 +404,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 </span>
                 <span>Begin 7–Min Diagnostic</span>
               </button>
-            </div>
-
-            {/* Metric Badges Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mt-14 pt-10 border-t border-[#523321]/60 relative z-10">
-              <div className="hero-stat-card text-left p-4 rounded-xl bg-[#22130B]/90 border border-[#523321]/70 shadow-xs">
-                <div className="font-mono text-[12px] font-medium text-[#A89682] mb-1">
-                  Defense P(L) Floor
-                </div>
-                <div className="text-[26px] font-bold text-[#FAF0E6] font-serif">0.920</div>
-                <div className="text-[12px] font-semibold text-emerald-400 mt-0.5">
-                  Bayesian confidence min
-                </div>
-              </div>
-              <div className="hero-stat-card text-left p-4 rounded-xl bg-[#22130B]/90 border border-[#523321]/70 shadow-xs">
-                <div className="font-mono text-[12px] font-medium text-[#A89682] mb-1">
-                  Invariant Tests
-                </div>
-                <div className="text-[26px] font-bold text-[#FAF0E6] font-serif">10,000+</div>
-                <div className="text-[12px] font-semibold text-[#CEA4F2] mt-0.5">
-                  Simulated per candidate
-                </div>
-              </div>
-              <div className="hero-stat-card text-left p-4 rounded-xl bg-[#22130B]/90 border border-[#523321]/70 shadow-xs">
-                <div className="font-mono text-[12px] font-medium text-[#A89682] mb-1">
-                  Pass Rate Floor
-                </div>
-                <div className="text-[26px] font-bold text-[#FAF0E6] font-serif">11.4%</div>
-                <div className="text-[12px] font-semibold text-[#F3DEBE] mt-0.5">
-                  Defensible selectivity
-                </div>
-              </div>
-              <div className="hero-stat-card text-left p-4 rounded-xl bg-[#22130B]/90 border border-[#523321]/70 shadow-xs">
-                <div className="font-mono text-[12px] font-medium text-[#A89682] mb-1">
-                  Attestation Standard
-                </div>
-                <div className="text-[26px] font-bold text-[#FAF0E6] font-serif">Ed25519</div>
-                <div className="text-[12px] font-semibold text-[#CFC2B4] mt-0.5">
-                  Cryptographic proofs
-                </div>
-              </div>
             </div>
           </div>
 
@@ -487,12 +437,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   shield
                 </span>
                 Deterministic Grading
-              </div>
-              <div className="flex items-center gap-2 font-mono text-[13px] font-semibold tracking-tight text-[#E2D2BF]">
-                <span className="material-symbols-outlined text-[18px] text-[#A89682]">
-                  lan
-                </span>
-                Python Standards
               </div>
             </div>
           </div>
@@ -772,7 +716,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 <span className="text-[10px] text-emerald-400">● Live Sandbox</span>
               </div>
               <pre className="text-[#D5C4B1] leading-relaxed overflow-x-auto">
-{`def make_averager():
+                {`def make_averager():
     series = []
     def averager(new_value):
         # Closure retains free variable in __closure__
