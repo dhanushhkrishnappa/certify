@@ -14,7 +14,6 @@ import { VivaChamberView } from "./components/VivaChamberView.js";
 import { CertificationResultView } from "./components/CertificationResultView.js";
 import { CredentialsListView } from "./components/CredentialsListView.js";
 import { CredentialDetailsView } from "./components/CredentialDetailsView.js";
-import { PublicVerifyView } from "./components/PublicVerifyView.js";
 import { ProgressView } from "./components/ProgressView.js";
 import { ProfileView } from "./components/ProfileView.js";
 import { SettingsView } from "./components/SettingsView.js";
@@ -22,6 +21,8 @@ import { LandingPageView } from "./components/LandingPageView.js";
 import { AuthView } from "./components/AuthView.js";
 import { api } from "./services/api.js";
 import type { User } from "./types/index.js";
+import { prefersReducedMotion } from "./motion/motionVocabulary.js";
+import { motion, AnimatePresence } from "motion/react";
 
 export type CertifyView =
   | "dashboard"
@@ -39,14 +40,13 @@ export type CertifyView =
   | "result"
   | "credentials"
   | "credential-details"
-  | "verify"
   | "progress"
   | "profile"
   | "settings"
   | "landing"
   | "auth";
 
-const PUBLIC_VIEWS: CertifyView[] = ["auth", "landing", "verify"];
+const PUBLIC_VIEWS: CertifyView[] = ["auth", "landing"];
 
 const getViewFromPath = (): CertifyView => {
   const p = window.location.pathname.replace(/^\//, "").toLowerCase();
@@ -69,7 +69,6 @@ const getViewFromPath = (): CertifyView => {
     result: "result",
     credentials: "credentials",
     "credential-details": "credential-details",
-    verify: "verify",
     progress: "progress",
     profile: "profile",
     settings: "settings",
@@ -77,10 +76,9 @@ const getViewFromPath = (): CertifyView => {
 
   const requestedView = validViews[p];
 
-  // RULE 11: Unauthenticated entry MUST be Login/Signup (or public landing / verify)
+  // RULE 11: Unauthenticated entry MUST be Login/Signup (or public landing)
   if (!token) {
     if (requestedView === "landing") return "landing";
-    if (requestedView === "verify") return "verify";
     return "auth";
   }
 
@@ -97,11 +95,28 @@ export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  /**
+   * Navigation with View Transition API and instant fallback
+   */
+  const navigateWithTransition = (newView: CertifyView) => {
+    if (
+      typeof document !== "undefined" &&
+      "startViewTransition" in document &&
+      !prefersReducedMotion()
+    ) {
+      (document as any).startViewTransition(() => {
+        setCurrentView(newView);
+      });
+    } else {
+      setCurrentView(newView);
+    }
+  };
+
   useEffect(() => {
-    (window as any).__certifyNavigate = (view: CertifyView) => setCurrentView(view);
+    (window as any).__certifyNavigate = (view: CertifyView) => navigateWithTransition(view);
 
     const handlePopState = () => {
-      setCurrentView(getViewFromPath());
+      navigateWithTransition(getViewFromPath());
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -122,7 +137,7 @@ export const App: React.FC = () => {
     api.getMe()
       .then((data) => {
         setCurrentUser(data.user);
-        setCurrentView((prev) => (prev === "auth" ? "dashboard" : prev));
+        navigateWithTransition("dashboard");
       })
       .catch(() => {
         // Token expired or invalid: clear and force login
@@ -134,54 +149,64 @@ export const App: React.FC = () => {
 
   const handleSelectCourse = (slug: string) => {
     setSelectedCourseSlug(slug);
-    setCurrentView("studio");
+    navigateWithTransition("studio");
   };
 
   const handleViewCourseDetails = (slug: string) => {
     setSelectedCourseSlug(slug);
-    setCurrentView("course-details");
+    navigateWithTransition("course-details");
   };
 
   const handleNavigateVerify = (credId?: string) => {
     if (credId) setSelectedCredentialId(credId);
-    setCurrentView("verify");
+    navigateWithTransition("credential-details");
   };
 
   const handleViewCredential = (credId: string) => {
     setSelectedCredentialId(credId);
-    setCurrentView("credential-details");
+    navigateWithTransition("credential-details");
   };
 
   const handleLogout = () => {
     localStorage.removeItem("certify_token");
     setCurrentUser(null);
-    setCurrentView("auth");
+    navigateWithTransition("auth");
   };
 
   const handleLoginSuccess = (user: User, token: string) => {
     localStorage.setItem("certify_token", token);
     setCurrentUser(user);
-    setCurrentView("dashboard");
+    navigateWithTransition("dashboard");
   };
 
   // Full-bleed views without standard learner sidebar (Landing & Auth)
   if (currentView === "landing") {
     return (
       <LandingPageView
-        onExploreCourses={() => setCurrentView(currentUser ? "catalog" : "auth")}
-        onBeginDiagnostic={() => setCurrentView(currentUser ? "diagnostic" : "auth")}
-        onVerifyLedger={() => setCurrentView("verify")}
-        onSignIn={() => setCurrentView("auth")}
+        onExploreCourses={() => navigateWithTransition(currentUser ? "catalog" : "auth")}
+        onBeginDiagnostic={() => navigateWithTransition(currentUser ? "diagnostic" : "auth")}
+        onSignIn={() => navigateWithTransition("auth")}
       />
     );
   }
 
   if (currentView === "auth") {
     return (
-      <AuthView
-        onLoginSuccess={handleLoginSuccess}
-        onCancel={() => setCurrentView("landing")}
-      />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="auth-view"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full min-h-screen"
+        >
+          <AuthView
+            onLoginSuccess={handleLoginSuccess}
+            onCancel={() => navigateWithTransition("landing")}
+          />
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -190,7 +215,7 @@ export const App: React.FC = () => {
     return (
       <AuthView
         onLoginSuccess={handleLoginSuccess}
-        onCancel={() => setCurrentView("landing")}
+        onCancel={() => navigateWithTransition("landing")}
       />
     );
   }
@@ -249,7 +274,7 @@ export const App: React.FC = () => {
       {/* Global Canonical App Sidebar (240px desktop, 68px collapsed) */}
       <AppSidebar
         currentView={currentView}
-        onNavigate={(view) => setCurrentView(view as CertifyView)}
+        onNavigate={(view) => navigateWithTransition(view as CertifyView)}
         user={currentUser}
         onLogout={handleLogout}
         collapsed={sidebarCollapsed}
@@ -407,7 +432,6 @@ export const App: React.FC = () => {
                 user={currentUser}
                 onNavigate={(v) => setCurrentView(v as CertifyView)}
                 onViewCredential={handleViewCredential}
-                onNavigateVerify={handleNavigateVerify}
               />
             )}
 
@@ -417,15 +441,6 @@ export const App: React.FC = () => {
               <CredentialDetailsView
                 user={currentUser}
                 credentialId={selectedCredentialId}
-                onNavigateVerify={handleNavigateVerify}
-                onBack={() => setCurrentView("credentials")}
-              />
-            )}
-
-            {/* Screen 15: Public Verification */}
-            {currentView === "verify" && (
-              <PublicVerifyView
-                initialCredentialId={selectedCredentialId}
                 onBack={() => setCurrentView("credentials")}
               />
             )}

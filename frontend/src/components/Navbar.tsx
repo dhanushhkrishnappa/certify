@@ -1,9 +1,9 @@
 import React from "react";
-import { Award, BookOpen, CheckCircle, ShieldCheck, User } from "lucide-react";
+import { Award, BookOpen, CheckCircle, User } from "lucide-react";
 
 interface NavbarProps {
-  currentView: "catalog" | "studio" | "verify";
-  setCurrentView: (view: "catalog" | "studio" | "verify") => void;
+  currentView: "catalog" | "studio";
+  setCurrentView: (view: "catalog" | "studio") => void;
   user: { fullName: string; role: string } | null;
   onLogout: () => void;
 }
@@ -88,17 +88,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <CheckCircle size={16} /> Learning Studio
-          </button>
-
-          <button
-            onClick={() => setCurrentView("verify")}
-            className="btn-secondary"
-            style={{
-              background: currentView === "verify" ? "rgba(99, 102, 241, 0.15)" : "transparent",
-              borderColor: currentView === "verify" ? "var(--primary)" : "transparent"
-            }}
-          >
-            <ShieldCheck size={16} /> Public Verification
           </button>
         </nav>
 
