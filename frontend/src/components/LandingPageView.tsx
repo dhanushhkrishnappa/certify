@@ -8,7 +8,6 @@ import {
   isMobileDevice,
 } from "../motion/motionVocabulary.js";
 import {
-  BayesianCurveSvg,
   SandboxTerminalSvg,
   VivaChamberWaveformSvg,
   CryptographicSealSvg,
@@ -451,47 +450,138 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         >
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
-              <div className="font-mono text-[12px] font-semibold text-[#CEA4F2] uppercase tracking-widest mb-2">
-                Defensibility Engine
-              </div>
               <h2 className="font-['Newsreader',Georgia,serif] text-3xl md:text-5xl text-[#FAF0E6] font-normal">
                 The 4-Signal Proof Architecture
               </h2>
             </div>
             <p className="text-[14px] text-[#CFC2B4] max-w-md mt-4 md:mt-0 leading-relaxed">
-              Certify synthesizes multimodal verification into an immutable
-              mathematical record that cannot be gamed by surface memorization or large
-              language model copying.
+              Certify combines multiple forms of assessment to create a trusted record of what you truly know—not just what you can memorize or copy.
             </p>
           </div>
 
           {/* Bento Grid with Rich SVG Graphics */}
-          <div className="proof-bento-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card 1: Socratic Tracing */}
-            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+          <div className="proof-bento-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            {/* Card 1: Understanding Evidence */}
+            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full min-h-[380px]">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="font-mono text-[12px] font-bold text-[#A89682]">01</span>
-                  <span className="p-2 rounded-xl bg-[#3E2519] border border-[#6D4933] text-[#CEA4F2] transition-transform duration-200 group-hover:scale-110">
+                  <span className="font-mono text-[12px] font-bold text-[#A89682]">
+                    01
+                  </span>
+
+                  <span className="p-2 rounded-xl bg-[#3E2519] border border-[#6D4933] text-[#CEA4F2] transition-transform duration-300 group-hover:scale-110">
                     <span className="material-symbols-outlined text-[20px]">
                       psychology
                     </span>
                   </span>
                 </div>
+
                 <h3 className="text-[18px] font-bold text-[#FAF0E6] mb-2">
-                  Socratic Tracing
+                  Understanding Evidence
                 </h3>
+
                 <p className="text-[13.5px] text-[#CFC2B4] leading-relaxed mb-6">
-                  Continuous Bayesian Knowledge Tracing updating prior mastery P(L) on
-                  every exchange. Adapts cognitive pressure to probe deep conceptual
-                  mechanics.
+                  Every interaction, practice session, and assessment builds evidence of
+                  what you actually understand.
                 </p>
               </div>
-              <BayesianCurveSvg />
+
+              {/* Evidence Trail */}
+              <div className="mt-auto rounded-xl bg-[#21120C]/85 border border-[#5A3825] p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10.5px] font-mono uppercase tracking-[0.18em] text-[#A89682]">
+                    Evidence Trail
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[10.5px] font-mono font-medium text-[#CFA4F5]">
+                      LIVE
+                    </span>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  {/* Connecting line */}
+                  <div className="absolute left-[11px] top-3 bottom-3 w-px bg-gradient-to-b from-[#8C6CF5] via-[#C99B72] to-[#E5C892]" />
+
+                  {/* Step 1 */}
+                  <div className="relative flex gap-3 mb-3.5">
+                    <div className="relative z-10 mt-0.5 w-[22px] h-[22px] rounded-full bg-[#7E5CEF] shadow-[0_0_8px_rgba(126,92,239,0.35)] flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[13px] text-white">
+                        chat_bubble
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="text-[12px] font-semibold text-[#FAF0E6] leading-tight">
+                        Interaction
+                      </div>
+                      <div className="text-[11px] text-[#9F9184] leading-tight mt-0.5">
+                        Explains reasoning
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="relative flex gap-3 mb-3.5">
+                    <div className="relative z-10 mt-0.5 w-[22px] h-[22px] rounded-full bg-[#8A6A4D] flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[13px] text-[#FAF0E6]">
+                        terminal
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="text-[12px] font-semibold text-[#FAF0E6] leading-tight">
+                        Practice
+                      </div>
+                      <div className="text-[11px] text-[#9F9184] leading-tight mt-0.5">
+                        Applies the concept
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="relative flex gap-3 mb-3.5">
+                    <div className="relative z-10 mt-0.5 w-[22px] h-[22px] rounded-full bg-[#B9855A] flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[13px] text-[#21120C]">
+                        task_alt
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="text-[12px] font-semibold text-[#FAF0E6] leading-tight">
+                        Assessment
+                      </div>
+                      <div className="text-[11px] text-[#9F9184] leading-tight mt-0.5">
+                        Demonstrates understanding
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="relative flex gap-3">
+                    <div className="relative z-10 mt-0.5 w-[22px] h-[22px] rounded-full bg-[#D6B579] flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[13px] text-[#21120C]">
+                        verified
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="text-[12px] font-semibold text-[#FAF0E6] leading-tight">
+                        Evidence
+                      </div>
+                      <div className="text-[11px] text-[#9F9184] leading-tight mt-0.5">
+                        Becomes part of your credential
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Card 2: Practical Sandboxes */}
-            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full min-h-[380px]">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-mono text-[12px] font-bold text-[#A89682]">02</span>
@@ -509,11 +599,13 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   code execution environments with real unit test assertions.
                 </p>
               </div>
-              <SandboxTerminalSvg />
+              <div className="mt-auto">
+                <SandboxTerminalSvg />
+              </div>
             </div>
 
             {/* Card 3: Oral Viva Defense */}
-            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full min-h-[380px]">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-mono text-[12px] font-bold text-[#A89682]">03</span>
@@ -531,11 +623,13 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   trade-offs, and failure boundaries with rigorous rubric assessment.
                 </p>
               </div>
-              <VivaChamberWaveformSvg />
+              <div className="mt-auto">
+                <VivaChamberWaveformSvg />
+              </div>
             </div>
 
             {/* Card 4: Cryptographic Proofs */}
-            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div className="proof-bento-card group relative rounded-2xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 hover:border-[#8D6B4E] p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full min-h-[380px]">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-mono text-[12px] font-bold text-[#A89682]">04</span>
@@ -553,170 +647,172 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   evidence and deterministic backend tiering rules.
                 </p>
               </div>
-              <CryptographicSealSvg />
+              <div className="mt-auto">
+                <CryptographicSealSvg />
+              </div>
+            </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* SECTION 3: PINNED SCROLL-LINKED COMPARATIVE MATRIX             */}
+      {/* ============================================================== */}
+      <section
+        ref={comparisonPinSectionRef}
+        className="max-w-7xl mx-auto px-6 lg:px-10 py-20 border-t border-[#4E3123]/70 relative"
+        id="defense-standard"
+      >
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="font-mono text-[12px] font-semibold text-[#CEA4F2] uppercase tracking-widest mb-2">
+            Verification Contrast
+          </div>
+          <h2 className="font-['Newsreader',Georgia,serif] text-3xl md:text-5xl text-[#FAF0E6] font-normal mb-4">
+            The Anatomy of Defensibility
+          </h2>
+          <p className="text-[16px] text-[#CFC2B4] leading-relaxed">
+            Legacy platforms quantify video watch time. Certify measures genuine
+            resistance to invariant failure, conceptual probing, and oral defense
+            interrogation.
+          </p>
+        </div>
+
+        {/* Side-by-Side Comparison Matrix */}
+        <div
+          ref={comparisonTrackRef}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch relative"
+        >
+          {/* Left: Legacy LMS */}
+          <div className="legacy-card rounded-2xl bg-[#23120A]/90 backdrop-blur-xl border border-rose-950/60 p-8 flex flex-col justify-between shadow-md transition-all duration-300">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-rose-950/70 border border-rose-800/40 flex items-center justify-center text-rose-400">
+                  <span className="material-symbols-outlined text-[22px]">cancel</span>
+                </div>
+                <div>
+                  <h3 className="text-[20px] font-bold text-[#FAF0E6]">
+                    Legacy Video LMS Certificate
+                  </h3>
+                  <p className="font-mono text-[12px] text-rose-400 font-semibold">
+                    Zero Defensibility • Passive Attendance
+                  </p>
+                </div>
+              </div>
+              <ul className="space-y-4 text-sm text-[#CFC2B4]">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-rose-400 font-bold">✕</span>
+                  <span>
+                    Self-paced video playback that runs in background tabs without
+                    active cognition.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-rose-400 font-bold">✕</span>
+                  <span>
+                    Trivial multiple-choice questions easily solved by AI browser
+                    extensions.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-rose-400 font-bold">✕</span>
+                  <span>
+                    No oral defense or real-time verification of reasoning under
+                    pressure.
+                  </span>
+                </li>
+              </ul>
             </div>
           </div>
-        </section>
 
-        {/* ============================================================== */}
-        {/* SECTION 3: PINNED SCROLL-LINKED COMPARATIVE MATRIX             */}
-        {/* ============================================================== */}
-        <section
-          ref={comparisonPinSectionRef}
-          className="max-w-7xl mx-auto px-6 lg:px-10 py-20 border-t border-[#4E3123]/70 relative"
-          id="defense-standard"
-        >
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="font-mono text-[12px] font-semibold text-[#CEA4F2] uppercase tracking-widest mb-2">
-              Verification Contrast
+          {/* Right: Certify Protocol */}
+          <div className="certify-standard-card rounded-2xl bg-[#341F16]/95 backdrop-blur-xl border border-[#8D6B4E] p-8 flex flex-col justify-between shadow-xl relative transition-all duration-300">
+            <div className="defensibility-badge absolute top-4 right-4 px-3 py-1 rounded-full bg-[#3D2519] border border-[#6D4933] text-[#F3DEBE] font-mono text-[11px] font-bold uppercase tracking-wider">
+              Certify Standard
             </div>
-            <h2 className="font-['Newsreader',Georgia,serif] text-3xl md:text-5xl text-[#FAF0E6] font-normal mb-4">
-              The Anatomy of Defensibility
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-[#3E2519] border border-[#6D4933] flex items-center justify-center text-[#F3DEBE]">
+                  <span className="material-symbols-outlined text-[22px]">
+                    verified
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-[20px] font-bold text-[#FAF0E6]">
+                    Certify Autonomous Credential
+                  </h3>
+                  <p className="font-mono text-[12px] text-[#CEA4F2] font-semibold">
+                    100% Evidence-Backed • Deterministic Tiering
+                  </p>
+                </div>
+              </div>
+              <ul className="space-y-4 text-sm text-[#E2D2BF]">
+                <li className="certify-check-item flex items-start gap-2.5">
+                  <span className="text-emerald-400 font-bold">✓</span>
+                  <span>
+                    Continuous Socratic dialogue probing conceptual mechanics on every
+                    chapter.
+                  </span>
+                </li>
+                <li className="certify-check-item flex items-start gap-2.5">
+                  <span className="text-emerald-400 font-bold">✓</span>
+                  <span>
+                    Automated test suites and invariant validation executed inside
+                    real code sandboxes.
+                  </span>
+                </li>
+                <li className="certify-check-item flex items-start gap-2.5">
+                  <span className="text-emerald-400 font-bold">✓</span>
+                  <span>
+                    Oral viva defense evaluates trade-offs and code architecture before
+                    certification.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================== */}
+      {/* SECTION 4: FLAGSHIP TRACK PREVIEW                               */}
+      {/* ============================================================== */}
+      <section
+        ref={curriculumRef}
+        className="max-w-7xl mx-auto px-6 lg:px-10 py-20 border-t border-[#4E3123]/70"
+      >
+        <div className="rounded-3xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 p-8 md:p-12 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-10">
+          <div className="space-y-4 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3E2519] border border-[#6D4933] text-[#CEA4F2] font-mono text-xs font-semibold uppercase">
+              Flagship Curriculum
+            </div>
+            <h2 className="font-['Newsreader',Georgia,serif] text-3xl md:text-5xl text-[#FAF0E6] font-normal">
+              Python Fundamentals: Deep Architecture
             </h2>
-            <p className="text-[16px] text-[#CFC2B4] leading-relaxed">
-              Legacy platforms quantify video watch time. Certify measures genuine
-              resistance to invariant failure, conceptual probing, and oral defense
-              interrogation.
+            <p className="text-[15px] text-[#CFC2B4] leading-relaxed">
+              From CPython memory models, references, and closures to iterator
+              protocols and generator invariants. Master the core mechanics that
+              separate senior engineers from syntactic beginners.
             </p>
-          </div>
-
-          {/* Side-by-Side Comparison Matrix */}
-          <div
-            ref={comparisonTrackRef}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch relative"
-          >
-            {/* Left: Legacy LMS */}
-            <div className="legacy-card rounded-2xl bg-[#23120A]/90 backdrop-blur-xl border border-rose-950/60 p-8 flex flex-col justify-between shadow-md transition-all duration-300">
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-rose-950/70 border border-rose-800/40 flex items-center justify-center text-rose-400">
-                    <span className="material-symbols-outlined text-[22px]">cancel</span>
-                  </div>
-                  <div>
-                    <h3 className="text-[20px] font-bold text-[#FAF0E6]">
-                      Legacy Video LMS Certificate
-                    </h3>
-                    <p className="font-mono text-[12px] text-rose-400 font-semibold">
-                      Zero Defensibility • Passive Attendance
-                    </p>
-                  </div>
-                </div>
-                <ul className="space-y-4 text-sm text-[#CFC2B4]">
-                  <li className="flex items-start gap-2.5">
-                    <span className="text-rose-400 font-bold">✕</span>
-                    <span>
-                      Self-paced video playback that runs in background tabs without
-                      active cognition.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="text-rose-400 font-bold">✕</span>
-                    <span>
-                      Trivial multiple-choice questions easily solved by AI browser
-                      extensions.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="text-rose-400 font-bold">✕</span>
-                    <span>
-                      No oral defense or real-time verification of reasoning under
-                      pressure.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Right: Certify Protocol */}
-            <div className="certify-standard-card rounded-2xl bg-[#341F16]/95 backdrop-blur-xl border border-[#8D6B4E] p-8 flex flex-col justify-between shadow-xl relative transition-all duration-300">
-              <div className="defensibility-badge absolute top-4 right-4 px-3 py-1 rounded-full bg-[#3D2519] border border-[#6D4933] text-[#F3DEBE] font-mono text-[11px] font-bold uppercase tracking-wider">
-                Certify Standard
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#3E2519] border border-[#6D4933] flex items-center justify-center text-[#F3DEBE]">
-                    <span className="material-symbols-outlined text-[22px]">
-                      verified
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="text-[20px] font-bold text-[#FAF0E6]">
-                      Certify Autonomous Credential
-                    </h3>
-                    <p className="font-mono text-[12px] text-[#CEA4F2] font-semibold">
-                      100% Evidence-Backed • Deterministic Tiering
-                    </p>
-                  </div>
-                </div>
-                <ul className="space-y-4 text-sm text-[#E2D2BF]">
-                  <li className="certify-check-item flex items-start gap-2.5">
-                    <span className="text-emerald-400 font-bold">✓</span>
-                    <span>
-                      Continuous Socratic dialogue probing conceptual mechanics on every
-                      chapter.
-                    </span>
-                  </li>
-                  <li className="certify-check-item flex items-start gap-2.5">
-                    <span className="text-emerald-400 font-bold">✓</span>
-                    <span>
-                      Automated test suites and invariant validation executed inside
-                      real code sandboxes.
-                    </span>
-                  </li>
-                  <li className="certify-check-item flex items-start gap-2.5">
-                    <span className="text-emerald-400 font-bold">✓</span>
-                    <span>
-                      Oral viva defense evaluates trade-offs and code architecture before
-                      certification.
-                    </span>
-                  </li>
-                </ul>
-              </div>
+            <div className="pt-2">
+              <button
+                onClick={onExploreCourses}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#F3DEBE] hover:bg-[#EBD2AF] text-[#301B12] font-semibold text-sm shadow-sm transition-transform active:scale-95 cursor-pointer"
+              >
+                <span>Explore Syllabus &amp; Rubrics</span>
+                <span className="text-[13px] font-bold">→</span>
+              </button>
             </div>
           </div>
-        </section>
 
-        {/* ============================================================== */}
-        {/* SECTION 4: FLAGSHIP TRACK PREVIEW                               */}
-        {/* ============================================================== */}
-        <section
-          ref={curriculumRef}
-          className="max-w-7xl mx-auto px-6 lg:px-10 py-20 border-t border-[#4E3123]/70"
-        >
-          <div className="rounded-3xl bg-[#2E1B13]/90 backdrop-blur-xl border border-[#5A3825]/70 p-8 md:p-12 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-10">
-            <div className="space-y-4 max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3E2519] border border-[#6D4933] text-[#CEA4F2] font-mono text-xs font-semibold uppercase">
-                Flagship Curriculum
-              </div>
-              <h2 className="font-['Newsreader',Georgia,serif] text-3xl md:text-5xl text-[#FAF0E6] font-normal">
-                Python Fundamentals: Deep Architecture
-              </h2>
-              <p className="text-[15px] text-[#CFC2B4] leading-relaxed">
-                From CPython memory models, references, and closures to iterator
-                protocols and generator invariants. Master the core mechanics that
-                separate senior engineers from syntactic beginners.
-              </p>
-              <div className="pt-2">
-                <button
-                  onClick={onExploreCourses}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#F3DEBE] hover:bg-[#EBD2AF] text-[#301B12] font-semibold text-sm shadow-sm transition-transform active:scale-95 cursor-pointer"
-                >
-                  <span>Explore Syllabus &amp; Rubrics</span>
-                  <span className="text-[13px] font-bold">→</span>
-                </button>
-              </div>
+          {/* Code / Visual preview box */}
+          <div className="w-full lg:max-w-md rounded-2xl bg-[#170D08] text-[#EDE4D8] p-6 font-mono text-xs shadow-2xl border border-[#3E2416]">
+            <div className="flex items-center justify-between text-[#A89682] border-b border-[#2C180E] pb-2 mb-3">
+              <span className="text-[#F3DEBE] font-bold">
+                # Python Memory &amp; Closures
+              </span>
+              <span className="text-[10px] text-emerald-400">● Live Sandbox</span>
             </div>
-
-            {/* Code / Visual preview box */}
-            <div className="w-full lg:max-w-md rounded-2xl bg-[#170D08] text-[#EDE4D8] p-6 font-mono text-xs shadow-2xl border border-[#3E2416]">
-              <div className="flex items-center justify-between text-[#A89682] border-b border-[#2C180E] pb-2 mb-3">
-                <span className="text-[#F3DEBE] font-bold">
-                  # Python Memory &amp; Closures
-                </span>
-                <span className="text-[10px] text-emerald-400">● Live Sandbox</span>
-              </div>
-              <pre className="text-[#D5C4B1] leading-relaxed overflow-x-auto">
-                {`def make_averager():
+            <pre className="text-[#D5C4B1] leading-relaxed overflow-x-auto">
+              {`def make_averager():
     series = []
     def averager(new_value):
         # Closure retains free variable in __closure__
@@ -727,90 +823,90 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 avg = make_averager()
 assert avg(10) == 10.0
 assert avg(20) == 15.0`}
-              </pre>
-              <div className="mt-4 pt-3 border-t border-[#2C180E] flex items-center justify-between text-[11px] text-[#A89682]">
-                <span>
-                  P(Mastery): <strong className="text-emerald-400">0.942</strong>
-                </span>
-                <span className="text-[#CEA4F2]">BKT Converged</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================== */}
-        {/* SECTION 5: INVITATION / DIAGNOSTIC CALLOUT                      */}
-        {/* ============================================================== */}
-        <section
-          ref={ctaRef}
-          className="max-w-7xl mx-auto px-6 lg:px-10 py-20 border-t border-[#4E3123]/70"
-          id="diagnostic"
-        >
-          <div className="rounded-3xl bg-gradient-to-br from-[#382117] via-[#2D1A12] to-[#211109] border border-[#6D4933]/70 p-8 md:p-14 shadow-2xl relative overflow-hidden">
-            <div className="max-w-2xl relative z-10 space-y-4">
-              <div className="font-mono text-[12px] text-[#CEA4F2] uppercase tracking-widest font-semibold">
-                Zero-Stakes Pre-Assessment
-              </div>
-              <h2 className="font-['Newsreader',Georgia,serif] text-3xl md:text-5xl text-[#FAF0E6] font-normal">
-                Calibrate your baseline against our diagnostic engine.
-              </h2>
-              <p className="text-[16px] text-[#CFC2B4] leading-relaxed">
-                Take a quick 7-minute Socratic dialogue session. Observe your real-time
-                Bayesian Knowledge curve calibrate to your technical background before
-                enrolling.
-              </p>
-              <div className="flex flex-wrap items-center gap-4 pt-4">
-                <button
-                  onClick={onBeginDiagnostic}
-                  className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#F3DEBE] hover:bg-[#EBD2AF] text-[#301B12] text-[15px] font-semibold transition-all duration-200 active:scale-[0.98] shadow-md shadow-black/40 cursor-pointer"
-                >
-                  <span>Begin Free 7-Min Diagnostic</span>
-                  <span className="material-symbols-outlined text-[18px]">bolt</span>
-                </button>
-                <span className="font-mono text-[13px] text-[#A89682]">
-                  No password or setup needed
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* ============================================================== */}
-      {/* FOOTER                                                         */}
-      {/* ============================================================== */}
-      <footer className="bg-[#1D0E08]/95 backdrop-blur-md border-t border-[#3E2416]">
-        <div className="w-full px-6 lg:px-10 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[#A89682] text-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-[#F7E7CE] flex items-center justify-center text-[#301B12]">
-              <span className="material-symbols-outlined text-[16px] text-[#301B12]">
-                school
+            </pre>
+            <div className="mt-4 pt-3 border-t border-[#2C180E] flex items-center justify-between text-[11px] text-[#A89682]">
+              <span>
+                P(Mastery): <strong className="text-emerald-400">0.942</strong>
               </span>
+              <span className="text-[#CEA4F2]">BKT Converged</span>
             </div>
-            <span className="text-[16px] font-['Newsreader',Georgia,serif] font-bold text-[#FEF5E5]">
-              Certify
-            </span>
-            <span className="text-[#5A3825]">|</span>
-            <span>
-              © 2026 Certify Protocol. Deterministic, evidence-backed mastery verification.
-            </span>
-          </div>
-          <div className="flex items-center gap-6">
-            <button
-              onClick={onExploreCourses}
-              className="hover:text-[#FEF5E5] transition cursor-pointer"
-            >
-              Curriculum Tracks
-            </button>
-            <a href="#pedagogy" className="hover:text-[#FEF5E5] transition">
-              Pedagogy
-            </a>
-            <a href="#defense-standard" className="hover:text-[#FEF5E5] transition">
-              Defense Standard
-            </a>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* ============================================================== */}
+      {/* SECTION 5: INVITATION / DIAGNOSTIC CALLOUT                      */}
+      {/* ============================================================== */}
+      <section
+        ref={ctaRef}
+        className="max-w-7xl mx-auto px-6 lg:px-10 py-20 border-t border-[#4E3123]/70"
+        id="diagnostic"
+      >
+        <div className="rounded-3xl bg-gradient-to-br from-[#382117] via-[#2D1A12] to-[#211109] border border-[#6D4933]/70 p-8 md:p-14 shadow-2xl relative overflow-hidden">
+          <div className="max-w-2xl relative z-10 space-y-4">
+            <div className="font-mono text-[12px] text-[#CEA4F2] uppercase tracking-widest font-semibold">
+              Zero-Stakes Pre-Assessment
+            </div>
+            <h2 className="font-['Newsreader',Georgia,serif] text-3xl md:text-5xl text-[#FAF0E6] font-normal">
+              Calibrate your baseline against our diagnostic engine.
+            </h2>
+            <p className="text-[16px] text-[#CFC2B4] leading-relaxed">
+              Take a quick 7-minute Socratic dialogue session. Observe your real-time
+              Bayesian Knowledge curve calibrate to your technical background before
+              enrolling.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 pt-4">
+              <button
+                onClick={onBeginDiagnostic}
+                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#F3DEBE] hover:bg-[#EBD2AF] text-[#301B12] text-[15px] font-semibold transition-all duration-200 active:scale-[0.98] shadow-md shadow-black/40 cursor-pointer"
+              >
+                <span>Begin Free 7-Min Diagnostic</span>
+                <span className="material-symbols-outlined text-[18px]">bolt</span>
+              </button>
+              <span className="font-mono text-[13px] text-[#A89682]">
+                No password or setup needed
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+      {/* ============================================================== */ }
+  {/* FOOTER                                                         */ }
+  {/* ============================================================== */ }
+  <footer className="bg-[#1D0E08]/95 backdrop-blur-md border-t border-[#3E2416]">
+    <div className="w-full px-6 lg:px-10 py-10 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[#A89682] text-sm">
+      <div className="flex items-center gap-3">
+        <div className="w-7 h-7 rounded-lg bg-[#F7E7CE] flex items-center justify-center text-[#301B12]">
+          <span className="material-symbols-outlined text-[16px] text-[#301B12]">
+            school
+          </span>
+        </div>
+        <span className="text-[16px] font-['Newsreader',Georgia,serif] font-bold text-[#FEF5E5]">
+          Certify
+        </span>
+        <span className="text-[#5A3825]">|</span>
+        <span>
+          © 2026 Certify Protocol. Deterministic, evidence-backed mastery verification.
+        </span>
+      </div>
+      <div className="flex items-center gap-6">
+        <button
+          onClick={onExploreCourses}
+          className="hover:text-[#FEF5E5] transition cursor-pointer"
+        >
+          Curriculum Tracks
+        </button>
+        <a href="#pedagogy" className="hover:text-[#FEF5E5] transition">
+          Pedagogy
+        </a>
+        <a href="#defense-standard" className="hover:text-[#FEF5E5] transition">
+          Defense Standard
+        </a>
+      </div>
     </div>
+  </footer>
+    </div >
   );
 };
