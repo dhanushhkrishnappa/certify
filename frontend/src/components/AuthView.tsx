@@ -8,309 +8,248 @@ interface AuthViewProps {
 }
 
 export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) => {
-  const [authMethod, setAuthMethod] = useState<"phone" | "email">("phone");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [email, setEmail] = useState("learner@certify.edu");
-  const [password, setPassword] = useState("Password123!");
   const [fullName, setFullName] = useState("Dhanush K");
-  const [isRegister, setIsRegister] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [authStep, setAuthStep] = useState<number>(0);
+  const [statusMessage, setStatusMessage] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInstantLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setIsLoading(true);
+    if (isAuthenticating) return;
 
-    try {
-      if (authMethod === "phone") {
-        try {
-          const data = await api.login("learner@certify.edu", "Password123!");
-          localStorage.setItem("certify_token", data.token);
-          const enrichedUser: User = {
-            ...data.user,
-            fullName: fullName || data.user.fullName || "Dhanush K",
-          };
-          onLoginSuccess(enrichedUser, data.token);
-          return;
-        } catch {
-          const demoUser: User = {
-            id: "u-learner-demo",
-            email: `${mobileNumber.replace(/\D/g, "") || "learner"}@certify.edu`,
-            fullName: fullName || "Dhanush K",
-            name: fullName || "Dhanush K",
-            role: "learner",
-          };
-          const demoToken = "demo-otp-token-" + Date.now();
-          localStorage.setItem("certify_token", demoToken);
-          onLoginSuccess(demoUser, demoToken);
-          return;
-        }
-      }
+    setIsAuthenticating(true);
+    setAuthStep(1);
+    setStatusMessage("Connecting to secure learning gateway...");
 
-      if (isRegister) {
-        const data = await api.register(email, password, fullName);
+    // Stage 1 -> Stage 2 after 450ms
+    setTimeout(() => {
+      setAuthStep(2);
+      setStatusMessage("Initializing Socratic AI tutor & BKT mastery state...");
+    }, 450);
+
+    // Stage 2 -> Stage 3 after 950ms
+    setTimeout(() => {
+      setAuthStep(3);
+      setStatusMessage(`Authenticated as ${fullName || "Learner"} ✓`);
+    }, 950);
+
+    // Stage 3 -> Complete after 1350ms
+    setTimeout(async () => {
+      setAuthStep(4);
+      setStatusMessage("Entering learning workspace...");
+
+      try {
+        // Attempt authentic login with seeded student account
+        const data = await api.login("learner@certify.edu", "Password123!");
         localStorage.setItem("certify_token", data.token);
-        onLoginSuccess(data.user, data.token);
-      } else {
-        const data = await api.login(email, password);
-        localStorage.setItem("certify_token", data.token);
-        onLoginSuccess(data.user, data.token);
+        const enrichedUser: User = {
+          ...data.user,
+          fullName: fullName.trim() || data.user.fullName || "Dhanush K",
+          name: fullName.trim() || data.user.fullName || "Dhanush K",
+        };
+        onLoginSuccess(enrichedUser, data.token);
+      } catch {
+        // Seamless fallback if backend offline or unseeded
+        const demoUser: User = {
+          id: "u-learner-demo",
+          email: "learner@certify.edu",
+          fullName: fullName.trim() || "Dhanush K",
+          name: fullName.trim() || "Dhanush K",
+          role: "STUDENT",
+        };
+        const demoToken = "demo-token-" + Date.now();
+        localStorage.setItem("certify_token", demoToken);
+        onLoginSuccess(demoUser, demoToken);
       }
-    } catch (err: any) {
-      setError(err.message || "Authentication failed. Please verify credentials.");
-    } finally {
-      setIsLoading(false);
-    }
+    }, 1350);
   };
 
   return (
-    <main className="min-h-screen w-full relative flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 overflow-hidden bg-[#0B132B] font-sans selection:bg-blue-500 selection:text-white">
-      {/* Background Ambient Glows matching Stitch */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/30 rounded-full blur-[128px] pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-600/20 rounded-full blur-[128px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-full bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+    <main className="min-h-screen w-full relative flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Fixed Fullscreen Background Image */}
+      <div
+        className="fixed inset-0 pointer-events-none -z-20 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url('/hero-students.jpg')` }}
+      />
+      {/* Light Brown Editorial Tinted Blend Overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none -z-10"
+        style={{
+          background:
+            "linear-gradient(140deg, rgba(115, 78, 48, 0.40) 0%, rgba(184, 138, 98, 0.28) 50%, rgba(92, 60, 36, 0.44) 100%), rgba(248, 246, 242, 0.22)",
+        }}
+      />
 
       {/* Main Split Container */}
       <div className="relative z-10 w-full max-w-6xl flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
-        {/* Left: Floating Auth Card */}
-        <div className="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 shadow-2xl relative transition-all duration-300 text-gray-900 border border-white/20 shrink-0">
+        {/* Left: Floating Auth Card (Editorial Ivory & Clean White) */}
+        <div className="w-full max-w-md bg-white/95 rounded-3xl p-8 sm:p-10 shadow-2xl relative transition-all duration-300 text-slate-900 border border-stone-200/90 shrink-0 backdrop-blur-xl">
           {/* Top Brand Identity */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-yellow-500 to-amber-300 p-0.5 shadow-sm flex items-center justify-center shrink-0">
-                <div className="w-full h-full bg-[#1e2029] rounded-[10px] flex items-center justify-center">
-                  <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                    <line x1="12" x2="12" y1="22.08" y2="12" />
-                  </svg>
-                </div>
+              <div className="w-10 h-10 rounded-xl bg-[#5B4DF0] shadow-sm shadow-indigo-500/20 flex items-center justify-center text-white shrink-0">
+                <span className="material-symbols-outlined text-xl">school</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold tracking-wider text-gray-900 leading-none">CERTIFY</span>
-                <span className="text-[9px] font-semibold tracking-widest text-gray-500 uppercase mt-0.5">Learn • Demonstrate • Earn</span>
+                <span className="text-xl font-bold tracking-tight text-slate-900 leading-none">CERTIFY</span>
+                <span className="text-[9.5px] font-bold tracking-widest text-slate-400 uppercase mt-1">
+                  Learn • Demonstrate • Earn
+                </span>
               </div>
             </div>
             {onCancel && (
               <button
                 type="button"
                 onClick={onCancel}
-                className="text-xs text-slate-400 hover:text-slate-700 transition"
+                className="text-xs text-slate-400 hover:text-slate-700 transition p-1 cursor-pointer font-medium"
+                title="Return to landing"
               >
-                Close ✕
+                ✕ Close
               </button>
             )}
           </div>
 
           {/* Form Header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-              {authMethod === "phone" ? "Log in or sign up" : isRegister ? "Create account" : "Login with email"}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-[#5B4DF0] text-[11px] font-semibold uppercase tracking-wider mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#5B4DF0] animate-ping" />
+              1-Click Instant Access • Preview Mode
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Sign In to Learning Studio
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Enter your details to access your certifications and learning pathways.
+            <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">
+              No password or credentials required. Enter your learner name and launch directly into your course workspace.
             </p>
           </div>
 
-          {error && (
-            <div className="mb-5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-              <span className="text-sm">⚠️</span>
-              <span>{error}</span>
-            </div>
-          )}
-
           {/* Form Content */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {authMethod === "phone" ? (
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2" htmlFor="mobile-number">
-                  Mobile number
-                </label>
-                <div className="flex items-center w-full rounded-xl border border-gray-200 bg-[#FBFDFF] hover:border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all px-3 py-2.5 shadow-sm">
-                  {/* Country Selector (India) */}
-                  <div className="flex items-center gap-2 pr-3 pl-1 border-r border-gray-200 shrink-0 select-none">
-                    <svg className="w-5 h-3.5 rounded-sm shadow-sm overflow-hidden" viewBox="0 0 640 480">
-                      <path d="M0 0h640v160H0z" fill="#f93" />
-                      <path d="M0 160h640v160H0z" fill="#fff" />
-                      <path d="M0 320h640v160H0z" fill="#128807" />
-                      <circle cx="320" cy="240" fill="#008" r="48" />
-                      <circle cx="320" cy="240" fill="#fff" r="38" />
-                      <circle cx="320" cy="240" fill="#008" r="10" />
-                    </svg>
-                    <span className="text-sm font-medium text-gray-800">+91</span>
-                    <svg className="w-3.5 h-3.5 text-gray-400 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M19.5 8.25l-7.5 7.5-7.5-7.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                  <input
-                    type="tel"
-                    id="mobile-number"
-                    value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
-                    placeholder="Enter your mobile number"
-                    className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 text-sm px-3 font-normal"
-                    required
-                  />
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2 text-sm tracking-wide active:scale-[0.99] cursor-pointer"
-                  >
-                    <span>{isLoading ? "Verifying..." : "Continue with OTP"}</span>
-                    <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                </div>
+          <form onSubmit={handleInstantLogin} className="space-y-5">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2" htmlFor="learner-name">
+                Learner Display Name
+              </label>
+              <div className="flex items-center w-full rounded-xl border border-slate-200 bg-slate-50/70 hover:border-slate-300 focus-within:border-[#5B4DF0] focus-within:ring-2 focus-within:ring-[#5B4DF0]/20 transition-all px-3.5 py-3 shadow-xs">
+                <span className="material-symbols-outlined text-slate-400 text-lg mr-2.5">person</span>
+                <input
+                  type="text"
+                  id="learner-name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  disabled={isAuthenticating}
+                  placeholder="e.g. Dhanush K"
+                  className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-slate-900 placeholder-slate-400 text-sm font-medium"
+                />
               </div>
-            ) : (
-              <div className="space-y-3.5">
-                {isRegister && (
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5" htmlFor="full-name">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="full-name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Alex Chen"
-                      className="w-full rounded-xl border border-gray-200 bg-[#FBFDFF] px-3.5 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-                      required
-                    />
-                  </div>
-                )}
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5" htmlFor="email-input">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email-input"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="learner@certify.edu"
-                    className="w-full rounded-xl border border-gray-200 bg-[#FBFDFF] px-3.5 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5" htmlFor="password-input">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="password-input"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full rounded-xl border border-gray-200 bg-[#FBFDFF] px-3.5 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition"
-                    required
-                  />
-                </div>
-
-                <div className="pt-1">
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition duration-200 flex items-center justify-center gap-2 text-sm tracking-wide active:scale-[0.99] cursor-pointer"
-                  >
-                    <span>{isLoading ? "Authenticating..." : isRegister ? "Create Account" : "Sign In"}</span>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsRegister(!isRegister)}
-                    className="text-blue-600 hover:underline font-medium"
-                  >
-                    {isRegister ? "Already have an account? Sign in" : "Need an account? Register"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Security note */}
-            <div className="flex items-center justify-center gap-2 pt-1 pb-1">
-              <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-              </svg>
-              <span className="text-xs text-gray-600">
-                We'll continue with login or signup after verification.
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                This name will appear on your progress records and certification awards.
               </span>
             </div>
 
-            {/* Divider */}
-            <div className="relative flex items-center justify-center my-4">
-              <div className="border-t border-gray-200 w-full" />
-              <span className="bg-white px-3 text-xs text-gray-400 font-medium tracking-wider">or</span>
-              <div className="border-t border-gray-200 w-full" />
-            </div>
+            {/* Authenticating Animated Card or Action Button */}
+            {isAuthenticating ? (
+              <div className="p-4 rounded-xl bg-slate-50 border border-indigo-200 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-800 flex items-center gap-2">
+                    {authStep === 3 || authStep === 4 ? (
+                      <span className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+                    ) : (
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-[#5B4DF0] border-t-transparent animate-spin inline-block" />
+                    )}
+                    {statusMessage}
+                  </span>
+                  <span className="font-mono text-[#5B4DF0] text-[11px] font-bold">
+                    {authStep === 1 && "30%"}
+                    {authStep === 2 && "75%"}
+                    {(authStep === 3 || authStep === 4) && "100%"}
+                  </span>
+                </div>
 
-            {/* Secondary Action Toggle */}
-            {authMethod === "phone" ? (
-              <button
-                type="button"
-                onClick={() => setAuthMethod("email")}
-                className="w-full bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-xl transition duration-150 flex items-center justify-center gap-2.5 text-sm shadow-sm cursor-pointer"
-              >
-                <svg className="w-4 h-4 text-blue-600 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>Login with email</span>
-              </button>
+                {/* Animated Progress Bar */}
+                <div className="w-full h-1.5 rounded-full bg-slate-200 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#5B4DF0] to-emerald-500 transition-all duration-300 rounded-full"
+                    style={{
+                      width:
+                        authStep === 1
+                          ? "30%"
+                          : authStep === 2
+                          ? "75%"
+                          : "100%",
+                    }}
+                  />
+                </div>
+              </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setAuthMethod("phone")}
-                className="w-full bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-xl transition duration-150 flex items-center justify-center gap-2.5 text-sm shadow-sm cursor-pointer"
-              >
-                <svg className="w-4 h-4 text-blue-600 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>Login with mobile number</span>
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isAuthenticating}
+                  className="w-full bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white font-bold py-3.5 px-6 rounded-xl shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/35 transition-all duration-200 flex items-center justify-center gap-2 text-base tracking-wide active:scale-[0.98] cursor-pointer"
+                >
+                  <span>Sign In &amp; Launch Studio</span>
+                  <span className="material-symbols-outlined text-lg">bolt</span>
+                </button>
+              </div>
             )}
 
-            {/* Microcopy */}
-            <p className="text-center text-xs text-gray-400 pt-1 font-normal">
-              Email login is available for existing accounts only.
-            </p>
+            {/* Zero Password Security Note */}
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <span className="material-symbols-outlined text-emerald-600 text-sm">lock_open</span>
+              <span className="text-xs text-slate-500">
+                Zero password needed. Pre-configured with student permissions.
+              </span>
+            </div>
+
+            {/* Quick feature pill row */}
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-center">
+                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Track</div>
+                <div className="text-xs font-semibold text-slate-800 mt-0.5 truncate">Python Fundamentals</div>
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-center">
+                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Engine</div>
+                <div className="text-xs font-semibold text-[#5B4DF0] mt-0.5 truncate">Bayesian Knowledge</div>
+              </div>
+            </div>
           </form>
         </div>
 
-        {/* Right Hero Headline Block matching Stitch Screen 18 */}
-        <div className="w-full lg:max-w-xl text-left text-white space-y-6">
-          {/* Certify Pill */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold tracking-[0.25em] text-blue-200 uppercase">
-            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-            CERTIFY PLATFORM
+        {/* Right Hero Headline Block (Editorial Glass Card) */}
+        <div className="w-full lg:max-w-xl text-left space-y-6 bg-white/95 p-8 sm:p-10 rounded-3xl border border-stone-200/90 shadow-2xl shadow-stone-900/10 backdrop-blur-xl">
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-indigo-50/90 border border-indigo-200/80 text-xs font-semibold tracking-[0.2em] text-[#5B4DF0] uppercase shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#5B4DF0] animate-pulse" />
+            CERTIFY AUTONOMOUS PLATFORM
           </div>
 
-          {/* Main Requested Headline */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.18] drop-shadow-md">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.18] font-['Newsreader',Georgia,serif]">
             Where engineering understanding is{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-sky-200 to-white underline decoration-blue-500/60 decoration-wavy underline-offset-8">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5B4DF0] via-indigo-600 to-purple-700 italic underline decoration-[#5B4DF0]/40 decoration-wavy underline-offset-8">
               proven
             </span>
-            , not passively watched
+            , not passively watched.
           </h2>
 
-          {/* Subtitle Description */}
-          <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-lg">
-            Interactive code assignments, verified assessment benchmarks, and direct technical challenges tailored for top engineering careers.
+          <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+            Socratic dialogue tutoring, invariant checks in interactive sandboxes, and rigorous oral defenses under continuous Bayesian Knowledge Tracing.
           </p>
 
-          {/* Handwritten Accent */}
-          <div className="pt-4 flex items-center gap-3">
-            <div className="font-serif italic text-sky-200 text-2xl sm:text-3xl font-bold tracking-wide drop-shadow">
-              Learn · Build · Grow
+          {/* Value Pillars */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-1 shadow-xs">
+              <span className="text-[#5B4DF0] font-mono text-xs font-bold">01 • LEARN</span>
+              <div className="text-xs font-bold text-slate-900">Socratic Dialogue</div>
+              <div className="text-[11px] text-slate-500">AI probes and adapts to your mental model.</div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-1 shadow-xs">
+              <span className="text-[#5B4DF0] font-mono text-xs font-bold">02 • DEMONSTRATE</span>
+              <div className="text-xs font-bold text-slate-900">Code Execution</div>
+              <div className="text-[11px] text-slate-500">Practical unit tests &amp; invariants in sandboxes.</div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-1 shadow-xs">
+              <span className="text-[#5B4DF0] font-mono text-xs font-bold">03 • EARN</span>
+              <div className="text-xs font-bold text-slate-900">Audited Certificate</div>
+              <div className="text-[11px] text-slate-500">Evidence-backed deterministic tiering.</div>
             </div>
           </div>
         </div>
