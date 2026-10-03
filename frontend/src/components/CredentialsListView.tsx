@@ -6,15 +6,12 @@ interface CredentialsListViewProps {
   user?: User | null;
   onNavigate: (view: string) => void;
   onViewCredential: (credId: string) => void;
-  onNavigateVerify?: (credId?: string) => void;
 }
-
 
 export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
   user: _user,
   onNavigate,
   onViewCredential,
-  onNavigateVerify: _onNavigateVerify,
 }) => {
 
   const [filter, setFilter] = useState<"earned" | "in-progress" | "all">("earned");
@@ -153,12 +150,6 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
                     >
                       View Certificate →
                     </button>
-                    <button
-                      onClick={() => onNavigate("verify")}
-                      className="text-xs text-slate-600 hover:text-slate-900 font-medium transition cursor-pointer"
-                    >
-                      Verify in Ledger
-                    </button>
                   </div>
                 </div>
               </div>
@@ -186,10 +177,10 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
             </div>
 
             <button
-              onClick={() => onNavigate("verify")}
+              onClick={() => onNavigate("catalog")}
               className="w-full bg-[#1b2232] hover:bg-slate-900 text-white rounded-[8px] py-2 px-3 text-xs font-semibold transition cursor-pointer"
             >
-              Open Public Verification Ledger →
+              Explore Available Certifications →
             </button>
           </div>
         </aside>

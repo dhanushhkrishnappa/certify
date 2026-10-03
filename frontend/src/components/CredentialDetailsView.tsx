@@ -4,14 +4,12 @@ import type { User } from "../types/index.js";
 interface CredentialDetailsViewProps {
   user?: User | null;
   credentialId?: string;
-  onNavigateVerify?: (credId: string) => void;
   onBack?: () => void;
 }
 
 export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
   user,
   credentialId = "CERT-PY-2026-001842",
-  onNavigateVerify,
   onBack,
 }) => {
   const [copied, setCopied] = useState(false);
@@ -95,14 +93,12 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
           </button>
 
           <button
-            onClick={() => onNavigateVerify && onNavigateVerify(credentialId)}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#10141e] rounded-lg hover:bg-slate-900 shadow-sm transition active:scale-95"
+            onClick={() => handleCopyId()}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#10141e] rounded-lg hover:bg-slate-900 shadow-sm transition active:scale-95 cursor-pointer"
           >
-            <span>Verify Credential</span>
+            <span>{copied ? "Credential Copied!" : "Copy Credential ID"}</span>
             <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
+              <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
           </button>
         </div>
@@ -367,10 +363,11 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                 <div className="min-w-0 flex-1">
                   <div className="text-[11px] text-slate-400 font-medium leading-none">Verification URL</div>
                   <div
-                    onClick={() => onNavigateVerify && onNavigateVerify(credentialId)}
+                    onClick={() => handleCopyId()}
                     className="text-xs font-mono font-semibold text-indigo-600 truncate leading-snug mt-1 hover:underline cursor-pointer"
+                    title="Click to copy credential ID"
                   >
-                    {verificationUrl}
+                    {credentialId}
                   </div>
                 </div>
               </div>
