@@ -76,10 +76,10 @@ const getViewFromPath = (): CertifyView => {
 
   const requestedView = validViews[p];
 
-  // RULE 11: Unauthenticated entry MUST be Login/Signup (or public landing)
+  // Unauthenticated entry defaults to landing page (or auth if explicitly visited)
   if (!token) {
-    if (requestedView === "landing") return "landing";
-    return "auth";
+    if (requestedView === "auth") return "auth";
+    return "landing";
   }
 
   // Authenticated user opening auth route goes straight to Dashboard
