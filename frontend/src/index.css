@@ -232,7 +232,7 @@ body {
   border: 1px solid var(--certify-status-warning-border);
 }
 
-/* Animations */
+/* Animations & Motion System */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -246,4 +246,101 @@ body {
 
 .animate-fade-in {
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes waveformPulse {
+  0% {
+    transform: scaleY(0.3);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   VIEW TRANSITION API (with instant reduced-motion fallback)
+   ========================================================================== */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root) {
+    animation: 200ms cubic-bezier(0.16, 1, 0.3, 1) both certifyFadeOut;
+  }
+  ::view-transition-new(root) {
+    animation: 300ms cubic-bezier(0.16, 1, 0.3, 1) both certifyFadeIn;
+  }
+}
+
+@keyframes certifyFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes certifyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   LENIS SMOOTH SCROLL INTEGRATION
+   ========================================================================== */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   PREFERS-REDUCED-MOTION SAFEGUARD
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
 }
