@@ -192,19 +192,13 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                     setActiveTab(item.label);
                   }}
                   onMouseEnter={handleLinkHover}
-                  className={`relative z-10 px-5 py-2 rounded-full text-[14px] transition-all duration-150 whitespace-nowrap cursor-pointer flex flex-col items-center justify-center ${
+                  className={`relative z-10 px-5 py-2 rounded-full text-[14px] transition-all duration-150 whitespace-nowrap cursor-pointer flex items-center justify-center ${
                     isActive
                       ? "bg-[#E6D7C5] text-[#24130D] font-semibold shadow-xs"
                       : "text-[#3E271C] hover:text-[#1F0E07] font-medium"
                   }`}
                 >
-                  <span className="leading-tight">{item.label}</span>
-                  {isActive && (
-                    <span
-                      className="w-1.5 h-1.5 rounded-full bg-[#351D12] mt-1 shrink-0"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <span className="leading-none">{item.label}</span>
                 </a>
               );
             })}
