@@ -87,59 +87,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) 
           {/* Top Brand Identity */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              {/* Socratic Botanical Emblem Mark */}
-              <svg
-                width="38"
-                height="38"
-                viewBox="0 0 40 40"
-                fill="none"
-                className="shrink-0"
-                aria-hidden="true"
-              >
-                <defs>
-                  <linearGradient id="authMarkGrad" x1="20" y1="4" x2="20" y2="34" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#6C4127" />
-                    <stop offset="1" stopColor="#3C2114" />
-                  </linearGradient>
-                  <linearGradient id="authMarkAccent" x1="12" y1="12" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#8C5836" />
-                    <stop offset="1" stopColor="#552F1B" />
-                  </linearGradient>
-                </defs>
-                <circle cx="20" cy="8" r="2.4" fill="url(#authMarkGrad)" />
-                <path
-                  d="M20 12 C18.8 15 18 17.5 18 20 C18 22.2 18.9 23.8 20 24.5 C21.1 23.8 22 22.2 22 20 C22 17.5 21.2 15 20 12 Z"
-                  fill="url(#authMarkGrad)"
-                />
-                <path
-                  d="M17 14.5 C14.5 17.5 13.5 21 14.2 24 C14.8 26.2 17.2 27.5 20 27.5 C17.5 26 16.5 23.5 17 20.8 C17.4 18.4 18.6 16.2 19.8 15 C18.6 14.6 17.6 14.4 17 14.5 Z"
-                  fill="url(#authMarkAccent)"
-                />
-                <path
-                  d="M23 14.5 C25.5 17.5 26.5 21 25.8 24 C25.2 26.2 22.8 27.5 20 27.5 C22.5 26 23.5 23.5 23 20.8 C22.6 18.4 21.4 16.2 20.2 15 C21.4 14.6 22.4 14.4 23 14.5 Z"
-                  fill="url(#authMarkAccent)"
-                />
-                <path
-                  d="M12.5 19 C10.5 22.5 10.8 26.5 13.5 29.5 C15.5 31.5 18.5 32 20 32 C17.5 30.5 15.5 28 15 25 C14.6 22.5 15.5 20.5 16.8 19 C14.8 18.8 13.3 18.8 12.5 19 Z"
-                  fill="url(#authMarkGrad)"
-                />
-                <path
-                  d="M27.5 19 C29.5 22.5 29.2 26.5 26.5 29.5 C24.5 31.5 21.5 32 20 32 C22.5 30.5 24.5 28 25 25 C25.4 22.5 24.5 20.5 23.2 19 C25.2 18.8 26.7 18.8 27.5 19 Z"
-                  fill="url(#authMarkGrad)"
-                />
-                <path
-                  d="M11 28 C14 31 17 32.5 20 32.5 C23 32.5 26 31 29 28 C26 30 22.5 30.8 20 30.8 C17.5 30.8 14 30 11 28 Z"
-                  fill="#331A0F"
-                />
-              </svg>
-              <div className="flex flex-col">
-                <span className="text-xl font-['Newsreader',Georgia,serif] font-bold tracking-tight text-[#24130D] leading-none">
-                  CERTIFY
-                </span>
-                <span className="text-[9px] font-bold tracking-widest text-[#7A6050] uppercase mt-1">
-                  Learn • Demonstrate • Earn
-                </span>
-              </div>
+              <img
+                src="/certify-logo.png"
+                alt="Certify"
+                className="h-9 sm:h-10 w-auto object-contain"
+              />
             </div>
             {onCancel && (
               <button

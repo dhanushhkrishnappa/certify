@@ -1,5 +1,5 @@
 import React from "react";
-import { Award, BookOpen, CheckCircle, User } from "lucide-react";
+import { BookOpen, CheckCircle, User } from "lucide-react";
 
 interface NavbarProps {
   currentView: "catalog" | "studio";
@@ -36,27 +36,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => setCurrentView("catalog")}
           style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}
         >
-          <div style={{
-            width: 38,
-            height: 38,
-            borderRadius: 10,
-            background: "linear-gradient(135deg, #6366f1, #06b6d4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 16px rgba(99, 102, 241, 0.4)"
-          }}>
-            <Award size={22} color="white" />
-          </div>
+          <img
+            src="/certify-icon.png"
+            alt="Certify"
+            style={{ width: 34, height: 34, objectFit: "contain" }}
+          />
           <div>
-            <span style={{ fontSize: "1.25rem", fontWeight: 800, letterSpacing: "-0.02em", color: "#fff" }}>
-              CERTIFY
+            <span style={{ fontSize: "1.25rem", fontWeight: 800, letterSpacing: "-0.02em", color: "#fff", fontFamily: "var(--font-sans)" }}>
+              Certify
             </span>
             <span style={{ 
               marginLeft: 8, 
               fontSize: "0.68rem", 
               padding: "2px 6px", 
-              borderRadius: 4, 
+              borderRadius: 6, 
               background: "rgba(99, 102, 241, 0.2)", 
               color: "#a5b4fc", 
               fontWeight: 700 

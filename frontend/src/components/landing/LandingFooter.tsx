@@ -18,16 +18,16 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({
           {/* Brand & Manifesto Column (2 cols on lg) */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#8B5E3C] via-[#DCA86A] to-[#F5EBDD] flex items-center justify-center shadow-sm shrink-0">
-                <span className="material-symbols-outlined text-[19px] text-[#1E0F08]">
-                  school
-                </span>
-              </div>
+              <img
+                src="/certify-icon.png"
+                alt="Certify"
+                className="w-10 h-10 object-contain shrink-0"
+              />
               <div className="flex flex-col">
-                <span className="text-xl font-['Newsreader',Georgia,serif] font-bold text-[#FEF5E5] leading-none">
-                  CERTIFY
+                <span className="text-2xl font-bold tracking-tight text-[#FEF5E5] leading-none font-sans">
+                  Certify
                 </span>
-                <span className="text-[8.5px] font-bold tracking-[0.18em] text-[#C7B299] uppercase mt-1">
+                <span className="text-[8.5px] font-bold tracking-[0.2em] text-[#C7B299] uppercase mt-1">
                   LEARN • DEMONSTRATE • EARN
                 </span>
               </div>

@@ -102,19 +102,21 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         <div className={`flex items-center justify-between ${collapsed ? "justify-center" : "px-3"}`} data-purpose="brand-logo">
           <div
             onClick={() => onNavigate("dashboard")}
-            className="flex items-center space-x-3 cursor-pointer"
+            className="flex items-center space-x-3 cursor-pointer select-none"
             title="Certify Home"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-700 flex items-center justify-center shadow-sm shrink-0">
-              <svg className="w-5 h-5 text-amber-200" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.2l6 3.75-6 3.75-6-3.75 6-3.75zm-6 5.5l5 3.12v6.25L6 14V9.7zm7 9.37V12.82l5-3.12V14l-5 5.07z" />
-              </svg>
-            </div>
-            {!collapsed && (
-              <div>
-                <h1 className="text-base font-extrabold tracking-wider text-slate-900 leading-none">CERTIFY</h1>
-                <p className="text-[9px] tracking-widest text-slate-400 font-semibold mt-1">LEARN • DEMONSTRATE • EARN</p>
-              </div>
+            {collapsed ? (
+              <img
+                src="/certify-icon.png"
+                alt="Certify"
+                className="w-8 h-8 object-contain shrink-0 transition-transform hover:scale-105"
+              />
+            ) : (
+              <img
+                src="/certify-logo.png"
+                alt="Certify"
+                className="h-8 w-auto object-contain shrink-0 transition-transform hover:scale-[1.02]"
+              />
             )}
           </div>
 
