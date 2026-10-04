@@ -186,6 +186,11 @@ export const App: React.FC = () => {
         onExploreCourses={() => navigateWithTransition(currentUser ? "catalog" : "auth")}
         onBeginDiagnostic={() => navigateWithTransition(currentUser ? "diagnostic" : "auth")}
         onSignIn={() => navigateWithTransition("auth")}
+        onRegister={() => navigateWithTransition("auth")}
+        onSelectCourse={(slug) => {
+          setSelectedCourseSlug(slug);
+          navigateWithTransition(currentUser ? "course-details" : "auth");
+        }}
       />
     );
   }
