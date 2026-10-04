@@ -89,7 +89,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
         }`}
       >
         <div
-          className={`pointer-events-auto w-full max-w-[1240px] h-[58px] sm:h-[68px] px-3.5 sm:px-7 rounded-full bg-gradient-to-r from-[#F8F2E8] via-[#F5EBDD] to-[#EFE2D2] border border-[#DECBB7] shadow-[0_16px_40px_-8px_rgba(15,7,3,0.45),0_4px_12px_rgba(20,10,5,0.2)] backdrop-blur-md flex items-center justify-between transition-all duration-300`}
+          className={`pointer-events-auto w-full max-w-[1240px] h-[58px] sm:h-[68px] px-3.5 sm:px-6 rounded-2xl bg-gradient-to-r from-[#F8F2E8] via-[#F5EBDD] to-[#EFE2D2] border border-[#DECBB7] shadow-[0_16px_40px_-8px_rgba(15,7,3,0.45),0_4px_12px_rgba(20,10,5,0.2)] backdrop-blur-md flex items-center justify-between transition-all duration-300`}
         >
           {/* Brand Anchor */}
           <a
@@ -160,16 +160,16 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
             </div>
           </a>
 
-          {/* Center Links with Active Sand Pill & Indicator Dot */}
+          {/* Center Links with Active Sand Pill */}
           <nav
             ref={linksContainerRef}
             onMouseLeave={handleLinksLeave}
-            className="hidden lg:flex items-center gap-4 sm:gap-6 relative px-2 py-1"
+            className="hidden lg:flex items-center gap-1.5 sm:gap-2 relative px-2 py-1"
             aria-label="Main Navigation"
           >
             {/* Floating indicator background for hover */}
             <div
-              className="absolute top-1 bottom-1 rounded-full bg-[#E5D6C4]/60 border border-[#D8C4AC]/60 pointer-events-none transition-all duration-200 ease-out"
+              className="absolute top-1 bottom-1 rounded-xl bg-[#E5D6C4]/60 border border-[#D8C4AC]/60 pointer-events-none transition-all duration-200 ease-out"
               style={{
                 left: `${indicatorStyle.left}px`,
                 width: `${indicatorStyle.width}px`,
@@ -192,7 +192,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                     setActiveTab(item.label);
                   }}
                   onMouseEnter={handleLinkHover}
-                  className={`relative z-10 px-5 py-2 rounded-full text-[14px] transition-all duration-150 whitespace-nowrap cursor-pointer flex items-center justify-center ${
+                  className={`relative z-10 px-4 py-2 rounded-xl text-[14px] transition-all duration-150 whitespace-nowrap cursor-pointer flex items-center justify-center ${
                     isActive
                       ? "bg-[#E6D7C5] text-[#24130D] font-semibold shadow-xs"
                       : "text-[#3E271C] hover:text-[#1F0E07] font-medium"
@@ -209,7 +209,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
             {/* Sign In action */}
             <button
               onClick={onSignIn}
-              className="h-[38px] px-4 sm:px-5 inline-flex items-center justify-center rounded-full text-[13.5px] font-medium text-[#2B160D] bg-[#EDE0CF]/30 hover:bg-[#EBDDCB]/70 border border-[#D5C2AD] transition-all cursor-pointer select-none shrink-0 active:scale-95"
+              className="h-[38px] px-4 sm:px-5 inline-flex items-center justify-center rounded-xl text-[13.5px] font-medium text-[#2B160D] bg-[#EDE0CF]/30 hover:bg-[#EBDDCB]/70 border border-[#D5C2AD] transition-all cursor-pointer select-none shrink-0 active:scale-95"
             >
               Sign In
             </button>
@@ -217,7 +217,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
             {/* Register action */}
             <button
               onClick={onRegister || onSignIn}
-              className="h-[38px] px-4 sm:px-5 inline-flex items-center justify-center gap-1.5 rounded-full text-[13.5px] font-medium text-[#2B160D] bg-[#EDE0CF]/30 hover:bg-[#EBDDCB]/70 border border-[#D5C2AD] transition-all cursor-pointer select-none shrink-0 active:scale-95 group"
+              className="h-[38px] px-4 sm:px-5 inline-flex items-center justify-center gap-1.5 rounded-xl text-[13.5px] font-medium text-[#2B160D] bg-[#EDE0CF]/30 hover:bg-[#EBDDCB]/70 border border-[#D5C2AD] transition-all cursor-pointer select-none shrink-0 active:scale-95 group"
             >
               <span>Register</span>
               <span className="text-[13px] opacity-80 group-hover:translate-x-0.5 transition-transform">
@@ -225,11 +225,11 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
               </span>
             </button>
 
-            {/* Primary Action Button (Deep Espresso Pill matching reference) */}
+            {/* Primary Action Button (Slightly Squared Pill matching navbar) */}
             <button
               ref={magneticCtaRef}
               onClick={onBeginDiagnostic}
-              className="h-[38px] sm:h-[40px] px-5 sm:px-6 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-[#3E2316] via-[#331B10] to-[#28140B] hover:from-[#4C2B1C] hover:to-[#351A0E] text-[#FAF2E8] text-[13.5px] font-semibold border border-[#5C3823] shadow-md shadow-[#23120B]/35 transition-all duration-150 active:scale-95 cursor-pointer select-none shrink-0 group"
+              className="h-[38px] sm:h-[40px] px-5 sm:px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#3E2316] via-[#331B10] to-[#28140B] hover:from-[#4C2B1C] hover:to-[#351A0E] text-[#FAF2E8] text-[13.5px] font-semibold border border-[#5C3823] shadow-md shadow-[#23120B]/35 transition-all duration-150 active:scale-95 cursor-pointer select-none shrink-0 group"
             >
               <span className="magnetic-content flex items-center gap-1.5">
                 <span>Begin Diagnostic</span>
@@ -244,13 +244,13 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
           <div className="flex sm:hidden items-center gap-1.5 shrink-0">
             <button
               onClick={onBeginDiagnostic}
-              className="h-[32px] px-3 inline-flex items-center justify-center rounded-full bg-[#331B10] text-[#FAF2E8] text-[11px] font-semibold"
+              className="h-[32px] px-3 inline-flex items-center justify-center rounded-xl bg-[#331B10] text-[#FAF2E8] text-[11px] font-semibold"
             >
               Diagnostic →
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-8 h-8 rounded-full bg-[#EFE3D3] border border-[#DECBB7] flex items-center justify-center text-[#2B160D] hover:text-[#000] transition-colors"
+              className="w-8 h-8 rounded-xl bg-[#EFE3D3] border border-[#DECBB7] flex items-center justify-center text-[#2B160D] hover:text-[#000] transition-colors"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
             >
@@ -298,7 +298,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                 setMobileMenuOpen(false);
                 onBeginDiagnostic();
               }}
-              className="w-full py-3.5 rounded-full bg-[#2B160D] text-[#FAF2E8] font-semibold text-[15px] flex items-center justify-center gap-2 shadow-md shadow-[#2B160D]/20"
+              className="w-full py-3.5 rounded-xl bg-[#2B160D] text-[#FAF2E8] font-semibold text-[15px] flex items-center justify-center gap-2 shadow-md shadow-[#2B160D]/20"
             >
               <span>Begin Free Diagnostic</span>
               <span>→</span>
@@ -309,7 +309,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                   setMobileMenuOpen(false);
                   onSignIn();
                 }}
-                className="py-3 rounded-full bg-[#FAF2E8] border border-[#DECBB7] text-[#2B160D] font-medium text-[14px]"
+                className="py-3 rounded-xl bg-[#FAF2E8] border border-[#DECBB7] text-[#2B160D] font-medium text-[14px]"
               >
                 Sign In
               </button>
@@ -318,7 +318,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                   setMobileMenuOpen(false);
                   (onRegister || onSignIn)();
                 }}
-                className="py-3 rounded-full bg-[#FAF2E8] border border-[#DECBB7] text-[#2B160D] font-medium text-[14px]"
+                className="py-3 rounded-xl bg-[#FAF2E8] border border-[#DECBB7] text-[#2B160D] font-medium text-[14px]"
               >
                 Register
               </button>
