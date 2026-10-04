@@ -68,6 +68,22 @@
   --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-card: 0 2px 8px rgba(15, 17, 23, 0.04), 0 1px 2px rgba(15, 17, 23, 0.02);
   --shadow-elevated: 0 8px 24px rgba(15, 17, 23, 0.08), 0 2px 6px rgba(15, 17, 23, 0.04);
+
+  /* CERTIFY Shared Warm Editorial Color Tokens (Landing & Auth Alignment) */
+  --certify-brown-deep: #150A05;            /* Dark chocolate / obsidian espresso backdrop */
+  --certify-brown: #24140D;                 /* Deep warm espresso brown */
+  --certify-brown-surface: #2E1B13;         /* Warm brown container surface */
+  --certify-parchment: #F5EBDD;             /* Warm parchment hero surface */
+  --certify-parchment-light: #FAF2E9;       /* Lighter parchment radial center */
+  --certify-cream: #F8F2E8;                 /* Floating navbar warm ivory surface */
+  --certify-cream-soft: #F1E5D4;            /* Soft champagne cream fill / active pill */
+  --certify-cream-border: #DECBB7;          /* Soft warm border on cream */
+  --certify-espresso: #24130D;              /* Deep espresso primary headline/nav typography */
+  --certify-espresso-hover: #120904;        /* Darkest espresso text hover */
+  --certify-muted-brown: #664E41;           /* Muted editorial secondary prose on parchment */
+  --certify-purple-muted: #5D3B75;          /* Muted lilac / royal purple italic accent */
+  --certify-gold-accent: #C89758;           /* Subtle champagne / gold star & linework */
+  --certify-gold-border: rgba(180, 140, 90, 0.35); /* Subtle warm gold border */
 }
 
 * {
