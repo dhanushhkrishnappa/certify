@@ -85,11 +85,10 @@ export const FaqSection: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className={`rounded-2xl border transition-all overflow-hidden ${
-                  isOpen
+                className={`rounded-2xl border transition-all overflow-hidden ${isOpen
                     ? "bg-gradient-to-b from-[#FAF1E6] via-[#F5EBDD] to-[#EEE0CD] border-[#DFCDBB] shadow-lg text-[#22120B]"
                     : "bg-gradient-to-b from-[#FAF1E6]/95 to-[#F2E5D5]/90 border-[#DFCDBB]/80 hover:border-[#BFA892] shadow-sm text-[#22120B]"
-                }`}
+                  }`}
               >
                 <button
                   onClick={() => toggleFaq(item.id)}
@@ -100,9 +99,8 @@ export const FaqSection: React.FC = () => {
                     {item.question}
                   </span>
                   <div
-                    className={`w-8 h-8 rounded-lg bg-[#FAF6EE] border border-[#DFCDBB] flex items-center justify-center text-[#24130D] shrink-0 transition-transform duration-300 shadow-xs ${
-                      isOpen ? "rotate-180" : "rotate-0"
-                    }`}
+                    className={`w-8 h-8 rounded-lg bg-[#FAF6EE] border border-[#DFCDBB] flex items-center justify-center text-[#24130D] shrink-0 transition-transform duration-300 shadow-xs ${isOpen ? "rotate-180" : "rotate-0"
+                      }`}
                   >
                     <span className="material-symbols-outlined text-[18px]">
                       expand_more

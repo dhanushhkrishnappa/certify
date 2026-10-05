@@ -104,9 +104,8 @@ export const TestimonialsSection: React.FC = () => {
                 <button
                   key={i}
                   onClick={() => setActiveIdx(i)}
-                  className={`h-2 rounded-full transition-all cursor-pointer ${
-                    activeIdx === i ? "w-8 bg-[#DCA86A]" : "w-2 bg-[#5A3825]"
-                  }`}
+                  className={`h-2 rounded-full transition-all cursor-pointer ${activeIdx === i ? "w-8 bg-[#DCA86A]" : "w-2 bg-[#5A3825]"
+                    }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
               ))}

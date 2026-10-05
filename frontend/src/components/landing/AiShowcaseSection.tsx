@@ -137,11 +137,10 @@ export const AiShowcaseSection: React.FC = () => {
                 <button
                   key={s.id}
                   onClick={() => setCurrentStepIdx(idx)}
-                  className={`px-3 py-1 rounded-xl text-xs font-mono transition-all cursor-pointer ${
-                    currentStepIdx === idx
+                  className={`px-3 py-1 rounded-xl text-xs font-mono transition-all cursor-pointer ${currentStepIdx === idx
                       ? "bg-[#24130D] text-[#FAF2E8] font-bold shadow-xs"
                       : "bg-[#FAF5EE] text-[#5C4538] hover:text-[#24130D] border border-[#DECBB7]"
-                  }`}
+                    }`}
                 >
                   {s.label}
                 </button>

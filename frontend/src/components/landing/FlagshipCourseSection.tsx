@@ -66,21 +66,19 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
                 <div
                   key={mod.num}
                   onClick={() => setSelectedMod(idx)}
-                  className={`p-4 rounded-xl transition-all cursor-pointer border ${
-                    selectedMod === idx
+                  className={`p-4 rounded-xl transition-all cursor-pointer border ${selectedMod === idx
                       ? "bg-gradient-to-b from-[#FAF1E6] via-[#F5EBDD] to-[#EEE0CD] border-[#DFCDBB] shadow-md text-[#22120B]"
                       : "bg-[#23120A]/85 border-[#4A2C1D] hover:bg-[#2F190F] text-[#E8DCCF]"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className={`font-mono text-xs font-bold ${selectedMod === idx ? "text-[#5D3B75]" : "text-[#E6CAA4]"}`}>
                       Module {mod.num} // {mod.focus}
                     </span>
-                    <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
-                      selectedMod === idx
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${selectedMod === idx
                         ? "text-[#276A47] bg-[#E8F5E9] border border-[#C8E6C9] font-bold"
                         : "text-[#A89682]"
-                    }`}>
+                      }`}>
                       {selectedMod === idx ? "SELECTED" : "VIEW"}
                     </span>
                   </div>

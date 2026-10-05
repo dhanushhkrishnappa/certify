@@ -155,9 +155,8 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
             <button
               onClick={() => scrollByAmount(-360)}
               disabled={!canScrollLeft}
-              className={`w-10 h-10 rounded-xl bg-[#FAF1E6] border border-[#DFCDBB] flex items-center justify-center text-[#24130D] transition-opacity cursor-pointer shadow-sm ${
-                canScrollLeft ? "opacity-100 hover:bg-[#F2E5D5]" : "opacity-40 cursor-not-allowed"
-              }`}
+              className={`w-10 h-10 rounded-xl bg-[#FAF1E6] border border-[#DFCDBB] flex items-center justify-center text-[#24130D] transition-opacity cursor-pointer shadow-sm ${canScrollLeft ? "opacity-100 hover:bg-[#F2E5D5]" : "opacity-40 cursor-not-allowed"
+                }`}
               aria-label="Scroll left"
             >
               <span className="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -165,9 +164,8 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
             <button
               onClick={() => scrollByAmount(360)}
               disabled={!canScrollRight}
-              className={`w-10 h-10 rounded-xl bg-[#FAF1E6] border border-[#DFCDBB] flex items-center justify-center text-[#24130D] transition-opacity cursor-pointer shadow-sm ${
-                canScrollRight ? "opacity-100 hover:bg-[#F2E5D5]" : "opacity-40 cursor-not-allowed"
-              }`}
+              className={`w-10 h-10 rounded-xl bg-[#FAF1E6] border border-[#DFCDBB] flex items-center justify-center text-[#24130D] transition-opacity cursor-pointer shadow-sm ${canScrollRight ? "opacity-100 hover:bg-[#F2E5D5]" : "opacity-40 cursor-not-allowed"
+                }`}
               aria-label="Scroll right"
             >
               <span className="material-symbols-outlined text-[20px]">chevron_right</span>

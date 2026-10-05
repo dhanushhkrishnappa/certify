@@ -13,7 +13,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onBeginDiagnostic,
 }) => {
   const heroContainerRef = useRef<HTMLDivElement>(null);
-  const bgImageRef = useRef<HTMLDivElement>(null);
   const primaryCtaRef = useMagnetic<HTMLButtonElement>({ strength: 0.32 });
   const secondaryCtaRef = useMagnetic<HTMLButtonElement>({ strength: 0.22 });
 
@@ -21,21 +20,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     if (prefersReducedMotion()) return;
 
     const ctx = gsap.context(() => {
-      // Background subtle zoom & parallax on scroll
-      if (bgImageRef.current) {
-        gsap.to(bgImageRef.current, {
-          scale: 1.12,
-          yPercent: 15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: heroContainerRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      }
-
       // Hero content staggered entrance timeline
       const tl = gsap.timeline({
         defaults: { ease: MOTION_EASING.expoOut },
@@ -44,15 +28,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       tl.fromTo(
         ".hero-headline-word",
         { opacity: 0, y: 44, rotateX: -15 },
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            stagger: 0.08,
-            duration: 0.9,
-          },
-          "-=0.5"
-        )
+        {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          stagger: 0.08,
+          duration: 0.9,
+        },
+        "-=0.5"
+      )
         .fromTo(
           ".hero-subtext",
           { opacity: 0, y: 22 },
@@ -83,23 +67,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       ref={heroContainerRef}
       className="relative min-h-[94vh] flex flex-col justify-center pt-28 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
-      {/* Cinematic Background Layer with Parallax Treatment */}
-      <div
-        ref={bgImageRef}
-        className="absolute inset-0 -top-16 -bottom-16 pointer-events-none z-0 bg-cover bg-center bg-no-repeat will-change-transform"
-        style={{
-          backgroundImage: `url('/hero-students.jpg')`,
-          filter: "brightness(0.32) contrast(1.15) saturate(0.85)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Atmospheric Espresso & Sepia Vignette Layers */}
+      {/* Atmospheric Espresso & Sepia Vignette Layers (Soft translucent blend over Dither) */}
       <div
         className="absolute inset-0 pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(ellipse at 50% 30%, rgba(53, 31, 21, 0.45) 0%, rgba(32, 17, 10, 0.88) 65%, rgba(18, 9, 5, 0.98) 100%)",
+            "radial-gradient(ellipse at 50% 30%, rgba(53, 31, 21, 0.20) 0%, rgba(32, 17, 10, 0.55) 65%, rgba(18, 9, 5, 0.75) 100%)",
         }}
         aria-hidden="true"
       />
@@ -115,9 +88,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       />
 
       {/* Central Hero Experience Container */}
-      <div className="relative z-10 max-w-5xl mx-auto w-full text-center">
+      <div className="relative z-10 max-w-[1000px] mx-auto w-full text-center">
         <BulgeCard
-          className="relative p-8 sm:p-14 md:p-16 lg:p-20 rounded-[34px] sm:rounded-[44px] bg-gradient-to-b from-[#F8F0E5] via-[#F5EBDD] to-[#EEE0CD] border border-[#DECBB7] shadow-[0_28px_80px_-15px_rgba(15,7,3,0.55),0_10px_28px_rgba(20,10,5,0.25)] overflow-hidden"
+          className="relative p-8 sm:p-12 md:p-14 lg:p-[72px] rounded-[32px] sm:rounded-[42px] bg-gradient-to-b from-[#F8F0E5] via-[#F5EBDD] to-[#EEE0CD] border border-[#DECBB7] shadow-[0_26px_75px_-15px_rgba(15,7,3,0.55),0_10px_28px_rgba(20,10,5,0.25)] overflow-hidden"
           highlightColor="rgba(255, 255, 255, 0.4)"
         >
           {/* Subtle Ambient Radial Warmth */}
@@ -148,12 +121,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           {/* Sparkle 1: Upper Left Champagne Gold 4-Pointed Flare Star */}
           <div
-            className="absolute top-[25%] left-[7%] sm:left-[8%] pointer-events-none z-10 transition-transform duration-300"
+            className="absolute top-[22%] left-[6%] sm:left-[7%] pointer-events-none z-10 transition-transform duration-300"
             aria-hidden="true"
           >
             <svg
-              width="32"
-              height="32"
+              width="30"
+              height="30"
               viewBox="0 0 24 24"
               fill="none"
               className="drop-shadow-[0_2px_10px_rgba(220,168,106,0.6)]"
@@ -167,12 +140,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           {/* Sparkle 2: Lower Right Champagne Gold 4-Pointed Flare Star */}
           <div
-            className="absolute bottom-[26%] right-[7%] sm:right-[8%] pointer-events-none z-10 transition-transform duration-300"
+            className="absolute bottom-[24%] right-[6%] sm:right-[7%] pointer-events-none z-10 transition-transform duration-300"
             aria-hidden="true"
           >
             <svg
-              width="26"
-              height="26"
+              width="24"
+              height="24"
               viewBox="0 0 24 24"
               fill="none"
               className="drop-shadow-[0_2px_10px_rgba(220,168,106,0.6)]"
@@ -185,7 +158,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* Grand Headline */}
-          <h1 className="relative z-10 font-['Newsreader',Georgia,serif] text-5xl sm:text-6xl md:text-[76px] lg:text-[82px] font-normal tracking-tight text-[#22120B] leading-[1.04] mb-8 max-w-4xl mx-auto pt-2">
+          <h1 className="relative z-10 font-['Newsreader',Georgia,serif] text-4xl sm:text-5xl md:text-[68px] lg:text-[74px] font-normal tracking-tight text-[#22120B] leading-[1.05] mb-6 max-w-3xl mx-auto pt-1">
             <span className="hero-headline-word block">Where AI proves</span>
             <span className="hero-headline-word block font-medium text-[#22120B]">
               understanding.
@@ -196,10 +169,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </h1>
 
           {/* Subtext */}
-          <p className="relative z-10 hero-subtext text-[16px] sm:text-[18.5px] leading-[30px] text-[#5C4538] max-w-2xl mx-auto mb-10 font-normal">
-            Learn with Socratic AI. Prove your engineering skills through defensible
-            reasoning and isolated code execution. Earn a credential that reflects
-            what you actually know.
+          <p className="relative z-10 hero-subtext text-[15px] sm:text-[17.5px] leading-[28px] text-[#5C4538] max-w-xl mx-auto mb-8 font-normal">
+            Learn with AI. Build real understanding. Earn a credential that proves it.
           </p>
 
           {/* Action CTAs */}
@@ -208,7 +179,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <button
               ref={primaryCtaRef}
               onClick={onBeginDiagnostic}
-              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-b from-[#462719] via-[#381E13] to-[#2B150D] hover:from-[#542F1E] hover:to-[#381D12] text-[#FAF0E6] text-[15px] font-semibold border border-[#643D28] shadow-[0_12px_28px_-6px_rgba(35,17,10,0.5)] transition-all duration-200 active:scale-95 cursor-pointer group"
+              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-b from-[#462719] via-[#381E13] to-[#2B150D] hover:from-[#542F1E] hover:to-[#381D12] text-[#FAF0E6] text-[15px] font-semibold border border-[#643D28] shadow-[0_12px_28px_-6px_rgba(35,17,10,0.5)] transition-all duration-200 active:scale-95 cursor-pointer group"
             >
               <span className="magnetic-content flex items-center gap-2">
                 <span className="material-symbols-outlined text-[19px] text-[#E8CCA6]">
@@ -225,7 +196,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <button
               ref={secondaryCtaRef}
               onClick={onExploreCourses}
-              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl sm:rounded-2xl bg-[#FAF2E8]/85 hover:bg-[#F3E5D4] border border-[#C9B39B] hover:border-[#AC9278] text-[#28150C] text-[15px] font-medium transition-all duration-200 active:scale-95 cursor-pointer shadow-xs group"
+              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-[#FAF2E8]/85 hover:bg-[#F3E5D4] border border-[#C9B39B] hover:border-[#AC9278] text-[#28150C] text-[15px] font-medium transition-all duration-200 active:scale-95 cursor-pointer shadow-xs group"
             >
               <span className="magnetic-content flex items-center gap-2">
                 <span>Explore Curriculum</span>
@@ -238,7 +209,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </BulgeCard>
 
         {/* Institutional Trust Strip */}
-        <div className="hero-trust-strip mt-14 pt-8 border-t border-[#4E3123]/60 text-center">
+        <div className="hero-trust-strip mt-10 pt-6 border-t border-[#4E3123]/60 text-center">
           <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#C7B299] mb-5">
             Designed to exceed academic and senior industry engineering standards
           </p>
