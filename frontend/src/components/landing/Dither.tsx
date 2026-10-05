@@ -1,9 +1,13 @@
-import React, { useRef, useEffect, useState, forwardRef, Component, type ReactNode } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { EffectComposer, wrapEffect } from "@react-three/postprocessing";
-import { Effect } from "postprocessing";
-import * as THREE from "three";
-import { isMobileDevice, prefersReducedMotion } from "../../motion/motionVocabulary.js";
+'use client';
+
+/* eslint-disable react/no-unknown-property */
+import { useRef, useEffect, forwardRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { EffectComposer, wrapEffect } from '@react-three/postprocessing';
+import { Effect } from 'postprocessing';
+import * as THREE from 'three';
+
+import './Dither.css';
 
 const waveVertexShader = `
 precision highp float;
@@ -137,41 +141,33 @@ void mainImage(in vec4 inputColor, in vec2 uv, out vec4 outputColor) {
 class RetroEffectImpl extends Effect {
   constructor() {
     const uniforms = new Map([
-      ["colorNum", new THREE.Uniform(4.0)],
-      ["pixelSize", new THREE.Uniform(2.0)],
+      ['colorNum', new THREE.Uniform(4.0)],
+      ['pixelSize', new THREE.Uniform(2.0)]
     ]);
-    super("RetroEffect", ditherFragmentShader, { uniforms });
+    super('RetroEffect', ditherFragmentShader, { uniforms });
+    (this as any).uniforms = uniforms;
   }
-
   set colorNum(v: number) {
-    const u = this.uniforms.get("colorNum");
-    if (u) u.value = v;
+    this.uniforms.get('colorNum')!.value = v;
   }
   get colorNum(): number {
-    return this.uniforms.get("colorNum")?.value ?? 4.0;
+    return this.uniforms.get('colorNum')!.value;
   }
-
   set pixelSize(v: number) {
-    const u = this.uniforms.get("pixelSize");
-    if (u) u.value = v;
+    this.uniforms.get('pixelSize')!.value = v;
   }
   get pixelSize(): number {
-    return this.uniforms.get("pixelSize")?.value ?? 2.0;
+    return this.uniforms.get('pixelSize')!.value;
   }
 }
 
 const WrappedRetro = wrapEffect(RetroEffectImpl) as any;
 
-interface RetroEffectProps {
-  colorNum?: number;
-  pixelSize?: number;
-}
-
-const RetroEffect = forwardRef<unknown, RetroEffectProps>((props, ref) => {
-  const { colorNum = 4, pixelSize = 2 } = props;
+const RetroEffect = forwardRef<unknown, { colorNum?: number; pixelSize?: number }>((props, ref) => {
+  const { colorNum, pixelSize } = props;
   return <WrappedRetro ref={ref as any} colorNum={colorNum} pixelSize={pixelSize} />;
 });
-RetroEffect.displayName = "RetroEffect";
+RetroEffect.displayName = 'RetroEffect';
 
 interface DitheredWavesProps {
   waveSpeed: number;
@@ -196,24 +192,13 @@ function DitheredWaves({
   pixelSize,
   disableAnimation,
   enableMouseInteraction,
-  mouseRadius,
+  mouseRadius
 }: DitheredWavesProps) {
   const mesh = useRef<THREE.Mesh>(null);
-  const mouseRef = useRef(new THREE.Vector2(-9999, -9999));
+  const mouseRef = useRef(new THREE.Vector2());
   const { viewport, size, gl } = useThree();
 
-  const waveUniformsRef = useRef<{
-    time: THREE.Uniform<number>;
-    resolution: THREE.Uniform<THREE.Vector2>;
-    waveSpeed: THREE.Uniform<number>;
-    waveFrequency: THREE.Uniform<number>;
-    waveAmplitude: THREE.Uniform<number>;
-    waveColor: THREE.Uniform<THREE.Color>;
-    backgroundColor: THREE.Uniform<THREE.Color>;
-    mousePos: THREE.Uniform<THREE.Vector2>;
-    enableMouseInteraction: THREE.Uniform<number>;
-    mouseRadius: THREE.Uniform<number>;
-  }>({
+  const waveUniformsRef = useRef({
     time: new THREE.Uniform(0),
     resolution: new THREE.Uniform(new THREE.Vector2(0, 0)),
     waveSpeed: new THREE.Uniform(waveSpeed),
@@ -221,40 +206,23 @@ function DitheredWaves({
     waveAmplitude: new THREE.Uniform(waveAmplitude),
     waveColor: new THREE.Uniform(new THREE.Color(...waveColor)),
     backgroundColor: new THREE.Uniform(new THREE.Color(...backgroundColor)),
-    mousePos: new THREE.Uniform(new THREE.Vector2(-9999, -9999)),
+    mousePos: new THREE.Uniform(new THREE.Vector2(0, 0)),
     enableMouseInteraction: new THREE.Uniform(enableMouseInteraction ? 1 : 0),
-    mouseRadius: new THREE.Uniform(mouseRadius),
+    mouseRadius: new THREE.Uniform(mouseRadius)
   });
 
-  // Track pointer movements on window so the canvas can remain pointer-events: none
-  useEffect(() => {
-    if (!enableMouseInteraction) return;
-
-    const handlePointerMove = (e: PointerEvent) => {
-      const dpr = gl.getPixelRatio();
-      mouseRef.current.set(e.clientX * dpr, e.clientY * dpr);
-    };
-
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-    };
-  }, [enableMouseInteraction, gl]);
-
-  // Keep resolution in sync
   useEffect(() => {
     const dpr = gl.getPixelRatio();
-    const w = Math.floor(size.width * dpr);
-    const h = Math.floor(size.height * dpr);
+    const w = Math.floor(size.width * dpr),
+      h = Math.floor(size.height * dpr);
     const res = waveUniformsRef.current.resolution.value;
     if (res.x !== w || res.y !== h) {
       res.set(w, h);
     }
   }, [size, gl]);
 
-  const prevColor = useRef<[number, number, number]>([...waveColor]);
-  const prevBackgroundColor = useRef<[number, number, number]>([...backgroundColor]);
-
+  const prevColor = useRef([...waveColor]);
+  const prevBackgroundColor = useRef([...backgroundColor]);
   useFrame(({ clock }) => {
     const u = waveUniformsRef.current;
 
@@ -280,10 +248,30 @@ function DitheredWaves({
     u.mouseRadius.value = mouseRadius;
 
     if (enableMouseInteraction) {
-      // Smooth lerp for buttery organic mouse reaction
-      u.mousePos.value.lerp(mouseRef.current, 0.12);
+      u.mousePos.value.copy(mouseRef.current);
     }
   });
+
+  const handlePointerMove = (e: any) => {
+    if (!enableMouseInteraction) return;
+    const rect = gl.domElement.getBoundingClientRect();
+    const dpr = gl.getPixelRatio();
+    mouseRef.current.set((e.clientX - rect.left) * dpr, (e.clientY - rect.top) * dpr);
+  };
+
+  // Passive window listener so mouse interaction operates seamlessly across full page
+  useEffect(() => {
+    if (!enableMouseInteraction) return;
+    const onWindowPointerMove = (e: MouseEvent) => {
+      const rect = gl.domElement.getBoundingClientRect();
+      const dpr = gl.getPixelRatio();
+      mouseRef.current.set((e.clientX - rect.left) * dpr, (e.clientY - rect.top) * dpr);
+    };
+    window.addEventListener('pointermove', onWindowPointerMove, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', onWindowPointerMove);
+    };
+  }, [enableMouseInteraction, gl]);
 
   return (
     <>
@@ -299,11 +287,21 @@ function DitheredWaves({
       <EffectComposer>
         <RetroEffect colorNum={colorNum} pixelSize={pixelSize} />
       </EffectComposer>
+
+      <mesh
+        onPointerMove={handlePointerMove}
+        position={[0, 0, 0.01]}
+        scale={[viewport.width, viewport.height, 1]}
+        visible={false}
+      >
+        <planeGeometry args={[1, 1]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
     </>
   );
 }
 
-export interface CertifyDitherBackgroundProps {
+export interface DitherProps {
   waveSpeed?: number;
   waveFrequency?: number;
   waveAmplitude?: number;
@@ -314,134 +312,39 @@ export interface CertifyDitherBackgroundProps {
   disableAnimation?: boolean;
   enableMouseInteraction?: boolean;
   mouseRadius?: number;
-  className?: string;
 }
 
-// Graceful WebGL check
-function checkWebGLSupport(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const canvas = document.createElement("canvas");
-    return !!(
-      window.WebGLRenderingContext &&
-      (canvas.getContext("webgl2") ||
-        canvas.getContext("webgl") ||
-        canvas.getContext("experimental-webgl"))
-    );
-  } catch {
-    return false;
-  }
-}
-
-// ErrorBoundary to ensure WebGL context failure never crashes the landing page
-class WebGLErrorBoundary extends Component<
-  { fallback: ReactNode; children: ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { fallback: ReactNode; children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: any) {
-    console.warn("CertifyDitherBackground WebGL error caught, rendering fallback:", error);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-    return this.props.children;
-  }
-}
-
-/**
- * CertifyDitherBackground
- * Full-page atmospheric dithered wave background component based on React Bits Dither.
- * Customized for CERTIFY: deep chocolate/espresso palette, subtle warm brown waves,
- * window-level mouse disturbance that never blocks clicks, and graceful WebGL fallback.
- */
-export const CertifyDitherBackground: React.FC<CertifyDitherBackgroundProps> = ({
-  waveSpeed = 0.032,
-  waveFrequency = 2.8,
-  waveAmplitude = 0.24,
-  // Deep warm brown tones specifically calibrated for CERTIFY
-  waveColor = [0.22, 0.105, 0.055],
-  backgroundColor = [0.045, 0.022, 0.014],
+export default function Dither({
+  waveSpeed = 0.05,
+  waveFrequency = 3,
+  waveAmplitude = 0.3,
+  waveColor = [0.5, 0.5, 0.5],
+  backgroundColor = [0, 0, 0],
   colorNum = 4,
   pixelSize = 2,
-  disableAnimation,
-  enableMouseInteraction,
-  mouseRadius = 0.32,
-  className = "",
-}) => {
-  const [hasWebGL] = useState(() => checkWebGLSupport());
-  const reducedMotion = prefersReducedMotion();
-  const mobile = isMobileDevice();
-
-  const shouldDisableAnimation = disableAnimation ?? reducedMotion;
-  // Disable mouse interaction on touch/mobile devices
-  const shouldEnableMouseInteraction = enableMouseInteraction ?? !mobile;
-  // Optimize pixel size on mobile for performance
-  const effectivePixelSize = mobile ? Math.max(pixelSize, 3) : pixelSize;
-  const effectiveFrequency = mobile ? 2.0 : waveFrequency;
-
-  // Solid dark chocolate & subtle gradient fallback for devices without WebGL
-  const fallbackUI = (
-    <div
-      className="fixed inset-0 pointer-events-none z-0 bg-[#0C0604]"
-      style={{
-        backgroundImage: `
-          radial-gradient(ellipse at 50% 30%, rgba(55, 27, 14, 0.45) 0%, rgba(20, 10, 5, 0.92) 70%, #0A0503 100%),
-          repeating-radial-gradient(circle at 50% 50%, rgba(230, 202, 164, 0.02) 0px, transparent 2px, transparent 4px)
-        `,
-      }}
-      aria-hidden="true"
-    />
-  );
-
-  if (!hasWebGL) {
-    return fallbackUI;
-  }
-
+  disableAnimation = false,
+  enableMouseInteraction = true,
+  mouseRadius = 1
+}: DitherProps) {
   return (
-    <WebGLErrorBoundary fallback={fallbackUI}>
-      <div
-        className={`fixed inset-0 pointer-events-none z-0 overflow-hidden ${className}`}
-        style={{ pointerEvents: "none" }}
-        aria-hidden="true"
-      >
-        <Canvas
-          className="w-full h-full block"
-          style={{ pointerEvents: "none", width: "100%", height: "100%" }}
-          camera={{ position: [0, 0, 6] }}
-          dpr={1}
-          gl={{
-            antialias: false,
-            preserveDrawingBuffer: false,
-            powerPreference: "high-performance",
-          }}
-        >
-          <DitheredWaves
-            waveSpeed={waveSpeed}
-            waveFrequency={effectiveFrequency}
-            waveAmplitude={waveAmplitude}
-            waveColor={waveColor}
-            backgroundColor={backgroundColor}
-            colorNum={colorNum}
-            pixelSize={effectivePixelSize}
-            disableAnimation={shouldDisableAnimation}
-            enableMouseInteraction={shouldEnableMouseInteraction}
-            mouseRadius={mouseRadius}
-          />
-        </Canvas>
-      </div>
-    </WebGLErrorBoundary>
+    <Canvas
+      className="dither-container"
+      camera={{ position: [0, 0, 6] }}
+      dpr={1}
+      gl={{ antialias: true, preserveDrawingBuffer: true }}
+    >
+      <DitheredWaves
+        waveSpeed={waveSpeed}
+        waveFrequency={waveFrequency}
+        waveAmplitude={waveAmplitude}
+        waveColor={waveColor}
+        backgroundColor={backgroundColor}
+        colorNum={colorNum}
+        pixelSize={pixelSize}
+        disableAnimation={disableAnimation}
+        enableMouseInteraction={enableMouseInteraction}
+        mouseRadius={mouseRadius}
+      />
+    </Canvas>
   );
-};
-
-export default CertifyDitherBackground;
+}

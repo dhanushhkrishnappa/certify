@@ -67,15 +67,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       ref={heroContainerRef}
       className="relative min-h-[94vh] flex flex-col justify-center pt-28 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
-      {/* Atmospheric Espresso & Sepia Vignette Layers (Soft translucent blend over Dither) */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 30%, rgba(53, 31, 21, 0.20) 0%, rgba(32, 17, 10, 0.55) 65%, rgba(18, 9, 5, 0.75) 100%)",
-        }}
-        aria-hidden="true"
-      />
+
 
       {/* Ambient Top Light Beam */}
       <div

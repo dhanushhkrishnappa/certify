@@ -1,6 +1,6 @@
 import React from "react";
 import { useLenis } from "../motion/useLenis.js";
-import { CertifyDitherBackground } from "./landing/CertifyDitherBackground.js";
+import Dither from "./landing/Dither.js";
 import { LandingNavbar } from "./landing/LandingNavbar.js";
 import { HeroSection } from "./landing/HeroSection.js";
 import { ManifestoSection } from "./landing/ManifestoSection.js";
@@ -37,18 +37,20 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
   return (
     <div className="relative min-h-screen bg-[#150A05] font-['Plus_Jakarta_Sans',sans-serif] text-[#EDE4D8] antialiased selection:bg-[#E6CAA4] selection:text-[#2A170E] overflow-x-hidden">
-      {/* Full-Page Living Dither Background (Fixed Canvas, z-0) */}
-      <CertifyDitherBackground />
-
-      {/* Atmospheric Vignette Overlay (z-[1], pointer-events-none) */}
-      <div
-        className="fixed inset-0 pointer-events-none z-[1]"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 35%, transparent 30%, rgba(18, 9, 5, 0.35) 70%, rgba(10, 5, 3, 0.80) 100%)",
-        }}
-        aria-hidden="true"
-      />
+      {/* Full-Page React Bits Dither Background (Fixed Canvas, z-0) */}
+      <div className="fixed inset-0 z-0 pointer-events-none w-screen h-screen">
+        <Dither
+          waveColor={[0.5, 0.5, 0.5]}
+          backgroundColor={[0, 0, 0]}
+          disableAnimation={false}
+          enableMouseInteraction={true}
+          mouseRadius={0.3}
+          colorNum={4}
+          waveAmplitude={0.3}
+          waveFrequency={3}
+          waveSpeed={0.05}
+        />
+      </div>
 
       {/* Sticky Transformed Navbar */}
       <LandingNavbar
