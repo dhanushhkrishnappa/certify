@@ -219,36 +219,60 @@ function DitheredWaves({
     if (res.x !== w || res.y !== h) {
       res.set(w, h);
     }
+    if (mesh.current) {
+      const mat = mesh.current.material as THREE.ShaderMaterial;
+      if (mat && mat.uniforms && mat.uniforms.resolution) {
+        mat.uniforms.resolution.value.set(w, h);
+      }
+    }
   }, [size, gl]);
 
   const prevColor = useRef([...waveColor]);
   const prevBackgroundColor = useRef([...backgroundColor]);
   useFrame(({ clock }) => {
-    const u = waveUniformsRef.current;
+    const elapsedTime = clock.getElapsedTime();
+    const uRef = waveUniformsRef.current;
+    const mat = mesh.current ? (mesh.current.material as THREE.ShaderMaterial) : null;
+    const uMat = mat && mat.uniforms ? mat.uniforms : null;
 
     if (!disableAnimation) {
-      u.time.value = clock.getElapsedTime();
+      uRef.time.value = elapsedTime;
+      if (uMat && uMat.time) {
+        uMat.time.value = elapsedTime;
+      }
     }
 
-    if (u.waveSpeed.value !== waveSpeed) u.waveSpeed.value = waveSpeed;
-    if (u.waveFrequency.value !== waveFrequency) u.waveFrequency.value = waveFrequency;
-    if (u.waveAmplitude.value !== waveAmplitude) u.waveAmplitude.value = waveAmplitude;
+    if (uRef.waveSpeed.value !== waveSpeed) uRef.waveSpeed.value = waveSpeed;
+    if (uMat && uMat.waveSpeed && uMat.waveSpeed.value !== waveSpeed) uMat.waveSpeed.value = waveSpeed;
+
+    if (uRef.waveFrequency.value !== waveFrequency) uRef.waveFrequency.value = waveFrequency;
+    if (uMat && uMat.waveFrequency && uMat.waveFrequency.value !== waveFrequency) uMat.waveFrequency.value = waveFrequency;
+
+    if (uRef.waveAmplitude.value !== waveAmplitude) uRef.waveAmplitude.value = waveAmplitude;
+    if (uMat && uMat.waveAmplitude && uMat.waveAmplitude.value !== waveAmplitude) uMat.waveAmplitude.value = waveAmplitude;
 
     if (!prevColor.current.every((v, i) => v === waveColor[i])) {
-      u.waveColor.value.set(...waveColor);
+      uRef.waveColor.value.set(...waveColor);
+      if (uMat && uMat.waveColor) uMat.waveColor.value.set(...waveColor);
       prevColor.current = [...waveColor];
     }
 
     if (!prevBackgroundColor.current.every((v, i) => v === backgroundColor[i])) {
-      u.backgroundColor.value.set(...backgroundColor);
+      uRef.backgroundColor.value.set(...backgroundColor);
+      if (uMat && uMat.backgroundColor) uMat.backgroundColor.value.set(...backgroundColor);
       prevBackgroundColor.current = [...backgroundColor];
     }
 
-    u.enableMouseInteraction.value = enableMouseInteraction ? 1 : 0;
-    u.mouseRadius.value = mouseRadius;
+    const mouseVal = enableMouseInteraction ? 1 : 0;
+    uRef.enableMouseInteraction.value = mouseVal;
+    if (uMat && uMat.enableMouseInteraction) uMat.enableMouseInteraction.value = mouseVal;
+
+    uRef.mouseRadius.value = mouseRadius;
+    if (uMat && uMat.mouseRadius) uMat.mouseRadius.value = mouseRadius;
 
     if (enableMouseInteraction) {
-      u.mousePos.value.copy(mouseRef.current);
+      uRef.mousePos.value.copy(mouseRef.current);
+      if (uMat && uMat.mousePos) uMat.mousePos.value.copy(mouseRef.current);
     }
   });
 

@@ -36,7 +36,7 @@ export const ProofBentoSection: React.FC = () => {
     <section
       id="pedagogy"
       ref={containerRef}
-      className="relative py-24 px-4 sm:px-6 lg:px-12 bg-[#170C06] border-t border-[#3E2416] overflow-hidden"
+      className="relative py-24 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden"
     >
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section Header */}

@@ -47,7 +47,7 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
   const [selectedMod, setSelectedMod] = useState(0);
 
   return (
-    <section className="relative py-24 px-4 sm:px-6 lg:px-12 bg-[#1A0E08] border-t border-[#3E2416] overflow-hidden">
+    <section className="relative py-24 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           {/* Left Column: Flagship Overview */}

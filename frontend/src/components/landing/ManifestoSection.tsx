@@ -91,7 +91,7 @@ export const ManifestoSection: React.FC = () => {
     <section
       id="manifesto"
       ref={sectionRef}
-      className="relative min-h-screen flex items-center justify-center bg-[#1D0E07] px-6 lg:px-12 py-20 overflow-hidden border-t border-[#3E2416]"
+      className="relative min-h-screen flex items-center justify-center bg-transparent px-6 lg:px-12 py-20 overflow-hidden border-t border-[#3E2416]/40"
     >
       {/* Background ambient lighting */}
       <div

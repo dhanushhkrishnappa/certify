@@ -13,7 +13,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
   onSignIn,
 }) => {
   return (
-    <section className="relative py-24 px-4 sm:px-6 lg:px-12 bg-[#1A0D07] border-t border-[#3E2416] overflow-hidden">
+    <section className="relative py-24 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">

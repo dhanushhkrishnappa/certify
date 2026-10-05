@@ -12,7 +12,7 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({
   onSignIn,
 }) => {
   return (
-    <footer className="relative bg-[#110703] border-t border-[#331B10] pt-16 pb-12 px-6 lg:px-12 text-[#A89682]">
+    <footer className="relative bg-[#0B0503]/80 backdrop-blur-md border-t border-[#331B10]/40 pt-16 pb-12 px-6 lg:px-12 text-[#A89682]">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-[#2C180E]">
           {/* Brand & Manifesto Column (2 cols on lg) */}

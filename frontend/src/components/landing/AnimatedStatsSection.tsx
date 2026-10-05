@@ -81,7 +81,7 @@ export const AnimatedStatsSection: React.FC = () => {
   return (
     <section
       ref={containerRef}
-      className="relative py-20 px-4 sm:px-6 lg:px-12 bg-[#1A0E08] border-t border-[#3E2416] overflow-hidden"
+      className="relative py-20 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden"
     >
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

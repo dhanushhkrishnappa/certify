@@ -55,7 +55,7 @@ export const TestimonialsSection: React.FC = () => {
   const current = EXPERIENCE_REPORTS[activeIdx];
 
   return (
-    <section className="relative py-24 px-4 sm:px-6 lg:px-12 bg-[#170C06] border-t border-[#3E2416] overflow-hidden">
+    <section className="relative py-24 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden">
       <div className="relative z-10 max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">

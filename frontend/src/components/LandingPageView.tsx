@@ -36,7 +36,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   useLenis(true);
 
   return (
-    <div className="relative min-h-screen bg-[#150A05] font-['Plus_Jakarta_Sans',sans-serif] text-[#EDE4D8] antialiased selection:bg-[#E6CAA4] selection:text-[#2A170E] overflow-x-hidden">
+    <div className="relative min-h-screen bg-black font-['Plus_Jakarta_Sans',sans-serif] text-[#EDE4D8] antialiased selection:bg-[#E6CAA4] selection:text-[#2A170E] overflow-x-hidden">
       {/* Full-Page React Bits Dither Background (Fixed Canvas, z-0) */}
       <div className="fixed inset-0 z-0 pointer-events-none w-screen h-screen">
         <Dither
@@ -46,6 +46,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           enableMouseInteraction={true}
           mouseRadius={0.3}
           colorNum={4}
+          pixelSize={2}
           waveAmplitude={0.3}
           waveFrequency={3}
           waveSpeed={0.05}
