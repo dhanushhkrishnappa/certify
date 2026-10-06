@@ -49,6 +49,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           { opacity: 1, y: 0, scale: 1, stagger: 0.12, duration: 0.7 },
           "-=0.55"
         );
+
+      // Smooth receding transition as hero box scrolls towards Manifesto
+      gsap.to(".hero-central-card", {
+        scrollTrigger: {
+          trigger: heroContainerRef.current,
+          start: "center center",
+          end: "bottom 20%",
+          scrub: 0.6,
+        },
+        opacity: 0,
+        scale: 0.94,
+        y: -40,
+        ease: "power1.out",
+      });
     }, heroContainerRef);
 
     return () => {
@@ -59,7 +73,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section
       ref={heroContainerRef}
-      className="relative flex flex-col justify-center pt-24 sm:pt-32 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative min-h-[92vh] sm:min-h-[96vh] flex flex-col justify-center pt-24 sm:pt-28 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
 
 
