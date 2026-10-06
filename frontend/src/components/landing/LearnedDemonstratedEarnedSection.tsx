@@ -84,7 +84,7 @@ export const LearnedDemonstratedEarnedSection: React.FC = () => {
   return (
     <section
       id="how-it-works"
-      className="relative bg-transparent py-20 sm:py-28 px-4 sm:px-6 lg:px-12 border-t border-[#3E2416]/40 overflow-hidden"
+      className="relative bg-transparent py-16 sm:py-24 px-4 sm:px-6 lg:px-12 overflow-hidden"
     >
       {/* Background Radial Ambiance */}
       <div

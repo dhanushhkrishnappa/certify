@@ -138,7 +138,7 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
   };
 
   return (
-    <section id="courses" className="relative py-24 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden">
+    <section id="courses" className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header with Navigation Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">

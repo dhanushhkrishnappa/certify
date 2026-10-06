@@ -48,12 +48,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           { opacity: 0, y: 18, scale: 0.95 },
           { opacity: 1, y: 0, scale: 1, stagger: 0.12, duration: 0.7 },
           "-=0.55"
-        )
-        .fromTo(
-          ".hero-trust-strip",
-          { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.7 },
-          "-=0.4"
         );
     }, heroContainerRef);
 
@@ -65,7 +59,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section
       ref={heroContainerRef}
-      className="relative min-h-[94vh] flex flex-col justify-center pt-28 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="relative flex flex-col justify-center pt-24 sm:pt-32 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
 
 
@@ -79,8 +73,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         aria-hidden="true"
       />
 
+      {/* Seamless transitional light gradient into Manifesto */}
+      <div
+        className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[700px] h-[160px] pointer-events-none z-0 rounded-full blur-[100px] opacity-35"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(230, 202, 164, 0.22) 0%, rgba(206, 164, 242, 0.12) 45%, transparent 70%)",
+        }}
+        aria-hidden="true"
+      />
+
       {/* Central Hero Experience Container */}
-      <div className="relative z-10 max-w-[1000px] mx-auto w-full text-center">
+      <div className="hero-central-card relative z-10 max-w-[1000px] mx-auto w-full text-center">
         <BulgeCard
           className="relative p-8 sm:p-12 md:p-14 lg:p-[72px] rounded-[32px] sm:rounded-[42px] bg-gradient-to-b from-[#F8F0E5] via-[#F5EBDD] to-[#EEE0CD] border border-[#DECBB7] shadow-[0_26px_75px_-15px_rgba(15,7,3,0.55),0_10px_28px_rgba(20,10,5,0.25)] overflow-hidden"
           highlightColor="rgba(255, 255, 255, 0.4)"
@@ -199,39 +203,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </button>
           </div>
         </BulgeCard>
-
-        {/* Institutional Trust Strip */}
-        <div className="hero-trust-strip mt-10 pt-6 border-t border-[#4E3123]/60 text-center">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#C7B299] mb-5">
-            Designed to exceed academic and senior industry engineering standards
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-14 opacity-90">
-            <div className="flex items-center gap-2 font-mono text-[13px] font-semibold text-[#E2D2BF]">
-              <span className="material-symbols-outlined text-[18px] text-[#E6CAA4]">
-                account_balance
-              </span>
-              Computer Science Core
-            </div>
-            <div className="flex items-center gap-2 font-mono text-[13px] font-semibold text-[#E2D2BF]">
-              <span className="material-symbols-outlined text-[18px] text-[#CEA4F2]">
-                memory
-              </span>
-              Memory Invariant Validation
-            </div>
-            <div className="flex items-center gap-2 font-mono text-[13px] font-semibold text-[#E2D2BF]">
-              <span className="material-symbols-outlined text-[18px] text-[#E6CAA4]">
-                hub
-              </span>
-              Socratic Oral Viva Defense
-            </div>
-            <div className="flex items-center gap-2 font-mono text-[13px] font-semibold text-[#E2D2BF]">
-              <span className="material-symbols-outlined text-[18px] text-emerald-400">
-                shield
-              </span>
-              Deterministic Grading
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

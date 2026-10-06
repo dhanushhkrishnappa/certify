@@ -70,20 +70,34 @@
   --shadow-elevated: 0 8px 24px rgba(15, 17, 23, 0.08), 0 2px 6px rgba(15, 17, 23, 0.04);
 
   /* CERTIFY Shared Warm Editorial Color Tokens (Landing & Auth Alignment) */
-  --certify-brown-deep: #150A05;            /* Dark chocolate / obsidian espresso backdrop */
-  --certify-brown: #24140D;                 /* Deep warm espresso brown */
-  --certify-brown-surface: #2E1B13;         /* Warm brown container surface */
-  --certify-parchment: #F5EBDD;             /* Warm parchment hero surface */
-  --certify-parchment-light: #FAF2E9;       /* Lighter parchment radial center */
-  --certify-cream: #F8F2E8;                 /* Floating navbar warm ivory surface */
-  --certify-cream-soft: #F1E5D4;            /* Soft champagne cream fill / active pill */
-  --certify-cream-border: #DECBB7;          /* Soft warm border on cream */
-  --certify-espresso: #24130D;              /* Deep espresso primary headline/nav typography */
-  --certify-espresso-hover: #120904;        /* Darkest espresso text hover */
-  --certify-muted-brown: #664E41;           /* Muted editorial secondary prose on parchment */
-  --certify-purple-muted: #5D3B75;          /* Muted lilac / royal purple italic accent */
-  --certify-gold-accent: #C89758;           /* Subtle champagne / gold star & linework */
-  --certify-gold-border: rgba(180, 140, 90, 0.35); /* Subtle warm gold border */
+  --certify-brown-deep: #150A05;
+  /* Dark chocolate / obsidian espresso backdrop */
+  --certify-brown: #24140D;
+  /* Deep warm espresso brown */
+  --certify-brown-surface: #2E1B13;
+  /* Warm brown container surface */
+  --certify-parchment: #F5EBDD;
+  /* Warm parchment hero surface */
+  --certify-parchment-light: #FAF2E9;
+  /* Lighter parchment radial center */
+  --certify-cream: #F8F2E8;
+  /* Floating navbar warm ivory surface */
+  --certify-cream-soft: #F1E5D4;
+  /* Soft champagne cream fill / active pill */
+  --certify-cream-border: #DECBB7;
+  /* Soft warm border on cream */
+  --certify-espresso: #24130D;
+  /* Deep espresso primary headline/nav typography */
+  --certify-espresso-hover: #120904;
+  /* Darkest espresso text hover */
+  --certify-muted-brown: #664E41;
+  /* Muted editorial secondary prose on parchment */
+  --certify-purple-muted: #5D3B75;
+  /* Muted lilac / royal purple italic accent */
+  --certify-gold-accent: #C89758;
+  /* Subtle champagne / gold star & linework */
+  --certify-gold-border: rgba(180, 140, 90, 0.35);
+  /* Subtle warm gold border */
 }
 
 * {
@@ -131,7 +145,7 @@ body {
 /* Hero card radial glow matching approved Stitch screen */
 .hero-glow-bg {
   background: radial-gradient(circle at 80% 40%, rgba(217, 119, 6, 0.22) 0%, rgba(30, 27, 75, 0.6) 40%, rgba(13, 14, 18, 0.98) 80%),
-              linear-gradient(135deg, #121318 0%, #0F1015 100%);
+    linear-gradient(135deg, #121318 0%, #0F1015 100%);
 }
 
 /* Sidebar motivation card gradient */
@@ -140,6 +154,7 @@ body {
   position: relative;
   overflow: hidden;
 }
+
 .sidebar-art-bg::after {
   content: '';
   position: absolute;
@@ -148,7 +163,7 @@ body {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(234, 88, 12, 0.3) 0%, rgba(0,0,0,0) 70%);
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
   filter: blur(10px);
 }
 
@@ -254,6 +269,7 @@ body {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -269,6 +285,7 @@ body {
     transform: scaleY(0.3);
     opacity: 0.65;
   }
+
   100% {
     transform: scaleY(1);
     opacity: 1;
@@ -279,6 +296,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -291,6 +309,7 @@ body {
   ::view-transition-old(root) {
     animation: 200ms cubic-bezier(0.16, 1, 0.3, 1) both certifyFadeOut;
   }
+
   ::view-transition-new(root) {
     animation: 300ms cubic-bezier(0.16, 1, 0.3, 1) both certifyFadeIn;
   }
@@ -301,6 +320,7 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     opacity: 0;
     transform: translateY(-4px);
@@ -312,6 +332,7 @@ body {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -346,6 +367,7 @@ html.lenis body {
    PREFERS-REDUCED-MOTION SAFEGUARD
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {

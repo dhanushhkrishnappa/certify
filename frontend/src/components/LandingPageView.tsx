@@ -5,7 +5,6 @@ import { LandingNavbar } from "./landing/LandingNavbar.js";
 import { HeroSection } from "./landing/HeroSection.js";
 import { ManifestoSection } from "./landing/ManifestoSection.js";
 import { LearnedDemonstratedEarnedSection } from "./landing/LearnedDemonstratedEarnedSection.js";
-import { AiShowcaseSection } from "./landing/AiShowcaseSection.js";
 import { ProofBentoSection } from "./landing/ProofBentoSection.js";
 import { ImageRevealGallery } from "./landing/ImageRevealGallery.js";
 import { DraggableCurriculumCarousel } from "./landing/DraggableCurriculumCarousel.js";
@@ -69,16 +68,13 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           onBeginDiagnostic={onBeginDiagnostic}
         />
 
-        {/* 2. Core Value Proposition / Scroll Manifesto */}
+        {/* 2. Core Value Proposition / Scroll Manifesto (3 Sentences) */}
         <ManifestoSection />
 
-        {/* 3. Emotional Core: LEARN -> DEMONSTRATE -> EARN (Pinned GSAP Section) */}
+        {/* 3. Emotional Core: LEARN -> DEMONSTRATE -> EARN */}
         <LearnedDemonstratedEarnedSection />
 
-        {/* 4. Interactive AI Learning Studio Showcase */}
-        <AiShowcaseSection />
-
-        {/* 5. 6-Pillar Proof Bento Section */}
+        {/* 4. 6-Pillar Proof Bento Section */}
         <ProofBentoSection />
 
         {/* 6. Image & Code Reveal Gallery */}

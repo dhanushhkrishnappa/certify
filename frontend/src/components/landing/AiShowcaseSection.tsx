@@ -91,7 +91,7 @@ export const AiShowcaseSection: React.FC = () => {
   }, [currentStep.aiMessage]);
 
   return (
-    <section className="relative py-24 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden">
+    <section className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
       {/* Background radial glow */}
       <div
         className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] pointer-events-none rounded-full blur-[140px] opacity-20"

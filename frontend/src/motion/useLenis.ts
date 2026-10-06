@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 import Lenis from "lenis";
-import { ScrollTrigger, prefersReducedMotion } from "./motionVocabulary.js";
+import { gsap, ScrollTrigger, prefersReducedMotion } from "./motionVocabulary.js";
 
 /**
  * useLenis
- * Initializes buttery-smooth scrolling with Lenis and binds it to GSAP ScrollTrigger.
- * Respects prefers-reduced-motion, avoids scroll hijacking, and coordinates anchor links.
+ * Initializes buttery-smooth scrolling with Lenis and binds it to GSAP ScrollTrigger
+ * on the exact same ticker loop with lagSmoothing(0) to eliminate all jitter and stutter.
  */
 export const useLenis = (enabled: boolean = true) => {
   const lenisRef = useRef<Lenis | null>(null);
@@ -17,11 +17,11 @@ export const useLenis = (enabled: boolean = true) => {
     }
 
     const lenis = new Lenis({
-      autoRaf: true,
-      duration: 1.15,
+      autoRaf: false,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Expo Out
       smoothWheel: true,
-      touchMultiplier: 1.2,
+      touchMultiplier: 1.0,
       infinite: false,
     });
 
@@ -31,9 +31,16 @@ export const useLenis = (enabled: boolean = true) => {
     }
 
     // Synchronize Lenis scroll with GSAP ScrollTrigger
-    lenis.on("scroll", () => {
-      ScrollTrigger.update();
-    });
+    lenis.on("scroll", ScrollTrigger.update);
+
+    // Drive Lenis directly via GSAP's ticker so both RAF loops are 100% synchronous
+    const updateLenis = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+
+    gsap.ticker.add(updateLenis);
+    // Smooth frame recovery for fluid uninterrupted scrolling
+    gsap.ticker.lagSmoothing(500, 33);
 
     // Ensure ScrollTrigger calculates correct heights after layout paint
     const refreshTimer = setTimeout(() => {
@@ -63,6 +70,7 @@ export const useLenis = (enabled: boolean = true) => {
     return () => {
       clearTimeout(refreshTimer);
       document.removeEventListener("click", handleAnchorClick);
+      gsap.ticker.remove(updateLenis);
       lenis.destroy();
       lenisRef.current = null;
       if (typeof window !== "undefined") {

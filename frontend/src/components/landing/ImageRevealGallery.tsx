@@ -149,7 +149,7 @@ export const ImageRevealGallery: React.FC = () => {
   return (
     <section
       ref={galleryRef}
-      className="relative py-28 px-4 sm:px-6 lg:px-12 bg-transparent border-t border-[#3E2416]/40 overflow-hidden"
+      className="relative py-24 sm:py-28 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden"
     >
       <div className="relative z-10 max-w-7xl mx-auto space-y-24">
         {/* Header */}
