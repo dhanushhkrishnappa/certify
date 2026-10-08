@@ -85,22 +85,24 @@ export const FaqSection: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className={`rounded-2xl border transition-all overflow-hidden ${isOpen
-                    ? "bg-gradient-to-b from-[#FAF1E6] via-[#F5EBDD] to-[#EEE0CD] border-[#DFCDBB] shadow-lg text-[#22120B]"
-                    : "bg-gradient-to-b from-[#FAF1E6]/95 to-[#F2E5D5]/90 border-[#DFCDBB]/80 hover:border-[#BFA892] shadow-sm text-[#22120B]"
-                  }`}
+                className={`rounded-2xl border transition-all overflow-hidden ${
+                  isOpen
+                    ? "bg-gradient-to-b from-[#222228]/95 via-[#18181C]/92 to-[#101013]/95 border-white/25 shadow-lg text-[#FEF5E5]"
+                    : "bg-gradient-to-b from-[#18181C]/80 to-[#121215]/80 border-white/10 hover:border-white/20 shadow-sm text-[#FEF5E5]"
+                }`}
               >
                 <button
                   onClick={() => toggleFaq(item.id)}
                   aria-expanded={isOpen}
                   className="w-full p-6 text-left flex items-center justify-between gap-4 cursor-pointer focus:outline-none"
                 >
-                  <span className="font-['Newsreader',Georgia,serif] text-lg sm:text-xl text-[#22120B] font-normal">
+                  <span className="font-['Newsreader',Georgia,serif] text-lg sm:text-xl text-[#FEF5E5] font-normal">
                     {item.question}
                   </span>
                   <div
-                    className={`w-8 h-8 rounded-lg bg-[#FAF6EE] border border-[#DFCDBB] flex items-center justify-center text-[#24130D] shrink-0 transition-transform duration-300 shadow-xs ${isOpen ? "rotate-180" : "rotate-0"
-                      }`}
+                    className={`w-8 h-8 rounded-lg bg-white/5 border border-white/12 flex items-center justify-center text-white shrink-0 transition-transform duration-300 shadow-xs ${
+                      isOpen ? "rotate-180" : "rotate-0"
+                    }`}
                   >
                     <span className="material-symbols-outlined text-[18px]">
                       expand_more
@@ -109,7 +111,7 @@ export const FaqSection: React.FC = () => {
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-6 pt-1 text-[14.5px] text-[#5C4538] leading-relaxed border-t border-[#DFCDBB] animate-fade-in">
+                  <div className="px-6 pb-6 pt-2 text-[14.5px] text-[#D1D5DB] leading-relaxed border-t border-white/10 animate-fade-in">
                     {item.answer}
                   </div>
                 )}

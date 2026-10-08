@@ -66,26 +66,38 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
                 <div
                   key={mod.num}
                   onClick={() => setSelectedMod(idx)}
-                  className={`p-4 rounded-xl transition-all cursor-pointer border ${selectedMod === idx
-                      ? "bg-gradient-to-b from-[#FAF1E6] via-[#F5EBDD] to-[#EEE0CD] border-[#DFCDBB] shadow-md text-[#22120B]"
-                      : "bg-[#23120A]/85 border-[#4A2C1D] hover:bg-[#2F190F] text-[#E8DCCF]"
-                    }`}
+                  className={`p-4 rounded-xl transition-all cursor-pointer border ${
+                    selectedMod === idx
+                      ? "bg-gradient-to-b from-[#222228]/95 via-[#18181C]/92 to-[#101013]/95 border-white/25 shadow-md text-[#FEF5E5]"
+                      : "bg-[#141418]/70 border-white/10 hover:bg-[#1C1C22]/80 text-[#A1A1AA]"
+                  }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className={`font-mono text-xs font-bold ${selectedMod === idx ? "text-[#5D3B75]" : "text-[#E6CAA4]"}`}>
+                    <span
+                      className={`font-mono text-xs font-bold ${
+                        selectedMod === idx ? "text-[#CEA4F2]" : "text-[#D1D5DB]"
+                      }`}
+                    >
                       Module {mod.num} // {mod.focus}
                     </span>
-                    <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${selectedMod === idx
-                        ? "text-[#276A47] bg-[#E8F5E9] border border-[#C8E6C9] font-bold"
-                        : "text-[#A89682]"
-                      }`}>
+                    <span
+                      className={`text-xs font-mono px-2 py-0.5 rounded-full ${
+                        selectedMod === idx
+                          ? "text-[#34D399] bg-[#0E2818]/60 border border-[#10B981]/40 font-bold"
+                          : "text-[#71717A]"
+                      }`}
+                    >
                       {selectedMod === idx ? "SELECTED" : "VIEW"}
                     </span>
                   </div>
-                  <h4 className={`font-['Newsreader',Georgia,serif] text-[17px] mb-1 ${selectedMod === idx ? "text-[#22120B] font-semibold" : "text-[#FAF0E6]"}`}>
+                  <h4
+                    className={`font-['Newsreader',Georgia,serif] text-[17px] mb-1 ${
+                      selectedMod === idx ? "text-[#FEF5E5] font-semibold" : "text-[#FEF5E5]/80"
+                    }`}
+                  >
                     {mod.title}
                   </h4>
-                  <p className={`text-xs ${selectedMod === idx ? "text-[#5C4538]" : "text-[#A89682]"}`}>{mod.concepts}</p>
+                  <p className="text-xs text-[#9CA3AF]">{mod.concepts}</p>
                 </div>
               ))}
             </div>
@@ -94,13 +106,14 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
             <div className="flex flex-wrap items-center gap-4 pt-4">
               <button
                 onClick={onExploreCourses}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#462719] via-[#381E13] to-[#2B150D] hover:brightness-110 text-[#FAF0E6] font-semibold text-sm transition-all active:scale-95 shadow-md border border-[#5A3825] cursor-pointer"
+                className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-[#FEF5E5] font-semibold text-sm transition-all active:scale-95 shadow-md border border-white/15 cursor-pointer flex items-center gap-2"
               >
-                Inspect Complete Syllabus &amp; Rubrics →
+                <span>Inspect Complete Syllabus &amp; Rubrics</span>
+                <span className="text-[#E6CAA4]">→</span>
               </button>
               <button
                 onClick={onBeginDiagnostic}
-                className="px-5 py-3 rounded-xl bg-[#FAF1E6] hover:bg-[#F2E5D5] border border-[#DFCDBB] text-[#22120B] font-medium text-sm transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="px-5 py-3 rounded-xl bg-[#141418]/80 hover:bg-[#1E1E24] border border-white/12 text-[#D1D5DB] font-medium text-sm transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 Test Diagnostic Baseline
               </button>
@@ -109,18 +122,19 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
 
           {/* Right Column: Code & Sandbox Demonstration Preview */}
           <div className="lg:col-span-6">
-            <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#FAF1E6] via-[#F5EBDD] to-[#EEE0CD] border border-[#DFCDBB] p-6 sm:p-8 shadow-2xl space-y-4 text-[#22120B]">
-              <div className="flex items-center justify-between border-b border-[#DFCDBB] pb-3 text-xs font-mono">
-                <span className="text-[#22120B] font-bold">
+            <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 backdrop-blur-xl p-6 sm:p-8 shadow-2xl space-y-4 text-[#FEF5E5]">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3 text-xs font-mono">
+                <span className="text-[#FEF5E5] font-bold">
                   # Module {FLAGSHIP_MODULES[selectedMod].num}: Invariant Suite
                 </span>
-                <span className="text-[#276A47] bg-[#E8F5E9] border border-[#C8E6C9] px-2.5 py-0.5 rounded-full flex items-center gap-1.5 font-bold shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#276A47] animate-pulse" />
+                <span className="text-[#15803D] bg-[#DCFCE7] border border-[#86EFAC] px-2.5 py-0.5 rounded-full flex items-center gap-1.5 font-bold shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#15803D] animate-pulse" />
                   Live Sandbox
                 </span>
               </div>
 
-              <pre className="p-4 rounded-xl bg-[#160B06] border border-[#3E2416] font-mono text-xs text-[#EDE4D8] leading-relaxed overflow-x-auto shadow-inner">
+              {/* Light Grey / Whitish Code Sandbox for maximum legibility */}
+              <pre className="p-4 rounded-xl bg-[#F8F9FA] border border-[#E2E8F0] font-mono text-xs text-[#0F172A] leading-relaxed overflow-x-auto shadow-sm">
                 {`def make_averager():
     series = []
     def averager(new_value):
@@ -138,14 +152,14 @@ assert len(avg.__closure__) == 1
 assert isinstance(avg.__closure__[0].cell_contents, list)`}
               </pre>
 
-              <div className="pt-3 border-t border-[#DFCDBB] flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#5C4538]">
+              <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#D1D5DB]">
                 <div className="flex items-center gap-2">
                   <span>Bayesian Prior P(L):</span>
-                  <span className="text-[#276A47] font-bold">0.942 (Mastered)</span>
+                  <span className="text-[#34D399] font-bold">0.942 (Mastered)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>Defense Bar:</span>
-                  <span className="text-[#5D3B75] font-bold">Oral Viva Passed</span>
+                  <span className="text-[#CEA4F2] font-bold">Oral Viva Passed</span>
                 </div>
               </div>
             </BulgeCard>

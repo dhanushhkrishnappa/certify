@@ -1,7 +1,7 @@
 .accordion-gallery {
-  --ag-accent: #FFFFFF;
+  --ag-accent: #E6CAA4;
   --ag-overlay: #000000;
-  --ag-text: #FFFFFF;
+  --ag-text: #FEF5E5;
   --ag-gap: 10px;
   --ag-radius: 16px;
   --ag-media-size: 320px;
@@ -32,8 +32,8 @@
   outline: none;
   transform-style: preserve-3d;
   transform-origin: center center;
-  background: #080808;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #121215;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 14px 38px -18px rgba(0, 0, 0, 0.95);
   will-change: flex-grow, transform;
   -webkit-tap-highlight-color: transparent;
@@ -41,15 +41,15 @@
 }
 
 .ag-panel:focus-visible {
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.5);
   box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.4),
+    0 0 0 2px rgba(255, 255, 255, 0.2),
     0 14px 38px -18px rgba(0, 0, 0, 0.9);
 }
 
 .ag-panel--active {
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 22px 50px -14px rgba(0, 0, 0, 0.98), 0 0 20px rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 22px 50px -14px rgba(0, 0, 0, 0.98), 0 0 20px rgba(255, 255, 255, 0.05);
 }
 
 .ag-panel__frame {
@@ -124,9 +124,9 @@
   width: 3.5px;
   height: 34px;
   border-radius: 3px;
-  background: #FFFFFF;
+  background: #E6CAA4;
   opacity: 0;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 14px rgba(230, 202, 164, 0.6);
   margin-top: 3px;
 }
 
@@ -152,7 +152,7 @@
 }
 
 .ag-panel__subtext {
-  color: #D4D4D4;
+  color: #CFC2B4;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(0.8rem, 0.95vw, 0.92rem);
   line-height: 1.4;

@@ -66,9 +66,9 @@ export const ProofBentoSection: React.FC = () => {
             duration={0.6}
             ease="power3.out"
             stagger={0.06}
-            accentColor="#FFFFFF"
+            accentColor="#E6CAA4"
             overlayColor="#000000"
-            textColor="#FFFFFF"
+            textColor="#FEF5E5"
             grayscale={false}
             showLabels={true}
           />
