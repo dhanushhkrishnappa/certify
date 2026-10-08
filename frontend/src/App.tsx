@@ -54,6 +54,8 @@ const getViewFromPath = (): CertifyView => {
   const validViews: Record<string, CertifyView> = {
     landing: "landing",
     auth: "auth",
+    login: "auth",
+    register: "auth",
     catalog: "catalog",
     "course-details": "course-details",
     mylearning: "mylearning",
@@ -123,7 +125,7 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const path = currentView === "dashboard" ? "/" : `/${currentView}`;
+    const path = currentView === "landing" ? "/" : `/${currentView}`;
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
