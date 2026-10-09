@@ -1,72 +1,46 @@
-import React, { useRef, useState, useEffect } from "react";
-import { BulgeCard } from "./webgl/BulgeCard.js";
+import React, { useState, useEffect, useRef } from "react";
+import { FlexCarousel, type FlexCarouselHandle, type FlexCarouselItem } from "./FlexCarousel.js";
+import { api } from "../../services/api.js";
 
-interface CourseCard {
+export interface UnifiedCourseCardItem extends FlexCarouselItem {
   slug: string;
-  title: string;
-  summary: string;
-  level: string;
-  modules: number;
-  duration: string;
-  badge: string;
-  accent: string;
 }
 
-const COURSES: CourseCard[] = [
+const COURSES: UnifiedCourseCardItem[] = [
   {
     slug: "python-fundamentals",
-    title: "Python Fundamentals: Deep Architecture",
-    summary:
-      "From CPython memory models, references, and closures to iterator protocols, generator invariants, and bytecode compilation.",
-    level: "Beginner → Proficient",
-    modules: 8,
-    duration: "36.5 hrs",
-    badge: "FLAGSHIP TRACK",
-    accent: "#E6CAA4",
+    src: "/courses/card-python-fundamentals.jpg",
+    alt: "Python Fundamentals",
+    title: "",
+    subtitle: "",
   },
   {
     slug: "web-development-foundations",
-    title: "Web Development Foundations",
-    summary:
-      "Modern full-stack architecture, DOM tree reconciliation, HTTP caching protocols, asynchronous event loops, and REST invariants.",
-    level: "Beginner",
-    modules: 12,
-    duration: "48 hrs",
-    badge: "FOUNDATION",
-    accent: "#34D399",
+    src: "/courses/card-web-development-foundations.jpg",
+    alt: "Web Development Foundations",
+    title: "",
+    subtitle: "",
   },
   {
     slug: "data-structures-problem-solving",
-    title: "Data Structures & Algorithmic Problem Solving",
-    summary:
-      "Asymptotic analysis, tree rebalancing, hash collision invariants, graph traversal mechanics, and dynamic programming memoization.",
-    level: "Intermediate",
-    modules: 14,
-    duration: "52 hrs",
-    badge: "CORE CS",
-    accent: "#CEA4F2",
+    src: "/courses/card-data-structures-problem-solving.jpg",
+    alt: "Data Structures & Algorithmic Problem Solving",
+    title: "",
+    subtitle: "",
   },
   {
     slug: "genai-llm-application-engineering",
-    title: "GenAI & LLM Application Engineering",
-    summary:
-      "Vector embeddings, RAG semantic chunking, prompt distillation, agent tool routing, and evaluation rubric invariants.",
-    level: "Advanced",
-    modules: 10,
-    duration: "40 hrs",
-    badge: "APPLIED AI",
-    accent: "#F3DEBE",
+    src: "/courses/card-genai-llm-application-engineering.jpg",
+    alt: "GenAI & LLM Application Engineering",
+    title: "",
+    subtitle: "",
   },
   {
     slug: "sql-relational-database-design",
-    title: "SQL & Relational Database Architecture",
-    summary:
-      "B-Tree index mechanics, write-ahead logging, ACID transaction isolation levels, join algorithms, and execution plan optimization.",
-    level: "Intermediate",
-    modules: 9,
-    duration: "38 hrs",
-    badge: "DATA SYSTEMS",
-    accent: "#38BDF8",
+    src: "/courses/card-sql-relational-database-design.jpg",
+    alt: "SQL & Relational Database Architecture",
+    title: "",
+    subtitle: "",
   },
 ];
 
@@ -79,171 +53,76 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
   onExploreCourses,
   onSelectCourse,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const checkScrollBounds = () => {
-    const el = containerRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
-  };
+  const [items] = useState<UnifiedCourseCardItem[]>(COURSES);
+  const carouselRef = useRef<FlexCarouselHandle>(null);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", checkScrollBounds);
-    checkScrollBounds();
-    return () => el.removeEventListener("scroll", checkScrollBounds);
+    let mounted = true;
+    api
+      .listCourses()
+      .then((data) => {
+        if (!mounted || !data.courses || data.courses.length === 0) return;
+      })
+      .catch(() => {
+        // Fall back gracefully to curated static catalog
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const el = containerRef.current;
-    if (!el) return;
-    setIsDragging(true);
-    setStartX(e.pageX - el.offsetLeft);
-    setScrollLeft(el.scrollLeft);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const el = containerRef.current;
-    if (!el) return;
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    el.scrollLeft = scrollLeft - walk;
-  };
-
-  const stopDragging = () => {
-    setIsDragging(false);
-  };
-
-  const scrollByAmount = (amount: number) => {
-    const el = containerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: amount, behavior: "smooth" });
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      scrollByAmount(-360);
-    } else if (e.key === "ArrowRight") {
-      scrollByAmount(360);
+  const handleNavigateToCourse = (slug: string) => {
+    if (onSelectCourse) {
+      onSelectCourse(slug);
+    } else {
+      onExploreCourses();
     }
   };
 
   return (
-    <section id="courses" className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
+    <section id="courses" className="relative pt-16 pb-20 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Header with Navigation Controls */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div>
-            <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
-              Interactive Curricula with Socratic Verification
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-[#9CA3AF] mr-2 hidden sm:inline">
-              Drag or use arrows to navigate
+        {/* Editorial Section Header with tight, balanced spacing to the carousel */}
+        <div className="text-center max-w-3xl mx-auto mb-4 sm:mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#E6CAA4]/20 bg-[#2A1D13]/40 backdrop-blur-md mb-2.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E6CAA4] animate-pulse" />
+            <span className="font-mono text-[10.5px] uppercase tracking-widest text-[#E6CAA4] font-semibold">
+              Curated Tracks
             </span>
-            <button
-              onClick={() => scrollByAmount(-360)}
-              disabled={!canScrollLeft}
-              className={`w-10 h-10 rounded-xl bg-[#18181C]/80 border border-white/12 flex items-center justify-center text-[#FEF5E5] transition-all cursor-pointer shadow-sm ${
-                canScrollLeft ? "opacity-100 hover:bg-[#26262E] hover:border-white/25" : "opacity-40 cursor-not-allowed"
-              }`}
-              aria-label="Scroll left"
-            >
-              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-            </button>
-            <button
-              onClick={() => scrollByAmount(360)}
-              disabled={!canScrollRight}
-              className={`w-10 h-10 rounded-xl bg-[#18181C]/80 border border-white/12 flex items-center justify-center text-[#FEF5E5] transition-all cursor-pointer shadow-sm ${
-                canScrollRight ? "opacity-100 hover:bg-[#26262E] hover:border-white/25" : "opacity-40 cursor-not-allowed"
-              }`}
-              aria-label="Scroll right"
-            >
-              <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-            </button>
           </div>
+          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
+            Courses built for real understanding.
+          </h2>
+          <p className="mt-2.5 text-sm sm:text-base text-[#D1D5DB] font-normal max-w-2xl mx-auto leading-relaxed">
+            Explore curated courses, learn with AI, and demonstrate what you know.
+          </p>
         </div>
 
-        {/* Draggable Track Container */}
-        <div
-          ref={containerRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={stopDragging}
-          onMouseLeave={stopDragging}
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
-          role="region"
-          aria-label="Curriculum Tracks Carousel"
-          className="flex gap-6 overflow-x-auto pb-8 pt-2 scrollbar-none select-none focus:outline-none focus:ring-1 focus:ring-white/25 cursor-grab active:cursor-grabbing snap-x snap-mandatory"
-          style={{ scrollSnapType: "x mandatory" }}
-        >
-          {COURSES.map((course) => (
-            <div
-              key={course.slug}
-              className="min-w-[320px] sm:min-w-[380px] max-w-[400px] shrink-0 snap-start"
-            >
-              <BulgeCard className="h-full rounded-3xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 hover:border-white/25 backdrop-blur-xl p-7 flex flex-col justify-between shadow-xl hover:shadow-2xl transition-all duration-300 text-[#FEF5E5]">
-                <div>
-                  {/* Top Badge */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-[10.5px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-[#8B5FB0]/40 bg-[#382649]/60 text-[#CEA4F2]">
-                      {course.badge}
-                    </span>
-                    <span className="font-mono text-xs text-[#9CA3AF] font-medium">
-                      {course.level}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-['Newsreader',Georgia,serif] text-2xl text-[#FEF5E5] font-normal leading-snug mb-3">
-                    {course.title}
-                  </h3>
-
-                  {/* Summary */}
-                  <p className="text-[13.5px] text-[#D1D5DB] leading-relaxed mb-6">
-                    {course.summary}
-                  </p>
-                </div>
-
-                {/* Metadata & CTA */}
-                <div className="pt-4 border-t border-white/10 space-y-4">
-                  <div className="flex items-center justify-between text-xs font-mono text-[#9CA3AF]">
-                    <span>{course.modules} Modules</span>
-                    <span>•</span>
-                    <span>{course.duration}</span>
-                    <span>•</span>
-                    <span className="text-[#34D399] font-semibold">Oral Viva Included</span>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      if (onSelectCourse) {
-                        onSelectCourse(course.slug);
-                      } else {
-                        onExploreCourses();
-                      }
-                    }}
-                    className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-[#FEF5E5] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer border border-white/15 shadow-md active:scale-95"
-                  >
-                    <span>Inspect Syllabus &amp; Rubrics</span>
-                    <span className="text-[#E6CAA4]">→</span>
-                  </button>
-                </div>
-              </BulgeCard>
-            </div>
-          ))}
+        {/* React Bits FlexCarousel: Unified Single-Card Presentation with proper card gap and zero external bottom text */}
+        <div style={{ width: "100%", height: "540px", position: "relative" }} className="mt-1">
+          <FlexCarousel
+            ref={carouselRef}
+            items={items}
+            preset="liquid"
+            intro="rise"
+            cardHeight={0.82}
+            gap={36}
+            squeeze={0.29}
+            focusOnClick
+            captions={false}
+            radius={8}
+            roundness={0.85}
+            bend={0}
+            autoplay
+            interval={2}
+            onSelect={(index, item) => {
+              const selected = item?.slug || items[index]?.slug;
+              if (selected) {
+                handleNavigateToCourse(selected);
+              }
+            }}
+          />
         </div>
       </div>
     </section>
