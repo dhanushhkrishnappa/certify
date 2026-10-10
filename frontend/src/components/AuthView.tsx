@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { api } from "../services/api.js";
 import type { User } from "../types/index.js";
-import Dither from "./landing/Dither.js";
+import Silk from "./landing/Silk.js";
 
 interface AuthViewProps {
   onLoginSuccess: (user: User, token: string) => void;
@@ -67,31 +67,16 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) 
 
   return (
     <main className="min-h-screen w-full relative flex items-center justify-center px-4 sm:px-6 py-12 bg-black font-['Plus_Jakarta_Sans',sans-serif] text-[#FEF5E5] antialiased selection:bg-[#E6CAA4] selection:text-[#2A170E] overflow-hidden">
-      {/* Full-Page React Bits Dither Background (Identical to Landing Page) */}
+      {/* Full-Page React Bits Silk Background (Fixed Canvas, z-0) */}
       <div className="fixed inset-0 z-0 pointer-events-none w-screen h-screen">
-        <Dither
-          waveColor={[0.5, 0.5, 0.5]}
-          backgroundColor={[0, 0, 0]}
-          disableAnimation={false}
-          enableMouseInteraction={true}
-          mouseRadius={0.3}
-          colorNum={4}
-          pixelSize={2}
-          waveAmplitude={0.3}
-          waveFrequency={3}
-          waveSpeed={0.05}
+        <Silk
+          speed={2.9}
+          scale={0.4}
+          color="#514369"
+          noiseIntensity={1.7}
+          rotation={3.2}
         />
       </div>
-
-      {/* Top subtle ambient glow */}
-      <div
-        className="fixed -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[340px] pointer-events-none z-0 rounded-full blur-[130px] opacity-25"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(206, 164, 242, 0.25) 0%, rgba(230, 202, 164, 0.15) 50%, transparent 70%)",
-        }}
-        aria-hidden="true"
-      />
 
       {/* Single Minimal Sculptured Card */}
       <div className="relative z-10 w-full max-w-[460px] mx-auto">

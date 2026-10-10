@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLenis } from "../motion/useLenis.js";
-import Dither from "./landing/Dither.js";
+import Silk from "./landing/Silk.js";
 import { LogoPreloader } from "./landing/LogoPreloader.js";
 import { LandingNavbar } from "./landing/LandingNavbar.js";
 import { HeroSection } from "./landing/HeroSection.js";
@@ -52,19 +52,14 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         />
       )}
 
-      {/* Full-Page React Bits Dither Background (Fixed Canvas, z-0) */}
+      {/* Full-Page React Bits Silk Background (Fixed Canvas, z-0) */}
       <div className="fixed inset-0 z-0 pointer-events-none w-screen h-screen">
-        <Dither
-          waveColor={[0.5, 0.5, 0.5]}
-          backgroundColor={[0, 0, 0]}
-          disableAnimation={false}
-          enableMouseInteraction={true}
-          mouseRadius={0.3}
-          colorNum={4}
-          pixelSize={2}
-          waveAmplitude={0.3}
-          waveFrequency={3}
-          waveSpeed={0.05}
+        <Silk
+          speed={2.9}
+          scale={0.4}
+          color="#514369"
+          noiseIntensity={1.7}
+          rotation={3.2}
         />
       </div>
 
