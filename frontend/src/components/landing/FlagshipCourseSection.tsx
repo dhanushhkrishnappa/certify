@@ -68,8 +68,8 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
                   onClick={() => setSelectedMod(idx)}
                   className={`p-4 rounded-xl transition-all cursor-pointer border ${
                     selectedMod === idx
-                      ? "bg-gradient-to-b from-[#222228]/95 via-[#18181C]/92 to-[#101013]/95 border-white/25 shadow-md text-[#FEF5E5]"
-                      : "bg-[#141418]/70 border-white/10 hover:bg-[#1C1C22]/80 text-[#A1A1AA]"
+                      ? "bg-gradient-to-b from-[#222228]/95 via-[#18181C]/92 to-[#101013]/95 border-white/[0.08] shadow-md text-[#FEF5E5]"
+                      : "bg-[#141418]/70 border-white/[0.04] hover:bg-[#1C1C22]/80 text-[#A1A1AA]"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -113,7 +113,7 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
               </button>
               <button
                 onClick={onBeginDiagnostic}
-                className="px-5 py-3 rounded-xl bg-[#141418]/80 hover:bg-[#1E1E24] border border-white/12 text-[#D1D5DB] font-medium text-sm transition-all active:scale-95 shadow-sm cursor-pointer"
+                className="px-5 py-3 rounded-xl bg-[#141418]/80 hover:bg-[#1E1E24] border border-white/[0.06] text-[#D1D5DB] font-medium text-sm transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 Test Diagnostic Baseline
               </button>
@@ -122,8 +122,8 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
 
           {/* Right Column: Code & Sandbox Demonstration Preview */}
           <div className="lg:col-span-6">
-            <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 backdrop-blur-xl p-6 sm:p-8 shadow-2xl space-y-4 text-[#FEF5E5]">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 text-xs font-mono">
+            <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#18181D]/90 via-[#121215]/88 to-[#0B0B0E]/95 border border-white/[0.06] backdrop-blur-xl p-6 sm:p-8 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.95)] space-y-4 text-[#FEF5E5]">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 text-xs font-mono">
                 <span className="text-[#FEF5E5] font-bold">
                   # Module {FLAGSHIP_MODULES[selectedMod].num}: Invariant Suite
                 </span>
@@ -133,8 +133,8 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
                 </span>
               </div>
 
-              {/* Light Grey / Whitish Code Sandbox for maximum legibility */}
-              <pre className="p-4 rounded-xl bg-[#F8F9FA] border border-[#E2E8F0] font-mono text-xs text-[#0F172A] leading-relaxed overflow-x-auto shadow-sm">
+              {/* Code Sandbox Terminal */}
+              <pre className="p-4 rounded-xl bg-[#0D0D11] border border-white/[0.06] font-mono text-xs text-[#E2E8F0] leading-relaxed overflow-x-auto shadow-inner">
                 {`def make_averager():
     series = []
     def averager(new_value):
@@ -152,7 +152,7 @@ assert len(avg.__closure__) == 1
 assert isinstance(avg.__closure__[0].cell_contents, list)`}
               </pre>
 
-              <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#D1D5DB]">
+              <div className="pt-3 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#D1D5DB]">
                 <div className="flex items-center gap-2">
                   <span>Bayesian Prior P(L):</span>
                   <span className="text-[#34D399] font-bold">0.942 (Mastered)</span>

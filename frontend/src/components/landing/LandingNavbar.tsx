@@ -89,7 +89,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
         }`}
       >
         <div
-          className={`pointer-events-auto w-full max-w-[1240px] h-[58px] sm:h-[68px] px-3.5 sm:px-6 rounded-2xl bg-[#121215]/85 border border-white/12 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.8),0_4px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl flex items-center justify-between transition-all duration-300`}
+          className={`pointer-events-auto w-full max-w-[1240px] h-[58px] sm:h-[68px] px-3.5 sm:px-6 rounded-2xl bg-[#121215]/85 border border-white/[0.06] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl flex items-center justify-between transition-all duration-300`}
         >
           {/* Official Brand Wordmark Anchor */}
           <a
@@ -113,7 +113,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
           >
             {/* Floating indicator background for hover */}
             <div
-              className="absolute top-1 bottom-1 rounded-xl bg-white/8 border border-white/12 pointer-events-none transition-all duration-200 ease-out"
+              className="absolute top-1 bottom-1 rounded-xl bg-white/[0.04] border border-white/[0.06] pointer-events-none transition-all duration-200 ease-out"
               style={{
                 left: `${indicatorStyle.left}px`,
                 width: `${indicatorStyle.width}px`,
@@ -173,7 +173,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
             <button
               ref={magneticCtaRef}
               onClick={onBeginDiagnostic}
-              className="h-[38px] sm:h-[40px] px-5 sm:px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#2A2A30] via-[#1E1E22] to-[#141416] hover:from-[#34343A] hover:to-[#222226] text-[#FEF5E5] text-[13.5px] font-semibold border border-white/16 shadow-md shadow-black/50 transition-all duration-150 active:scale-95 cursor-pointer select-none shrink-0 group"
+              className="h-[38px] sm:h-[40px] px-5 sm:px-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#2A2A30] via-[#1E1E22] to-[#141416] hover:from-[#34343A] hover:to-[#222226] text-[#FEF5E5] text-[13.5px] font-semibold border border-white/[0.08] shadow-md shadow-black/50 transition-all duration-150 active:scale-95 cursor-pointer select-none shrink-0 group"
             >
               <span className="magnetic-content flex items-center gap-1.5">
                 <span>Begin Diagnostic</span>
@@ -188,13 +188,13 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
           <div className="flex sm:hidden items-center gap-1.5 shrink-0">
             <button
               onClick={onBeginDiagnostic}
-              className="h-[32px] px-3 inline-flex items-center justify-center rounded-xl bg-[#222226] text-[#FEF5E5] text-[11px] font-semibold border border-white/14"
+              className="h-[32px] px-3 inline-flex items-center justify-center rounded-xl bg-[#222226] text-[#FEF5E5] text-[11px] font-semibold border border-white/[0.08]"
             >
               Diagnostic →
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-8 h-8 rounded-xl bg-white/8 border border-white/14 flex items-center justify-center text-[#FEF5E5] hover:text-[#E6CAA4] transition-colors"
+              className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[#FEF5E5] hover:text-[#E6CAA4] transition-colors"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
             >

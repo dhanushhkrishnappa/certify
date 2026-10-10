@@ -114,12 +114,12 @@ export const AiShowcaseSection: React.FC = () => {
 
         {/* Studio Shell Card */}
         <BulgeCard
-          className="rounded-3xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 shadow-2xl backdrop-blur-2xl overflow-hidden text-[#FEF5E5]"
+          className="rounded-3xl bg-gradient-to-b from-[#18181D]/90 via-[#121215]/88 to-[#0B0B0E]/95 border border-white/[0.06] shadow-[0_24px_60px_-12px_rgba(0,0,0,0.95)] backdrop-blur-2xl overflow-hidden text-[#FEF5E5]"
           maxTilt={4}
-          highlightColor="rgba(255, 255, 255, 0.15)"
+          highlightColor="rgba(255, 255, 255, 0.05)"
         >
           {/* Top Bar of Studio */}
-          <div className="px-6 py-4 bg-[#141418]/90 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+          <div className="px-6 py-4 bg-[#141418]/90 border-b border-white/[0.05] flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="flex gap-1.5">
                 <span className="w-3 h-3 rounded-full bg-[#EF4444] inline-block" />
@@ -139,8 +139,8 @@ export const AiShowcaseSection: React.FC = () => {
                   onClick={() => setCurrentStepIdx(idx)}
                   className={`px-3 py-1 rounded-xl text-xs font-mono transition-all cursor-pointer ${
                     currentStepIdx === idx
-                      ? "bg-white/15 text-[#FEF5E5] border border-white/20 font-bold shadow-xs"
-                      : "bg-white/5 text-[#A1A1AA] hover:text-[#FEF5E5] border border-white/10"
+                      ? "bg-white/[0.08] text-[#FEF5E5] border border-white/[0.08] font-bold shadow-xs"
+                      : "bg-white/[0.02] text-[#A1A1AA] hover:text-[#FEF5E5] border border-white/[0.04]"
                   }`}
                 >
                   {s.label}
@@ -151,7 +151,7 @@ export const AiShowcaseSection: React.FC = () => {
 
           {/* Main Studio Body */}
           <div className="p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left 8 cols: Dialogue Pane (Light Grey / Whitish Mockup) */}
+            {/* Left 8 cols: Dialogue Pane */}
             <div className="lg:col-span-8 space-y-6">
               {/* AI Message Bubble */}
               <div className="flex items-start gap-4">
@@ -160,49 +160,49 @@ export const AiShowcaseSection: React.FC = () => {
                     psychology
                   </span>
                 </div>
-                <div className="flex-1 rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] p-5 shadow-xs text-[#111827]">
+                <div className="flex-1 rounded-2xl bg-[#141418]/90 border border-white/[0.06] p-5 shadow-lg text-[#FEF5E5]">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[12px] font-mono font-bold text-[#7C3AED]">
+                    <span className="text-[12px] font-mono font-bold text-[#CEA4F2]">
                       Socratic AI Tutor
                     </span>
-                    <span className="text-[10.5px] font-mono text-[#6B7280]">
+                    <span className="text-[10.5px] font-mono text-[#9CA3AF]">
                       {isTyping ? "Synthesizing..." : "Delivered"}
                     </span>
                   </div>
-                  <p className="text-[14.5px] text-[#111827] leading-relaxed">
+                  <p className="text-[14.5px] text-[#FEF5E5] leading-relaxed">
                     {displayedText}
-                    {isTyping && <span className="inline-block w-1.5 h-4 ml-1 bg-[#7C3AED] animate-pulse" />}
+                    {isTyping && <span className="inline-block w-1.5 h-4 ml-1 bg-[#CEA4F2] animate-pulse" />}
                   </p>
                 </div>
               </div>
 
               {/* Learner Response Bubble */}
               <div className="flex items-start gap-4 justify-end">
-                <div className="flex-1 max-w-xl rounded-2xl bg-[#FFFFFF] border border-[#E2E8F0] p-5 shadow-xs text-[#111827]">
+                <div className="flex-1 max-w-xl rounded-2xl bg-[#1A1A22]/90 border border-[#7C3AED]/25 p-5 shadow-lg text-[#FEF5E5]">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[12px] font-mono font-bold text-[#4B5563]">
+                    <span className="text-[12px] font-mono font-bold text-[#E6CAA4]">
                       Candidate Rationale
                     </span>
-                    <span className="text-[10.5px] font-mono text-[#15803D] font-bold">
+                    <span className="text-[10.5px] font-mono text-[#34D399] font-bold">
                       Demonstrated
                     </span>
                   </div>
-                  <p className="text-[14px] text-[#111827] leading-relaxed">
+                  <p className="text-[14px] text-[#FEF5E5] leading-relaxed">
                     {currentStep.learnerResponse}
                   </p>
                 </div>
-                <div className="w-9 h-9 rounded-xl bg-[#18181B] flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-[#26262E] flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0 border border-white/[0.06]">
                   U
                 </div>
               </div>
 
               {/* Evaluation Feedback */}
-              <div className="p-4 rounded-xl bg-[#F8F9FA] border border-[#E2E8F0] flex items-start gap-3 text-[#111827]">
-                <span className="material-symbols-outlined text-[#15803D] text-[20px] mt-0.5 shrink-0">
+              <div className="p-4 rounded-xl bg-[#141418]/90 border border-white/[0.06] flex items-start gap-3 text-[#FEF5E5]">
+                <span className="material-symbols-outlined text-[#34D399] text-[20px] mt-0.5 shrink-0">
                   verified
                 </span>
-                <div className="text-xs text-[#374151] leading-relaxed">
-                  <strong className="text-[#111827] block mb-0.5 font-bold">
+                <div className="text-xs text-[#D1D5DB] leading-relaxed">
+                  <strong className="text-[#FEF5E5] block mb-0.5 font-bold">
                     Pedagogical Evaluation:
                   </strong>
                   {currentStep.tutorEvaluation}
@@ -210,14 +210,14 @@ export const AiShowcaseSection: React.FC = () => {
               </div>
             </div>
 
-            {/* Right 4 cols: Concept Mastery Ledger (Light Grey / Whitish Mockup) */}
-            <div className="lg:col-span-4 rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] p-5 flex flex-col justify-between space-y-6 text-[#111827] shadow-xl">
+            {/* Right 4 cols: Concept Mastery Ledger */}
+            <div className="lg:col-span-4 rounded-2xl bg-[#141418]/90 border border-white/[0.06] p-5 flex flex-col justify-between space-y-6 text-[#FEF5E5] shadow-xl">
               <div>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#E2E8F0]">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#4B5563]">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#A1A1AA]">
                     Mastery Ledger
                   </span>
-                  <span className="text-xs font-mono font-bold text-[#7C3AED]">
+                  <span className="text-xs font-mono font-bold text-[#CEA4F2]">
                     {currentStep.status}
                   </span>
                 </div>
@@ -225,14 +225,14 @@ export const AiShowcaseSection: React.FC = () => {
                 {/* Progress Dial Bar */}
                 <div className="space-y-2 mb-6">
                   <div className="flex justify-between text-xs font-mono">
-                    <span className="text-[#4B5563]">Bayesian Knowledge P(L)</span>
-                    <span className="text-[#15803D] font-bold">
+                    <span className="text-[#A1A1AA]">Bayesian Knowledge P(L)</span>
+                    <span className="text-[#34D399] font-bold">
                       {currentStep.masteryScore}%
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-[#E5E7EB] overflow-hidden">
+                  <div className="h-2 w-full rounded-full bg-white/[0.08] overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#7C3AED] via-[#3B82F6] to-[#15803D] transition-all duration-700 ease-out"
+                      className="h-full bg-gradient-to-r from-[#7C3AED] via-[#3B82F6] to-[#10B981] transition-all duration-700 ease-out"
                       style={{ width: `${currentStep.masteryScore}%` }}
                     />
                   </div>
@@ -240,19 +240,19 @@ export const AiShowcaseSection: React.FC = () => {
 
                 {/* Concept Checklist */}
                 <div className="space-y-3 font-mono text-[11.5px]">
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-[#E2E8F0] shadow-xs">
-                    <span className="text-[#111827] font-medium">Heap Cell Allocation</span>
-                    <span className="text-[#15803D] font-bold">✓ PASS</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] shadow-xs">
+                    <span className="text-[#FEF5E5] font-medium">Heap Cell Allocation</span>
+                    <span className="text-[#34D399] font-bold">✓ PASS</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-[#E2E8F0] shadow-xs">
-                    <span className="text-[#111827] font-medium">__closure__ Invariants</span>
-                    <span className="text-[#15803D] font-bold">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] shadow-xs">
+                    <span className="text-[#FEF5E5] font-medium">__closure__ Invariants</span>
+                    <span className="text-[#34D399] font-bold">
                       {currentStepIdx >= 1 ? "✓ PASS" : "PROBING"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-[#E2E8F0] shadow-xs">
-                    <span className="text-[#111827] font-medium">Bytecode Scope Rules</span>
-                    <span className="text-[#15803D] font-bold">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05] shadow-xs">
+                    <span className="text-[#FEF5E5] font-medium">Bytecode Scope Rules</span>
+                    <span className="text-[#34D399] font-bold">
                       {currentStepIdx >= 2 ? "✓ PASS" : "PENDING"}
                     </span>
                   </div>
@@ -260,10 +260,10 @@ export const AiShowcaseSection: React.FC = () => {
               </div>
 
               {/* Step Forward Call to Action */}
-              <div className="pt-4 border-t border-[#E2E8F0]">
+              <div className="pt-4 border-t border-white/[0.06]">
                 <button
                   onClick={() => setCurrentStepIdx((prev) => (prev + 1) % DEMO_STEPS.length)}
-                  className="w-full py-2.5 rounded-xl bg-[#18181B] hover:bg-[#27272A] text-white text-xs font-mono font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer border border-[#27272A] shadow-xs"
+                  className="w-full py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-white text-xs font-mono font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer border border-white/[0.06] shadow-xs"
                 >
                   <span>Advance Dialogue State</span>
                   <span className="text-white">→</span>

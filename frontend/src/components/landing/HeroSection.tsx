@@ -100,8 +100,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       {/* Central Hero Experience Container */}
       <div className="hero-central-card relative z-10 max-w-[1000px] mx-auto w-full text-center">
         <BulgeCard
-          className="relative p-8 sm:p-12 md:p-14 lg:p-[72px] rounded-[32px] sm:rounded-[42px] bg-gradient-to-b from-[#1C1C20]/90 via-[#141417]/88 to-[#0E0E11]/92 border border-white/12 shadow-[0_28px_80px_-15px_rgba(0,0,0,0.8),0_10px_28px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl overflow-hidden"
-          highlightColor="rgba(255, 255, 255, 0.12)"
+          className="relative p-8 sm:p-12 md:p-14 lg:p-[72px] rounded-[32px] sm:rounded-[42px] bg-gradient-to-b from-[#18181D]/92 via-[#121215]/88 to-[#0B0B0E]/94 border border-white/[0.06] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl overflow-hidden"
+          highlightColor="rgba(255, 255, 255, 0.08)"
         >
           {/* Subtle Ambient Radial Highlight */}
           <div
@@ -191,7 +191,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <button
               ref={primaryCtaRef}
               onClick={onBeginDiagnostic}
-              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-b from-[#2A2A30] via-[#1E1E22] to-[#141416] hover:from-[#34343A] hover:to-[#222226] text-[#FEF5E5] text-[15px] font-semibold border border-white/16 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.6)] transition-all duration-200 active:scale-95 cursor-pointer group"
+              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-b from-[#2A2A30] via-[#1E1E22] to-[#141416] hover:from-[#34343A] hover:to-[#222226] text-[#FEF5E5] text-[15px] font-semibold border border-white/[0.08] shadow-[0_12px_28px_-6px_rgba(0,0,0,0.7)] transition-all duration-200 active:scale-95 cursor-pointer group"
             >
               <span className="magnetic-content flex items-center gap-2">
                 <span className="material-symbols-outlined text-[19px] text-[#E6CAA4]">
@@ -208,7 +208,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <button
               ref={secondaryCtaRef}
               onClick={onExploreCourses}
-              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/6 hover:bg-white/12 border border-white/14 hover:border-white/24 text-[#FEF5E5] text-[15px] font-medium transition-all duration-200 active:scale-95 cursor-pointer shadow-xs group"
+              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.12] text-[#FEF5E5] text-[15px] font-medium transition-all duration-200 active:scale-95 cursor-pointer shadow-xs group"
             >
               <span className="magnetic-content flex items-center gap-2">
                 <span>Explore Curriculum</span>
