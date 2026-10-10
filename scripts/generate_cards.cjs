@@ -94,10 +94,11 @@ function generateHtml(c) {
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: transparent;
-      width: 620px;
-      height: 840px;
-      padding: 10px;
+      background: #111114;
+      width: 600px;
+      height: 800px;
+      margin: 0;
+      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -106,14 +107,13 @@ function generateHtml(c) {
     }
     .card {
       width: 600px;
-      height: 820px;
-      background: linear-gradient(180deg, #1C1C21 0%, #141417 40%, #0E0E10 100%);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 28px;
+      height: 800px;
+      background: linear-gradient(180deg, #18181D 0%, #121216 45%, #0B0B0D 100%);
+      border: none;
+      border-radius: 0;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
     .cover-container {
       width: 100%;
@@ -206,7 +206,7 @@ function generateHtml(c) {
       align-items: center;
       justify-content: space-between;
       padding-top: 18px;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     .pills {
       display: flex;
@@ -281,7 +281,7 @@ function generateHtml(c) {
   });
 
   const page = await browser.newPage();
-  await page.setViewport({ width: 620, height: 840, deviceScaleFactor: 2 });
+  await page.setViewport({ width: 600, height: 800, deviceScaleFactor: 2 });
 
   for (const c of courses) {
     const html = generateHtml(c);

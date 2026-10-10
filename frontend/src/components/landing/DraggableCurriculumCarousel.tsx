@@ -111,7 +111,7 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
             squeeze={0.29}
             focusOnClick
             captions={false}
-            radius={8}
+            radius={20}
             roundness={0.85}
             bend={0}
             autoplay
