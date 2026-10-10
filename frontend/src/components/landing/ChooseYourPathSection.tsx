@@ -28,7 +28,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
         {/* 3 Pathway Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           {/* Path 1: Baseline Diagnostic */}
-          <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 backdrop-blur-xl p-8 flex flex-col justify-between shadow-xl text-[#FEF5E5]">
+          <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#18181D]/90 via-[#121215]/88 to-[#0B0B0E]/95 border border-white/[0.06] backdrop-blur-xl p-8 flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.85)] text-[#FEF5E5]">
             <div>
               <span className="font-mono text-xs uppercase tracking-wider text-[#CEA4F2] font-semibold block mb-2">
                 Phase 01 // Calibration
@@ -55,7 +55,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
 
             <button
               onClick={onBeginDiagnostic}
-              className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 text-[#FEF5E5] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer border border-white/15 shadow-md"
+              className="w-full py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[#FEF5E5] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer border border-white/[0.06] shadow-md"
             >
               <span>Begin Free Diagnostic</span>
               <span className="text-[#E6CAA4]">→</span>
@@ -64,10 +64,10 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
 
           {/* Path 2: Socratic Learning Studio (Highlighted) */}
           <BulgeCard
-            className="rounded-3xl bg-gradient-to-b from-[#222228]/95 via-[#18181C]/92 to-[#101013]/95 border-2 border-white/25 backdrop-blur-xl p-8 flex flex-col justify-between shadow-2xl relative text-[#FEF5E5]"
-            highlightColor="rgba(255, 255, 255, 0.15)"
+            className="rounded-3xl bg-gradient-to-b from-[#1E1E26]/95 via-[#15151B]/92 to-[#0E0E12]/95 border border-[#CEA4F2]/30 backdrop-blur-xl p-8 flex flex-col justify-between shadow-[0_24px_60px_-12px_rgba(0,0,0,0.95)] relative text-[#FEF5E5]"
+            highlightColor="rgba(206, 164, 242, 0.1)"
           >
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-white text-[#111827] font-mono text-[10px] font-bold uppercase tracking-wider shadow-sm">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-[#CEA4F2] to-[#E6CAA4] text-[#111827] font-mono text-[10px] font-bold uppercase tracking-wider shadow-md">
               Most Popular
             </div>
 
@@ -105,7 +105,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
           </BulgeCard>
 
           {/* Path 3: Formal Engineering Qualification */}
-          <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 backdrop-blur-xl p-8 flex flex-col justify-between shadow-xl text-[#FEF5E5]">
+          <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#18181D]/90 via-[#121215]/88 to-[#0B0B0E]/95 border border-white/[0.06] backdrop-blur-xl p-8 flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.85)] text-[#FEF5E5]">
             <div>
               <span className="font-mono text-xs uppercase tracking-wider text-[#CEA4F2] font-semibold block mb-2">
                 Phase 03 // Certification
@@ -132,7 +132,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
 
             <button
               onClick={onSignIn}
-              className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 text-[#FEF5E5] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer border border-white/15 shadow-md"
+              className="w-full py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[#FEF5E5] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer border border-white/[0.06] shadow-md"
             >
               <span>Sign In to Access Chamber</span>
               <span className="text-[#E6CAA4]">→</span>

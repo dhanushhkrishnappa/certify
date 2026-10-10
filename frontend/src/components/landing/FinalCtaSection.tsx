@@ -28,9 +28,9 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
 
       <div className="relative z-10 max-w-5xl mx-auto text-center">
         <BulgeCard
-          className="p-10 sm:p-16 md:p-20 rounded-[40px] bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/20 shadow-2xl relative overflow-hidden text-[#FEF5E5] backdrop-blur-xl"
+          className="p-10 sm:p-16 md:p-20 rounded-[40px] bg-gradient-to-b from-[#18181D]/92 via-[#121215]/88 to-[#0B0B0E]/94 border border-white/[0.08] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.04)] relative overflow-hidden text-[#FEF5E5] backdrop-blur-xl"
           maxTilt={5}
-          highlightColor="rgba(255, 255, 255, 0.15)"
+          highlightColor="rgba(255, 255, 255, 0.08)"
         >
           {/* Topographic Lines Background */}
           <svg
@@ -82,7 +82,7 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
             <button
               ref={primaryMagneticRef}
               onClick={onBeginDiagnostic}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white hover:bg-[#F3F4F6] text-[#111827] text-[15px] font-bold border border-white shadow-xl shadow-black/40 transition-all duration-150 active:scale-95 cursor-pointer group"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white hover:bg-[#F3F4F6] text-[#111827] text-[15px] font-bold border border-white/20 shadow-xl shadow-black/40 transition-all duration-150 active:scale-95 cursor-pointer group"
             >
               <span className="magnetic-content flex items-center gap-2">
                 <span className="material-symbols-outlined text-[20px] text-[#111827]">bolt</span>
@@ -96,7 +96,7 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
             <button
               ref={secondaryMagneticRef}
               onClick={onExploreCourses}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-[#FEF5E5] text-[15px] font-medium transition-all duration-150 active:scale-95 cursor-pointer shadow-md"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.16] text-[#FEF5E5] text-[15px] font-medium transition-all duration-150 active:scale-95 cursor-pointer shadow-md"
             >
               <span className="magnetic-content flex items-center gap-2">
                 <span>Explore Courses</span>

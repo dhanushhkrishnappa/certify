@@ -87,8 +87,8 @@ export const FaqSection: React.FC = () => {
                 key={item.id}
                 className={`rounded-2xl border transition-all overflow-hidden ${
                   isOpen
-                    ? "bg-gradient-to-b from-[#222228]/95 via-[#18181C]/92 to-[#101013]/95 border-white/25 shadow-lg text-[#FEF5E5]"
-                    : "bg-gradient-to-b from-[#18181C]/80 to-[#121215]/80 border-white/10 hover:border-white/20 shadow-sm text-[#FEF5E5]"
+                    ? "bg-gradient-to-b from-[#1C1C22]/95 via-[#141418]/92 to-[#0E0E11]/96 border-white/[0.12] shadow-[0_16px_36px_-10px_rgba(0,0,0,0.9)] text-[#FEF5E5]"
+                    : "bg-gradient-to-b from-[#16161B]/80 to-[#101013]/80 border-white/[0.06] hover:border-white/[0.10] shadow-sm text-[#FEF5E5]"
                 }`}
               >
                 <button
@@ -100,7 +100,7 @@ export const FaqSection: React.FC = () => {
                     {item.question}
                   </span>
                   <div
-                    className={`w-8 h-8 rounded-lg bg-white/5 border border-white/12 flex items-center justify-center text-white shrink-0 transition-transform duration-300 shadow-xs ${
+                    className={`w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white shrink-0 transition-transform duration-300 shadow-xs ${
                       isOpen ? "rotate-180" : "rotate-0"
                     }`}
                   >
@@ -111,7 +111,7 @@ export const FaqSection: React.FC = () => {
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-6 pt-2 text-[14.5px] text-[#D1D5DB] leading-relaxed border-t border-white/10 animate-fade-in">
+                  <div className="px-6 pb-6 pt-2 text-[14.5px] text-[#D1D5DB] leading-relaxed border-t border-white/[0.06] animate-fade-in">
                     {item.answer}
                   </div>
                 )}

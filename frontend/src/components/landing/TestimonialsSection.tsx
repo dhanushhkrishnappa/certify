@@ -69,8 +69,8 @@ export const TestimonialsSection: React.FC = () => {
 
         {/* Carousel Container */}
         <div ref={containerRef} className="relative">
-          <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 backdrop-blur-xl p-8 sm:p-12 shadow-2xl relative text-[#FEF5E5]">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-6 mb-6">
+          <BulgeCard className="rounded-3xl bg-gradient-to-b from-[#18181D]/90 via-[#121215]/88 to-[#0B0B0E]/95 border border-white/[0.06] backdrop-blur-xl p-8 sm:p-12 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.95)] relative text-[#FEF5E5]">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/[0.06] pb-6 mb-6">
               <div>
                 <span className="font-mono text-xs uppercase tracking-wider text-[#CEA4F2] font-semibold block mb-1">
                   {current.cohort}
@@ -89,12 +89,12 @@ export const TestimonialsSection: React.FC = () => {
               "{current.quote}"
             </p>
 
-            {/* Light Grey / Whitish Inner Defense Box */}
-            <div className="p-4 rounded-xl bg-[#F8F9FA] border border-[#E2E8F0] text-xs font-mono text-[#111827] space-y-1 shadow-sm">
-              <span className="text-[#6B7280] uppercase block text-[10px] tracking-wider font-bold">
+            {/* Inner Defense Box */}
+            <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.05] text-xs font-mono text-[#FEF5E5] space-y-1 shadow-sm">
+              <span className="text-[#A1A1AA] uppercase block text-[10px] tracking-wider font-bold">
                 Defended Oral Capstone Topic:
               </span>
-              <p className="text-[#111827] font-semibold">{current.vivaChallenge}</p>
+              <p className="text-[#FEF5E5] font-semibold">{current.vivaChallenge}</p>
             </div>
           </BulgeCard>
 
@@ -116,14 +116,14 @@ export const TestimonialsSection: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrev}
-                className="w-10 h-10 rounded-xl bg-[#18181C]/80 border border-white/12 flex items-center justify-center text-[#FEF5E5] hover:bg-[#26262E] hover:border-white/25 transition-colors cursor-pointer shadow-sm"
+                className="w-10 h-10 rounded-xl bg-[#18181C]/80 border border-white/[0.06] flex items-center justify-center text-[#FEF5E5] hover:bg-[#26262E] hover:border-white/[0.12] transition-colors cursor-pointer shadow-sm"
                 aria-label="Previous report"
               >
                 <span className="material-symbols-outlined text-[20px]">chevron_left</span>
               </button>
               <button
                 onClick={handleNext}
-                className="w-10 h-10 rounded-xl bg-[#18181C]/80 border border-white/12 flex items-center justify-center text-[#FEF5E5] hover:bg-[#26262E] hover:border-white/25 transition-colors cursor-pointer shadow-sm"
+                className="w-10 h-10 rounded-xl bg-[#18181C]/80 border border-white/[0.06] flex items-center justify-center text-[#FEF5E5] hover:bg-[#26262E] hover:border-white/[0.12] transition-colors cursor-pointer shadow-sm"
                 aria-label="Next report"
               >
                 <span className="material-symbols-outlined text-[20px]">chevron_right</span>
