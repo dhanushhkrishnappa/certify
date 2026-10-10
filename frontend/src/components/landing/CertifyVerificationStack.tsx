@@ -171,8 +171,8 @@ export const CertifyVerificationStack: React.FC = () => {
                   data-testid={`scroll-stack-card-${index + 1}`}
                   className={`absolute w-[95vw] max-w-[1140px] h-[56vh] sm:h-[52vh] min-h-[450px] sm:min-h-[430px] max-h-[530px] sm:max-h-[500px] rounded-[24px] border ${
                     isCard4
-                      ? "bg-gradient-to-br from-[#1C1C20]/92 via-[#141416]/90 to-[#0E0E10]/94 border-white/22 shadow-[0_24px_54px_-12px_rgba(0,0,0,0.85),0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)]"
-                      : "bg-gradient-to-br from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border-white/12 shadow-[0_24px_50px_-12px_rgba(0,0,0,0.8),0_4px_14px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]"
+                      ? "bg-gradient-to-br from-[#1A1A1F]/95 via-[#131317]/92 to-[#0C0C0F]/96 border-white/[0.08] shadow-[0_28px_60px_-12px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.04)]"
+                      : "bg-gradient-to-br from-[#18181D]/92 via-[#121215]/90 to-[#0B0B0E]/95 border-white/[0.06] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.03)]"
                   } backdrop-blur-xl p-5 sm:p-6 lg:p-7 flex flex-col lg:flex-row items-stretch justify-between gap-5 lg:gap-7 overflow-hidden select-none`}
                   style={{
                     transform: `translate3d(0, ${translateY}${delta < 1 && delta > 0 ? "vh" : "px"}, ${translateZ}px) scale(${scale})`,
@@ -204,7 +204,7 @@ export const CertifyVerificationStack: React.FC = () => {
                         <span className="font-mono text-xs font-bold tracking-widest text-[#E6CAA4]">
                           {card.eyebrow}
                         </span>
-                        <span className="h-px w-6 bg-white/20" />
+                        <span className="h-px w-6 bg-white/[0.12]" />
                         <span className="font-mono text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full border bg-[#382649]/60 border-[#8B5FB0]/40 text-[#CEA4F2]">
                           {card.phase}
                         </span>
@@ -222,11 +222,11 @@ export const CertifyVerificationStack: React.FC = () => {
                     </div>
 
                     {/* Bottom Tags */}
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-white/[0.06]">
                       {card.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/6 border border-white/12 text-[#F3F4F6] shadow-xs"
+                          className="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/[0.04] border border-white/[0.06] text-[#F3F4F6] shadow-xs"
                         >
                           {tag}
                         </span>
@@ -252,35 +252,35 @@ export const CertifyVerificationStack: React.FC = () => {
 };
 
 /**
- * Visual for Card 01: Light Grey / Whitish CERTIFY AI Tutor Interface
+ * Visual for Card 01: CERTIFY AI Tutor Socratic Dialogue Interface (Dark Glass)
  */
 const AiTutorVisual: React.FC = () => {
   return (
-    <div className="w-full rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] p-3.5 sm:p-4 shadow-xl text-[#111827] flex flex-col justify-between space-y-2.5 h-full max-h-[380px]">
+    <div className="w-full rounded-2xl bg-gradient-to-b from-[#141418]/95 via-[#0F0F13]/92 to-[#09090C]/96 border border-white/[0.06] p-4 sm:p-5 shadow-[0_20px_48px_-10px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.03)] text-[#FEF5E5] flex flex-col justify-between space-y-3 h-full max-h-[380px]">
       {/* Visual Window Header */}
-      <div className="flex items-center justify-between pb-2.5 border-b border-[#E5E7EB]">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-          <span className="font-mono text-[11px] font-semibold text-[#374151] ml-2">
+          <span className="w-2 h-2 rounded-full bg-[#EF4444]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#F59E0B]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#10B981]/80" />
+          <span className="font-mono text-[11px] font-semibold text-[#CFC2B4] ml-2 tracking-wider">
             AI TUTOR • SOCRATIC DIALOGUE
           </span>
         </div>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#4B5563] bg-[#E5E7EB] px-2 py-0.5 rounded-full border border-[#D1D5DB]">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#A1A1AA] bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.06]">
           Python Scope Lab
         </span>
       </div>
 
       {/* Socratic Dialogue Flow */}
-      <div className="space-y-2.5 text-xs sm:text-[13px] flex-1 flex flex-col justify-center">
+      <div className="space-y-3 text-xs sm:text-[13px] flex-1 flex flex-col justify-center">
         {/* Turn 1: AI Prompt */}
         <div className="flex items-start gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-[#F3E8FF] border border-[#D8B4FE] flex items-center justify-center shrink-0 mt-0.5">
-            <span className="text-[#7C3AED] text-[10px] font-mono font-bold">AI</span>
+          <div className="w-6 h-6 rounded-full bg-[#382649]/60 border border-[#8B5FB0]/40 flex items-center justify-center shrink-0 mt-0.5">
+            <span className="text-[#CEA4F2] text-[10px] font-mono font-bold">AI</span>
           </div>
-          <div className="flex-1 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl rounded-tl-sm p-3 text-[#111827] leading-relaxed shadow-xs">
-            <div className="font-mono text-[10px] text-[#7C3AED] mb-1 uppercase tracking-wider font-bold">
+          <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-2xl rounded-tl-sm p-3 text-[#FEF5E5] leading-relaxed shadow-xs">
+            <div className="font-mono text-[10px] text-[#CEA4F2] mb-1 uppercase tracking-wider font-bold">
               AI Tutor
             </div>
             &ldquo;Why does this approach work?&rdquo;
@@ -289,25 +289,25 @@ const AiTutorVisual: React.FC = () => {
 
         {/* Turn 2: Learner Answer */}
         <div className="flex items-start gap-2.5 pl-6 sm:pl-10">
-          <div className="flex-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-2xl rounded-tr-sm p-3 text-[#111827] leading-relaxed shadow-xs">
-            <div className="font-mono text-[10px] text-[#4B5563] mb-1 uppercase tracking-wider flex items-center justify-between font-semibold">
+          <div className="flex-1 bg-[#1A1A22]/90 border border-[#7C3AED]/25 rounded-2xl rounded-tr-sm p-3 text-[#FEF5E5] leading-relaxed shadow-xs">
+            <div className="font-mono text-[10px] text-[#A1A1AA] mb-1 uppercase tracking-wider flex items-center justify-between font-semibold">
               <span>You</span>
-              <span className="text-[#059669] font-bold">Demonstrated</span>
+              <span className="text-[#34D399] font-bold">Demonstrated</span>
             </div>
             &ldquo;Because the function keeps access to the value from the outer scope.&rdquo;
           </div>
-          <div className="w-6 h-6 rounded-full bg-[#1F2937] text-white flex items-center justify-center shrink-0 mt-0.5">
+          <div className="w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 mt-0.5 border border-white/[0.08]">
             <span className="text-[10px] font-mono font-bold">U</span>
           </div>
         </div>
 
         {/* Turn 3: AI Follow-up */}
         <div className="hidden sm:flex items-start gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-[#F3E8FF] border border-[#D8B4FE] flex items-center justify-center shrink-0 mt-0.5">
-            <span className="text-[#7C3AED] text-[10px] font-mono font-bold">AI</span>
+          <div className="w-6 h-6 rounded-full bg-[#382649]/60 border border-[#8B5FB0]/40 flex items-center justify-center shrink-0 mt-0.5">
+            <span className="text-[#CEA4F2] text-[10px] font-mono font-bold">AI</span>
           </div>
-          <div className="flex-1 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl rounded-tl-sm p-3 text-[#111827] leading-relaxed shadow-xs">
-            <div className="font-mono text-[10px] text-[#7C3AED] mb-1 uppercase tracking-wider font-bold">
+          <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-2xl rounded-tl-sm p-3 text-[#FEF5E5] leading-relaxed shadow-xs">
+            <div className="font-mono text-[10px] text-[#CEA4F2] mb-1 uppercase tracking-wider font-bold">
               AI Follow-Up
             </div>
             &ldquo;Good. Now explain what changes when that value changes.&rdquo;
@@ -316,10 +316,10 @@ const AiTutorVisual: React.FC = () => {
       </div>
 
       {/* Status Bar */}
-      <div className="flex items-center justify-between pt-2.5 border-t border-[#E5E7EB] text-xs font-mono">
-        <span className="text-[#4B5563]">Dialogue Status: Active Socratic</span>
-        <span className="inline-flex items-center gap-1.5 text-[#15803D] font-medium bg-[#DCFCE7] border border-[#86EFAC] px-2.5 py-0.5 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+      <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.06] text-xs font-mono">
+        <span className="text-[#9CA3AF]">Dialogue Status: Active Socratic</span>
+        <span className="inline-flex items-center gap-1.5 text-[#34D399] font-medium bg-[#052E16]/40 border border-[#16A34A]/30 px-2.5 py-0.5 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
           Understanding explored ✓
         </span>
       </div>
@@ -328,76 +328,76 @@ const AiTutorVisual: React.FC = () => {
 };
 
 /**
- * Visual for Card 02: Light Grey / Whitish Assessment & Practice Interface
+ * Visual for Card 02: Assessment & Practice Interface (Dark Glass)
  */
 const PracticeVisual: React.FC = () => {
   return (
-    <div className="w-full rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] p-3.5 sm:p-4 shadow-xl text-[#111827] flex flex-col justify-between space-y-2.5 h-full max-h-[380px]">
+    <div className="w-full rounded-2xl bg-gradient-to-b from-[#141418]/95 via-[#0F0F13]/92 to-[#09090C]/96 border border-white/[0.06] p-4 sm:p-5 shadow-[0_20px_48px_-10px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.03)] text-[#FEF5E5] flex flex-col justify-between space-y-3 h-full max-h-[380px]">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2.5 border-b border-[#E5E7EB]">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-          <span className="font-mono text-[11px] font-semibold text-[#374151] ml-2">
+          <span className="w-2 h-2 rounded-full bg-[#EF4444]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#F59E0B]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#10B981]/80" />
+          <span className="font-mono text-[11px] font-semibold text-[#CFC2B4] ml-2 tracking-wider">
             CHAPTER CHECK & PRACTICE LAB
           </span>
         </div>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#4B5563] bg-[#E5E7EB] px-2 py-0.5 rounded-full border border-[#D1D5DB]">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#A1A1AA] bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.06]">
           Module 3 / Assessment
         </span>
       </div>
 
       {/* Section A: Chapter Check Question */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3 sm:p-3.5 space-y-2 shadow-xs">
+      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 sm:p-3.5 space-y-2 shadow-xs">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10.5px] uppercase tracking-wider text-[#7C3AED] font-bold">
+          <span className="font-mono text-[10.5px] uppercase tracking-wider text-[#CEA4F2] font-bold">
             CHAPTER CHECK
           </span>
-          <span className="text-[11px] font-mono text-[#6B7280]">Question 2 of 5</span>
+          <span className="text-[11px] font-mono text-[#9CA3AF]">Question 2 of 5</span>
         </div>
-        <div className="text-xs sm:text-[13px] text-[#111827] font-medium">
+        <div className="text-xs sm:text-[13px] text-[#FEF5E5] font-medium">
           &ldquo;What does this function return?&rdquo;
         </div>
 
         {/* 4 Options Grid */}
         <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-xs">
-          <div className="px-3 py-2 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#374151] flex items-center justify-between">
+          <div className="px-3 py-2 rounded-lg bg-black/40 border border-white/[0.06] text-[#A1A1AA] flex items-center justify-between">
             <span>A &nbsp; 3</span>
           </div>
-          <div className="px-3 py-2 rounded-lg bg-[#DCFCE7] border border-[#22C55E] text-[#15803D] font-bold flex items-center justify-between shadow-xs">
+          <div className="px-3 py-2 rounded-lg bg-[#052E16]/50 border border-[#16A34A]/40 text-[#34D399] font-bold flex items-center justify-between shadow-xs">
             <span>B &nbsp; 4</span>
-            <span className="text-[#15803D]">✓</span>
+            <span className="text-[#34D399]">✓</span>
           </div>
-          <div className="px-3 py-2 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#374151] flex items-center justify-between">
+          <div className="px-3 py-2 rounded-lg bg-black/40 border border-white/[0.06] text-[#A1A1AA] flex items-center justify-between">
             <span>C &nbsp; 5</span>
           </div>
-          <div className="px-3 py-2 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#374151] flex items-center justify-between">
+          <div className="px-3 py-2 rounded-lg bg-black/40 border border-white/[0.06] text-[#A1A1AA] flex items-center justify-between">
             <span>D &nbsp; Error</span>
           </div>
         </div>
       </div>
 
       {/* Section B: Practical Task */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3 sm:p-3.5 space-y-2 shadow-xs">
+      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 sm:p-3.5 space-y-2 shadow-xs">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10.5px] uppercase tracking-wider text-[#D97706] font-bold">
+          <span className="font-mono text-[10.5px] uppercase tracking-wider text-[#E6CAA4] font-bold">
             PRACTICAL TASK
           </span>
-          <span className="text-[11px] font-mono text-[#15803D] font-semibold">Submission received ✓</span>
+          <span className="text-[11px] font-mono text-[#34D399] font-semibold">Submission received ✓</span>
         </div>
-        <div className="text-xs sm:text-[13px] text-[#111827]">
+        <div className="text-xs sm:text-[13px] text-[#D1D5DB]">
           &ldquo;Create a function that handles the given input.&rdquo;
         </div>
-        <div className="p-2.5 rounded-lg bg-[#F1F5F9] border border-[#CBD5E1] font-mono text-[11px] text-[#0F172A] leading-relaxed">
+        <div className="p-2.5 rounded-lg bg-[#0A0A0D] border border-white/[0.06] font-mono text-[11px] text-[#A7F3D0] leading-relaxed">
           <code>def filter_valid(records): return [r for r in records if r.status == 200]</code>
         </div>
       </div>
 
       {/* Bottom Status */}
-      <div className="flex items-center justify-between pt-2.5 border-t border-[#E5E7EB] text-xs font-mono">
-        <span className="text-[#4B5563]">Unit Validation: Complete</span>
-        <span className="inline-flex items-center gap-1.5 text-[#15803D] font-medium bg-[#DCFCE7] border border-[#86EFAC] px-2.5 py-0.5 rounded-full">
+      <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.06] text-xs font-mono">
+        <span className="text-[#9CA3AF]">Unit Validation: Complete</span>
+        <span className="inline-flex items-center gap-1.5 text-[#34D399] font-medium bg-[#052E16]/40 border border-[#16A34A]/30 px-2.5 py-0.5 rounded-full">
           Understanding demonstrated ✓
         </span>
       </div>
@@ -406,35 +406,35 @@ const PracticeVisual: React.FC = () => {
 };
 
 /**
- * Visual for Card 03: Light Grey / Whitish AI Viva / Defense Interface
+ * Visual for Card 03: AI Viva / Defense Interface (Dark Glass)
  */
 const VivaVisual: React.FC = () => {
   return (
-    <div className="w-full rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] p-3.5 sm:p-4 shadow-xl text-[#111827] flex flex-col justify-between space-y-2.5 h-full max-h-[380px]">
+    <div className="w-full rounded-2xl bg-gradient-to-b from-[#141418]/95 via-[#0F0F13]/92 to-[#09090C]/96 border border-white/[0.06] p-4 sm:p-5 shadow-[0_20px_48px_-10px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.03)] text-[#FEF5E5] flex flex-col justify-between space-y-3 h-full max-h-[380px]">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2.5 border-b border-[#E5E7EB]">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-          <span className="font-mono text-[11px] font-semibold text-[#374151] ml-2">
+          <span className="w-2 h-2 rounded-full bg-[#EF4444]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#F59E0B]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#10B981]/80" />
+          <span className="font-mono text-[11px] font-semibold text-[#CFC2B4] ml-2 tracking-wider">
             AI VIVA CHAMBER • ARCHITECTURAL DEFENSE
           </span>
         </div>
-        <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#4B5563] bg-[#E5E7EB] px-2.5 py-0.5 rounded-full border border-[#D1D5DB]">
+        <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#A1A1AA] bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.06]">
           <span>Turn 02 / 04</span>
         </div>
       </div>
 
       {/* Viva Dialogue */}
-      <div className="space-y-2.5 text-xs sm:text-[13px] flex-1 flex flex-col justify-center">
+      <div className="space-y-3 text-xs sm:text-[13px] flex-1 flex flex-col justify-center">
         {/* Examiner Turn */}
         <div className="flex items-start gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-[#F3E8FF] border border-[#D8B4FE] flex items-center justify-center shrink-0 mt-0.5">
-            <span className="text-[#7C3AED] text-[10px] font-mono font-bold">AI</span>
+          <div className="w-6 h-6 rounded-full bg-[#382649]/60 border border-[#8B5FB0]/40 flex items-center justify-center shrink-0 mt-0.5">
+            <span className="text-[#CEA4F2] text-[10px] font-mono font-bold">AI</span>
           </div>
-          <div className="flex-1 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl rounded-tl-sm p-3 text-[#111827] leading-relaxed shadow-xs">
-            <div className="font-mono text-[10px] text-[#7C3AED] mb-1 uppercase tracking-wider font-bold">
+          <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-2xl rounded-tl-sm p-3 text-[#FEF5E5] leading-relaxed shadow-xs">
+            <div className="font-mono text-[10px] text-[#CEA4F2] mb-1 uppercase tracking-wider font-bold">
               AI Examiner
             </div>
             &ldquo;Why did you choose this approach?&rdquo;
@@ -443,24 +443,24 @@ const VivaVisual: React.FC = () => {
 
         {/* Candidate Turn */}
         <div className="flex items-start gap-2.5 pl-6 sm:pl-10">
-          <div className="flex-1 bg-[#F3F4F6] border border-[#E5E7EB] rounded-2xl rounded-tr-sm p-3 text-[#111827] leading-relaxed shadow-xs">
-            <div className="font-mono text-[10px] text-[#4B5563] mb-1 uppercase tracking-wider font-semibold">
+          <div className="flex-1 bg-[#1A1A22]/90 border border-[#7C3AED]/25 rounded-2xl rounded-tr-sm p-3 text-[#FEF5E5] leading-relaxed shadow-xs">
+            <div className="font-mono text-[10px] text-[#A1A1AA] mb-1 uppercase tracking-wider font-semibold">
               You
             </div>
             &ldquo;I chose it because it keeps the implementation simple and avoids unnecessary duplication.&rdquo;
           </div>
-          <div className="w-6 h-6 rounded-full bg-[#1F2937] text-white flex items-center justify-center shrink-0 mt-0.5">
+          <div className="w-6 h-6 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 mt-0.5 border border-white/[0.08]">
             <span className="text-[10px] font-mono font-bold">U</span>
           </div>
         </div>
 
         {/* Examiner Follow-up */}
         <div className="hidden sm:flex items-start gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-[#F3E8FF] border border-[#D8B4FE] flex items-center justify-center shrink-0 mt-0.5">
-            <span className="text-[#7C3AED] text-[10px] font-mono font-bold">AI</span>
+          <div className="w-6 h-6 rounded-full bg-[#382649]/60 border border-[#8B5FB0]/40 flex items-center justify-center shrink-0 mt-0.5">
+            <span className="text-[#CEA4F2] text-[10px] font-mono font-bold">AI</span>
           </div>
-          <div className="flex-1 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl rounded-tl-sm p-3 text-[#111827] leading-relaxed shadow-xs">
-            <div className="font-mono text-[10px] text-[#7C3AED] mb-1 uppercase tracking-wider font-bold">
+          <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-2xl rounded-tl-sm p-3 text-[#FEF5E5] leading-relaxed shadow-xs">
+            <div className="font-mono text-[10px] text-[#CEA4F2] mb-1 uppercase tracking-wider font-bold">
               AI Follow-Up
             </div>
             &ldquo;What trade-off does that introduce?&rdquo;
@@ -469,9 +469,9 @@ const VivaVisual: React.FC = () => {
       </div>
 
       {/* Status Bar */}
-      <div className="flex items-center justify-between pt-2.5 border-t border-[#E5E7EB] text-xs font-mono">
-        <span className="text-[#4B5563]">Autonomous Oral Probe</span>
-        <span className="inline-flex items-center gap-1.5 text-[#15803D] font-medium bg-[#DCFCE7] border border-[#86EFAC] px-2.5 py-0.5 rounded-full">
+      <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.06] text-xs font-mono">
+        <span className="text-[#9CA3AF]">Autonomous Oral Probe</span>
+        <span className="inline-flex items-center gap-1.5 text-[#34D399] font-medium bg-[#052E16]/40 border border-[#16A34A]/30 px-2.5 py-0.5 rounded-full">
           Reasoning explored ✓
         </span>
       </div>
@@ -480,67 +480,67 @@ const VivaVisual: React.FC = () => {
 };
 
 /**
- * Visual for Card 04: Light Grey / Whitish Credential & Certification Result Interface
+ * Visual for Card 04: Credential & Certification Result Interface (Dark Glass)
  */
 const CredentialVisual: React.FC = () => {
   return (
-    <div className="w-full rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] p-3.5 sm:p-4 shadow-xl text-[#111827] flex flex-col justify-between space-y-2.5 h-full max-h-[380px] relative overflow-hidden">
+    <div className="w-full rounded-2xl bg-gradient-to-b from-[#141418]/95 via-[#0F0F13]/92 to-[#09090C]/96 border border-white/[0.06] p-4 sm:p-5 shadow-[0_20px_48px_-10px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.03)] text-[#FEF5E5] flex flex-col justify-between space-y-3 h-full max-h-[380px] relative overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2.5 border-b border-[#E5E7EB] relative z-10">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] relative z-10">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-          <span className="font-mono text-[11px] font-semibold text-[#1F2937] ml-2">
+          <span className="w-2 h-2 rounded-full bg-[#EF4444]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#F59E0B]/80" />
+          <span className="w-2 h-2 rounded-full bg-[#10B981]/80" />
+          <span className="font-mono text-[11px] font-semibold text-[#FEF5E5] ml-2 tracking-wider">
             CERTIFICATION RESULT
           </span>
         </div>
-        <span className="font-mono text-[10px] font-semibold tracking-wider text-[#15803D] bg-[#DCFCE7] border border-[#86EFAC] px-2.5 py-0.5 rounded-full">
+        <span className="font-mono text-[10px] font-semibold tracking-wider text-[#34D399] bg-[#052E16]/50 border border-[#16A34A]/40 px-2.5 py-0.5 rounded-full">
           ALL CRITERIA MET
         </span>
       </div>
 
       {/* Evidence Checklist (4 Validated Pillars) */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-3 sm:p-3.5 space-y-2 relative z-10 shadow-xs">
-        <div className="font-mono text-[10.5px] uppercase tracking-wider text-[#4B5563] font-semibold mb-1">
+      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 sm:p-3.5 space-y-2 relative z-10 shadow-xs">
+        <div className="font-mono text-[10.5px] uppercase tracking-wider text-[#A1A1AA] font-semibold mb-1">
           Evidence Summary
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs font-medium">
-          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB]">
-            <span className="text-[#1F2937]">Learning Progress</span>
-            <span className="text-[#16A34A] font-bold">✓</span>
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/[0.06]">
+            <span className="text-[#E2E8F0]">Learning Progress</span>
+            <span className="text-[#34D399] font-bold">✓</span>
           </div>
-          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB]">
-            <span className="text-[#1F2937]">Chapter Checks</span>
-            <span className="text-[#16A34A] font-bold">✓</span>
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/[0.06]">
+            <span className="text-[#E2E8F0]">Chapter Checks</span>
+            <span className="text-[#34D399] font-bold">✓</span>
           </div>
-          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB]">
-            <span className="text-[#1F2937]">Practical Tasks</span>
-            <span className="text-[#16A34A] font-bold">✓</span>
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/[0.06]">
+            <span className="text-[#E2E8F0]">Practical Tasks</span>
+            <span className="text-[#34D399] font-bold">✓</span>
           </div>
-          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB]">
-            <span className="text-[#1F2937]">Final Assessment</span>
-            <span className="text-[#16A34A] font-bold">✓</span>
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/[0.06]">
+            <span className="text-[#E2E8F0]">Final Assessment</span>
+            <span className="text-[#34D399] font-bold">✓</span>
           </div>
         </div>
       </div>
 
       {/* Credential Seal Card */}
-      <div className="rounded-xl bg-gradient-to-r from-[#FFFFFF] via-[#F8FAFC] to-[#F1F5F9] border border-[#CBD5E1] p-3.5 sm:p-4 text-[#0F172A] shadow-md relative z-10 flex items-center justify-between">
+      <div className="rounded-xl bg-gradient-to-r from-[#1C1C22] via-[#141418] to-[#0F0F12] border border-white/[0.08] p-3.5 sm:p-4 text-[#FEF5E5] shadow-lg relative z-10 flex items-center justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#64748B]">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#E6CAA4]">
               CERTIFY QUALIFICATION
             </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#DCFCE7] border border-[#86EFAC] text-[#15803D] font-bold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#052E16]/50 border border-[#16A34A]/40 text-[#34D399] font-bold">
               Verified Credential ✓
             </span>
           </div>
-          <div className="font-['Newsreader',Georgia,serif] text-lg sm:text-xl font-medium text-[#0F172A]">
+          <div className="font-['Newsreader',Georgia,serif] text-lg sm:text-xl font-medium text-[#FEF5E5]">
             Python Fundamentals
           </div>
-          <div className="font-mono text-[11px] text-[#64748B]">
-            Credential ID: <span className="font-semibold text-[#0F172A]">CERT-2026-001842</span>
+          <div className="font-mono text-[11px] text-[#A1A1AA]">
+            Credential ID: <span className="font-semibold text-[#FEF5E5]">CERT-2026-001842</span>
           </div>
         </div>
 
@@ -552,17 +552,17 @@ const CredentialVisual: React.FC = () => {
               (window as any).__certifyNavigate("credentials");
             }
           }}
-          className="shrink-0 px-3.5 py-2 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-[#FFFFFF] text-xs font-semibold tracking-wide transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+          className="shrink-0 px-3.5 py-2 rounded-xl bg-white hover:bg-[#F3F4F6] text-[#0A0A0C] text-xs font-semibold tracking-wide transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
         >
           <span>View Credential</span>
-          <span className="text-[#E6CAA4]">→</span>
+          <span className="text-[#0A0A0C] font-bold">→</span>
         </a>
       </div>
 
       {/* Bottom Status */}
-      <div className="flex items-center justify-between pt-2.5 border-t border-[#E5E7EB] text-xs font-mono relative z-10">
-        <span className="text-[#4B5563]">Status: Issued & Fully Defensible</span>
-        <span className="inline-flex items-center gap-1.5 text-[#15803D] font-medium bg-[#DCFCE7] border border-[#86EFAC] px-2.5 py-0.5 rounded-full">
+      <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.06] text-xs font-mono relative z-10">
+        <span className="text-[#9CA3AF]">Status: Issued & Fully Defensible</span>
+        <span className="inline-flex items-center gap-1.5 text-[#34D399] font-medium bg-[#052E16]/40 border border-[#16A34A]/30 px-2.5 py-0.5 rounded-full">
           Verified Credential ✓
         </span>
       </div>
