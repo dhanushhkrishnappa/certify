@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { api } from "../services/api.js";
 import type { User } from "../types/index.js";
+import Dither from "./landing/Dither.js";
 
 interface AuthViewProps {
   onLoginSuccess: (user: User, token: string) => void;
@@ -19,12 +20,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) 
 
     setIsAuthenticating(true);
     setAuthStep(1);
-    setStatusMessage("Connecting to secure learning gateway...");
+    setStatusMessage("Connecting to Socratic gateway...");
 
     // Stage 1 -> Stage 2 after 450ms
     setTimeout(() => {
       setAuthStep(2);
-      setStatusMessage("Initializing Socratic AI tutor & BKT mastery state...");
+      setStatusMessage("Initializing Bayesian Knowledge Tracing state...");
     }, 450);
 
     // Stage 2 -> Stage 3 after 950ms
@@ -65,69 +66,99 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) 
   };
 
   return (
-    <main className="min-h-screen w-full relative flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] text-[#FEF5E5] antialiased selection:bg-white/20 selection:text-white">
-      {/* Fixed Fullscreen Background Image */}
+    <main className="min-h-screen w-full relative flex items-center justify-center px-4 sm:px-6 py-12 bg-black font-['Plus_Jakarta_Sans',sans-serif] text-[#FEF5E5] antialiased selection:bg-[#E6CAA4] selection:text-[#2A170E] overflow-hidden">
+      {/* Full-Page React Bits Dither Background (Identical to Landing Page) */}
+      <div className="fixed inset-0 z-0 pointer-events-none w-screen h-screen">
+        <Dither
+          waveColor={[0.5, 0.5, 0.5]}
+          backgroundColor={[0, 0, 0]}
+          disableAnimation={false}
+          enableMouseInteraction={true}
+          mouseRadius={0.3}
+          colorNum={4}
+          pixelSize={2}
+          waveAmplitude={0.3}
+          waveFrequency={3}
+          waveSpeed={0.05}
+        />
+      </div>
+
+      {/* Top subtle ambient glow */}
       <div
-        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url('/hero-students.jpg')` }}
-      />
-      {/* Dark Smoky Ambient Blend Overlay (No brown) */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
+        className="fixed -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[340px] pointer-events-none z-0 rounded-full blur-[130px] opacity-25"
         style={{
           background:
-            "linear-gradient(180deg, rgba(14, 14, 17, 0.75) 0%, rgba(10, 10, 12, 0.70) 50%, rgba(8, 8, 10, 0.88) 100%)",
+            "radial-gradient(circle, rgba(206, 164, 242, 0.25) 0%, rgba(230, 202, 164, 0.15) 50%, transparent 70%)",
         }}
+        aria-hidden="true"
       />
 
-      {/* Main Split Container */}
-      <div className="relative z-10 w-full max-w-6xl flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
-        {/* Left: Floating Auth Card (Dark Smoky Translucent Surface) */}
-        <div className="w-full max-w-md bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 rounded-3xl p-8 sm:p-10 shadow-2xl relative transition-all duration-300 text-[#FEF5E5] border border-white/12 shrink-0 backdrop-blur-xl">
-          {/* Top Brand Identity */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
+      {/* Single Minimal Sculptured Card */}
+      <div className="relative z-10 w-full max-w-[460px] mx-auto">
+        {/* Back Link / Top Bar */}
+        <div className="flex items-center justify-between mb-5 px-1">
+          {onCancel ? (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="inline-flex items-center gap-1.5 text-xs text-[#A1A1AA] hover:text-[#FEF5E5] transition-colors cursor-pointer group font-medium"
+            >
+              <span className="text-[14px] transition-transform group-hover:-translate-x-0.5">←</span>
+              <span>Back to home</span>
+            </button>
+          ) : (
+            <div />
+          )}
+
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-[10px] font-mono text-[#A1A1AA] uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+            <span>Socratic Gateway</span>
+          </div>
+        </div>
+
+        {/* Elevated Dark Glass Card */}
+        <div className="rounded-[32px] sm:rounded-[36px] bg-gradient-to-b from-[#18181D]/92 via-[#121215]/88 to-[#0B0B0E]/95 border border-white/[0.06] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-2xl p-7 sm:p-9 relative overflow-hidden">
+          {/* Subtle Ambient Radial Highlight */}
+          <div
+            className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_50%_0%,rgba(206,164,242,0.08)_0%,transparent_65%)]"
+            aria-hidden="true"
+          />
+
+          {/* Top Logo & Title */}
+          <div className="relative z-10 text-center mb-8">
+            <div className="inline-block mb-5">
               <img
                 src="/certify-logo.png"
                 alt="Certify"
-                className="h-9 sm:h-10 w-auto object-contain brightness-110"
+                className="h-9 sm:h-10 w-auto mx-auto object-contain brightness-110 drop-shadow-[0_2px_12px_rgba(255,255,255,0.12)]"
               />
             </div>
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                className="text-xs text-[#9CA3AF] hover:text-[#FEF5E5] transition p-1 cursor-pointer font-medium"
-                title="Return to landing"
-              >
-                ✕ Close
-              </button>
-            )}
-          </div>
 
-          {/* Form Header */}
-          <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#382649]/60 border border-[#8B5FB0]/40 text-[#CEA4F2] text-[11px] font-mono font-semibold uppercase tracking-wider mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#CEA4F2] animate-ping" />
-              1-Click Instant Access • Preview Mode
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#FEF5E5] font-['Newsreader',Georgia,serif]">
-              Sign In to Learning Studio
+            <h1 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-[34px] font-normal text-[#FEF5E5] leading-tight tracking-tight">
+              Where AI proves{" "}
+              <span className="text-[#CEA4F2] italic">understanding.</span>
             </h1>
-            <p className="text-sm text-[#D1D5DB] mt-1.5 leading-relaxed">
-              No password or credentials required. Enter your learner name and launch directly into your course workspace.
+
+            <p className="text-[13.5px] sm:text-[14px] text-[#A1A1AA] mt-2.5 leading-relaxed font-normal">
+              Enter your learner identity to access the Socratic tutor, interactive sandboxes, and verified credentials.
             </p>
           </div>
 
-          {/* Form Content */}
-          <form onSubmit={handleInstantLogin} className="space-y-5">
+          {/* Form */}
+          <form onSubmit={handleInstantLogin} className="relative z-10 space-y-5">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#D1D5DB] mb-2" htmlFor="learner-name">
+              <label
+                htmlFor="learner-name"
+                className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-[#CFC2B4] mb-2"
+              >
                 Learner Display Name
               </label>
-              {/* Light Grey / Whitish Input Box for high clarity */}
-              <div className="flex items-center w-full rounded-xl border border-[#E2E8F0] bg-[#F8F9FA] hover:border-[#CBD5E1] focus-within:border-[#7C3AED] focus-within:ring-2 focus-within:ring-[#7C3AED]/20 transition-all px-3.5 py-3 shadow-xs">
-                <span className="material-symbols-outlined text-[#4B5563] text-lg mr-2.5">person</span>
+
+              {/* Minimal Dark Glass Input */}
+              <div className="flex items-center w-full rounded-2xl border border-white/[0.08] bg-[#0A0A0D]/80 hover:border-white/[0.14] focus-within:border-[#CEA4F2]/50 focus-within:ring-2 focus-within:ring-[#CEA4F2]/20 transition-all px-4 py-3.5 shadow-inner">
+                <span className="material-symbols-outlined text-[#71717A] text-[20px] mr-3 shrink-0">
+                  person
+                </span>
                 <input
                   type="text"
                   id="learner-name"
@@ -135,37 +166,39 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) 
                   onChange={(e) => setFullName(e.target.value)}
                   disabled={isAuthenticating}
                   placeholder="e.g. Dhanush K"
-                  className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-[#111827] placeholder-[#9CA3AF] text-sm font-semibold"
+                  className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-[#FEF5E5] placeholder-[#71717A] text-[14.5px] font-medium"
                 />
               </div>
-              <span className="text-[11px] text-[#9CA3AF] mt-1 block">
-                This name will appear on your progress records and certification awards.
+              <span className="text-[11px] text-[#71717A] mt-1.5 block">
+                Signs your Bayesian mastery ledger and certified credentials.
               </span>
             </div>
 
             {/* Authenticating Animated Card or Action Button */}
             {isAuthenticating ? (
-              <div className="p-4 rounded-xl bg-[#F8F9FA] border border-[#E2E8F0] space-y-3 shadow-xs text-[#111827]">
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-[#111827] flex items-center gap-2">
+                  <span className="font-medium text-[#FEF5E5] flex items-center gap-2">
                     {authStep === 3 || authStep === 4 ? (
-                      <span className="w-4 h-4 rounded-full bg-[#15803D] text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+                      <span className="w-4 h-4 rounded-full bg-[#10B981] text-[#0A0A0C] flex items-center justify-center text-[10px] font-bold">
+                        ✓
+                      </span>
                     ) : (
-                      <span className="w-3.5 h-3.5 rounded-full border-2 border-[#7C3AED] border-t-transparent animate-spin inline-block" />
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-[#CEA4F2] border-t-transparent animate-spin inline-block" />
                     )}
-                    {statusMessage}
+                    <span>{statusMessage}</span>
                   </span>
-                  <span className="font-mono text-[#7C3AED] text-[11px] font-bold">
+                  <span className="font-mono text-[#CEA4F2] text-[11px] font-bold">
                     {authStep === 1 && "30%"}
                     {authStep === 2 && "75%"}
                     {(authStep === 3 || authStep === 4) && "100%"}
                   </span>
                 </div>
 
-                {/* Animated Progress Bar */}
-                <div className="w-full h-1.5 rounded-full bg-[#E5E7EB] overflow-hidden">
+                {/* Animated Gradient Progress Bar */}
+                <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#7C3AED] to-[#9333EA] transition-all duration-300 rounded-full"
+                    className="h-full bg-gradient-to-r from-[#CEA4F2] via-[#E6CAA4] to-[#10B981] transition-all duration-300 rounded-full"
                     style={{
                       width:
                         authStep === 1
@@ -178,76 +211,44 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLoginSuccess, onCancel }) 
                 </div>
               </div>
             ) : (
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   type="submit"
                   disabled={isAuthenticating}
-                  className="w-full bg-white hover:bg-[#F3F4F6] text-[#111827] font-bold py-3.5 px-6 rounded-xl shadow-xl shadow-black/40 transition-all duration-200 flex items-center justify-center gap-2 text-base tracking-wide active:scale-[0.98] cursor-pointer border border-white"
+                  className="w-full bg-white hover:bg-[#F3F4F6] text-[#0A0A0C] font-semibold py-3.5 sm:py-4 px-6 rounded-2xl shadow-[0_16px_36px_-8px_rgba(0,0,0,0.8)] transition-all duration-200 flex items-center justify-center gap-2.5 text-[15px] active:scale-[0.98] cursor-pointer border border-white/20 group"
                 >
-                  <span>Sign In &amp; Launch Studio</span>
-                  <span className="material-symbols-outlined text-lg text-[#111827]">bolt</span>
+                  <span>Launch Learning Studio</span>
+                  <span className="material-symbols-outlined text-[19px] text-[#0A0A0C] group-hover:translate-x-0.5 transition-transform">
+                    bolt
+                  </span>
                 </button>
               </div>
             )}
 
-            {/* Zero Password Security Note */}
-            <div className="flex items-center justify-center gap-2 pt-1">
-              <span className="material-symbols-outlined text-[#34D399] text-sm">lock_open</span>
-              <span className="text-xs text-[#9CA3AF]">
-                Zero password needed. Pre-configured with student permissions.
+            {/* Zero Password Micro Note */}
+            <div className="flex items-center justify-center gap-1.5 pt-1 text-[11.5px] text-[#A1A1AA]">
+              <span className="material-symbols-outlined text-[#34D399] text-[14px]">
+                lock_open
               </span>
+              <span>1-Click instant access • Zero password required</span>
             </div>
 
-            {/* Quick feature pill row - Light Grey / Whitish */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
-              <div className="p-2.5 rounded-xl bg-[#F8F9FA] border border-[#E2E8F0] text-center shadow-xs">
-                <div className="text-[10px] uppercase tracking-wider text-[#6B7280] font-bold">Track</div>
-                <div className="text-xs font-bold text-[#111827] mt-0.5 truncate">Python Fundamentals</div>
+            {/* Bottom 3 Verified Badges */}
+            <div className="pt-4 mt-2 border-t border-white/[0.06] grid grid-cols-3 gap-2 text-center">
+              <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <div className="text-[10px] font-mono text-[#CEA4F2] font-semibold">SOCRATIC</div>
+                <div className="text-[11px] text-[#CFC2B4] mt-0.5">Viva Defense</div>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#F8F9FA] border border-[#E2E8F0] text-center shadow-xs">
-                <div className="text-[10px] uppercase tracking-wider text-[#6B7280] font-bold">Engine</div>
-                <div className="text-xs font-bold text-[#7C3AED] mt-0.5 truncate">Bayesian Knowledge</div>
+              <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <div className="text-[10px] font-mono text-[#E6CAA4] font-semibold">INVARIANTS</div>
+                <div className="text-[11px] text-[#CFC2B4] mt-0.5">Code Lab</div>
+              </div>
+              <div className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <div className="text-[10px] font-mono text-[#34D399] font-semibold">ED25519</div>
+                <div className="text-[11px] text-[#CFC2B4] mt-0.5">Verifiable</div>
               </div>
             </div>
           </form>
-        </div>
-
-        {/* Right Hero Headline Block (Dark Smoky Translucent Card) */}
-        <div className="w-full lg:max-w-xl text-left space-y-6 bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 p-8 sm:p-10 rounded-3xl border border-white/12 shadow-2xl backdrop-blur-xl text-[#FEF5E5]">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#382649]/60 border border-[#8B5FB0]/40 text-xs font-mono font-semibold tracking-[0.2em] text-[#CEA4F2] uppercase shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-[#CEA4F2] animate-pulse" />
-            CERTIFY AUTONOMOUS PLATFORM
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-[#FEF5E5] leading-[1.18] font-['Newsreader',Georgia,serif]">
-            Where AI proves understanding.{" "}
-            <span className="block text-[#CEA4F2] italic mt-1">
-              Not passive video attendance.
-            </span>
-          </h2>
-
-          <p className="text-base sm:text-lg text-[#D1D5DB] font-normal leading-relaxed">
-            Socratic dialogue tutoring, invariant checks in interactive sandboxes, and rigorous oral defenses under continuous Bayesian Knowledge Tracing.
-          </p>
-
-          {/* Value Pillars (Light Grey / Whitish Inner Cards) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <div className="p-3.5 rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] space-y-1 shadow-xs">
-              <span className="text-[#7C3AED] font-mono text-xs font-bold">01 • LEARN</span>
-              <div className="text-xs font-bold text-[#111827]">Socratic Dialogue</div>
-              <div className="text-[11px] text-[#4B5563]">AI probes and adapts to your mental model.</div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] space-y-1 shadow-xs">
-              <span className="text-[#2563EB] font-mono text-xs font-bold">02 • DEMONSTRATE</span>
-              <div className="text-xs font-bold text-[#111827]">Code Execution</div>
-              <div className="text-[11px] text-[#4B5563]">Practical unit tests &amp; invariants in sandboxes.</div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-[#F8F9FA] border border-[#E2E8F0] space-y-1 shadow-xs">
-              <span className="text-[#15803D] font-mono text-xs font-bold">03 • EARN</span>
-              <div className="text-xs font-bold text-[#111827]">Audited Certificate</div>
-              <div className="text-[11px] text-[#4B5563]">Evidence-backed deterministic tiering.</div>
-            </div>
-          </div>
         </div>
       </div>
     </main>
