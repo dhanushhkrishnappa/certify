@@ -2,9 +2,9 @@
 
 This index maps every high-resolution rendered screenshot of the CERTIFY application (`docs/screenshots/`) directly to its corresponding route, view state, Stitch Screen ID, and the authoritative Stitch reference screenshot (`.stitch/screens/`).
 
-## Master Screenshot Index
+## Master Screenshot Index  
 
-| Screen # | Screen Name | Route / View State | Stitch Screen ID | Rendered App Screenshot | Authoritative Stitch Reference |
+| Screen # |Screen Name | Route / View State | Stitch Screen ID | Rendered App Screenshot | Authoritative Stitch Reference |
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | **01** | **Certify Dashboard** | `/dashboard` | `7ae2a4db6ccf45d3839ec93b2bcb37ae` | [`1_dashboard.png`](file:///d:/Projects/certify/docs/screenshots/1_dashboard.png) | [Stitch Screenshot](file:///d:/Projects/certify/.stitch/screens/01_dashboard_7ae2a4db6ccf45d3839ec93b2bcb37ae/screenshot.png) |
 | **02** | **Explore Courses Catalog** | `/catalog` | `c9ffd6bb1b2a4dc9804789aa36f5fa37` | [`2_explore_courses.png`](file:///d:/Projects/certify/docs/screenshots/2_explore_courses.png) | [Stitch Screenshot](file:///d:/Projects/certify/.stitch/screens/02_explore_courses_catalog_c9ffd6bb1b2a4dc9804789aa36f5fa37/screenshot.png) |
@@ -29,5 +29,16 @@ This index maps every high-resolution rendered screenshot of the CERTIFY applica
 | **—** | **Learner Profile** | `/profile` | System Shell Extension | [`19_profile.png`](file:///d:/Projects/certify/docs/screenshots/19_profile.png) | [System Design Tokens](file:///d:/Projects/certify/.stitch/DESIGN.md) |
 | **—** | **Account Settings** | `/settings` | System Shell Extension | [`19_settings.png`](file:///d:/Projects/certify/docs/screenshots/19_settings.png) | [System Design Tokens](file:///d:/Projects/certify/.stitch/DESIGN.md) |
 
+## Framer-Style Interactive Hero Story Gallery (Landing Page)
+
+| Slide | Stage Name | Visual Concept | Rendered Screenshot (Desktop) | Rendered Screenshot (Mobile) |
+| :---: | :--- | :--- | :--- | :--- |
+| **01** | **THE PROBLEM** | Video 1: Passive Lesson Ingestion | [`stage_01_problem_desktop.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_01_problem_desktop.png) | [`stage_01_problem_mobile.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_01_problem_mobile.png) |
+| **02** | **THE GAP** | Kinetic Learning Path (`WATCH → ADAPT`) | [`stage_02_gap_desktop.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_02_gap_desktop.png) | [`stage_02_gap_mobile.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_02_gap_mobile.png) |
+| **03** | **THE SHIFT** | Video 2: Hands-on Code Trial | [`stage_03_shift_desktop.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_03_shift_desktop.png) | [`stage_03_shift_mobile.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_03_shift_mobile.png) |
+| **04** | **THE SOLUTION** | 3-Step Socratic Inquiry Chamber | [`stage_04_solution_desktop.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_04_solution_desktop.png) | [`stage_04_solution_mobile.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_04_solution_mobile.png) |
+| **05** | **THE EVIDENCE** | Assessment Proof Progression | [`stage_05_evidence_desktop.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_05_evidence_desktop.png) | [`stage_05_evidence_mobile.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_05_evidence_mobile.png) |
+| **06** | **THE OUTCOME** | Prestige Credential + Dual Action CTAs | [`stage_06_outcome_desktop.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_06_outcome_desktop.png) | [`stage_06_outcome_mobile.png`](file:///d:/Projects/certify/docs/landing-page/screenshots/hero_gallery/stage_06_outcome_mobile.png) |
+
 ---
-*Generated for manual visual inspection against approved Google Stitch screen references.*
+*Documented in [CERTIFY_FRAMER_GALLERY_FIDELITY_QA.md](file:///d:/Projects/certify/docs/landing-page/CERTIFY_FRAMER_GALLERY_FIDELITY_QA.md) and inspected against [https://early-help-353129.framer.app/](https://early-help-353129.framer.app/).*
