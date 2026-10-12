@@ -81,16 +81,16 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
         <div className="w-full flex items-center justify-between relative">
           {/* Left: Expanding Menu Circular Shape + Certify Logo (Aligned to extreme left) */}
           <div className="flex items-center gap-3 sm:gap-4 shrink-0 pointer-events-auto">
-            {/* Pure White Circular Burger Menu Button with Black Lines */}
+            {/* Dark Black Circular Burger Menu Button with 3 White Horizontal Lines */}
             <button
               ref={menuButtonRef}
               onClick={handleOpenMenu}
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white hover:bg-neutral-100 shadow-md flex flex-col items-center justify-center gap-[4.5px] transition-all duration-200 active:scale-95 cursor-pointer group shrink-0"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black hover:bg-neutral-900 border border-white/15 hover:border-white/25 shadow-lg shadow-black/60 flex flex-col items-center justify-center gap-[4.5px] transition-all duration-200 active:scale-95 cursor-pointer group shrink-0"
               aria-label="Open expanding side menu"
             >
-              <span className="w-5 h-[2px] bg-black rounded-full transition-transform duration-200 group-hover:scale-x-110" />
-              <span className="w-5 h-[2px] bg-black rounded-full transition-transform duration-200 group-hover:scale-x-110" />
-              <span className="w-5 h-[2px] bg-black rounded-full transition-transform duration-200 group-hover:scale-x-110" />
+              <span className="w-5 h-[2px] bg-white rounded-full transition-transform duration-200 group-hover:scale-x-110" />
+              <span className="w-5 h-[2px] bg-white rounded-full transition-transform duration-200 group-hover:scale-x-110" />
+              <span className="w-5 h-[2px] bg-white rounded-full transition-transform duration-200 group-hover:scale-x-110" />
             </button>
 
             {/* Brand Logo Wordmark */}
@@ -191,13 +191,13 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                     CERTIFY • MENU
                   </span>
 
-                  {/* White circular close button from the Framer design */}
+                  {/* Dark black circular close button */}
                   <button
                     onClick={() => setSideMenuOpen(false)}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white text-black flex items-center justify-center hover:bg-neutral-200 transition-all duration-150 active:scale-95 cursor-pointer shadow-md"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black text-white border border-white/15 flex items-center justify-center hover:bg-neutral-900 transition-all duration-150 active:scale-95 cursor-pointer shadow-md"
                     aria-label="Close menu"
                   >
-                    <span className="text-base font-bold">✕</span>
+                    <span className="text-base font-bold text-white">✕</span>
                   </button>
                 </div>
 
