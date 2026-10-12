@@ -1,225 +1,453 @@
-import React, { useRef, useEffect } from "react";
-import { gsap, MOTION_EASING, prefersReducedMotion } from "../../motion/motionVocabulary.js";
-import { useMagnetic } from "../../motion/useMagnetic.js";
-import { BulgeCard } from "./webgl/BulgeCard.js";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { gsap, ScrollTrigger, prefersReducedMotion } from "../../motion/motionVocabulary.js";
+import { StorySlideGap } from "./story/StorySlideGap.js";
+import { StorySlideSocraticMethod } from "./story/StorySlideSocraticMethod.js";
+import { StorySlideEvidence } from "./story/StorySlideEvidence.js";
+import { StorySlideOutcome } from "./story/StorySlideOutcome.js";
 
 interface HeroSectionProps {
   onExploreCourses: () => void;
   onBeginDiagnostic: () => void;
 }
 
+interface SlideMeta {
+  id: number;
+  number: string;
+  eyebrow: string;
+  title: string;
+  headline: string;
+  supporting: string;
+  type: "video" | "graphic";
+  videoSrc?: string;
+}
+
+const SLIDES: SlideMeta[] = [
+  {
+    id: 0,
+    number: "01",
+    eyebrow: "THE PROBLEM",
+    title: "THE PROBLEM",
+    headline: "You watched the lesson. Can you solve it yourself?",
+    supporting:
+      "A lesson can make a concept feel familiar. Applying it on your own reveals what you truly understand.",
+    type: "video",
+    videoSrc: "/videos/certify-passive-learning.mp4",
+  },
+  {
+    id: 1,
+    number: "02",
+    eyebrow: "THE GAP",
+    title: "THE GAP",
+    headline: "Completion isn't the same as understanding.",
+    supporting: "Watching introduces an idea. Practice reveals whether you can use it.",
+    type: "graphic",
+  },
+  {
+    id: 2,
+    number: "03",
+    eyebrow: "THE SHIFT",
+    title: "THE SHIFT",
+    headline: "Understanding begins when you try.",
+    supporting: "Move from watching to working through an idea yourself.",
+    type: "video",
+    videoSrc: "/videos/certify-practical-learning.mp4",
+  },
+  {
+    id: 3,
+    number: "04",
+    eyebrow: "THE SOLUTION",
+    title: "THE SOLUTION",
+    headline: "Learning should respond to you.",
+    supporting:
+      "An AI tutor asks questions, explores your reasoning, and helps you work through what you don't yet understand.",
+    type: "graphic",
+  },
+  {
+    id: 4,
+    number: "05",
+    eyebrow: "THE PROOF",
+    title: "THE PROOF",
+    headline: "Show what you can do.",
+    supporting:
+      "Practice and assessments help turn learning into evidence of what you understand.",
+    type: "graphic",
+  },
+  {
+    id: 5,
+    number: "06",
+    eyebrow: "THE OUTCOME",
+    title: "THE OUTCOME",
+    headline: "Learn. Demonstrate. Earn.",
+    supporting:
+      "Your learning and assessment evidence comes together in a credential you can verify.",
+    type: "graphic",
+  },
+];
+
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onExploreCourses,
   onBeginDiagnostic,
 }) => {
-  const heroContainerRef = useRef<HTMLDivElement>(null);
-  const primaryCtaRef = useMagnetic<HTMLButtonElement>({ strength: 0.32 });
-  const secondaryCtaRef = useMagnetic<HTMLButtonElement>({ strength: 0.22 });
+  const sectionRef = useRef<HTMLElement>(null);
+  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
+  const [activeSlide, setActiveSlide] = useState<number>(0);
+  const [slideProgress, setSlideProgress] = useState<number>(0);
+
+  // References for the 2 embedded videos
+  const video1Ref = useRef<HTMLVideoElement>(null);
+  const video2Ref = useRef<HTMLVideoElement>(null);
+
+  // Drag interaction tracking state
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const currentDragOffsetRef = useRef(0);
+  const [dragOffset, setDragOffset] = useState<number>(0);
+
+  // Synchronize video playback strictly with active slide index
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    // Slide 01: Video 1 (Passive lesson watching)
+    if (activeSlide === 0) {
+      if (video1Ref.current && video1Ref.current.paused) {
+        video1Ref.current.play().catch(() => {});
+      }
+    } else {
+      if (video1Ref.current && !video1Ref.current.paused) {
+        video1Ref.current.pause();
+      }
+    }
+
+    // Slide 03: Video 2 (Practical coding & trial)
+    if (activeSlide === 2) {
+      if (video2Ref.current && video2Ref.current.paused) {
+        video2Ref.current.play().catch(() => {});
+      }
+    } else {
+      if (video2Ref.current && !video2Ref.current.paused) {
+        video2Ref.current.pause();
+      }
+    }
+  }, [activeSlide]);
+
+  // Set up GSAP ScrollTrigger coordinated with Lenis pinning
+  useEffect(() => {
+    const isReduced = prefersReducedMotion();
+    if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
-      // Hero content staggered entrance timeline
-      const tl = gsap.timeline({
-        defaults: { ease: MOTION_EASING.expoOut },
+      const st = ScrollTrigger.create({
+        trigger: sectionRef.current,
+        pin: true,
+        start: "top top",
+        end: "+=2800",
+        scrub: isReduced ? false : 0.5,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          if (isDraggingRef.current) return;
+
+          const raw = self.progress; // 0.0 to 1.0
+          // Hold the final slide slightly before unpinning
+          const holdEnd = 0.88;
+          let floatIndex = 0;
+          if (raw <= holdEnd) {
+            floatIndex = (raw / holdEnd) * (SLIDES.length - 1);
+          } else {
+            floatIndex = SLIDES.length - 1;
+          }
+
+          setSlideProgress(floatIndex);
+          const snapped = Math.round(floatIndex);
+          setActiveSlide(snapped);
+        },
       });
 
-      tl.fromTo(
-        ".hero-headline-word",
-        { opacity: 0, y: 44, rotateX: -15 },
-        {
-          opacity: 1,
-          y: 0,
-          rotateX: 0,
-          stagger: 0.08,
-          duration: 0.9,
-        },
-        "-=0.5"
-      )
-        .fromTo(
-          ".hero-subtext",
-          { opacity: 0, y: 22 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          "-=0.6"
-        )
-        .fromTo(
-          ".hero-cta-btn",
-          { opacity: 0, y: 18, scale: 0.95 },
-          { opacity: 1, y: 0, scale: 1, stagger: 0.12, duration: 0.7 },
-          "-=0.55"
-        );
-
-      // Smooth receding transition as hero box scrolls towards Manifesto
-      gsap.to(".hero-central-card", {
-        scrollTrigger: {
-          trigger: heroContainerRef.current,
-          start: "center center",
-          end: "bottom 20%",
-          scrub: 0.6,
-        },
-        opacity: 0,
-        scale: 0.94,
-        y: -40,
-        ease: "power1.out",
-      });
-    }, heroContainerRef);
+      scrollTriggerRef.current = st;
+    }, sectionRef);
 
     return () => {
       ctx.revert();
     };
   }, []);
 
+  // Programmatic slide transition (clicking adjacent cards or dots)
+  const goToSlide = useCallback((index: number) => {
+    const target = Math.max(0, Math.min(SLIDES.length - 1, index));
+    setActiveSlide(target);
+    setSlideProgress(target);
+
+    const st = scrollTriggerRef.current;
+    if (st) {
+      const holdEnd = 0.88;
+      const progress = (target / (SLIDES.length - 1)) * holdEnd;
+      const targetScroll = st.start + progress * (st.end - st.start);
+
+      const lenis = (window as any).__lenis;
+      if (lenis) {
+        lenis.scrollTo(targetScroll, { duration: 0.5 });
+      } else {
+        window.scrollTo({ top: targetScroll, behavior: "smooth" });
+      }
+    }
+  }, []);
+
+  // Keyboard navigation (ArrowLeft / ArrowRight)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        goToSlide(activeSlide + 1);
+      } else if (e.key === "ArrowLeft") {
+        goToSlide(activeSlide - 1);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeSlide, goToSlide]);
+
+  // Pointer drag event handlers reproducing the Framer drag interaction
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("button")) return;
+    isDraggingRef.current = true;
+    startXRef.current = e.clientX;
+    currentDragOffsetRef.current = 0;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+    const deltaX = e.clientX - startXRef.current;
+    currentDragOffsetRef.current = deltaX;
+    setDragOffset(deltaX);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch (_) {}
+
+    const deltaX = currentDragOffsetRef.current;
+    setDragOffset(0);
+
+    // Threshold for snapping to previous or next slide
+    if (deltaX < -45 && activeSlide < SLIDES.length - 1) {
+      goToSlide(activeSlide + 1);
+    } else if (deltaX > 45 && activeSlide > 0) {
+      goToSlide(activeSlide - 1);
+    }
+  };
+
   return (
     <section
-      ref={heroContainerRef}
-      className="relative min-h-[92vh] sm:min-h-[96vh] flex flex-col justify-center pt-24 sm:pt-28 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      ref={sectionRef}
+      className="relative w-full h-screen bg-transparent select-none overflow-hidden"
+      style={{ isolation: "isolate" }}
     >
+      {/* Pinned Gallery Stage */}
+      <div className="h-screen w-full flex flex-col items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 pt-14 sm:pt-16 pb-6">
+        {/* Ambient Top Subtle Light Beam (preserves CERTIFY palette) */}
+        <div
+          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[340px] pointer-events-none z-0 rounded-full blur-[120px] opacity-20"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(230, 202, 164, 0.16) 0%, rgba(206, 164, 242, 0.12) 45%, transparent 70%)",
+          }}
+          aria-hidden="true"
+        />
 
+        {/* Top Right Helper Cue: "SCROLL / DRAG" exactly matching the Framer reference */}
+        <div className="absolute top-20 sm:top-24 right-5 sm:right-10 lg:right-14 z-30 flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.22em] text-[#CFC2B4]/60 pointer-events-none">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#E6CAA4] animate-pulse" />
+          <span>SCROLL / DRAG</span>
+        </div>
 
-      {/* Ambient Top Light Beam */}
-      <div
-        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[340px] pointer-events-none z-0 rounded-full blur-[110px]"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(230, 202, 164, 0.14) 0%, rgba(206, 164, 242, 0.10) 45%, transparent 70%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Seamless transitional light gradient into Manifesto */}
-      <div
-        className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[700px] h-[160px] pointer-events-none z-0 rounded-full blur-[100px] opacity-35"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(230, 202, 164, 0.22) 0%, rgba(206, 164, 242, 0.12) 45%, transparent 70%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Central Hero Experience Container */}
-      <div className="hero-central-card relative z-10 max-w-[1000px] mx-auto w-full text-center">
-        <BulgeCard
-          className="relative p-8 sm:p-12 md:p-14 lg:p-[72px] rounded-[32px] sm:rounded-[42px] bg-gradient-to-b from-[#18181D]/92 via-[#121215]/88 to-[#0B0B0E]/94 border border-white/[0.06] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl overflow-hidden"
-          highlightColor="rgba(255, 255, 255, 0.08)"
+        {/* 3D Perspective Gallery Stage */}
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          className="relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-pan-y"
+          style={{
+            perspective: "1300px",
+            perspectiveOrigin: "50% 50%",
+            transformStyle: "preserve-3d",
+          }}
         >
-          {/* Subtle Ambient Radial Highlight */}
-          <div
-            className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_50%_15%,rgba(206,164,242,0.10)_0%,rgba(20,20,24,0.30)_60%,rgba(10,10,12,0.75)_100%)]"
-            aria-hidden="true"
-          />
+          {/* Card Deck Container (aspect ratio ~1.53 : 1) */}
+          <div className="relative w-[92vw] sm:w-[480px] md:w-[520px] lg:w-[540px] h-[270px] sm:h-[310px] md:h-[340px] lg:h-[350px] flex items-center justify-center">
+            {SLIDES.map((slide, index) => {
+              // Continuous float distance from active slide center
+              const diff = index - slideProgress - dragOffset / 320;
+              const absDiff = Math.abs(diff);
+              const sign = Math.sign(diff);
 
-          {/* Topographic Fine Vector Overlay */}
-          <svg
-            className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden opacity-30"
-            viewBox="0 0 900 600"
-            fill="none"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M -40 220 C 180 160, 360 250, 580 200 C 740 160, 840 220, 960 190"
-              stroke="#FFFFFF"
-              strokeWidth="1.2"
-              opacity="0.18"
-            />
-            <path
-              d="M -40 480 C 220 430, 420 530, 680 470 C 820 440, 880 510, 960 480"
-              stroke="#CEA4F2"
-              strokeWidth="1"
-              opacity="0.22"
-            />
-          </svg>
+              const isReduced = prefersReducedMotion();
 
-          {/* Sparkle 1: Upper Left Champagne Gold 4-Pointed Flare Star */}
-          <div
-            className="absolute top-[22%] left-[6%] sm:left-[7%] pointer-events-none z-10 transition-transform duration-300"
-            aria-hidden="true"
-          >
-            <svg
-              width="30"
-              height="30"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="drop-shadow-[0_2px_10px_rgba(230,202,164,0.4)]"
+              // Calculate transforms replicating the Framer reference deck
+              let translateX = 0;
+              if (isReduced) {
+                translateX = diff * 105;
+              } else {
+                if (absDiff <= 1) {
+                  translateX = sign * absDiff * 245;
+                } else if (absDiff <= 2) {
+                  translateX = sign * (245 + (absDiff - 1) * 185);
+                } else {
+                  translateX = sign * (430 + (absDiff - 2) * 170);
+                }
+              }
+
+              const translateZ = isReduced ? 0 : -absDiff * 140;
+              const rotateY = isReduced ? 0 : -sign * Math.min(absDiff * 36, 42);
+              const scale = isReduced
+                ? absDiff < 0.5 ? 1 : 0.85
+                : Math.max(0.6, 1 - absDiff * 0.11);
+              const blur = isReduced ? 0 : absDiff < 0.35 ? 0 : Math.min(10, (absDiff - 0.35) * 2.8);
+              const opacity = absDiff > 3.6 ? 0 : Math.max(0, 1 - Math.max(0, absDiff - 1.2) * 0.4);
+              const zIndex = Math.round(1000 - absDiff * 50);
+
+              const isCurrent = activeSlide === index;
+
+              return (
+                <div
+                  key={slide.id}
+                  onClick={() => {
+                    if (!isCurrent) goToSlide(index);
+                  }}
+                  className={`absolute inset-0 rounded-lg sm:rounded-[10px] overflow-hidden border transition-shadow duration-300 ${
+                    isCurrent
+                      ? "border-white/20 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.95)]"
+                      : "border-white/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.7)] cursor-pointer"
+                  }`}
+                  style={{
+                    transform: isReduced
+                      ? `translate3d(${translateX}%, 0, 0) scale(${scale})`
+                      : `translate3d(${translateX}px, 0, ${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+                    opacity,
+                    filter: blur > 0 ? `blur(${blur}px)` : "none",
+                    zIndex,
+                    transformStyle: "preserve-3d",
+                    transition: isDraggingRef.current
+                      ? "none"
+                      : "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, filter 0.45s ease",
+                  }}
+                >
+                  {/* Slide Content: Pure Media Panels (No text overlay inside media) */}
+                  {slide.type === "video" ? (
+                    /* Video Panel (Slide 01 and Slide 03) */
+                    <div className="relative w-full h-full bg-[#0D0D10] overflow-hidden select-none">
+                      <video
+                        ref={slide.id === 0 ? video1Ref : video2Ref}
+                        src={slide.videoSrc}
+                        muted
+                        playsInline
+                        loop
+                        preload="metadata"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : slide.id === 1 ? (
+                    /* Slide 02: THE GAP Kinetic Graphic */
+                    <StorySlideGap isActive={isCurrent} />
+                  ) : slide.id === 3 ? (
+                    /* Slide 04: THE SOLUTION Socratic Graphic */
+                    <StorySlideSocraticMethod isActive={isCurrent} />
+                  ) : slide.id === 4 ? (
+                    /* Slide 05: THE PROOF Evidence Graphic */
+                    <StorySlideEvidence isActive={isCurrent} />
+                  ) : (
+                    /* Slide 06: THE OUTCOME Credential Graphic */
+                    <StorySlideOutcome isActive={isCurrent} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Synchronized Editorial Caption Area (Positioned directly beneath the active center panel) */}
+        <div className="relative z-20 mt-6 sm:mt-7 w-full max-w-xl mx-auto text-center px-4 min-h-[140px] flex flex-col items-center justify-start">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSlide}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              className="flex flex-col items-center w-full"
             >
-              <path
-                d="M12 0 C12 7, 7 12, 0 12 C7 12, 12 17, 12 24 C12 17, 17 12, 24 12 C17 12, 12 7, 12 0 Z"
-                fill="#E6CAA4"
+              {/* Eyebrow & Slide Counter */}
+              <div className="flex items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-[#E6CAA4] mb-2 font-medium">
+                <span>{SLIDES[activeSlide].eyebrow}</span>
+                <span className="text-white/20">/</span>
+                <span className="text-[#CFC2B4]/80">{SLIDES[activeSlide].number} — 06</span>
+              </div>
+
+              {/* Editorial Headline */}
+              <h3 className="font-['Newsreader',Georgia,serif] text-xl sm:text-2xl md:text-[26px] font-normal leading-[1.2] text-[#FEF5E5] mb-2">
+                {activeSlide === 2 ? (
+                  <>
+                    Understanding begins{" "}
+                    <span className="italic text-[#CEA4F2]">when you try</span>.
+                  </>
+                ) : (
+                  SLIDES[activeSlide].headline
+                )}
+              </h3>
+
+              {/* Short Supporting Description */}
+              <p className="text-[13px] sm:text-[14px] leading-relaxed text-[#CFC2B4] font-normal max-w-lg mb-3">
+                {SLIDES[activeSlide].supporting}
+              </p>
+
+              {/* Slide 06 Action CTAs */}
+              {activeSlide === 5 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.08 }}
+                  className="flex items-center justify-center gap-3 mt-1 mb-1"
+                >
+                  <button
+                    onClick={onExploreCourses}
+                    className="px-4 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-white/20 text-[#FEF5E5] text-[13px] font-medium transition-all active:scale-95 cursor-pointer"
+                  >
+                    Explore Courses →
+                  </button>
+                  <button
+                    onClick={onBeginDiagnostic}
+                    className="px-5 py-2 rounded-full bg-gradient-to-b from-[#2A2A30] via-[#1E1E22] to-[#141416] hover:from-[#34343A] hover:to-[#222226] border border-white/15 text-[#FEF5E5] text-[13px] font-semibold shadow-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 group"
+                  >
+                    <span>Begin Diagnostic</span>
+                    <span className="text-[#E6CAA4] group-hover:translate-x-0.5 transition-transform">→</span>
+                  </button>
+                </motion.div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Discrete Slide Progress Dots matching Framer reference */}
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            {SLIDES.map((s, idx) => (
+              <button
+                key={s.id}
+                onClick={() => goToSlide(idx)}
+                className={`transition-all duration-200 cursor-pointer rounded-full ${
+                  activeSlide === idx
+                    ? "w-5 h-1 bg-[#FEF5E5]"
+                    : "w-1 h-1 bg-white/20 hover:bg-white/40"
+                }`}
+                aria-label={`Jump to slide ${s.number}`}
               />
-            </svg>
+            ))}
           </div>
-
-          {/* Sparkle 2: Lower Right Champagne Gold 4-Pointed Flare Star */}
-          <div
-            className="absolute bottom-[24%] right-[6%] sm:right-[7%] pointer-events-none z-10 transition-transform duration-300"
-            aria-hidden="true"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="drop-shadow-[0_2px_10px_rgba(230,202,164,0.4)]"
-            >
-              <path
-                d="M12 0 C12 7, 7 12, 0 12 C7 12, 12 17, 12 24 C12 17, 17 12, 24 12 C17 12, 12 7, 12 0 Z"
-                fill="#E6CAA4"
-              />
-            </svg>
-          </div>
-
-          {/* Grand Headline */}
-          <h1 className="relative z-10 font-['Newsreader',Georgia,serif] text-4xl sm:text-5xl md:text-[68px] lg:text-[74px] font-normal tracking-tight text-[#FEF5E5] leading-[1.05] mb-6 max-w-3xl mx-auto pt-1">
-            <span className="hero-headline-word block">Where AI proves</span>
-            <span className="hero-headline-word block font-medium text-[#FEF5E5]">
-              understanding.
-            </span>
-            <span className="hero-headline-word italic text-[#CEA4F2] block mt-1 sm:mt-2 font-normal drop-shadow-[0_2px_20px_rgba(206,164,242,0.25)]">
-              Not passive video attendance.
-            </span>
-          </h1>
-
-          {/* Subtext */}
-          <p className="relative z-10 hero-subtext text-[15px] sm:text-[17.5px] leading-[28px] text-[#CFC2B4] max-w-xl mx-auto mb-8 font-normal">
-            Learn with AI. Build real understanding. Earn a credential that proves it.
-          </p>
-
-          {/* Action CTAs */}
-          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">
-            {/* Primary Action Button */}
-            <button
-              ref={primaryCtaRef}
-              onClick={onBeginDiagnostic}
-              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-b from-[#2A2A30] via-[#1E1E22] to-[#141416] hover:from-[#34343A] hover:to-[#222226] text-[#FEF5E5] text-[15px] font-semibold border border-white/[0.08] shadow-[0_12px_28px_-6px_rgba(0,0,0,0.7)] transition-all duration-200 active:scale-95 cursor-pointer group"
-            >
-              <span className="magnetic-content flex items-center gap-2">
-                <span className="material-symbols-outlined text-[19px] text-[#E6CAA4]">
-                  bolt
-                </span>
-                <span>Begin 7–Min Diagnostic</span>
-                <span className="text-[14px] font-bold group-hover:translate-x-0.5 transition-transform text-[#E6CAA4]">
-                  →
-                </span>
-              </span>
-            </button>
-
-            {/* Secondary Action Button */}
-            <button
-              ref={secondaryCtaRef}
-              onClick={onExploreCourses}
-              className="hero-cta-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.12] text-[#FEF5E5] text-[15px] font-medium transition-all duration-200 active:scale-95 cursor-pointer shadow-xs group"
-            >
-              <span className="magnetic-content flex items-center gap-2">
-                <span>Explore Curriculum</span>
-                <span className="text-[13px] text-[#E6CAA4] group-hover:translate-x-0.5 transition-transform">
-                  →
-                </span>
-              </span>
-            </button>
-          </div>
-        </BulgeCard>
+        </div>
       </div>
     </section>
   );
 };
+
+export default HeroSection;
