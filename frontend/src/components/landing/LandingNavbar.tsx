@@ -14,7 +14,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
   onBeginDiagnostic,
   onSignIn,
   onRegister,
-  onContactClick,
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -248,13 +247,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                     >
                       Register
                     </button>
-                    <a
-                      href="#manifesto"
-                      onClick={() => setSideMenuOpen(false)}
-                      className="block text-[#A1A1AA] hover:text-[#FEF5E5] transition-colors"
-                    >
-                      Manifesto
-                    </a>
                   </div>
 
                   <div className="space-y-2">
@@ -264,13 +256,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                       className="block text-[#A1A1AA] hover:text-[#FEF5E5] transition-colors"
                     >
                       Verification
-                    </a>
-                    <a
-                      href="#pedagogy"
-                      onClick={() => setSideMenuOpen(false)}
-                      className="block text-[#A1A1AA] hover:text-[#FEF5E5] transition-colors"
-                    >
-                      Socratic Viva
                     </a>
                     <a
                       href="#faq"
