@@ -277,7 +277,7 @@ export const App: React.FC = () => {
   ].includes(currentView);
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4] flex overflow-x-hidden">
+    <div className="min-h-screen bg-[#1E0A3B] text-slate-100 flex overflow-x-hidden">
       {/* Global Canonical App Sidebar (240px desktop, 68px collapsed) */}
       <AppSidebar
         currentView={currentView}
