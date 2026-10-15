@@ -70,59 +70,59 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
   return (
     <div className="space-y-6" data-purpose="course-details-page">
       {/* BEGIN: Breadcrumbs */}
-      <nav className="flex items-center space-x-2 text-xs font-medium text-neutral-500 mb-1" aria-label="Breadcrumb">
+      <nav className="flex items-center space-x-2 text-xs font-medium text-purple-200/70 mb-1" aria-label="Breadcrumb">
         <button
           onClick={() => onNavigate("catalog")}
-          className="hover:text-neutral-900 flex items-center transition-colors cursor-pointer"
+          className="hover:text-white flex items-center transition-colors cursor-pointer"
         >
           <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
             <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <span>Explore Courses</span>
         </button>
-        <span className="text-neutral-300 font-normal">/</span>
-        <span className="text-neutral-800 font-semibold">{course?.title || "Python Fundamentals"}</span>
+        <span className="text-purple-300/40 font-normal">/</span>
+        <span className="text-white font-semibold">{course?.title || "Python Fundamentals"}</span>
       </nav>
       {/* END: Breadcrumbs */}
 
       {/* BEGIN: HeaderSection */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4" data-purpose="course-header-section">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-neutral-950 font-serif">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white font-serif">
             {course?.title || "Python Fundamentals"}
           </h1>
-          <p className="text-neutral-600 text-sm mt-1.5 font-normal max-w-3xl leading-relaxed">
+          <p className="text-purple-200/80 text-sm mt-1.5 font-normal max-w-3xl leading-relaxed">
             {course?.summary || "Master Python from first principles. Build real projects, solve problems, and get certified."}
           </p>
 
           {/* Course Meta Badges */}
-          <div className="flex flex-wrap items-center gap-6 mt-3.5 text-xs font-medium text-neutral-600">
+          <div className="flex flex-wrap items-center gap-6 mt-3.5 text-xs font-medium text-purple-200/70">
             <div className="flex items-center space-x-1.5">
-              <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 11h3v6H2v-6zm5-4h3v10H7V7zm5-4h3v14h-3V3z" />
               </svg>
-              <span className="text-neutral-700 font-medium">Beginner</span>
+              <span className="text-emerald-300 font-medium">Beginner</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <svg className="w-4 h-4 text-neutral-400 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-purple-300/60 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>{totalModulesCount} modules</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <svg className="w-4 h-4 text-neutral-400 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-purple-300/60 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>36.5 hours</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <svg className="w-4 h-4 text-neutral-400 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-purple-300/60 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>Certification</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <svg className="w-4 h-4 text-neutral-400 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-purple-300/60 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>12K+ learners</span>
@@ -137,8 +137,8 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
             aria-label="Bookmark course"
             className={`w-11 h-11 border rounded-[8px] flex items-center justify-center transition-colors cursor-pointer ${
               isBookmarked
-                ? "border-red-300 bg-red-50 text-red-500"
-                : "border-stone-300 text-neutral-600 hover:text-red-500 hover:border-red-200 hover:bg-red-50/40"
+                ? "border-red-400 bg-red-500/20 text-red-300"
+                : "border-white/20 text-purple-200 hover:text-red-400 hover:border-red-300 hover:bg-white/10"
             }`}
           >
             <svg
@@ -153,7 +153,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
 
           <button
             onClick={() => onStartCourse(courseSlug)}
-            className="bg-[#5025D1] hover:bg-[#431db8] text-white font-medium px-6 py-2.5 rounded-[8px] text-sm flex items-center space-x-2 shadow-sm shadow-indigo-200 transition active:scale-98 cursor-pointer"
+            className="bg-white hover:bg-purple-50 text-[#1E0A3B] font-bold px-6 py-2.5 rounded-[8px] text-sm flex items-center space-x-2 shadow-lg transition active:scale-98 cursor-pointer"
           >
             <span>{isEnrolled ? "Continue Learning" : "Enroll Now"}</span>
             <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,8 +165,8 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
       {/* END: HeaderSection */}
 
       {/* BEGIN: NavigationTabs */}
-      <div className="border-b border-stone-200/80 mb-6" data-purpose="course-tabs">
-        <nav className="flex space-x-7 text-xs font-semibold text-neutral-500" aria-label="Course Sections">
+      <div className="border-b border-white/10 mb-6" data-purpose="course-tabs">
+        <nav className="flex space-x-7 text-xs font-semibold text-purple-200/70" aria-label="Course Sections">
           {(
             [
               { id: "overview", label: "Overview" },
@@ -182,8 +182,8 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
               onClick={() => setActiveTab(tab.id)}
               className={`pb-3 transition-colors cursor-pointer text-xs ${
                 activeTab === tab.id
-                  ? "border-b-2 border-[#5025D1] text-neutral-950 font-bold"
-                  : "hover:text-neutral-800 font-medium"
+                  ? "border-b-2 border-purple-400 text-white font-bold"
+                  : "hover:text-white font-medium"
               }`}
             >
               {tab.label}
@@ -469,7 +469,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                           {mod.chapters.map((ch) => (
                             <div
                               key={ch.id}
-                              className="p-2.5 rounded-[8px] bg-[#FAF8F5] flex items-center justify-between hover:bg-stone-100/80 transition-colors"
+                              className="p-2.5 rounded-[8px] bg-slate-50 flex items-center justify-between hover:bg-stone-100/80 transition-colors"
                             >
                               <div className="flex items-center space-x-3">
                                 <span className="text-[11px] font-bold text-slate-400">
@@ -531,7 +531,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-              <div className="p-3.5 bg-[#FAF8F5] rounded-[10px] border border-slate-200 space-y-1.5">
+              <div className="p-3.5 bg-slate-50 rounded-[10px] border border-slate-200 space-y-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tier 1</span>
                 <h4 className="text-xs font-bold text-slate-900">Foundation Credential</h4>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
@@ -539,7 +539,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                 </p>
               </div>
 
-              <div className="p-3.5 bg-[#FAF8F5] rounded-[10px] border border-slate-200 space-y-1.5">
+              <div className="p-3.5 bg-slate-50 rounded-[10px] border border-slate-200 space-y-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Tier 2</span>
                 <h4 className="text-xs font-bold text-slate-900">Proficient Credential</h4>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
@@ -547,7 +547,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                 </p>
               </div>
 
-              <div className="p-3.5 bg-[#FAF8F5] rounded-[10px] border border-slate-200 space-y-1.5">
+              <div className="p-3.5 bg-slate-50 rounded-[10px] border border-slate-200 space-y-1.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Tier 3</span>
                 <h4 className="text-xs font-bold text-slate-900">Advanced Master</h4>
                 <p className="text-[11px] text-slate-600 leading-relaxed">

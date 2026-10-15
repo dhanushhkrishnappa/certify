@@ -191,7 +191,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-xs font-semibold text-slate-400">Pick up where you left off</span>
             </div>
 
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-3.5 bg-[#FAF8F5] rounded-[10px] border border-slate-200/70">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-3.5 bg-slate-50 rounded-[10px] border border-slate-200/70">
               {/* Thumbnail & Info */}
               <div className="flex items-center space-x-4">
                 <div className="w-24 h-18 sm:w-28 sm:h-20 rounded-[8px] overflow-hidden bg-slate-900 shrink-0 relative shadow-sm border border-slate-300">
@@ -370,7 +370,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <div className="space-y-3">
                 {/* Item 1 */}
-                <div className="flex items-center justify-between p-2 rounded-[8px] hover:bg-[#FAF8F5] transition-colors">
+                <div className="flex items-center justify-between p-2 rounded-[8px] hover:bg-slate-50 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-[8px] bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -390,7 +390,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 {/* Item 2 */}
-                <div className="flex items-center justify-between p-2 rounded-[8px] hover:bg-[#FAF8F5] transition-colors">
+                <div className="flex items-center justify-between p-2 rounded-[8px] hover:bg-slate-50 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-[8px] bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -410,7 +410,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 {/* Item 3 */}
-                <div className="flex items-center justify-between p-2 rounded-[8px] hover:bg-[#FAF8F5] transition-colors">
+                <div className="flex items-center justify-between p-2 rounded-[8px] hover:bg-slate-50 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-[8px] bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -432,7 +432,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Next Up: Practical Demonstration (Pedagogical Step) - Canonical 14px card */}
-            <div className="md:col-span-5 bg-[#FAF5EE] rounded-[14px] p-5 border border-amber-200/50 shadow-sm flex flex-col justify-between" data-purpose="next-up-challenge">
+            <div className="md:col-span-5 bg-white rounded-[14px] p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between" data-purpose="next-up-challenge">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-bold text-slate-900 tracking-wide uppercase">Next Requirement</span>
@@ -488,7 +488,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Medal Badge & Course Quick Status: Real Backend Evidence */}
             <div
-              className="flex items-center space-x-3.5 p-3 rounded-[10px] bg-[#FAF8F5] border border-slate-200/70"
+              className="flex items-center space-x-3.5 p-3 rounded-[10px] bg-slate-50 border border-slate-200/70"
               data-metric-type="backend-derived"
             >
               <div className="w-12 h-12 rounded-[10px] bg-gradient-to-br from-amber-950 via-slate-900 to-amber-700 flex items-center justify-center shadow-sm shrink-0">
@@ -548,7 +548,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Motivation Callout Card */}
-            <div className="p-3.5 bg-[#FAF3F5] rounded-[10px] border border-rose-100 flex items-center space-x-3">
+            <div className="p-3.5 bg-rose-50/60 rounded-[10px] border border-rose-100 flex items-center space-x-3">
               <div className="w-8 h-8 rounded-[8px] bg-rose-100 text-rose-500 flex items-center justify-center shrink-0">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.458 14.96 14.96 0 01.06-.312m4.699 2.71c.103.021.207.041.312.06a15.09 15.09 0 002.448-2.458 14.96 14.96 0 00-.06-.312" strokeLinecap="round" strokeLinejoin="round" />
@@ -570,7 +570,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 Beta
               </span>
             </div>
-            <div className="flex items-start space-x-3.5 bg-[#FAF8FE] p-3 rounded-[10px] border border-purple-100">
+            <div className="flex items-start space-x-3.5 bg-purple-50/60 p-3 rounded-[10px] border border-purple-100">
               <div className="w-8 h-8 rounded-[8px] bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
