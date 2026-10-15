@@ -128,26 +128,26 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   };
 
   return (
-    <div className="bg-[#0C0D11] text-[#FBF9F5] min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] antialiased selection:bg-[#9d7bff] selection:text-[#FBF9F5]">
+    <div className="bg-[#1E0A3B] text-slate-100 min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] antialiased selection:bg-[#C4B5FD] selection:text-[#1E0A3B]">
       {/* Top Navigation Bar */}
-      <header className="bg-[#0C0D11] sticky top-0 z-50 w-full border-b border-[#494553]">
+      <header className="bg-[#15062B]/95 backdrop-blur sticky top-0 z-50 w-full border-b border-white/10">
         <div className="flex justify-between items-center w-full px-8 py-3 max-w-7xl mx-auto">
           {/* Left: Brand & Context Breadcrumb */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-[#171922] border border-[#494553] flex items-center justify-center text-[#cebdff]">
+              <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-white font-bold">
                 <span className="material-symbols-outlined text-[16px]">deployed_code</span>
               </div>
-              <span className="text-[20px] font-semibold tracking-tight text-[#FBF9F5]">Certify</span>
+              <span className="text-[20px] font-semibold tracking-tight text-white">Certify</span>
             </div>
-            <div className="h-4 w-[1px] bg-[#494553]"></div>
-            <nav className="flex items-center space-x-2 text-[14px] text-[#8E93A6]">
-              <span onClick={() => onNavigate("course-details")} className="hover:text-[#FBF9F5] transition-colors cursor-pointer">
+            <div className="h-4 w-[1px] bg-white/20"></div>
+            <nav className="flex items-center space-x-2 text-[14px] text-purple-200/70">
+              <span onClick={() => onNavigate("course-details")} className="hover:text-white transition-colors cursor-pointer">
                 Distributed Systems Architecture
               </span>
-              <span className="text-[#948e9f]">/</span>
-              <span className="text-[#FBF9F5] font-medium flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#cef056] animate-pulse"></span>
+              <span className="text-purple-300/40">/</span>
+              <span className="text-white font-medium flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 Diagnostic Pre-Assessment
               </span>
             </nav>
@@ -177,16 +177,16 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
           <div className="flex items-center space-x-5">
             <button
               onClick={handleSkip}
-              className="text-[14px] text-[#8E93A6] hover:text-[#FBF9F5] transition-colors underline-offset-4 hover:underline"
+              className="text-[14px] text-purple-200/70 hover:text-white transition-colors underline-offset-4 hover:underline"
             >
               Start from Foundations (Skip Diagnostic)
             </button>
-            <div className="h-4 w-[1px] bg-[#494553]"></div>
-            <div className="flex items-center space-x-2 bg-[#13151A] border border-[#494553] py-1 px-2.5 rounded-full">
-              <div className="w-6 h-6 rounded-full bg-[#1E222D] border border-[#cebdff]/30 flex items-center justify-center text-[#cebdff] font-mono text-[11px] font-semibold">
+            <div className="h-4 w-[1px] bg-white/20"></div>
+            <div className="flex items-center space-x-2 bg-white/10 border border-white/15 py-1 px-2.5 rounded-full">
+              <div className="w-6 h-6 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-mono text-[11px] font-semibold">
                 AR
               </div>
-              <span className="text-[12px] text-[#FBF9F5] pr-1">Alex Rivera</span>
+              <span className="text-[12px] text-white pr-1">Alex Rivera</span>
             </div>
           </div>
         </div>
@@ -197,53 +197,53 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
         <div className="w-full flex flex-col space-y-8">
           {/* Header Block */}
           <div className="space-y-3">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#9d7bff]/10 border border-[#9d7bff]/30 shadow-[0_0_20px_-5px_rgba(157,123,255,0.18)]">
-              <span className="w-2 h-2 rounded-full bg-[#9d7bff]"></span>
-              <span className="font-mono text-[13px] text-[#cebdff] font-medium tracking-wide">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 shadow-[0_0_20px_-5px_rgba(255,255,255,0.15)]">
+              <span className="w-2 h-2 rounded-full bg-purple-300"></span>
+              <span className="font-mono text-[13px] text-purple-200 font-medium tracking-wide">
                 INITIAL KNOWLEDGE MAPPING
               </span>
             </div>
-            <h1 className="text-[32px] leading-[40px] font-semibold text-[#FBF9F5] tracking-tight">
+            <h1 className="text-[32px] leading-[40px] font-semibold text-white tracking-tight">
               Let’s map your existing knowledge foundation.
             </h1>
-            <p className="text-[16px] text-[#8E93A6] leading-relaxed max-w-2xl">
+            <p className="text-[16px] text-purple-200/80 leading-relaxed max-w-2xl">
               This is a non-punitive baseline probe to calibrate your personalized learning curve. Your responses determine where Socratic dialogues begin.
             </p>
           </div>
 
           {/* Active Probe Card */}
-          <div className="bg-[#13151A] border border-[#494553]/60 rounded-xl p-8 space-y-7 backdrop-blur-sm relative">
+          <div className="bg-white/[0.08] border border-white/15 rounded-xl p-8 space-y-7 backdrop-blur-xl relative shadow-2xl">
             {/* Concept Tag Header */}
-            <div className="flex items-center justify-between border-b border-[#494553]/40 pb-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center space-x-2">
-                <span className="material-symbols-outlined text-[#cebdff] text-base">hub</span>
-                <span className="font-mono text-[13px] text-[#FBF9F5] font-medium tracking-wider">
+                <span className="material-symbols-outlined text-purple-300 text-base">hub</span>
+                <span className="font-mono text-[13px] text-white font-medium tracking-wider">
                   {currentProbe.conceptTitle}
                 </span>
               </div>
-              <span className="font-mono text-[12px] text-[#8E93A6]">{currentProbe.code}</span>
+              <span className="font-mono text-[12px] text-purple-200/60">{currentProbe.code}</span>
             </div>
 
             {/* Scenario Description */}
             <div className="space-y-4">
-              <p className="text-[16px] text-[#EDE8DF] leading-relaxed">
+              <p className="text-[16px] text-purple-100 leading-relaxed">
                 {currentProbe.scenario}
               </p>
 
               {/* Topology Monospace Snippet Box */}
               {currentProbe.topology && (
-                <div className="bg-[#0f0d15] border border-[#494553]/50 rounded-lg p-4 font-mono text-[13px] space-y-2">
-                  <div className="flex items-center justify-between text-[#8E93A6] text-[11px] pb-1 border-b border-[#494553]/30">
+                <div className="bg-black/30 border border-white/10 rounded-lg p-4 font-mono text-[13px] space-y-2">
+                  <div className="flex items-center justify-between text-purple-200/70 text-[11px] pb-1 border-b border-white/10">
                     <span className="flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-xs">lan</span>
                       {currentProbe.topology.label}
                     </span>
-                    <span className="text-[#ffdea3] font-medium">{currentProbe.topology.status}</span>
+                    <span className="text-amber-300 font-medium">{currentProbe.topology.status}</span>
                   </div>
-                  <div className="text-[#cebdff] pt-1 flex items-center space-x-2">
-                    <span className="text-[#8E93A6]">{currentProbe.topology.details}</span>
+                  <div className="text-purple-200 pt-1 flex items-center space-x-2">
+                    <span className="text-purple-200/70">{currentProbe.topology.details}</span>
                   </div>
-                  <div className="text-[#8E93A6] text-[12px] flex items-center gap-4 pt-0.5">
+                  <div className="text-purple-200/60 text-[12px] flex items-center gap-4 pt-0.5">
                     <span>{currentProbe.topology.nodes}</span>
                   </div>
                 </div>
@@ -258,34 +258,34 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
                   <label
                     key={opt.key}
                     onClick={() => setSelectedOption(opt.key)}
-                    className={`group relative flex items-start p-4 rounded-lg bg-[#171922] border cursor-pointer transition-all duration-150 ${
+                    className={`group relative flex items-start p-4 rounded-lg bg-white/[0.05] border cursor-pointer transition-all duration-150 ${
                       isSelected
-                        ? "border-[#cef056]/50 shadow-[0_0_0_1.5px_#cef056,inset_0_0_12px_rgba(206,240,86,0.05)]"
-                        : "border-[#494553]/60 hover:border-[#948e9f]"
+                        ? "border-emerald-400/80 bg-white/[0.12] shadow-[0_0_0_1.5px_#34D399,inset_0_0_12px_rgba(52,211,153,0.1)]"
+                        : "border-white/10 hover:border-white/25 hover:bg-white/[0.08]"
                     }`}
                   >
-                    <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 mt-0.5 mr-3.5 flex-shrink-0 bg-[#0C0D11] ${
-                      isSelected ? "border-[#cef056]" : "border-[#948e9f]"
+                    <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 mt-0.5 mr-3.5 flex-shrink-0 bg-[#1E0A3B] ${
+                      isSelected ? "border-emerald-400" : "border-white/40"
                     }`}>
-                      {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#cef056]"></div>}
+                      {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>}
                     </div>
                     <div className="flex-1 pr-2">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-mono text-[13px] font-medium ${isSelected ? "text-[#cef056]" : "text-[#8E93A6]"}`}>
+                        <span className={`font-mono text-[13px] font-medium ${isSelected ? "text-emerald-300" : "text-purple-200/70"}`}>
                           OPTION {opt.key}
                         </span>
                         {isSelected && (
-                          <span className="text-[10px] text-[#cef056] bg-[#cef056]/10 px-1.5 py-0.2 rounded border border-[#cef056]/30">
+                          <span className="text-[10px] text-emerald-300 bg-emerald-500/20 px-1.5 py-0.2 rounded border border-emerald-500/30">
                             SELECTED
                           </span>
                         )}
                         {opt.isHonest && (
-                          <span className="text-[10px] text-[#cebdff] bg-[#9d7bff]/10 px-2 py-0.5 rounded border border-[#9d7bff]/20">
+                          <span className="text-[10px] text-purple-200 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-500/30">
                             HONEST CALIBRATION
                           </span>
                         )}
                       </div>
-                      <p className={`text-[14px] leading-normal ${isSelected ? "text-[#FBF9F5]" : "text-[#EDE8DF]"}`}>
+                      <p className={`text-[14px] leading-normal ${isSelected ? "text-white font-medium" : "text-purple-100/90"}`}>
                         {opt.text}
                       </p>
                     </div>
@@ -295,19 +295,19 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
             </div>
 
             {/* Optional Justification Input Field */}
-            <div className="pt-2 border-t border-[#494553]/30 space-y-2">
-              <label className="flex items-center justify-between text-[12px] text-[#8E93A6]" htmlFor="probe-justification">
+            <div className="pt-2 border-t border-white/10 space-y-2">
+              <label className="flex items-center justify-between text-[12px] text-purple-200/70" htmlFor="probe-justification">
                 <span className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[#cebdff] text-sm">neurology</span>
+                  <span className="material-symbols-outlined text-purple-300 text-sm">neurology</span>
                   Briefly explain your reasoning (optional Socratic calibration probe)
                 </span>
-                <span className="font-mono text-[11px] text-[#8E93A6]">OPTIONAL</span>
+                <span className="font-mono text-[11px] text-purple-200/50">OPTIONAL</span>
               </label>
               <div className="relative">
                 <input
                   value={justification}
                   onChange={(e) => setJustification(e.target.value)}
-                  className="w-full bg-[#0f0d15] border border-[#494553] rounded-lg px-4 py-3 font-mono text-[13px] text-[#FBF9F5] placeholder:text-[#948e9f] focus:outline-none focus:border-[#9d7bff] focus:ring-1 focus:ring-[#9d7bff] transition-colors"
+                  className="w-full bg-black/30 border border-white/15 rounded-lg px-4 py-3 font-mono text-[13px] text-white placeholder:text-purple-300/40 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-colors"
                   id="probe-justification"
                   placeholder="e.g., Node B hasn't voted in term 4 and log is up to date, but majority is ⌊5/2⌋ + 1 = 3..."
                   type="text"
@@ -319,20 +319,20 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
 
         {/* Calibration Footer / Status Deck */}
         <div className="pt-8 pb-4 space-y-4">
-          <div className="bg-[#13151A] border border-[#494553] rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="bg-white/[0.08] border border-white/15 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-xl">
             {/* Left: Bayesian Realtime Indicator */}
             <div className="flex items-center space-x-3">
               <div className="relative flex items-center justify-center">
-                <span className="w-3 h-3 rounded-full bg-[#cef056]"></span>
-                <span className="w-3 h-3 rounded-full bg-[#cef056] animate-ping absolute opacity-75"></span>
+                <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
+                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping absolute opacity-75"></span>
               </div>
               <div>
-                <div className="text-[11px] uppercase text-[#8E93A6]">
+                <div className="text-[11px] uppercase text-purple-200/70 font-semibold">
                   Current Prior Mastery Baseline
                 </div>
-                <div className="text-[14px] font-semibold text-[#FBF9F5] flex items-center gap-1.5">
+                <div className="text-[14px] font-semibold text-white flex items-center gap-1.5">
                   <span>Intermediate</span>
-                  <span className="text-[#8E93A6] font-normal">• Practitioner Track Recommendation</span>
+                  <span className="text-purple-200/60 font-normal">• Practitioner Track Recommendation</span>
                 </div>
               </div>
             </div>
@@ -341,24 +341,24 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
             <div className="flex items-center space-x-3 w-full md:w-auto justify-end">
               <button
                 onClick={() => setProbeIndex((prev) => Math.max(1, prev - 1))}
-                className="px-4 py-2.5 rounded-lg border border-[#494553] hover:bg-[#171922] text-[14px] text-[#8E93A6] hover:text-[#FBF9F5] transition-all"
+                className="px-4 py-2.5 rounded-lg border border-white/20 hover:bg-white/10 text-[14px] text-purple-200 hover:text-white transition-all cursor-pointer"
               >
                 Previous
               </button>
               <button
                 onClick={handleContinue}
-                className="px-5 py-2.5 rounded-lg bg-[#cef056] hover:bg-[#b3d33b] text-[#0C0D11] text-[14px] font-semibold flex items-center space-x-2 transition-all duration-200 active:scale-[0.98] shadow-[0_0_15px_rgba(206,240,86,0.2)]"
+                className="px-5 py-2.5 rounded-lg bg-white hover:bg-purple-50 text-[#1E0A3B] text-[14px] font-bold flex items-center space-x-2 transition-all duration-200 active:scale-[0.98] shadow-lg cursor-pointer"
               >
                 <span>Submit &amp; Continue Calibration</span>
-                <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-black/15 font-mono">↵</span>
+                <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-[#1E0A3B]/10 font-mono">↵</span>
               </button>
             </div>
           </div>
 
           {/* Bayesian Micro Footnote */}
           <div className="flex items-center justify-center space-x-2 text-center">
-            <span className="material-symbols-outlined text-[#cebdff] text-xs">lock</span>
-            <span className="font-mono text-[12px] text-[#8E93A6]">
+            <span className="material-symbols-outlined text-purple-300 text-xs">lock</span>
+            <span className="font-mono text-[12px] text-purple-200/70">
               Certify Bayesian Knowledge Tracing will continuously update your mastery as you engage with Chapter 1.
             </span>
           </div>
@@ -366,20 +366,20 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
       </main>
 
       {/* Docked Protocol Verification Footer */}
-      <footer className="bg-[#13151A] border-t border-[#494553] w-full mt-auto">
-        <div className="w-full px-8 py-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-[#8E93A6] text-[14px]">
+      <footer className="bg-[#15062B] border-t border-white/10 w-full mt-auto">
+        <div className="w-full px-8 py-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-purple-200/70 text-[14px]">
           <div className="flex items-center space-x-3">
-            <span className="material-symbols-outlined text-[#cebdff] text-base">verified_user</span>
+            <span className="material-symbols-outlined text-purple-300 text-base">verified_user</span>
             <span className="font-mono text-xs">
               © 2026 Certify Protocol. All cryptographic credentials backed by verifiable database proofs. Defensible mastery engine.
             </span>
           </div>
           <div className="flex items-center space-x-6 text-[14px]">
-            <a className="hover:text-[#FBF9F5] transition-colors" href="#">Registry</a>
-            <a className="hover:text-[#FBF9F5] transition-colors" href="#">Verification Node</a>
-            <a className="hover:text-[#FBF9F5] transition-colors" href="#">Audit Logs</a>
-            <a className="hover:text-[#FBF9F5] transition-colors" href="#">Privacy</a>
-            <a className="hover:text-[#FBF9F5] transition-colors" href="#">Terms</a>
+            <a className="hover:text-white transition-colors" href="#">Registry</a>
+            <a className="hover:text-white transition-colors" href="#">Verification Node</a>
+            <a className="hover:text-white transition-colors" href="#">Audit Logs</a>
+            <a className="hover:text-white transition-colors" href="#">Privacy</a>
+            <a className="hover:text-white transition-colors" href="#">Terms</a>
           </div>
         </div>
       </footer>

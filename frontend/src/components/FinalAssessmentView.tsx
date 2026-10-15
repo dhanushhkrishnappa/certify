@@ -300,29 +300,29 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
   return (
     <div className="space-y-6 max-w-[1400px] w-full mx-auto pb-12" data-purpose="final-assessment-page">
       {/* Top Header Row / Breadcrumb Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1 border-b border-[#ece9df]">
-        <nav className="flex items-center text-xs font-medium text-gray-500 space-x-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1 border-b border-white/10">
+        <nav className="flex items-center text-xs font-medium text-purple-200/70 space-x-2">
           <button
             onClick={() => onNavigate("course-details")}
-            className="flex items-center space-x-1 hover:text-gray-800 cursor-pointer transition"
+            className="flex items-center space-x-1 hover:text-white cursor-pointer transition"
           >
-            <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-purple-300/60" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
             <span>Python Fundamentals</span>
           </button>
-          <span className="text-gray-400 font-normal">&gt;</span>
-          <span className="font-semibold text-gray-900">Final Assessment</span>
+          <span className="text-purple-300/40 font-normal">&gt;</span>
+          <span className="font-semibold text-white">Final Assessment</span>
         </nav>
-        <div className="flex items-center space-x-6 text-xs text-gray-500">
+        <div className="flex items-center space-x-6 text-xs text-purple-200/60">
           <span className="italic font-serif tracking-tight">"Discipline today, opportunities tomorrow."</span>
         </div>
       </div>
 
       {/* Title & Subtitle */}
       <div>
-        <h1 className="font-serif text-3xl font-bold tracking-tight text-gray-950">Final Assessment</h1>
-        <p className="text-xs text-gray-500 mt-1 font-medium">Demonstrate your understanding and earn your certification.</p>
+        <h1 className="font-serif text-3xl font-bold tracking-tight text-white">Final Assessment</h1>
+        <p className="text-xs text-purple-200/80 mt-1 font-medium">Demonstrate your understanding and earn your certification.</p>
       </div>
 
       {/* 5 Information Cards Strip */}
@@ -420,8 +420,8 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
 
           {/* Example Box */}
           {currentQ.exampleInput && (
-            <div className="bg-[#f7f6f2] border border-[#ece9df] rounded-xl p-4 font-mono text-[12px] leading-relaxed text-gray-700">
-              <div className="font-sans text-[11px] font-semibold text-gray-500 mb-1">Example:</div>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-[12px] leading-relaxed text-slate-800">
+              <div className="font-sans text-[11px] font-semibold text-slate-500 mb-1">Example:</div>
               <div>Input: {currentQ.exampleInput}</div>
               <div>Output: {currentQ.exampleOutput}</div>
             </div>

@@ -71,50 +71,50 @@ export class QuorumCoordinator<T> {
   };
 
   return (
-    <div className="bg-[#0C0D11] text-[#e6e0ec] antialiased min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] select-none overflow-x-hidden">
+    <div className="bg-[#1E0A3B] text-slate-100 antialiased min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] select-none overflow-x-hidden selection:bg-[#C4B5FD] selection:text-[#1E0A3B]">
       {/* Top Navigation & Status Bar */}
-      <header className="sticky top-0 z-50 flex items-center justify-between w-full px-6 h-14 bg-[#13151A]/90 backdrop-blur-md border-b border-[#494553]/30">
+      <header className="sticky top-0 z-50 flex items-center justify-between w-full px-6 h-14 bg-[#15062B]/95 backdrop-blur-md border-b border-white/10">
         {/* Left: Logo & Breadcrumbs */}
         <div className="flex items-center gap-3">
-          <div className="text-[20px] font-semibold tracking-tight text-[#FBF9F5] flex items-center gap-2">
-            <span className="w-6 h-6 rounded bg-[#9d7bff]/20 border border-[#cebdff]/40 flex items-center justify-center text-[#cebdff]">
+          <div className="text-[20px] font-semibold tracking-tight text-white flex items-center gap-2">
+            <span className="w-6 h-6 rounded bg-white/10 border border-white/20 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-[16px]">deployed_code</span>
             </span>
             <span>Certify</span>
           </div>
-          <div className="h-4 w-px bg-[#494553]/40 mx-1"></div>
-          <nav className="flex items-center gap-2 text-[12px] text-[#8E93A6]">
-            <span onClick={() => onNavigate("course-details")} className="hover:text-[#e6e0ec] transition-colors cursor-pointer">
+          <div className="h-4 w-px bg-white/20 mx-1"></div>
+          <nav className="flex items-center gap-2 text-[12px] text-purple-200/70">
+            <span onClick={() => onNavigate("course-details")} className="hover:text-white transition-colors cursor-pointer">
               Distributed Systems Architecture
             </span>
-            <span className="text-[#494553]">/</span>
-            <span onClick={() => onNavigate("studio")} className="hover:text-[#e6e0ec] transition-colors cursor-pointer">
+            <span className="text-purple-300/40">/</span>
+            <span onClick={() => onNavigate("studio")} className="hover:text-white transition-colors cursor-pointer">
               Chapter 2: Quorum Systems
             </span>
-            <span className="text-[#494553]">/</span>
-            <span className="text-[#FBF9F5] font-medium">Chapter Assessment</span>
+            <span className="text-purple-300/40">/</span>
+            <span className="text-white font-medium">Chapter Assessment</span>
           </nav>
         </div>
 
         {/* Center: In-Flow Status Pill */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-[#171922] border border-[#9d7bff]/30 shadow-[0_0_12px_rgba(157,123,255,0.1)]">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 shadow-[0_0_12px_rgba(255,255,255,0.08)]">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#9d7bff] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#cebdff]"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-300 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-200"></span>
           </span>
-          <span className="font-mono text-[11px] tracking-wider text-[#cebdff] font-medium uppercase">
+          <span className="font-mono text-[11px] tracking-wider text-purple-200 font-medium uppercase">
             IN-FLOW DEMONSTRATION MODE (Untimed • Rigor-Calibrated)
           </span>
         </div>
 
         {/* Right: Progress badge & Quiet Exit */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#171922] border border-[#494553]/30 text-[#8E93A6] text-[12px]">
-            <span className="text-[#b3d33b] font-mono font-semibold">Criterion {criterion2Complete ? "3 of 3" : "2 of 3"}</span>
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/15 text-purple-200 text-[12px]">
+            <span className="text-emerald-400 font-mono font-semibold">Criterion {criterion2Complete ? "3 of 3" : "2 of 3"}</span>
           </div>
           <button
             onClick={() => onNavigate("studio")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#494553]/30 hover:border-[#948e9f]/50 hover:bg-[#171922] text-[#8E93A6] hover:text-[#FBF9F5] text-[12px] transition-all active:scale-[0.98]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/15 hover:border-white/30 hover:bg-white/10 text-purple-200 hover:text-white text-[12px] transition-all active:scale-[0.98] cursor-pointer"
           >
             <span className="material-symbols-outlined text-[15px]">pause_circle</span>
             <span>Pause &amp; Return to Studio</span>
@@ -127,42 +127,42 @@ export class QuorumCoordinator<T> {
         {/* LEFT COLUMN: Main Demonstration Surface (~65% width = 8 cols) */}
         <section className="lg:col-span-8 flex flex-col gap-4">
           {/* Challenge Header Card */}
-          <div className="bg-[#13151A] rounded-xl p-5 border border-[#494553]/30 shadow-sm relative overflow-hidden">
-            <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#cebdff]/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-white/[0.08] rounded-xl p-5 border border-white/15 shadow-xl backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div className="flex items-center justify-between mb-3">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#9d7bff]/15 border border-[#9d7bff]/30 text-[#cebdff] font-mono text-[11px] font-medium tracking-wide">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-white/10 border border-white/15 text-purple-200 font-mono text-[11px] font-medium tracking-wide">
                 <span className="material-symbols-outlined text-[13px]">psychology</span>
                 <span>TARGET CONCEPT: QUORUM REPLICATION OVERLAP</span>
               </div>
-              <span className="font-mono text-[11px] text-[#8E93A6] flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#b3d33b]"></span>
+              <span className="font-mono text-[11px] text-purple-200/70 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                 Defensible Mastery Proof
               </span>
             </div>
 
-            <h1 className="text-[24px] font-semibold text-[#FBF9F5] mb-2 leading-[32px]">
+            <h1 className="text-[24px] font-semibold text-white mb-2 leading-[32px]">
               Demonstrate Read-Your-Writes Guarantees under Partial Network Partition
             </h1>
-            <p className="text-[14px] text-[#8E93A6] mb-4 leading-relaxed">
+            <p className="text-[14px] text-purple-200/80 mb-4 leading-relaxed">
               Explain and implement the quorum intersection condition{" "}
-              <span className="font-mono text-[#EDE8DF] bg-[#171922] px-1.5 py-0.5 rounded border border-[#494553]/20">
+              <span className="font-mono text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/15">
                 R + W &gt; N
               </span>
               . Show how version vectors resolve concurrent conflicting writes across partitioned replicas without silent data loss.
             </p>
 
             {/* Mathematical Invariant & Topology Pill Box */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-lg bg-[#171922]/90 border border-[#494553]/30 font-mono text-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-lg bg-black/30 border border-white/10 font-mono text-[12px]">
               <div className="flex items-center gap-2">
-                <span className="text-[#b3d33b] font-semibold">Invariant:</span>
-                <span className="text-[#EDE8DF] bg-[#0C0D11]/60 px-2 py-0.5 rounded border border-[#494553]/20">
+                <span className="text-emerald-400 font-semibold">Invariant:</span>
+                <span className="text-white bg-white/10 px-2 py-0.5 rounded border border-white/15">
                   |R ∩ W| ≥ 1
                 </span>
-                <span className="text-[11px] text-[#8E93A6]">(Pigeonhole Overlap)</span>
+                <span className="text-[11px] text-purple-200/60">(Pigeonhole Overlap)</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#E06A55] font-medium">Active Partition:</span>
-                <span className="text-[#EDE8DF] bg-[#0C0D11]/60 px-2 py-0.5 rounded border border-[#E06A55]/30">
+                <span className="text-rose-400 font-medium">Active Partition:</span>
+                <span className="text-white bg-white/10 px-2 py-0.5 rounded border border-rose-400/30">
                   [Node A, B] ⚡ [Node C, D, E]
                 </span>
               </div>
@@ -170,48 +170,48 @@ export class QuorumCoordinator<T> {
           </div>
 
           {/* Interactive Solution / Code Area */}
-          <div className="bg-[#13151A] rounded-xl border border-[#494553]/30 overflow-hidden flex flex-col shadow-sm">
+          <div className="bg-white/[0.08] rounded-xl border border-white/15 overflow-hidden flex flex-col shadow-xl backdrop-blur-xl">
             {/* Tab Bar & Tools Header */}
-            <div className="bg-[#171922] px-4 py-2 border-b border-[#494553]/30 flex items-center justify-between">
+            <div className="bg-white/[0.05] px-4 py-2 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1 bg-[#0f0d15] rounded text-[#b3d33b] font-mono text-[13px] border border-[#494553]/30">
-                  <span className="material-symbols-outlined text-[14px] text-[#b3d33b]">code_blocks</span>
+                <div className="flex items-center gap-2 px-3 py-1 bg-black/30 rounded text-emerald-300 font-mono text-[13px] border border-white/10">
+                  <span className="material-symbols-outlined text-[14px] text-emerald-400">code_blocks</span>
                   <span>quorum_resolver.ts</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#b3d33b]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                 </div>
-                <span className="text-[#8E93A6] font-mono text-[11px] pl-2">TypeScript 5.4 • StrictNullChecks</span>
+                <span className="text-purple-200/60 font-mono text-[11px] pl-2">TypeScript 5.4 • StrictNullChecks</span>
               </div>
-              <div className="flex items-center gap-3 text-[#8E93A6] font-mono text-[11px]">
-                <span className="flex items-center gap-1 hover:text-[#e6e0ec] cursor-pointer">
+              <div className="flex items-center gap-3 text-purple-200/70 font-mono text-[11px]">
+                <span className="flex items-center gap-1 hover:text-white cursor-pointer">
                   <span className="material-symbols-outlined text-[14px]">history</span> Diff (Clean)
                 </span>
-                <span className="flex items-center gap-1 hover:text-[#e6e0ec] cursor-pointer">
+                <span className="flex items-center gap-1 hover:text-white cursor-pointer">
                   <span className="material-symbols-outlined text-[14px]">tune</span> Env Config
                 </span>
               </div>
             </div>
 
             {/* Editor Canvas */}
-            <div className="bg-[#0f0e15] p-4 font-mono text-[13px] leading-relaxed overflow-x-auto">
+            <div className="bg-black/40 p-4 font-mono text-[13px] leading-relaxed overflow-x-auto">
               <textarea
                 value={codeContent}
                 onChange={(e) => setCodeContent(e.target.value)}
-                className="w-full bg-transparent border-0 text-[#EDE8DF] focus:outline-none resize-none font-mono text-[13px] leading-relaxed"
+                className="w-full bg-transparent border-0 text-purple-100 focus:outline-none resize-none font-mono text-[13px] leading-relaxed"
                 rows={16}
                 spellCheck={false}
               />
             </div>
 
             {/* Action Bar beneath Editor */}
-            <div className="bg-[#171922] p-3.5 border-t border-[#494553]/30 flex flex-wrap items-center justify-between gap-3">
+            <div className="bg-white/[0.05] p-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
               <button
                 onClick={handleRunChecks}
                 disabled={isRunning}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[#494553]/40 hover:border-[#948e9f]/60 bg-[#13151A] hover:bg-[#1E222D] text-[#e6e0ec] text-[12px] font-medium transition-all active:scale-[0.98]"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/15 hover:border-white/30 bg-white/10 hover:bg-white/20 text-white text-[12px] font-medium transition-all active:scale-[0.98] cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px] text-[#8E93A6]">terminal</span>
+                <span className="material-symbols-outlined text-[16px] text-purple-200">terminal</span>
                 <span>{isRunning ? "Verifying..." : "Run Local Invariant Checks"}</span>
-                <span className="font-mono text-[11px] text-[#8E93A6] bg-[#36333c]/50 px-1.5 py-0.5 rounded">⌘R</span>
+                <span className="font-mono text-[11px] text-purple-200 bg-white/10 px-1.5 py-0.5 rounded">⌘R</span>
               </button>
 
               <button
@@ -219,29 +219,29 @@ export class QuorumCoordinator<T> {
                   if (onNavigateRemediation) onNavigateRemediation();
                   else onNavigate("remediation");
                 }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[#cebdff] hover:text-[#FBF9F5] hover:bg-[#9d7bff]/10 text-[12px] transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-purple-200 hover:text-white hover:bg-white/10 text-[12px] transition-colors cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px] text-[#cebdff]">psychology</span>
-                <span>Ask Socratic Clarifier <span className="text-[#8E93A6] text-[11px] font-normal">(Non-punitive hint)</span></span>
+                <span className="material-symbols-outlined text-[16px] text-purple-300">psychology</span>
+                <span>Ask Socratic Clarifier <span className="text-purple-200/50 text-[11px] font-normal">(Non-punitive hint)</span></span>
               </button>
 
               <button
                 onClick={handleSubmitProof}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#b3d33b] text-[#2a3500] text-sm font-semibold hover:bg-[#cef056] transition-all shadow-[0_0_16px_rgba(179,211,59,0.25)] active:scale-[0.98]"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white hover:bg-purple-50 text-[#1E0A3B] text-sm font-bold transition-all shadow-lg active:scale-[0.98] cursor-pointer"
               >
                 <span>Submit Proof for Evaluation</span>
-                <span className="font-mono text-[11px] bg-black/20 text-[#2a3500] px-1.5 py-0.5 rounded">⌘↵</span>
+                <span className="font-mono text-[11px] bg-[#1E0A3B]/10 text-[#1E0A3B] px-1.5 py-0.5 rounded">⌘↵</span>
                 <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
             </div>
           </div>
 
           {/* Execution Feedback Drawer */}
-          <div className="p-3.5 rounded-lg bg-[#13151A] border border-[#494553]/30 flex items-center justify-between font-mono text-[12px]">
+          <div className="p-3.5 rounded-lg bg-white/[0.08] border border-white/15 flex items-center justify-between font-mono text-[12px]">
             <div className="flex items-center gap-2.5">
               <span className="material-symbols-outlined text-[16px] text-[#b3d33b]">verified</span>
               <span className="text-[#8E93A6]">Diagnostic Rigor:</span>
-              <span className="text-[#EDE8DF]">
+              <span className="text-slate-100">
                 {outputMessage || "Pigeonhole theorem validated across 10,000 synthetic partition simulations."}
               </span>
             </div>
@@ -255,7 +255,7 @@ export class QuorumCoordinator<T> {
           <div className="bg-[#171922] rounded-xl p-4 border border-[#494553]/30 shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between pb-3 border-b border-[#494553]/20">
               <div>
-                <span className="text-[12px] font-semibold tracking-wider text-[#FBF9F5]">EVALUATION RUBRIC</span>
+                <span className="text-[12px] font-semibold tracking-wider text-white">EVALUATION RUBRIC</span>
                 <div className="font-mono text-[10px] text-[#cebdff] tracking-wide uppercase">WEIGHTED SOCRATIC SCORING</div>
               </div>
               <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#13151A] text-[#b3d33b] border border-[#b3d33b]/30">
@@ -272,12 +272,12 @@ export class QuorumCoordinator<T> {
                     <span className="w-4 h-4 rounded-full bg-[#b3d33b]/20 flex items-center justify-center text-[#b3d33b]">
                       <span className="material-symbols-outlined text-[12px]">check</span>
                     </span>
-                    <span className="text-[12px] font-medium text-[#FBF9F5]">Pigeonhole Intersection Proof</span>
+                    <span className="text-[12px] font-medium text-white">Pigeonhole Intersection Proof</span>
                   </div>
                   <span className="font-mono text-[11px] text-[#b3d33b] font-semibold">100%</span>
                 </div>
                 <p className="text-[12px] text-[#8E93A6] pl-6">
-                  Strict majority overlap guaranteed: <span className="font-mono text-[#EDE8DF]">(R=3, W=3, N=5)</span> yields <span className="font-mono text-[#b3d33b]">|R ∩ W| = 1</span>.
+                  Strict majority overlap guaranteed: <span className="font-mono text-purple-100">(R=3, W=3, N=5)</span> yields <span className="font-mono text-[#b3d33b]">|R ∩ W| = 1</span>.
                 </p>
               </div>
 
@@ -289,7 +289,7 @@ export class QuorumCoordinator<T> {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#cebdff] opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-[#cebdff]"></span>
                     </span>
-                    <span className="text-[12px] font-semibold text-[#FBF9F5]">Version Vector Conflict Resolution</span>
+                    <span className="text-[12px] font-semibold text-white">Version Vector Conflict Resolution</span>
                   </div>
                   <span className="font-mono text-[11px] text-[#cebdff] font-medium">40% Weight</span>
                 </div>
@@ -297,7 +297,7 @@ export class QuorumCoordinator<T> {
                   Implement causal ordering checks to distinguish between direct ancestry and divergent concurrent branches.
                 </p>
                 <div className="flex flex-col gap-1.5 pl-5 pt-1 border-t border-[#494553]/20 text-[12px]">
-                  <div className="flex items-center gap-2 text-[#FBF9F5]">
+                  <div className="flex items-center gap-2 text-white">
                     <span className="material-symbols-outlined text-[14px] text-[#b3d33b]">check_box</span>
                     <span>Causality ordering check</span>
                   </div>
@@ -331,56 +331,56 @@ export class QuorumCoordinator<T> {
           </div>
 
           {/* Bayesian Knowledge Tracing (BKT) Mastery Delta Card */}
-          <div className="bg-[#171922] rounded-xl p-4 border border-[#494553]/30 flex flex-col gap-3 relative overflow-hidden">
-            <div className="absolute -bottom-8 -right-8 w-36 h-36 bg-[#b3d33b]/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="bg-white/[0.08] rounded-xl p-4 border border-white/15 flex flex-col gap-3 relative overflow-hidden backdrop-blur-xl shadow-xl">
+            <div className="absolute -bottom-8 -right-8 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
             <div className="flex items-center justify-between">
-              <span className="text-[12px] font-semibold tracking-wider text-[#FBF9F5]">KNOWLEDGE STATE (BKT)</span>
-              <span className="font-mono text-[11px] text-[#b3d33b] font-semibold bg-[#b3d33b]/10 px-2 py-0.5 rounded border border-[#b3d33b]/20">
+              <span className="text-[12px] font-semibold tracking-wider text-white">KNOWLEDGE STATE (BKT)</span>
+              <span className="font-mono text-[11px] text-emerald-400 font-semibold bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/30">
                 +0.32 ΔP(L)
               </span>
             </div>
-            <div className="p-3 rounded-lg bg-[#13151A] border border-[#494553]/20 flex flex-col gap-2">
+            <div className="p-3 rounded-lg bg-black/30 border border-white/10 flex flex-col gap-2">
               <div className="flex items-center justify-between font-mono text-[12px]">
-                <span className="text-[#8E93A6]">Chapter 2 Mastery:</span>
+                <span className="text-purple-200/70">Chapter 2 Mastery:</span>
                 <div className="flex items-center gap-1.5 font-semibold">
-                  <span className="text-[#8E93A6]">0.62</span>
-                  <span className="text-[#948e9f]">→</span>
-                  <span className="text-[#b3d33b] font-bold text-[13px]">0.94 P(L)</span>
+                  <span className="text-purple-200/60">0.62</span>
+                  <span className="text-purple-300">→</span>
+                  <span className="text-emerald-400 font-bold text-[13px]">0.94 P(L)</span>
                 </div>
               </div>
-              <div className="h-2 w-full bg-[#0f0d15] rounded-full overflow-hidden flex">
-                <div className="h-full bg-[#cebdff]/40 rounded-l-full" style={{ width: "62%" }}></div>
-                <div className="h-full bg-[#b3d33b] animate-pulse" style={{ width: "32%" }}></div>
+              <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden flex">
+                <div className="h-full bg-purple-400/40 rounded-l-full" style={{ width: "62%" }}></div>
+                <div className="h-full bg-emerald-400 animate-pulse" style={{ width: "32%" }}></div>
               </div>
-              <div className="flex items-center justify-between font-mono text-[10px] text-[#8E93A6] pt-0.5">
+              <div className="flex items-center justify-between font-mono text-[10px] text-purple-200/60 pt-0.5">
                 <span>Prior State</span>
-                <span className="text-[#b3d33b] font-medium">Demonstrated Projection</span>
+                <span className="text-emerald-300 font-medium">Demonstrated Projection</span>
               </div>
             </div>
-            <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-[#1d1a22] border border-[#494553]/20 text-[12px] text-[#8E93A6] leading-normal">
-              <span className="material-symbols-outlined text-[16px] text-[#b3d33b] mt-0.5 shrink-0">lock_open</span>
+            <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/10 border border-white/10 text-[12px] text-purple-200/80 leading-normal">
+              <span className="material-symbols-outlined text-[16px] text-emerald-400 mt-0.5 shrink-0">lock_open</span>
               <span>
-                Completing this demonstration unlocks the <strong className="text-[#FBF9F5] font-medium">Chapter 2 Mastery Evidence Seal</strong> and activates <span className="text-[#EDE8DF] font-medium">Chapter 3: Byzantine Fault Tolerance</span>.
+                Completing this demonstration unlocks the <strong className="text-white font-medium">Chapter 2 Mastery Evidence Seal</strong> and activates <span className="text-white font-medium">Chapter 3: Byzantine Fault Tolerance</span>.
               </span>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-[#494553]/20 font-mono text-[11px]">
-              <span className="text-[#8E93A6] flex items-center gap-1">
-                <span className="material-symbols-outlined text-[13px] text-[#948e9f]">fingerprint</span>
+            <div className="flex items-center justify-between pt-2 border-t border-white/10 font-mono text-[11px]">
+              <span className="text-purple-200/60 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[13px] text-purple-300">fingerprint</span>
                 Seal Hash:
               </span>
-              <span className="text-[#EDE8DF] font-serif italic text-[12px] bg-[#0C0D11] px-2 py-0.5 rounded border border-[#494553]/30">
+              <span className="text-purple-200 font-serif italic text-[12px] bg-[#1E0A3B] px-2 py-0.5 rounded border border-white/15">
                 Ledger: 98a4...e210
               </span>
             </div>
           </div>
 
           {/* Quick Reference Invariant Box */}
-          <div className="p-3 rounded-lg bg-[#13151A]/60 border border-[#494553]/20 flex items-center justify-between text-[#8E93A6] font-mono text-[11px]">
+          <div className="p-3 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-between text-purple-200/70 font-mono text-[11px]">
             <span className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[14px] text-[#cebdff]">lightbulb</span>
-              <span>Hint: Dominance requires <code className="text-[#EDE8DF]">v1 &gt;= v2</code> for all keys.</span>
+              <span className="material-symbols-outlined text-[14px] text-purple-300">lightbulb</span>
+              <span>Hint: Dominance requires <code className="text-white">v1 &gt;= v2</code> for all keys.</span>
             </span>
-            <button className="hover:text-[#FBF9F5] text-[#cebdff] transition-colors text-[10px] uppercase font-semibold">
+            <button className="hover:text-white text-purple-300 transition-colors text-[10px] uppercase font-semibold">
               Docs
             </button>
           </div>
@@ -388,20 +388,20 @@ export class QuorumCoordinator<T> {
       </main>
 
       {/* Keyboard Shortcuts & Global Footnote Bar */}
-      <footer className="w-full bg-[#13151A]/60 border-t border-[#494553]/20 px-6 py-2.5 mt-auto flex items-center justify-between text-[#8E93A6] font-mono text-[11px]">
+      <footer className="w-full bg-[#15062B] border-t border-white/10 px-6 py-2.5 mt-auto flex items-center justify-between text-purple-200/70 font-mono text-[11px]">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#b3d33b]"></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span>Environment: Distributed Sandbox Node v20.11</span>
           </span>
-          <span className="hidden md:inline text-[#494553]">|</span>
+          <span className="hidden md:inline text-purple-300/30">|</span>
           <span className="hidden md:inline">Protocol: Socratic-BKT Strict Evaluation Mode</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden sm:inline">Shortcuts:</span>
-          <span className="bg-[#171922] px-1.5 py-0.5 rounded border border-[#494553]/30 text-[#EDE8DF]">⌘↵ Submit</span>
-          <span className="bg-[#171922] px-1.5 py-0.5 rounded border border-[#494553]/30 text-[#EDE8DF]">⌘R Invariants</span>
-          <span className="bg-[#171922] px-1.5 py-0.5 rounded border border-[#494553]/30 text-[#EDE8DF]">Esc Pause</span>
+          <span className="bg-white/10 px-1.5 py-0.5 rounded border border-white/15 text-white">⌘↵ Submit</span>
+          <span className="bg-white/10 px-1.5 py-0.5 rounded border border-white/15 text-white">⌘R Invariants</span>
+          <span className="bg-white/10 px-1.5 py-0.5 rounded border border-white/15 text-white">Esc Pause</span>
         </div>
       </footer>
     </div>

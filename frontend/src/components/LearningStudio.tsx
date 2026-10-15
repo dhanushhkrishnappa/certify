@@ -251,9 +251,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
 
   return (
     <div
-      className={`min-h-[880px] w-full transition-colors duration-200 ${
-        studioTheme === "dark" ? "bg-[#0C0D11] text-[#EDE8DF]" : "bg-[#FBF9F5] text-neutral-800"
-      }`}
+      className="min-h-[880px] w-full bg-[#1E0A3B] text-slate-100 transition-colors duration-200"
       data-purpose="ai-learning-studio-page"
     >
       {/* Top Header & Breadcrumb Bar */}
@@ -261,22 +259,20 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
         <div className="flex items-center justify-between">
           {/* Breadcrumb & Main Heading */}
           <div>
-            <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-xs font-medium text-neutral-400 mb-1">
+            <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-xs font-medium text-purple-200/70 mb-1">
               <button
                 onClick={() => onNavigate && onNavigate("mylearning")}
-                className="hover:text-neutral-600 cursor-pointer flex items-center gap-1"
+                className="hover:text-white cursor-pointer flex items-center gap-1"
               >
                 <span>&lt; My Learning</span>
               </button>
-              <span>&gt;</span>
-              <span className={`font-semibold ${studioTheme === "dark" ? "text-neutral-300" : "text-neutral-600"}`}>
+              <span className="text-purple-300/40">&gt;</span>
+              <span className="font-semibold text-white">
                 Python Fundamentals
               </span>
             </nav>
             <div className="flex items-center gap-3">
-              <h1 className={`text-2xl lg:text-[28px] font-serif font-bold tracking-tight leading-tight ${
-                studioTheme === "dark" ? "text-white" : "text-neutral-900"
-              }`}>
+              <h1 className="text-2xl lg:text-[28px] font-serif font-bold tracking-tight leading-tight text-white">
                 Python Fundamentals
               </h1>
               {/* Studio Theme Toggle: Screen 07 vs Screen 08 Flagship */}
