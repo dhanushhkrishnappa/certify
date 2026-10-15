@@ -45,21 +45,21 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
       {/* Title & Actions Header */}
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <nav aria-label="Breadcrumbs" className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mb-2">
+          <nav aria-label="Breadcrumbs" className="flex items-center gap-1.5 text-xs font-medium text-purple-200/70 mb-2">
             <button
               onClick={onBack}
-              className="hover:text-slate-900 transition flex items-center gap-1"
+              className="hover:text-white transition flex items-center gap-1"
             >
               <span>←</span>
               <span>My Credentials</span>
             </button>
-            <span className="text-slate-400">/</span>
-            <span className="text-slate-900 font-semibold">Python Fundamentals</span>
+            <span className="text-purple-300/40">/</span>
+            <span className="text-white font-semibold">Python Fundamentals</span>
           </nav>
-          <h1 className="text-3xl font-serif font-bold text-slate-950 tracking-tight">
+          <h1 className="text-3xl font-serif font-bold text-white tracking-tight">
             Credential Details
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-purple-200/80 mt-1">
             Your verified achievement with real skills and proven understanding.
           </p>
         </div>

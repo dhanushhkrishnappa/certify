@@ -44,15 +44,15 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setFilter("earned")}
-            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs transition-colors cursor-pointer ${
               filter === "earned"
-                ? "bg-[#5B4DF0] text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-200/50"
+                ? "bg-white text-[#1E0A3B] shadow-md font-bold"
+                : "text-purple-200/80 hover:text-white hover:bg-white/10 font-medium"
             }`}
           >
             Earned
             <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${
-              filter === "earned" ? "bg-white text-indigo-700" : "bg-slate-200 text-slate-600"
+              filter === "earned" ? "bg-[#1E0A3B] text-white" : "bg-white/20 text-purple-200"
             }`}>
               2
             </span>
@@ -60,28 +60,32 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
 
           <button
             onClick={() => setFilter("in-progress")}
-            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs transition-colors cursor-pointer ${
               filter === "in-progress"
-                ? "bg-[#5B4DF0] text-white shadow-xs font-semibold"
-                : "text-slate-600 hover:bg-slate-200/50"
+                ? "bg-white text-[#1E0A3B] shadow-md font-bold"
+                : "text-purple-200/80 hover:text-white hover:bg-white/10 font-medium"
             }`}
           >
             In Progress
-            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-semibold">
+            <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${
+              filter === "in-progress" ? "bg-[#1E0A3B] text-white" : "bg-white/20 text-purple-200"
+            }`}>
               1
             </span>
           </button>
 
           <button
             onClick={() => setFilter("all")}
-            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs transition-colors cursor-pointer ${
               filter === "all"
-                ? "bg-[#5B4DF0] text-white shadow-xs font-semibold"
-                : "text-slate-600 hover:bg-slate-200/50"
+                ? "bg-white text-[#1E0A3B] shadow-md font-bold"
+                : "text-purple-200/80 hover:text-white hover:bg-white/10 font-medium"
             }`}
           >
             All Courses
-            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-semibold">
+            <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${
+              filter === "all" ? "bg-[#1E0A3B] text-white" : "bg-white/20 text-purple-200"
+            }`}>
               6
             </span>
           </button>

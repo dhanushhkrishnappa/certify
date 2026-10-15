@@ -30,26 +30,26 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
   };
 
   return (
-    <div className="space-y-6 pb-12 font-sans text-[#19191d]">
+    <div className="space-y-6 pb-12 font-sans text-slate-100">
       {/* Page Header Title Row */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           {/* Breadcrumb Navigation */}
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-gray-500 font-medium mb-1">
-            <button onClick={() => onNavigate("credentials")} className="hover:text-gray-800 transition">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-purple-200/70 font-medium mb-1">
+            <button onClick={() => onNavigate("credentials")} className="hover:text-white transition">
               My Credentials
             </button>
-            <span className="text-gray-400 font-normal">&gt;</span>
-            <button onClick={() => onNavigate("course-details")} className="hover:text-gray-800 transition">
+            <span className="text-purple-300/40 font-normal">&gt;</span>
+            <button onClick={() => onNavigate("course-details")} className="hover:text-white transition">
               Python Fundamentals
             </button>
-            <span className="text-gray-400 font-normal">&gt;</span>
-            <span className="text-gray-900 font-semibold">Result</span>
+            <span className="text-purple-300/40 font-normal">&gt;</span>
+            <span className="text-white font-semibold">Result</span>
           </nav>
-          <h1 className="text-3xl font-['Newsreader',serif] font-bold text-gray-950 tracking-tight">
+          <h1 className="text-3xl font-['Newsreader',serif] font-bold text-white tracking-tight">
             Certification Result
           </h1>
-          <p className="text-sm text-gray-500 mt-1 font-normal">
+          <p className="text-sm text-purple-200/80 mt-1 font-normal">
             Here's how you performed and how your certification was earned.
           </p>
         </div>
@@ -91,7 +91,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
         {/* Left Primary Column */}
         <div className="col-span-12 xl:col-span-9 space-y-6">
           {/* Hero Celebration Card */}
-          <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#eef2fc] via-[#f5f6fb] to-[#faf8f5] border border-[#e1e6f5] p-7 shadow-sm">
+          <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#eef2fc] via-[#f5f6fb] to-white border border-[#e1e6f5] p-7 shadow-sm">
             <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               {/* Left Info Details */}
               <div className="max-w-xl space-y-4">
@@ -301,7 +301,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
               {/* Node 1 */}
-              <div className="bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
                   <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
                     LP
@@ -316,7 +316,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
               </div>
 
               {/* Node 2 */}
-              <div className="bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
                   <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">
                     CA
@@ -331,7 +331,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
               </div>
 
               {/* Node 3 */}
-              <div className="bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
                   <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center font-mono font-bold text-xs">
                     &lt;/&gt;
@@ -346,7 +346,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
               </div>
 
               {/* Node 4 */}
-              <div className="bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
                   <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
                     FA
@@ -361,7 +361,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
               </div>
 
               {/* Node 5 */}
-              <div className="bg-[#faf9f6] border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
                   <div className="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs">
                     VD
