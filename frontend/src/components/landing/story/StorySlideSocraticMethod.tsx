@@ -68,7 +68,7 @@ export const StorySlideSocraticMethod: React.FC<StorySlideSocraticMethodProps> =
                 LEARNER REASONING
               </span>
             </div>
-            <p className="text-[12px] sm:text-[13px] text-[#EDE4D8] font-normal leading-snug">
+            <p className="text-[12px] sm:text-[13px] text-purple-100 font-normal leading-snug">
               "It returns zero because there are no items to accumulate."
             </p>
           </motion.div>

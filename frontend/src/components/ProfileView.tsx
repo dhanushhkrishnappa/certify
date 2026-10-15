@@ -123,7 +123,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           ].map((skill) => (
             <span
               key={skill}
-              className="px-3 py-1.5 rounded-lg bg-[#F8F7F4] text-slate-800 text-xs font-medium border border-slate-200"
+              className="px-3 py-1.5 rounded-lg bg-purple-50/60 text-purple-950 text-xs font-medium border border-purple-200/60"
             >
               ✓ {skill}
             </span>

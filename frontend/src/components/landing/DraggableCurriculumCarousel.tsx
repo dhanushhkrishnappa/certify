@@ -85,13 +85,13 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Editorial Section Header with tight, balanced spacing to the carousel */}
         <div className="text-center max-w-3xl mx-auto mb-4 sm:mb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#E6CAA4]/20 bg-[#2A1D13]/40 backdrop-blur-md mb-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E6CAA4] animate-pulse" />
-            <span className="font-mono text-[10.5px] uppercase tracking-widest text-[#E6CAA4] font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-300/30 bg-purple-950/40 backdrop-blur-md mb-2.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse" />
+            <span className="font-mono text-[10.5px] uppercase tracking-widest text-purple-200 font-semibold">
               Curated Tracks
             </span>
           </div>
-          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
+          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-white font-normal leading-tight">
             Courses built for real understanding.
           </h2>
           <p className="mt-2.5 text-sm sm:text-base text-[#D1D5DB] font-normal max-w-2xl mx-auto leading-relaxed">

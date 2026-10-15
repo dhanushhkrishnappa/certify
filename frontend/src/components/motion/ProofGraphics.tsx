@@ -3,22 +3,22 @@ import React, { useState } from "react";
 /**
  * 01: BayesianCurveSvg
  * Rich SVG visualization showing prior Bayesian distribution shifting toward converged mastery P(L) >= 0.920.
- * Calibrated to the Espresso & Warm Cream/Lavender editorial palette.
+ * Calibrated to the Certify Midnight Purple (#1E0A3B / #15062B) & Crisp White/Lavender palette.
  */
 export const BayesianCurveSvg: React.FC = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
     <div
-      className="p-3.5 rounded-xl bg-[#22130B]/90 border border-[#5A3825]/60 transition-all duration-300"
+      className="p-3.5 rounded-xl bg-[#15062B]/90 border border-white/15 transition-all duration-300 shadow-sm"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <div className="flex justify-between items-center mb-1.5">
-        <span className="font-mono text-[11px] font-medium text-[#C4B39F]">
+        <span className="font-mono text-[11px] font-medium text-purple-200/80">
           Bayesian Prior P(L)
         </span>
-        <span className="font-mono text-[12px] font-bold text-[#CEA4F2]">
+        <span className="font-mono text-[12px] font-bold text-white">
           {hovered ? "0.942 (Mastered)" : "0.58 → 0.94"}
         </span>
       </div>
@@ -31,15 +31,15 @@ export const BayesianCurveSvg: React.FC = () => {
           preserveAspectRatio="none"
         >
           <defs>
-            <linearGradient id="bayesianGradientEspresso" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#CEA4F2" stopOpacity="0.10" />
-              <stop offset="60%" stopColor="#CEA4F2" stopOpacity="0.30" />
-              <stop offset="100%" stopColor="#F3DEBE" stopOpacity="0.55" />
+            <linearGradient id="bayesianGradientPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.10" />
+              <stop offset="60%" stopColor="#C4B5FD" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.55" />
             </linearGradient>
-            <linearGradient id="lineStrokeEspresso" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#8D6B4E" />
-              <stop offset="50%" stopColor="#CEA4F2" />
-              <stop offset="100%" stopColor="#F3DEBE" />
+            <linearGradient id="lineStrokePurple" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#7C3AED" />
+              <stop offset="50%" stopColor="#C4B5FD" />
+              <stop offset="100%" stopColor="#FFFFFF" />
             </linearGradient>
           </defs>
 
@@ -49,7 +49,7 @@ export const BayesianCurveSvg: React.FC = () => {
             y1="50"
             x2="240"
             y2="50"
-            stroke="#4A2E1D"
+            stroke="rgba(255, 255, 255, 0.12)"
             strokeWidth="1"
             strokeDasharray="3 3"
           />
@@ -78,7 +78,7 @@ export const BayesianCurveSvg: React.FC = () => {
           {/* Fill Area Under Curve */}
           <path
             d="M 10 50 Q 70 48 110 35 T 180 14 T 230 10 L 230 50 L 10 50 Z"
-            fill="url(#bayesianGradientEspresso)"
+            fill="url(#bayesianGradientPurple)"
             className="transition-all duration-700 ease-out"
             style={{
               transformOrigin: "bottom",
@@ -90,7 +90,7 @@ export const BayesianCurveSvg: React.FC = () => {
           <path
             d="M 10 50 Q 70 48 110 35 T 180 14 T 230 10"
             fill="none"
-            stroke="url(#lineStrokeEspresso)"
+            stroke="url(#lineStrokePurple)"
             strokeWidth="2.5"
             strokeLinecap="round"
           />
@@ -100,21 +100,21 @@ export const BayesianCurveSvg: React.FC = () => {
             cx="210"
             cy="11"
             r={hovered ? "5" : "3.5"}
-            fill="#F3DEBE"
+            fill="#FFFFFF"
             className="transition-all duration-300"
           />
           <circle
             cx="210"
             cy="11"
             r="8"
-            fill="#CEA4F2"
-            opacity="0.3"
+            fill="#C4B5FD"
+            opacity="0.4"
             className="animate-ping"
           />
         </svg>
       </div>
 
-      <div className="flex justify-between items-center mt-1 text-[10px] font-mono text-[#A89682]">
+      <div className="flex justify-between items-center mt-1 text-[10px] font-mono text-purple-200/70">
         <span>Slip: 0.05</span>
         <span>Guess: 0.10</span>
         <span className="text-emerald-400 font-bold flex items-center gap-1">
@@ -144,11 +144,11 @@ export const SandboxTerminalSvg: React.FC = () => {
   };
 
   return (
-    <div className="p-3.5 rounded-xl bg-[#1D1009]/95 border border-[#5A3825]/60 font-mono text-[12px]">
-      <div className="flex items-center justify-between text-[11px] text-[#A89682] border-b border-[#3E2416] pb-1 mb-2">
+    <div className="p-3.5 rounded-xl bg-[#15062B]/95 border border-white/15 font-mono text-[12px] shadow-sm">
+      <div className="flex items-center justify-between text-[11px] text-purple-200/70 border-b border-white/10 pb-1 mb-2">
         <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#E6CAA4]"></span>
-          <span className="text-[#EDE4D8]">python 3.11 sandbox</span>
+          <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+          <span className="text-white font-medium">python 3.11 sandbox</span>
         </span>
         <button
           onClick={handleRerun}
@@ -165,17 +165,17 @@ export const SandboxTerminalSvg: React.FC = () => {
         </button>
       </div>
 
-      <div className="text-[11px] text-[#D5C4B1] space-y-1 font-mono">
+      <div className="text-[11px] text-purple-100/90 space-y-1 font-mono">
         <div className="flex items-center justify-between">
           <span className="truncate">&gt; test_memory_layout...</span>
-          <span className="text-[#F3DEBE] font-bold ml-2">OK ({2 + (tick % 3)}ms)</span>
+          <span className="text-white font-bold ml-2">OK ({2 + (tick % 3)}ms)</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="truncate">&gt; test_closure_scope...</span>
-          <span className="text-[#F3DEBE] font-bold ml-2">OK ({1 + (tick % 2)}ms)</span>
+          <span className="text-white font-bold ml-2">OK ({1 + (tick % 2)}ms)</span>
         </div>
-        <div className="flex items-center justify-between border-t border-[#3E2416] pt-1 mt-1">
-          <span className="text-[#A89682]">&gt; invariant_assertions</span>
+        <div className="flex items-center justify-between border-t border-white/10 pt-1 mt-1">
+          <span className="text-purple-200/60">&gt; invariant_assertions</span>
           <span className="text-emerald-400 font-bold">14/14 PASS</span>
         </div>
       </div>
@@ -189,22 +189,22 @@ export const SandboxTerminalSvg: React.FC = () => {
  */
 export const VivaChamberWaveformSvg: React.FC = () => {
   return (
-    <div className="p-3.5 rounded-xl bg-[#22130B]/90 border border-[#5A3825]/60">
-      <div className="flex justify-between items-center text-[11px] font-mono text-[#A89682] mb-2">
+    <div className="p-3.5 rounded-xl bg-[#15062B]/90 border border-white/15 shadow-sm">
+      <div className="flex justify-between items-center text-[11px] font-mono text-purple-200/70 mb-2">
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#CEA4F2] animate-pulse"></span>
-          <span className="text-[#EDE4D8]">Socratic Viva Turn #2</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse"></span>
+          <span className="text-white font-medium">Socratic Viva Turn #2</span>
         </span>
-        <span className="text-[#CEA4F2] font-bold">Trade-Off Defense</span>
+        <span className="text-purple-300 font-bold">Trade-Off Defense</span>
       </div>
 
       {/* Audio Waveform Equalizer Bars */}
-      <div className="flex items-center justify-center gap-1 h-7 my-1 px-2 bg-[#1A0E08]/80 rounded-lg border border-[#44281A]">
+      <div className="flex items-center justify-center gap-1 h-7 my-1 px-2 bg-black/40 rounded-lg border border-white/10">
         {[0.4, 0.7, 1.0, 0.6, 0.9, 0.5, 0.8, 0.3, 0.7, 0.95, 0.4, 0.6, 0.85, 0.5].map(
           (baseHeight, i) => (
             <div
               key={i}
-              className="w-1 bg-[#CEA4F2] rounded-full transition-transform duration-300"
+              className="w-1 bg-[#C4B5FD] rounded-full transition-transform duration-300"
               style={{
                 height: "100%",
                 transform: `scaleY(${baseHeight})`,
@@ -216,7 +216,7 @@ export const VivaChamberWaveformSvg: React.FC = () => {
         )}
       </div>
 
-      <p className="text-[11px] text-[#CFC2B4] italic mt-2">
+      <p className="text-[11px] text-purple-100/80 italic mt-2">
         "Explain why generators preserve O(1) memory during high-volume stream ingestion."
       </p>
     </div>
@@ -229,10 +229,10 @@ export const VivaChamberWaveformSvg: React.FC = () => {
  */
 export const CryptographicSealSvg: React.FC = () => {
   return (
-    <div className="p-3.5 rounded-xl bg-[#22130B]/90 border border-[#5A3825]/60 font-mono">
+    <div className="p-3.5 rounded-xl bg-[#15062B]/90 border border-white/15 font-mono shadow-sm">
       <div className="flex items-center justify-between mb-1.5">
-        <div className="text-[10px] text-[#A89682] uppercase">Cryptographic Seal</div>
-        <div className="text-[10px] font-mono text-[#F3DEBE] font-bold bg-[#381F13] px-1.5 py-0.5 rounded border border-[#5A3825]">
+        <div className="text-[10px] text-purple-200/70 uppercase">Cryptographic Seal</div>
+        <div className="text-[10px] font-mono text-white font-bold bg-purple-900/60 px-1.5 py-0.5 rounded border border-purple-500/30">
           Ed25519 SHA-256
         </div>
       </div>
@@ -246,7 +246,7 @@ export const CryptographicSealSvg: React.FC = () => {
               cy="20"
               r="17"
               fill="none"
-              stroke="#E6CAA4"
+              stroke="#C4B5FD"
               strokeWidth="1.5"
               strokeDasharray="3 2"
               className="origin-center"
@@ -256,32 +256,32 @@ export const CryptographicSealSvg: React.FC = () => {
               cx="20"
               cy="20"
               r="13"
-              fill="#341E15"
-              stroke="#CEA4F2"
+              fill="#29124F"
+              stroke="#A78BFA"
               strokeWidth="1"
             />
           </svg>
-          <span className="material-symbols-outlined text-[15px] text-[#E6CAA4] absolute">
+          <span className="material-symbols-outlined text-[15px] text-white absolute">
             verified
           </span>
         </div>
 
         <div className="min-w-0">
-          <div className="text-[11.5px] text-[#FEF5E5] font-bold truncate">
+          <div className="text-[11.5px] text-white font-bold truncate">
             CERT-2026-PY-88914
           </div>
-          <div className="text-[9.5px] text-[#A89682] truncate font-mono">
+          <div className="text-[9.5px] text-purple-200/70 truncate font-mono">
             sig: 9f8a...3b21-ed25519
           </div>
         </div>
       </div>
 
-      <div className="mt-2 pt-2 border-t border-[#3E2416] flex items-center justify-between text-[10px] text-[#A89682]">
+      <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-purple-200/70">
         <span className="text-emerald-400 font-bold flex items-center gap-1">
           <span className="material-symbols-outlined text-[12px]">check_circle</span>
           Verified Dossier
         </span>
-        <span className="text-[#EDE4D8] font-medium">Foundation Tier</span>
+        <span className="text-white font-medium">Foundation Tier</span>
       </div>
     </div>
   );

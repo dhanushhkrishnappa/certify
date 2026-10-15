@@ -26,11 +26,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
         </div>
 
         <div className="flex items-center gap-6 shrink-0">
-          <div className="text-center p-4 bg-[#F8F7F4] rounded-xl border border-slate-200/80 w-28">
+          <div className="text-center p-4 bg-purple-50/50 rounded-xl border border-purple-100/60 w-28">
             <div className="text-2xl font-bold text-[#5B4DF0]">6 / 8</div>
             <div className="text-[10px] uppercase font-bold text-slate-500 mt-0.5">Modules Clear</div>
           </div>
-          <div className="text-center p-4 bg-[#F8F7F4] rounded-xl border border-slate-200/80 w-28">
+          <div className="text-center p-4 bg-purple-50/50 rounded-xl border border-purple-100/60 w-28">
             <div className="text-2xl font-bold text-emerald-600">0.892</div>
             <div className="text-[10px] uppercase font-bold text-slate-500 mt-0.5">Mean P(L)</div>
           </div>
@@ -39,7 +39,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
 
       {/* Module Breakdown Grid */}
       <div className="space-y-3">
-        <h3 className="text-base font-bold text-slate-900">Module Knowledge States</h3>
+        <h3 className="text-base font-bold text-white">Module Knowledge States</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
@@ -153,7 +153,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
                 {mod.concepts.map((c) => (
                   <span
                     key={c}
-                    className="text-[10px] px-2 py-0.5 rounded bg-[#F8F7F4] text-slate-600 border border-slate-200"
+                    className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200"
                   >
                     {c}
                   </span>
