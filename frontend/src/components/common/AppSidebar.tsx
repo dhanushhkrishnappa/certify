@@ -90,7 +90,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
   return (
     <aside
-      className={`min-h-screen bg-[#F5F2EB] border-r border-[#E9E4DA] flex flex-col justify-between py-6 shrink-0 fixed left-0 top-0 bottom-0 z-40 select-none transition-all duration-200 ${
+      className={`min-h-screen bg-[#15062B] border-r border-white/10 flex flex-col justify-between py-6 shrink-0 fixed left-0 top-0 bottom-0 z-40 select-none transition-all duration-200 ${
         collapsed ? "w-[68px] px-2 items-center" : "w-[240px] px-4"
       }`}
       style={{ width: collapsed ? "68px" : "240px" }}
@@ -115,7 +115,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <img
                 src="/certify-logo.png"
                 alt="Certify"
-                className="h-8 w-auto object-contain shrink-0 transition-transform hover:scale-[1.02]"
+                className="h-8 w-auto object-contain shrink-0 transition-transform hover:scale-[1.02] brightness-110 drop-shadow-[0_2px_8px_rgba(255,255,255,0.15)]"
               />
             )}
           </div>
@@ -123,7 +123,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           {onToggleCollapse && !collapsed && (
             <button
               onClick={onToggleCollapse}
-              className="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors"
+              className="text-purple-300 hover:text-white p-1 rounded-md transition-colors"
               title="Collapse sidebar"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -142,15 +142,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
                 title={collapsed ? item.label : undefined}
-                className={`w-full flex items-center rounded-xl transition-colors text-left ${
+                className={`w-full flex items-center rounded-xl transition-all text-left ${
                   collapsed ? "justify-center px-2 py-2.5" : "space-x-3 px-3 py-2.5"
                 } ${
                   isActive
-                    ? "bg-[#EBE5DA] text-slate-900 font-semibold shadow-xs"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-[#EEE9E0]"
+                    ? "bg-white text-[#1E0A3B] font-bold shadow-md"
+                    : "text-purple-200/70 hover:text-white hover:bg-white/10"
                 }`}
               >
-                <span className={isActive ? "text-slate-900" : "text-slate-500"}>{item.icon}</span>
+                <span className={isActive ? "text-[#1E0A3B]" : "text-purple-300/80"}>{item.icon}</span>
                 {!collapsed && <span>{item.label}</span>}
               </button>
             );
@@ -158,21 +158,23 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </nav>
 
         {/* Secondary Navigation Section */}
-        <div className="pt-4 border-t border-[#EAE3D6] space-y-1 text-sm font-medium w-full">
+        <div className="pt-4 border-t border-white/10 space-y-1 text-sm font-medium w-full">
           {/* AI Tutor */}
           <button
             onClick={() => onNavigate("studio")}
             title={collapsed ? "AI Tutor / Ask Certify" : undefined}
-            className={`w-full flex items-center rounded-xl transition-colors group text-left ${
+            className={`w-full flex items-center rounded-xl transition-all group text-left ${
               collapsed ? "justify-center px-2 py-2.5" : "space-x-3 px-3 py-2.5"
             } ${
               currentView === "studio"
-                ? "bg-purple-100/70 text-purple-900 font-semibold"
-                : "text-slate-700 hover:text-purple-700 hover:bg-purple-50/60"
+                ? "bg-white text-[#1E0A3B] font-bold shadow-md"
+                : "text-purple-200/80 hover:text-white hover:bg-white/10"
             }`}
           >
             <svg
-              className="w-5 h-5 text-purple-600 group-hover:scale-110 transition-transform shrink-0"
+              className={`w-5 h-5 group-hover:scale-110 transition-transform shrink-0 ${
+                currentView === "studio" ? "text-[#1E0A3B]" : "text-purple-300"
+              }`}
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -180,22 +182,22 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             >
               <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            {!collapsed && <span className="font-semibold text-slate-800">AI Tutor / Ask Certify</span>}
+            {!collapsed && <span className="font-semibold">AI Tutor / Ask Certify</span>}
           </button>
 
           {/* Profile */}
           <button
             onClick={() => onNavigate("profile")}
             title={collapsed ? "Profile" : undefined}
-            className={`w-full flex items-center rounded-xl transition-colors text-left ${
+            className={`w-full flex items-center rounded-xl transition-all text-left ${
               collapsed ? "justify-center px-2 py-2.5" : "space-x-3 px-3 py-2.5"
             } ${
               currentView === "profile"
-                ? "bg-[#EBE5DA] text-slate-900 font-semibold shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-[#EEE9E0]"
+                ? "bg-white text-[#1E0A3B] font-bold shadow-md"
+                : "text-purple-200/70 hover:text-white hover:bg-white/10"
             }`}
           >
-            <svg className="w-5 h-5 text-slate-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+            <svg className={`w-5 h-5 shrink-0 ${currentView === "profile" ? "text-[#1E0A3B]" : "text-purple-300/80"}`} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
               <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             {!collapsed && <span>Profile</span>}
@@ -205,15 +207,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           <button
             onClick={() => onNavigate("settings")}
             title={collapsed ? "Settings" : undefined}
-            className={`w-full flex items-center rounded-xl transition-colors text-left ${
+            className={`w-full flex items-center rounded-xl transition-all text-left ${
               collapsed ? "justify-center px-2 py-2.5" : "space-x-3 px-3 py-2.5"
             } ${
               currentView === "settings"
-                ? "bg-[#EBE5DA] text-slate-900 font-semibold shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-[#EEE9E0]"
+                ? "bg-white text-[#1E0A3B] font-bold shadow-md"
+                : "text-purple-200/70 hover:text-white hover:bg-white/10"
             }`}
           >
-            <svg className="w-5 h-5 text-slate-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+            <svg className={`w-5 h-5 shrink-0 ${currentView === "settings" ? "text-[#1E0A3B]" : "text-purple-300/80"}`} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
               <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -228,7 +230,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         {collapsed && onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className="w-full flex justify-center text-slate-400 hover:text-slate-700 p-2 rounded-md transition-colors"
+            className="w-full flex justify-center text-purple-300 hover:text-white p-2 rounded-md transition-colors"
             title="Expand sidebar"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -239,13 +241,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
         {/* Motivational banner dark card (Expanded only) */}
         {!collapsed && (
-          <div className="sidebar-art-bg rounded-2xl p-4 text-white shadow-md relative">
-            <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <path d="M0,80 C30,60 70,100 100,70 L100,100 L0,100 Z" fill="#F97316" />
-              <path d="M0,90 C40,75 60,95 100,85 L100,100 L0,100 Z" fill="#E11D48" />
-            </svg>
+          <div className="rounded-2xl p-4 bg-white/5 border border-white/10 text-white shadow-md relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-[13px] font-semibold tracking-tight leading-snug text-neutral-100">
+              <p className="text-[13px] font-semibold tracking-tight leading-snug text-purple-100">
                 Knowledge<br />builds brighter<br />futures.
               </p>
             </div>
@@ -261,22 +259,22 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         >
           <div className="flex items-center space-x-2.5 overflow-hidden">
             <div
-              className="w-9 h-9 rounded-full bg-[#202128] text-white font-bold text-xs flex items-center justify-center tracking-tight shadow-inner ring-1 ring-white/20 shrink-0"
+              className="w-9 h-9 rounded-full bg-[#7C3AED] text-white font-bold text-xs flex items-center justify-center tracking-tight shadow-md ring-2 ring-white/20 shrink-0"
               title={displayName}
             >
               {getInitials(displayName, displayEmail)}
             </div>
             {!collapsed && (
               <div className="overflow-hidden">
-                <h4 className="text-xs font-bold text-slate-900 leading-tight truncate">{displayName}</h4>
-                <p className="text-[10px] text-slate-500 truncate max-w-[110px]">{displayEmail}</p>
+                <h4 className="text-xs font-bold text-white leading-tight truncate">{displayName}</h4>
+                <p className="text-[10px] text-purple-300/80 truncate max-w-[110px]">{displayEmail}</p>
               </div>
             )}
           </div>
           {!collapsed && (
             <button
               onClick={onLogout}
-              className="text-slate-400 hover:text-slate-700 p-1 transition-colors"
+              className="text-purple-300 hover:text-white p-1 transition-colors"
               title="Log out"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

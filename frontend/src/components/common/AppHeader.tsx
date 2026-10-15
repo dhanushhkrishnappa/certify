@@ -47,19 +47,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {!hideGreeting && (
         <div>
           {breadcrumbs && breadcrumbs.length > 0 ? (
-            <nav className="flex items-center space-x-2 text-xs text-slate-400 mb-1">
+            <nav className="flex items-center space-x-2 text-xs text-purple-200/60 mb-1">
               {breadcrumbs.map((crumb, idx) => (
                 <React.Fragment key={idx}>
                   {idx > 0 && <span>/</span>}
                   {crumb.onClick ? (
                     <button
                       onClick={crumb.onClick}
-                      className="hover:text-slate-800 transition-colors cursor-pointer"
+                      className="hover:text-white transition-colors cursor-pointer"
                     >
                       {crumb.label}
                     </button>
                   ) : (
-                    <span className="font-semibold text-slate-700">{crumb.label}</span>
+                    <span className="font-semibold text-purple-100">{crumb.label}</span>
                   )}
                 </React.Fragment>
               ))}
@@ -67,15 +67,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           ) : null}
 
           {title ? (
-            <h1 className="text-3xl lg:text-[34px] font-serif font-semibold text-[#181d27] tracking-tight">
+            <h1 className="text-3xl lg:text-[34px] font-serif font-semibold text-white tracking-tight">
               {title}
             </h1>
           ) : (
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
               Good morning, {displayName} <span className="text-xl">👋</span>
             </h1>
           )}
-          <p className="text-xs font-medium text-slate-500 mt-0.5">
+          <p className="text-xs font-medium text-purple-200/70 mt-0.5">
             {subtitle || "Keep learning. Real understanding creates real opportunities."}
           </p>
         </div>
@@ -84,7 +84,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Universal Search Bar */}
       <div className={`flex-1 ${hideGreeting ? "max-w-xl" : "max-w-md mx-2"}`}>
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-purple-200/60">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -92,7 +92,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <input
             value={searchQuery}
             onChange={handleSearchChange}
-            className="w-full pl-9 pr-4 py-2 bg-[#EEE9DF] border-0 rounded-full text-xs placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#5B4DF0] focus:bg-white transition-all shadow-inner"
+            className="w-full pl-9 pr-4 py-2 bg-white/10 border border-white/15 rounded-full text-xs placeholder-purple-200/50 text-white focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white focus:text-slate-900 transition-all shadow-inner"
             placeholder={title ? "Search courses, concepts or skills..." : "Search courses, concepts or ask anything..."}
             type="text"
           />
@@ -102,7 +102,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Header Right: Academic Motto, Notification Bell, User Avatar */}
       <div className="flex items-center space-x-4 shrink-0">
         <div className="text-right hidden xl:block">
-          <p className="text-[11px] italic font-serif text-slate-600 leading-snug">
+          <p className="text-[11px] italic font-serif text-purple-200/70 leading-snug">
             “A certified you,<br />a more capable tomorrow.”
           </p>
         </div>
@@ -115,13 +115,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               if (unreadNotifications > 0) setUnreadNotifications(0);
             }}
             aria-label="Notifications"
-            className="relative p-2 text-slate-600 hover:text-slate-900 bg-[#EFE9DF] rounded-full hover:bg-[#E5DFD4] transition-colors"
+            className="relative p-2 text-white hover:text-white bg-white/10 rounded-full hover:bg-white/20 border border-white/15 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             {unreadNotifications > 0 && (
-              <span className="absolute top-0 right-0 w-4 h-4 text-[9px] font-bold text-white bg-red-500 rounded-full flex items-center justify-center ring-2 ring-[#F8F7F4]">
+              <span className="absolute top-0 right-0 w-4 h-4 text-[9px] font-bold text-white bg-red-500 rounded-full flex items-center justify-center ring-2 ring-[#1E0A3B]">
                 {unreadNotifications}
               </span>
             )}
