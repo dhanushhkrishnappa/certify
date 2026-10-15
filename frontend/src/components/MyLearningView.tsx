@@ -132,46 +132,46 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
           {/* In Progress Tabs and Active Course Card */}
           <section className="space-y-4" data-purpose="course-status-filters-and-list">
             {/* Filter Pills */}
-            <div className="flex items-center gap-6 text-xs border-b border-transparent pb-1">
+            <div className="flex items-center gap-6 text-xs border-b border-white/10 pb-1">
               <button
                 onClick={() => setActiveTab("in-progress")}
                 className={`flex items-center gap-1.5 pb-1 transition-colors cursor-pointer ${
                   activeTab === "in-progress"
-                    ? "font-bold text-[#121316] border-b-2 border-[#121316]"
-                    : "text-[#676b74] font-medium hover:text-black"
+                    ? "font-bold text-white border-b-2 border-white"
+                    : "text-purple-200/70 font-medium hover:text-white"
                 }`}
               >
                 <span>In Progress</span>
-                <span className="w-4 h-4 rounded-full bg-[#dfd9ce] text-[10px] flex items-center justify-center font-bold">
+                <span className="w-4 h-4 rounded-full bg-white/20 text-white text-[10px] flex items-center justify-center font-bold">
                   1
                 </span>
               </button>
               <button
                 onClick={() => setActiveTab("completed")}
-                className={`transition-colors cursor-pointer ${
+                className={`transition-colors cursor-pointer pb-1 ${
                   activeTab === "completed"
-                    ? "font-bold text-[#121316] border-b-2 border-[#121316] pb-1"
-                    : "text-[#676b74] font-medium hover:text-black"
+                    ? "font-bold text-white border-b-2 border-white"
+                    : "text-purple-200/70 font-medium hover:text-white"
                 }`}
               >
                 Completed
               </button>
               <button
                 onClick={() => setActiveTab("skills")}
-                className={`transition-colors cursor-pointer ${
+                className={`transition-colors cursor-pointer pb-1 ${
                   activeTab === "skills"
-                    ? "font-bold text-[#121316] border-b-2 border-[#121316] pb-1"
-                    : "text-[#676b74] font-medium hover:text-black"
+                    ? "font-bold text-white border-b-2 border-white"
+                    : "text-purple-200/70 font-medium hover:text-white"
                 }`}
               >
                 Skills
               </button>
               <button
                 onClick={() => setActiveTab("certificates")}
-                className={`transition-colors cursor-pointer ${
+                className={`transition-colors cursor-pointer pb-1 ${
                   activeTab === "certificates"
-                    ? "font-bold text-[#121316] border-b-2 border-[#121316] pb-1"
-                    : "text-[#676b74] font-medium hover:text-black"
+                    ? "font-bold text-white border-b-2 border-white"
+                    : "text-purple-200/70 font-medium hover:text-white"
                 }`}
               >
                 Certificates

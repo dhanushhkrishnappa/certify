@@ -173,16 +173,16 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             onClick={() => setActiveFilter("all")}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
               activeFilter === "all"
-                ? "bg-[#eee9df] text-indigo-700 shadow-xs"
-                : "text-slate-600 hover:bg-black/5"
+                ? "bg-white text-[#1E0A3B] font-bold shadow-md"
+                : "text-purple-200/80 hover:text-white hover:bg-white/10"
             }`}
           >
             <span>All Courses</span>
             <span
               className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 activeFilter === "all"
-                  ? "bg-[#5244e2] text-white"
-                  : "bg-slate-200 text-slate-600"
+                  ? "bg-[#1E0A3B] text-white"
+                  : "bg-white/15 text-purple-200"
               }`}
             >
               {CURATED_CATALOG.length}
@@ -194,16 +194,16 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             onClick={() => setActiveFilter("in-progress")}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
               activeFilter === "in-progress"
-                ? "bg-[#eee9df] text-indigo-700 shadow-xs"
-                : "text-slate-600 hover:bg-black/5"
+                ? "bg-white text-[#1E0A3B] font-bold shadow-md"
+                : "text-purple-200/80 hover:text-white hover:bg-white/10"
             }`}
           >
             <span>In Progress</span>
             <span
               className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 activeFilter === "in-progress"
-                  ? "bg-[#5244e2] text-white"
-                  : "bg-slate-200 text-slate-600"
+                  ? "bg-[#1E0A3B] text-white"
+                  : "bg-white/15 text-purple-200"
               }`}
             >
               {inProgressCount}
@@ -215,16 +215,16 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             onClick={() => setActiveFilter("completed")}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
               activeFilter === "completed"
-                ? "bg-[#eee9df] text-indigo-700 shadow-xs"
-                : "text-slate-600 hover:bg-black/5"
+                ? "bg-white text-[#1E0A3B] font-bold shadow-md"
+                : "text-purple-200/80 hover:text-white hover:bg-white/10"
             }`}
           >
             <span>Completed</span>
             <span
               className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 activeFilter === "completed"
-                  ? "bg-[#5244e2] text-white"
-                  : "bg-slate-200 text-slate-600"
+                  ? "bg-[#1E0A3B] text-white"
+                  : "bg-white/15 text-purple-200"
               }`}
             >
               {completedCount}
@@ -570,12 +570,12 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       {/* END: Course Cards Grid */}
 
       {/* BEGIN: Pagination Footer */}
-      <footer className="mt-8 pt-4 pb-2 flex items-center justify-between text-xs text-slate-500" data-purpose="pagination-footer">
+      <footer className="mt-8 pt-4 pb-2 flex items-center justify-between text-xs text-purple-200/80" data-purpose="pagination-footer">
         <div>Showing {filteredCourses.length} courses</div>
         <nav aria-label="Pagination" className="flex items-center gap-1.5">
           <button
             aria-label="Previous page"
-            className="w-7 h-7 rounded-[8px] border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-[8px] border border-white/15 bg-white/10 hover:bg-white/20 flex items-center justify-center text-purple-200 hover:text-white transition-colors cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -583,13 +583,13 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           </button>
           <button
             aria-current="page"
-            className="w-7 h-7 rounded-[8px] bg-[#ede9df] text-slate-900 font-semibold flex items-center justify-center text-xs"
+            className="w-7 h-7 rounded-[8px] bg-white text-[#1E0A3B] font-bold shadow-md flex items-center justify-center text-xs"
           >
             1
           </button>
           <button
             aria-label="Next page"
-            className="w-7 h-7 rounded-[8px] border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-[8px] border border-white/15 bg-white/10 hover:bg-white/20 flex items-center justify-center text-purple-200 hover:text-white transition-colors cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -628,7 +628,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               {activeModalCourse.summary}
             </p>
 
-            <div className="p-3 bg-[#FAF8F5] rounded-[10px] border border-slate-200 text-xs space-y-2">
+            <div className="p-3 bg-slate-50 rounded-[10px] border border-slate-200 text-xs space-y-2">
               <h4 className="font-bold text-slate-800">Defensible Certification Pipeline</h4>
               <p className="text-[11px] text-slate-500 leading-relaxed">
                 Complete all syllabus chapters, verify hands-on execution in interactive sandboxes, and defend your codebase in an oral AI Viva to earn your verified credential.
