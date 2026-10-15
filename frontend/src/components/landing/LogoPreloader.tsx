@@ -10,7 +10,7 @@ export interface LogoPreloaderProps {
     alt?: string;
   };
   /**
-   * Background color of the preloader overlay (defaults to deep espresso)
+   * Background color of the preloader overlay (defaults to pure solid black #000000)
    */
   backgroundColor?: string;
   /**
@@ -62,18 +62,17 @@ export interface LogoPreloaderProps {
 /**
  * LogoPreloader
  *
- * Direct React adaptation of Framer Logo Pre-loader component:
- * https://framer.com/m/LogoPreloader-LQx6.js@GZIcrs0EE9lUY3jQTNPV
- *
- * Sequence:
- * 1. Init (t=0..50ms): Logo positioned below (+80px), hidden.
- * 2. Loading (t=50ms..duration): Logo animates up to center (translateY: 0), opacity: 1.
- * 3. LogoOut (t=duration..+700ms): Logo animates up (-80px), fades to 0. Background fades to 0.
- * 4. Done (t=duration+750ms): Overlay unmounts completely, normal interaction restored.
+ * Full-screen solid opaque black preloader with synchronized logo and background exit transition:
+ * 1. Init (t=0..50ms): Solid opaque black screen (#000000, 100vw, 100dvh, z-99999). Logo hidden below (+70px).
+ * 2. Entrance (t=50ms..750ms): Logo animates smoothly upward to center (translateY: 0), opacity: 1.
+ * 3. Hold (t=750ms..1850ms): Logo holds steadily in center of solid black screen.
+ * 4. Exit (t=1850ms..2600ms): Logo and solid black screen fade out TOGETHER in coordinated lockstep over 750ms.
+ *    Logo does not jump or move during exit. Underlying landing page reveals smoothly.
+ * 5. Done (t=2600ms): Overlay unmounts completely, scrolling and pointer interaction restored.
  */
 export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
   logo = { src: "/certify-logo.png", alt: "Certify" },
-  backgroundColor = "#0B0604", // Deep espresso
+  backgroundColor = "#000000", // Solid black background
   duration = 1.8,
   logoSize = 72,
   videoFile = "",
@@ -89,21 +88,28 @@ export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
   const isReduced = prefersReducedMotion();
   const preloaderId = useId();
 
+  // Scroll to top immediately on preloader mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   useEffect(() => {
     if (isReduced) {
-      // Reduced motion: skip 80px travel, run short gentle fade
+      // Reduced motion: skip 70px travel, run gentle synchronized fade
       const t0 = setTimeout(() => {
         startTransition(() => setPhase("loading"));
       }, 20);
       const t1 = setTimeout(() => {
         startTransition(() => setPhase("logoOut"));
-      }, 350);
+      }, 700);
       const t2 = setTimeout(() => {
         startTransition(() => {
           setPhase("done");
           onComplete?.();
         });
-      }, 650);
+      }, 1050);
 
       return () => {
         clearTimeout(t0);
@@ -126,7 +132,7 @@ export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
         setPhase("done");
         onComplete?.();
       });
-    }, duration * 1000 + 750);
+    }, duration * 1000 + 50 + 750);
 
     return () => {
       clearTimeout(t0);
@@ -172,7 +178,7 @@ export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
     logoTranslateY = 0;
     if (phase === "init") logoOpacity = 0;
     else if (phase === "loading") logoOpacity = 1;
-    else if (phase === "logoOut") logoOpacity = 0;
+    else if (phase === "logoOut") logoOpacity = 1; // Fades out with parent overlay
   } else {
     if (phase === "init") {
       logoTranslateY = 70;
@@ -181,16 +187,20 @@ export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
       logoTranslateY = 0;
       logoOpacity = 1;
     } else if (phase === "logoOut") {
-      logoTranslateY = -70;
-      logoOpacity = 0;
+      // The logo remains centered and does NOT jump or move during exit
+      logoTranslateY = 0;
+      logoOpacity = 1; // Fades out together with parent overlay in synchronized lockstep
     }
   }
 
+  // Overlay opacity: 1 during init, loading, and hold; fades out to 0 during logoOut
   const bgOpacity = phase === "logoOut" ? 0 : 1;
-  const currentEasing = phase === "logoOut" ? logoOutEasing : logoInEasing;
-  const transition = isReduced
+  const logoTransition = isReduced
     ? "opacity 0.25s ease-out"
-    : `transform 0.7s ${currentEasing}, opacity 0.7s ${currentEasing}`;
+    : `transform 0.7s ${logoInEasing}, opacity 0.7s ${logoInEasing}`;
+  const overlayTransition = isReduced
+    ? "opacity 0.35s ease-out"
+    : `opacity 0.75s ${backgroundFadeEasing || logoOutEasing}`;
 
   // Dimensions
   const logoHeight = typeof logoSize === "number" ? `${logoSize}px` : logoSize;
@@ -199,31 +209,37 @@ export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
       ? `${Math.round(logoSize * 3.41)}px` // Natural aspect ratio of Certify wordmark (795/233)
       : "auto";
 
+  const resolvedBgColor = backgroundColor || "#000000";
+
   return (
     <div
       id={`certify-preloader-${preloaderId}`}
       data-testid="certify-logo-preloader"
+      className="certify-logo-preloader-root"
       style={{
         position: "fixed",
         inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         width: "100vw",
         height: "100vh",
+        backgroundColor: resolvedBgColor,
         background:
-          videoFile || backgroundImage.src
+          videoFile || backgroundImage?.src
             ? undefined
-            : `radial-gradient(ellipse at 50% 50%, #150C07 0%, ${backgroundColor} 75%, #060302 100%)`,
-        backgroundImage: !videoFile && backgroundImage.src ? `url(${backgroundImage.src})` : undefined,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+            : resolvedBgColor,
+        backgroundImage: !videoFile && backgroundImage?.src ? `url(${backgroundImage.src})` : undefined,
+        backgroundSize: backgroundImage?.src ? "cover" : undefined,
+        backgroundPosition: backgroundImage?.src ? "center" : undefined,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        transition: isReduced
-          ? "opacity 0.3s ease-out"
-          : `opacity 0.7s ${backgroundFadeEasing}`,
+        transition: overlayTransition,
         opacity: bgOpacity,
-        pointerEvents: phase === "logoOut" ? "none" : "all",
+        pointerEvents: phase === "logoOut" ? "none" : "auto",
         zIndex: 99999,
         overflow: "hidden",
         userSelect: "none",
@@ -250,14 +266,12 @@ export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
             objectFit: "cover",
             zIndex: 0,
             pointerEvents: "none",
-            opacity: bgOpacity,
-            transition: `opacity 0.7s ${backgroundFadeEasing}`,
           }}
           aria-hidden="true"
         />
       )}
 
-      {/* Animated Logo Container */}
+      {/* Animated Logo Container: Centered above solid black screen */}
       <div
         style={{
           position: "relative",
@@ -265,7 +279,7 @@ export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          transition,
+          transition: logoTransition,
           transform: `translateY(${logoTranslateY}px)`,
           opacity: logoOpacity,
           willChange: "transform, opacity",
