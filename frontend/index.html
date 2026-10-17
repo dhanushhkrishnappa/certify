@@ -16,6 +16,33 @@
       tailwind.config = {
         theme: {
           extend: {
+            colors: {
+              border: 'var(--border, #27272a)',
+              input: 'var(--input, #27272a)',
+              ring: 'var(--ring, #d4d4d8)',
+              background: 'var(--background, #09090b)',
+              foreground: 'var(--foreground, #fafafa)',
+              primary: {
+                DEFAULT: 'var(--primary, #fafafa)',
+                foreground: 'var(--primary-foreground, #18181b)',
+              },
+              secondary: {
+                DEFAULT: 'var(--secondary, #27272a)',
+                foreground: 'var(--secondary-foreground, #fafafa)',
+              },
+              muted: {
+                DEFAULT: 'var(--muted, #18181b)',
+                foreground: 'var(--muted-foreground, #a1a1aa)',
+              },
+              accent: {
+                DEFAULT: 'var(--accent, #27272a)',
+                foreground: 'var(--accent-foreground, #fafafa)',
+              },
+              card: {
+                DEFAULT: 'var(--card, #09090b)',
+                foreground: 'var(--card-foreground, #fafafa)',
+              },
+            },
             fontFamily: {
               sans: ['"Plus Jakarta Sans"', 'sans-serif'],
               serif: ['Newsreader', '"Playfair Display"', 'Georgia', 'serif'],
