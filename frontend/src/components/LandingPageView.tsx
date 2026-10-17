@@ -74,7 +74,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* Main Flow of Cinematic Sections */}
       <main className="relative z-10">
         {/* 1. Core Value Proposition / Scroll Manifesto (Interactive Text First) */}
-        <ManifestoSection />
+        <ManifestoSection isPreloaderActive={showPreloader} />
 
         {/* 2. Cinematic Narrative Slideshow */}
         <HeroSection
