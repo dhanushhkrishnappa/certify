@@ -73,14 +73,14 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
       {/* Main Flow of Cinematic Sections */}
       <main className="relative z-10">
-        {/* 1. Cinematic Hero */}
+        {/* 1. Core Value Proposition / Scroll Manifesto (Interactive Text First) */}
+        <ManifestoSection />
+
+        {/* 2. Cinematic Narrative Slideshow */}
         <HeroSection
           onExploreCourses={onExploreCourses}
           onBeginDiagnostic={onBeginDiagnostic}
         />
-
-        {/* 2. Core Value Proposition / Scroll Manifesto (3 Sentences) */}
-        <ManifestoSection />
 
         {/* 3. Emotional Core: LEARN -> DEMONSTRATE -> EARN */}
         <LearnedDemonstratedEarnedSection />

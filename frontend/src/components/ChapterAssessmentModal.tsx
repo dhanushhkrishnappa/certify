@@ -68,12 +68,16 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
       zIndex: 100,
       padding: 20
     }}>
-      <div className="glass-panel" style={{
+      <div style={{
         maxWidth: 760,
         width: "100%",
         maxHeight: "90vh",
         overflowY: "auto",
-        padding: 32
+        padding: 32,
+        background: "#111111",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+        borderRadius: 16,
+        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
       }}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
@@ -165,8 +169,8 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {questions.map((q, idx) => (
               <div key={q.id} style={{
-                background: "rgba(255, 255, 255, 0.02)",
-                border: "1px solid var(--border-subtle)",
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: 12,
                 padding: 20
               }}>

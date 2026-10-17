@@ -1,17 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { api } from "../services/api.js";
-import type { LearningSessionContext } from "../types/index.js";
+import type { LearningSessionContext, User } from "../types/index.js";
+import { UserProfileCard } from "./common/UserProfileCard.js";
 
 interface LearningStudioProps {
   courseSlug: string;
+  user?: User | null;
   onNavigateVerify?: (credentialId: string) => void;
   onNavigate?: (view: string) => void;
+  onLogout?: () => void;
 }
 
 export const LearningStudio: React.FC<LearningStudioProps> = ({
   courseSlug,
+  user,
   onNavigateVerify: _onNavigateVerify,
   onNavigate,
+  onLogout,
 }) => {
   const [sessionContext, setSessionContext] = useState<LearningSessionContext | null>(null);
   const [inputMessage, setInputMessage] = useState("");
@@ -20,7 +26,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
   const [streamError, setStreamError] = useState<string | null>(null);
   const [lastFailedMessage, setLastFailedMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"tutor" | "content" | "practice" | "notes" | "resources" | "discussion">("tutor");
-  const [studioTheme, setStudioTheme] = useState<"light" | "dark">("light"); // Screen 07 (light) vs Screen 08 (dark)
+  const [studioTheme, setStudioTheme] = useState<"light" | "dark">("dark"); // Default to dark theme matching platform sidepanel
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({ "mod-1": true });
   const [currentLessonIndex, setCurrentLessonIndex] = useState(2); // "Your First Program" (Lesson 3 of 4)
   const [playgroundCode, setPlaygroundCode] = useState(
@@ -28,6 +34,23 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
   );
   const [playgroundOutput, setPlaygroundOutput] = useState<string | null>("Hello, Dhanush!");
   const [isRunningCode, setIsRunningCode] = useState(false);
+  const [isProfileHovered, setIsProfileHovered] = useState(false);
+  const profileCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleProfileEnter = () => {
+    if (profileCloseTimeoutRef.current) {
+      clearTimeout(profileCloseTimeoutRef.current);
+      profileCloseTimeoutRef.current = null;
+    }
+    setIsProfileHovered(true);
+  };
+
+  const handleProfileLeave = () => {
+    profileCloseTimeoutRef.current = setTimeout(() => {
+      setIsProfileHovered(false);
+    }, 240);
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const msgCounterRef = useRef(0);
 
@@ -251,7 +274,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
 
   return (
     <div
-      className="min-h-[880px] w-full bg-[#1E0A3B] text-slate-100 transition-colors duration-200"
+      className="min-h-[880px] w-full bg-[#15062B] text-slate-100 transition-colors duration-200"
       data-purpose="ai-learning-studio-page"
     >
       {/* Top Header & Breadcrumb Bar */}
@@ -324,9 +347,75 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 3
               </span>
             </div>
-            {/* User Avatar */}
-            <div className="w-8 h-8 rounded-full bg-neutral-900 text-white font-semibold flex items-center justify-center text-xs shrink-0 shadow-xs">
-              DK
+            {/* User Avatar with Hover Card */}
+            <div
+              className="relative"
+              onMouseEnter={handleProfileEnter}
+              onMouseLeave={handleProfileLeave}
+            >
+              <div
+                onClick={() => onNavigate?.("profile")}
+                className={`w-8 h-8 rounded-full overflow-hidden transition-all duration-300 cursor-pointer shadow-xs shrink-0 ${
+                  isProfileHovered
+                    ? "ring-2 ring-purple-400/80 shadow-[0_0_14px_rgba(168,85,247,0.35)] scale-105"
+                    : "ring-1 ring-slate-400/50 hover:ring-white/50 hover:scale-105 active:scale-95"
+                }`}
+                title={user?.fullName || "Learner"}
+              >
+                <img
+                  src="/user-avatar.jpg"
+                  alt={user?.fullName || "Learner"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <AnimatePresence>
+                {isProfileHovered && (
+                  <motion.div
+                    key="studio-spotlight-profile-popup"
+                    initial={{
+                      opacity: 0,
+                      scale: 0.15,
+                      borderRadius: 28,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      borderRadius: 20,
+                    }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.15,
+                      borderRadius: 28,
+                      transition: {
+                        duration: 0.2,
+                        ease: [0.16, 1, 0.3, 1],
+                      },
+                    }}
+                    transition={{
+                      type: "spring",
+                      damping: 24,
+                      stiffness: 260,
+                      mass: 0.8,
+                    }}
+                    style={{
+                      transformOrigin: "top right",
+                    }}
+                    className="absolute right-0 top-full mt-2.5 z-50 select-none text-left"
+                    data-purpose="studio-user-spotlight-profile-card"
+                  >
+                    <div
+                      className="absolute -top-3 -right-2 -left-2 h-4 pointer-events-auto"
+                      aria-hidden="true"
+                    />
+                    <UserProfileCard
+                      user={user || null}
+                      onNavigate={onNavigate}
+                      onLogout={onLogout}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -424,7 +513,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
         <section
           className={`lg:col-span-3 rounded-2xl p-4 border shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-4 max-h-[860px] overflow-y-auto ${
             studioTheme === "dark"
-              ? "bg-[#13151A] border-neutral-800 text-neutral-200"
+              ? "bg-[#111111] border-white/[0.08] text-neutral-200"
               : "bg-white border-[#eae7df]"
           }`}
           data-purpose="course-content-sidebar"
@@ -555,7 +644,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
           <div
             className={`rounded-2xl p-5 border shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-6 ${
               studioTheme === "dark"
-                ? "bg-[#13151A] border-neutral-800"
+                ? "bg-[#111111] border-white/[0.08]"
                 : "bg-white border-[#eae7df]"
             }`}
           >
@@ -873,7 +962,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
           <div
             className={`rounded-2xl p-4 border shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3.5 ${
               studioTheme === "dark"
-                ? "bg-[#13151A] border-neutral-800"
+                ? "bg-[#111111] border-white/[0.08]"
                 : "bg-white border-[#eae7df]"
             }`}
           >
@@ -890,7 +979,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 <span>Lesson {currentLessonIndex + 1} of 4</span>
               </div>
               <div className={`w-full rounded-full h-1.5 overflow-hidden ${
-                studioTheme === "dark" ? "bg-neutral-800" : "bg-neutral-100"
+                studioTheme === "dark" ? "bg-white/[0.08]" : "bg-neutral-100"
               }`}>
                 <div className="bg-[#10b981] h-1.5 rounded-full" style={{ width: "75%" }}></div>
               </div>
@@ -902,7 +991,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 onClick={() => setCurrentLessonIndex((prev) => Math.max(0, prev - 1))}
                 className={`flex-1 flex items-center justify-center space-x-1 py-1.5 px-3 rounded-xl border font-medium text-xs transition active:scale-[0.98] cursor-pointer ${
                   studioTheme === "dark"
-                    ? "bg-[#171922] border-neutral-800 text-neutral-300 hover:bg-[#1E222D]"
+                    ? "bg-white/[0.04] border-white/[0.08] text-neutral-300 hover:bg-white/[0.08]"
                     : "border-[#eae7df] bg-white hover:bg-neutral-50 text-neutral-700"
                 }`}
               >
@@ -930,7 +1019,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 onClick={() => handleSendMessage("Can you explain this concept in depth?")}
                 className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition group shadow-2xs cursor-pointer ${
                   studioTheme === "dark"
-                    ? "bg-[#13151A] border-neutral-800 hover:border-[#cebdff]/40"
+                    ? "bg-[#111111] border-white/[0.08] hover:border-[#cebdff]/40"
                     : "bg-white border-[#eae7df] hover:border-purple-200 hover:bg-purple-50/40"
                 }`}
               >
@@ -950,7 +1039,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 onClick={() => handleSendMessage("Give me a comprehensive code example demonstrating this.")}
                 className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition group shadow-2xs cursor-pointer ${
                   studioTheme === "dark"
-                    ? "bg-[#13151A] border-neutral-800 hover:border-[#cebdff]/40"
+                    ? "bg-[#111111] border-white/[0.08] hover:border-[#cebdff]/40"
                     : "bg-white border-[#eae7df] hover:border-purple-200 hover:bg-purple-50/40"
                 }`}
               >
@@ -971,7 +1060,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 onClick={() => handleSendMessage("Give me a practice problem to test my current knowledge.")}
                 className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition group shadow-2xs cursor-pointer ${
                   studioTheme === "dark"
-                    ? "bg-[#13151A] border-neutral-800 hover:border-[#cebdff]/40"
+                    ? "bg-[#111111] border-white/[0.08] hover:border-[#cebdff]/40"
                     : "bg-white border-[#eae7df] hover:border-purple-200 hover:bg-purple-50/40"
                 }`}
               >
@@ -991,7 +1080,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 onClick={() => onNavigate && onNavigate("chapter-assessment")}
                 className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition group shadow-2xs cursor-pointer ${
                   studioTheme === "dark"
-                    ? "bg-[#13151A] border-neutral-800 hover:border-[#cebdff]/40"
+                    ? "bg-[#111111] border-white/[0.08] hover:border-[#cebdff]/40"
                     : "bg-white border-[#eae7df] hover:border-purple-200 hover:bg-purple-50/40"
                 }`}
               >
@@ -1013,7 +1102,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
           <div
             className={`rounded-2xl p-4 border shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3 ${
               studioTheme === "dark"
-                ? "bg-[#13151A] border-neutral-800"
+                ? "bg-[#111111] border-white/[0.08]"
                 : "bg-white border-[#eae7df]"
             }`}
             data-purpose="code-playground-widget"
@@ -1067,7 +1156,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
           <div
             className={`rounded-2xl p-4 border shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3 ${
               studioTheme === "dark"
-                ? "bg-[#13151A] border-neutral-800"
+                ? "bg-[#111111] border-white/[0.08]"
                 : "bg-white border-[#eae7df]"
             }`}
             data-purpose="learning-resources-widget"

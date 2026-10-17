@@ -2,11 +2,11 @@
 
 :root {
   /* Surface & Background Tokens */
-  --certify-bg-canvas: #1E0A3B;
-  --certify-bg-surface: #FFFFFF;
-  --certify-bg-surface-subtle: #29124F;
-  --certify-bg-surface-muted: #361A66;
-  --certify-bg-sidebar: #15062B;
+  --certify-bg-canvas: #15062B;
+  --certify-bg-surface: #111111;
+  --certify-bg-surface-subtle: #181818;
+  --certify-bg-surface-muted: #222222;
+  --certify-bg-sidebar: #111111;
   --certify-bg-code-ide: #13151A;
   --certify-bg-code-header: #1B1E26;
 
@@ -69,12 +69,12 @@
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
   --shadow-elevated: 0 12px 36px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
 
-  /* CERTIFY Master Translucent Surface System on #1E0A3B Canvas */
-  --certify-surface-strong: rgba(24, 10, 48, 0.92);
-  --certify-surface: rgba(30, 10, 59, 0.85);
-  --certify-surface-soft: rgba(42, 18, 78, 0.75);
-  --certify-surface-elevated: rgba(52, 24, 94, 0.85);
-  --certify-surface-hover: rgba(64, 30, 114, 0.90);
+  /* CERTIFY Master Translucent Surface System on #15062B Canvas */
+  --certify-surface-strong: rgba(18, 5, 36, 0.92);
+  --certify-surface: rgba(21, 6, 43, 0.85);
+  --certify-surface-soft: rgba(32, 10, 64, 0.75);
+  --certify-surface-elevated: rgba(40, 14, 78, 0.85);
+  --certify-surface-hover: rgba(50, 18, 96, 0.90);
   --certify-border: rgba(255, 255, 255, 0.12);
   --certify-border-strong: rgba(255, 255, 255, 0.22);
   --certify-border-subtle: rgba(255, 255, 255, 0.08);
@@ -101,7 +101,7 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #1E0A3B;
+  background-color: #15062B;
   color: #FFFFFF;
   min-height: 100vh;
   line-height: 1.6;

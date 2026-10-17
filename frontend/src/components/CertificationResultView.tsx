@@ -67,16 +67,16 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
                 alert("Link copied to clipboard!");
               }
             }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 text-xs font-semibold shadow-sm transition active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/[0.08] bg-[#111111] hover:bg-white/[0.05] text-white text-xs font-semibold shadow-sm transition active:scale-[0.98] cursor-pointer"
           >
-            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Share Result
           </button>
           <button
             onClick={handleViewCert}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5d3df3] hover:bg-[#4e2fe0] text-white text-xs font-semibold shadow-md shadow-indigo-200 transition active:scale-[0.98]"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5d3df3] hover:bg-[#4e2fe0] text-white text-xs font-semibold shadow-md transition active:scale-[0.98] cursor-pointer"
           >
             View Certificate
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
@@ -91,30 +91,30 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
         {/* Left Primary Column */}
         <div className="col-span-12 xl:col-span-9 space-y-6">
           {/* Hero Celebration Card */}
-          <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#eef2fc] via-[#f5f6fb] to-white border border-[#e1e6f5] p-7 shadow-sm">
+          <section className="relative overflow-hidden rounded-2xl bg-[#111111] border border-white/[0.08] p-7 shadow-sm">
             <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               {/* Left Info Details */}
               <div className="max-w-xl space-y-4">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-xl bg-[#0e1628] flex items-center justify-center shadow-sm p-2 flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-neutral-900 border border-white/[0.08] flex items-center justify-center shadow-sm p-2 flex-shrink-0">
                     <svg className="w-full h-full" fill="none" viewBox="0 0 110 110">
                       <path d="M54.1 2C27.5 2 29.1 13.5 29.1 13.5L29.2 25.4H55V29H18.2C1.7 29 0 42.4 0 42.4L0 55.4C0 67.5 10.7 68.3 10.7 68.3H18.1V58C18.1 45.4 29 45.6 29 45.6H54.4C64.6 45.6 64.9 35.8 64.9 35.8V11.8C64.9 11.8 66.8 2 54.1 2ZM39.6 9.4C43.1 9.4 46 12.3 46 15.8C46 19.3 43.1 22.2 39.6 22.2C36.1 22.2 33.2 19.3 33.2 15.8C33.2 12.3 36.1 9.4 39.6 9.4Z" fill="#387eb8" />
                       <path d="M55.9 108C82.5 108 80.9 96.5 80.9 96.5L80.8 84.6H55V81H91.8C108.3 81 110 67.6 110 67.6L110 54.6C110 42.5 99.3 41.7 99.3 41.7H91.9V52C91.9 64.6 81 64.4 81 64.4H55.6C45.4 64.4 45.1 74.2 45.1 74.2V98.2C45.1 98.2 43.2 108 55.9 108ZM70.4 100.6C66.9 100.6 64 97.7 64 94.2C64 90.7 66.9 87.8 70.4 87.8C73.9 87.8 76.8 90.7 76.8 94.2C76.8 97.7 73.9 100.6 70.4 100.6Z" fill="#ffe052" />
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-gray-900 leading-snug">
+                    <h2 className="text-xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-white leading-snug">
                       Python Fundamentals
                     </h2>
-                    <p className="text-xs text-gray-500 font-medium">Certification Successfully Earned</p>
+                    <p className="text-xs text-neutral-400 font-medium">Certification Successfully Earned</p>
                   </div>
                 </div>
 
                 <div className="pt-1">
-                  <h3 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                  <h3 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
                     Congratulations! <span className="text-2xl">🎉</span>
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                  <p className="text-sm text-neutral-300 mt-1 leading-relaxed">
                     You have demonstrated strong understanding and practical skills in Python Fundamentals.
                   </p>
                 </div>
@@ -122,7 +122,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     onClick={handleViewCert}
-                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#5d3df3] hover:bg-[#4e2fe0] text-white text-xs font-semibold shadow-md shadow-indigo-200 transition active:scale-[0.98]"
+                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#5d3df3] hover:bg-[#4e2fe0] text-white text-xs font-semibold shadow-md transition active:scale-[0.98] cursor-pointer"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
@@ -131,9 +131,9 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
                   </button>
                   <button
                     onClick={() => window.print()}
-                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-800 text-xs font-semibold shadow-sm transition active:scale-[0.98]"
+                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs font-semibold shadow-sm transition active:scale-[0.98] cursor-pointer"
                   >
-                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Download PDF
@@ -142,7 +142,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
               </div>
 
               {/* Right Medallion & Quote */}
-              <div className="flex items-center gap-6 lg:border-l lg:border-gray-200/80 lg:pl-8">
+              <div className="flex items-center gap-6 lg:border-l lg:border-white/[0.08] lg:pl-8">
                 {/* Golden Seal Medallion Graphic */}
                 <div className="relative flex flex-col items-center flex-shrink-0">
                   <div className="w-36 h-36 relative flex items-center justify-center">
@@ -184,11 +184,11 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
                 </div>
 
                 <div className="max-w-[160px] text-left">
-                  <p className="font-['Newsreader',serif] italic text-gray-800 text-sm leading-snug">
+                  <p className="font-['Newsreader',serif] italic text-neutral-200 text-sm leading-snug">
                     “Discipline today, expertise tomorrow.”
                   </p>
                   <div className="w-8 h-0.5 bg-amber-500 my-2"></div>
-                  <p className="text-[11px] text-gray-500 font-medium">Keep learning.<br />Keep building.</p>
+                  <p className="text-[11px] text-neutral-400 font-medium">Keep learning.<br />Keep building.</p>
                 </div>
               </div>
             </div>
@@ -197,66 +197,66 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
           {/* Performance Row (3 KPI Cards) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Card 1: Overall Result */}
-            <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm flex flex-col justify-between">
-              <h4 className="text-sm font-bold text-gray-900">Overall Result</h4>
+            <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-sm flex flex-col justify-between">
+              <h4 className="text-sm font-bold text-white">Overall Result</h4>
               <div className="relative w-32 h-32 mx-auto my-3 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" fill="transparent" r="50" stroke="#f1efe9" strokeWidth="9" />
+                  <circle cx="60" cy="60" fill="transparent" r="50" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="9" />
                   <circle cx="60" cy="60" fill="transparent" r="50" stroke="#00c48c" strokeDasharray="314.15" strokeDashoffset="40.8" strokeLinecap="round" strokeWidth="9" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-2xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-gray-900 tracking-tight leading-none">87%</span>
-                  <span className="text-[10px] text-gray-400 font-medium mt-1">Overall Score</span>
+                  <span className="text-2xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-white tracking-tight leading-none">87%</span>
+                  <span className="text-[10px] text-neutral-400 font-medium mt-1">Overall Score</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 p-2 bg-[#eafbf4] border border-[#bbf3dd] rounded-xl text-xs">
+              <div className="flex items-center gap-2.5 p-2 bg-emerald-950/40 border border-emerald-800/40 rounded-xl text-xs">
                 <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 text-[10px] font-bold">
                   ✓
                 </div>
                 <div className="leading-tight">
-                  <span className="font-bold text-emerald-800 text-[11px] block uppercase">PASSED</span>
-                  <span className="text-[10px] text-emerald-700">You've met all the requirements for certification at the Intermediate level.</span>
+                  <span className="font-bold text-emerald-400 text-[11px] block uppercase">PASSED</span>
+                  <span className="text-[10px] text-neutral-300">You've met all the requirements for certification at the Intermediate level.</span>
                 </div>
               </div>
             </div>
 
             {/* Card 2: Performance Breakdown */}
-            <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm flex flex-col justify-between">
-              <h4 className="text-sm font-bold text-gray-900 mb-2">Performance Breakdown</h4>
+            <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-sm flex flex-col justify-between">
+              <h4 className="text-sm font-bold text-white mb-2">Performance Breakdown</h4>
               <div className="space-y-3.5 my-auto">
                 <div>
-                  <div className="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                  <div className="flex justify-between text-xs font-semibold text-neutral-300 mb-1">
                     <span>Conceptual Understanding</span>
-                    <span className="text-gray-900">92%</span>
+                    <span className="text-white">92%</span>
                   </div>
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-white/[0.08] rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500 rounded-full" style={{ width: "92%" }}></div>
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                  <div className="flex justify-between text-xs font-semibold text-neutral-300 mb-1">
                     <span>Practical Implementation</span>
-                    <span className="text-gray-900">84%</span>
+                    <span className="text-white">84%</span>
                   </div>
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-white/[0.08] rounded-full overflow-hidden">
                     <div className="h-full bg-indigo-500 rounded-full" style={{ width: "84%" }}></div>
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                  <div className="flex justify-between text-xs font-semibold text-neutral-300 mb-1">
                     <span>Problem Solving &amp; Reasoning</span>
-                    <span className="text-gray-900">81%</span>
+                    <span className="text-white">81%</span>
                   </div>
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-white/[0.08] rounded-full overflow-hidden">
                     <div className="h-full bg-teal-500 rounded-full" style={{ width: "81%" }}></div>
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                  <div className="flex justify-between text-xs font-semibold text-neutral-300 mb-1">
                     <span>AI Viva / Defense</span>
-                    <span className="text-gray-900">88%</span>
+                    <span className="text-white">88%</span>
                   </div>
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-white/[0.08] rounded-full overflow-hidden">
                     <div className="h-full bg-amber-500 rounded-full" style={{ width: "88%" }}></div>
                   </div>
                 </div>
@@ -264,114 +264,114 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
             </div>
 
             {/* Card 3: Percentile Rank */}
-            <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm flex flex-col justify-between">
+            <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-sm flex flex-col justify-between">
               <div>
-                <h4 className="text-sm font-bold text-gray-900">Percentile Rank</h4>
+                <h4 className="text-sm font-bold text-white">Percentile Rank</h4>
                 <div className="mt-2">
-                  <h3 className="text-2xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-gray-900">Top 12%</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">You performed better than 88% of learners.</p>
+                  <h3 className="text-2xl font-bold font-['Plus_Jakarta_Sans',sans-serif] text-white">Top 12%</h3>
+                  <p className="text-xs text-neutral-400 mt-0.5">You performed better than 88% of learners.</p>
                 </div>
               </div>
               <div className="pt-4 flex flex-col items-center">
                 <div className="w-full flex items-end justify-between h-20 gap-1.5 px-2">
-                  <div className="w-full bg-gray-100 rounded-t h-[20%]"></div>
-                  <div className="w-full bg-gray-100 rounded-t h-[30%]"></div>
-                  <div className="w-full bg-gray-200 rounded-t h-[48%]"></div>
-                  <div className="w-full bg-gray-200 rounded-t h-[65%]"></div>
-                  <div className="w-full bg-indigo-100 rounded-t h-[80%]"></div>
+                  <div className="w-full bg-white/[0.06] rounded-t h-[20%]"></div>
+                  <div className="w-full bg-white/[0.06] rounded-t h-[30%]"></div>
+                  <div className="w-full bg-white/[0.1] rounded-t h-[48%]"></div>
+                  <div className="w-full bg-white/[0.1] rounded-t h-[65%]"></div>
+                  <div className="w-full bg-indigo-950/60 rounded-t h-[80%]"></div>
                   <div className="w-full bg-[#5d3df3] rounded-t h-[98%] shadow-sm relative"></div>
-                  <div className="w-full bg-indigo-100 rounded-t h-[86%]"></div>
-                  <div className="w-full bg-gray-200 rounded-t h-[68%]"></div>
+                  <div className="w-full bg-indigo-950/60 rounded-t h-[86%]"></div>
+                  <div className="w-full bg-white/[0.1] rounded-t h-[68%]"></div>
                 </div>
-                <div className="w-full border-t border-gray-200 mt-1 flex justify-center">
-                  <span className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider mt-1">You</span>
+                <div className="w-full border-t border-white/[0.08] mt-1 flex justify-center">
+                  <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mt-1">You</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Evaluation Components Pipeline (5 nodes) */}
-          <section className="bg-white rounded-2xl border border-gray-200/90 p-6 shadow-sm">
+          <section className="bg-[#111111] rounded-2xl border border-white/[0.08] p-6 shadow-sm">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-base font-bold text-gray-900">Evaluation Components</h3>
-              <span className="text-xs font-semibold text-[#5d3df3]">Verifiable Evidence</span>
+              <h3 className="text-base font-bold text-white">Evaluation Components</h3>
+              <span className="text-xs font-semibold text-indigo-400">Verifiable Evidence</span>
             </div>
-            <p className="text-xs text-gray-500 mb-5">
+            <p className="text-xs text-neutral-400 mb-5">
               Your certification is based on multiple checkpoints to ensure a comprehensive evaluation.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
               {/* Node 1 */}
-              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-blue-950/50 text-blue-400 flex items-center justify-center font-bold text-xs border border-blue-800/30">
                     LP
                   </div>
                   <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
                 </div>
                 <div className="mt-3">
-                  <p className="text-[11px] font-semibold text-gray-500">Learning Progress</p>
-                  <p className="text-lg font-bold text-gray-900 leading-tight">100%</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">8/8 modules</p>
+                  <p className="text-[11px] font-semibold text-neutral-400">Learning Progress</p>
+                  <p className="text-lg font-bold text-white leading-tight">100%</p>
+                  <p className="text-[10px] text-neutral-500 mt-0.5">8/8 modules</p>
                 </div>
               </div>
 
               {/* Node 2 */}
-              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-purple-950/50 text-purple-400 flex items-center justify-center font-bold text-xs border border-purple-800/30">
                     CA
                   </div>
                   <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
                 </div>
                 <div className="mt-3">
-                  <p className="text-[11px] font-semibold text-gray-500">Chapter Assessments</p>
-                  <p className="text-lg font-bold text-gray-900 leading-tight">88%</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">32/36 questions</p>
+                  <p className="text-[11px] font-semibold text-neutral-400">Chapter Assessments</p>
+                  <p className="text-lg font-bold text-white leading-tight">88%</p>
+                  <p className="text-[10px] text-neutral-500 mt-0.5">32/36 questions</p>
                 </div>
               </div>
 
               {/* Node 3 */}
-              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center font-mono font-bold text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-violet-950/50 text-violet-400 flex items-center justify-center font-mono font-bold text-xs border border-violet-800/30">
                     &lt;/&gt;
                   </div>
                   <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
                 </div>
                 <div className="mt-3">
-                  <p className="text-[11px] font-semibold text-gray-500">Practical Project</p>
-                  <p className="text-lg font-bold text-gray-900 leading-tight">85%</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">Project completed</p>
+                  <p className="text-[11px] font-semibold text-neutral-400">Practical Project</p>
+                  <p className="text-lg font-bold text-white leading-tight">85%</p>
+                  <p className="text-[10px] text-neutral-500 mt-0.5">Project completed</p>
                 </div>
               </div>
 
               {/* Node 4 */}
-              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-950/50 text-indigo-400 flex items-center justify-center font-bold text-xs border border-indigo-800/30">
                     FA
                   </div>
                   <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
                 </div>
                 <div className="mt-3">
-                  <p className="text-[11px] font-semibold text-gray-500">Final Assessment</p>
-                  <p className="text-lg font-bold text-gray-900 leading-tight">82%</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">41/50 questions</p>
+                  <p className="text-[11px] font-semibold text-neutral-400">Final Assessment</p>
+                  <p className="text-lg font-bold text-white leading-tight">82%</p>
+                  <p className="text-[10px] text-neutral-500 mt-0.5">41/50 questions</p>
                 </div>
               </div>
 
               {/* Node 5 */}
-              <div className="bg-slate-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-col justify-between">
+              <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3.5 flex flex-col justify-between">
                 <div className="flex items-start justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-sky-950/50 text-sky-400 flex items-center justify-center font-bold text-xs border border-sky-800/30">
                     VD
                   </div>
                   <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
                 </div>
                 <div className="mt-3">
-                  <p className="text-[11px] font-semibold text-gray-500">AI Viva / Defense</p>
-                  <p className="text-lg font-bold text-gray-900 leading-tight">88%</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">Completed</p>
+                  <p className="text-[11px] font-semibold text-neutral-400">AI Viva / Defense</p>
+                  <p className="text-lg font-bold text-white leading-tight">88%</p>
+                  <p className="text-[10px] text-neutral-500 mt-0.5">Completed</p>
                 </div>
               </div>
             </div>
@@ -380,19 +380,19 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
           {/* Detailed Performance Table & Skills */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Detailed Performance Table (8 cols) */}
-            <div className="lg:col-span-8 bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Detailed Performance</h3>
+            <div className="lg:col-span-8 bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-sm">
+              <h3 className="text-sm font-bold text-white mb-4">Detailed Performance</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="text-gray-400 font-medium border-b border-gray-100">
+                    <tr className="text-neutral-400 font-medium border-b border-white/[0.08]">
                       <th className="pb-2.5 font-medium">Component</th>
                       <th className="pb-2.5 font-medium">Score</th>
                       <th className="pb-2.5 font-medium">Status</th>
                       <th className="pb-2.5 font-medium">Details</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-white/[0.06]">
                     {[
                       { name: "Module 1: Introduction", score: "95%", count: "19/20" },
                       { name: "Module 2: Control Flow", score: "88%", count: "22/25" },
@@ -403,15 +403,15 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
                       { name: "Module 7: Modules & Packages", score: "78%", count: "14/18" },
                       { name: "Module 8: Final Project", score: "92%", count: "Project evaluated" },
                     ].map((m, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50/70 transition-colors">
-                        <td className="py-2.5 font-medium text-gray-800">{m.name}</td>
-                        <td className="py-2.5 font-semibold text-gray-900">{m.score}</td>
+                      <tr key={idx} className="hover:bg-white/[0.03] transition-colors">
+                        <td className="py-2.5 font-medium text-neutral-200">{m.name}</td>
+                        <td className="py-2.5 font-semibold text-white">{m.score}</td>
                         <td className="py-2.5">
-                          <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold text-[11px]">
-                            <span className="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px]">✓</span> Passed
+                          <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold text-[11px]">
+                            <span className="w-3.5 h-3.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/40 flex items-center justify-center text-[9px]">✓</span> Passed
                           </span>
                         </td>
-                        <td className="py-2.5 text-gray-500 font-mono text-[11px]">{m.count}</td>
+                        <td className="py-2.5 text-neutral-400 font-mono text-[11px]">{m.count}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -420,8 +420,8 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
             </div>
 
             {/* Skills Demonstrated Tag Pills (4 cols) */}
-            <div className="lg:col-span-4 bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Skills Demonstrated</h3>
+            <div className="lg:col-span-4 bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-sm">
+              <h3 className="text-sm font-bold text-white mb-4">Skills Demonstrated</h3>
               <div className="flex flex-wrap gap-2">
                 {[
                   "Python Syntax",
@@ -439,7 +439,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
                 ].map((skill, idx) => (
                   <span
                     key={idx}
-                    className="px-3 py-1.5 bg-[#f0effb] text-[#5542e6] rounded-xl text-xs font-medium hover:bg-[#e6e4f9] transition-colors cursor-default"
+                    className="px-3 py-1.5 bg-white/[0.06] text-purple-200 border border-white/[0.06] rounded-xl text-xs font-medium cursor-default"
                   >
                     {skill}
                   </span>
@@ -452,18 +452,18 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
         {/* Right Sidebar Rail */}
         <aside className="col-span-12 xl:col-span-3 space-y-5">
           {/* Card 1: Credential Information */}
-          <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-4">
-            <h4 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-3">Credential Information</h4>
+          <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-sm space-y-4">
+            <h4 className="text-sm font-bold text-white border-b border-white/[0.08] pb-3">Credential Information</h4>
             <div className="space-y-3.5 text-xs">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-[#5d3df3] flex items-center justify-center flex-shrink-0 font-bold font-mono">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0 font-bold font-mono">
                   #
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-gray-400 block text-[11px]">Credential ID</span>
+                  <span className="text-neutral-400 block text-[11px]">Credential ID</span>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="font-mono font-medium text-gray-900 text-xs truncate">{credentialId}</span>
-                    <button onClick={handleCopyId} className="text-gray-400 hover:text-gray-700 transition" title="Copy ID">
+                    <span className="font-mono font-medium text-white text-xs truncate">{credentialId}</span>
+                    <button onClick={handleCopyId} className="text-neutral-400 hover:text-white transition cursor-pointer" title="Copy ID">
                       <span className="text-xs">{copied ? "✓" : "📋"}</span>
                     </button>
                   </div>
@@ -471,50 +471,50 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-[#5d3df3] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
                   📚
                 </div>
                 <div>
-                  <span className="text-gray-400 block text-[11px]">Course</span>
-                  <p className="font-semibold text-gray-800 mt-0.5">Python Fundamentals</p>
+                  <span className="text-neutral-400 block text-[11px]">Course</span>
+                  <p className="font-semibold text-white mt-0.5">Python Fundamentals</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-[#5d3df3] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
                   🎖️
                 </div>
                 <div>
-                  <span className="text-gray-400 block text-[11px]">Certification Level</span>
-                  <p className="font-semibold text-gray-800 mt-0.5">Intermediate</p>
+                  <span className="text-neutral-400 block text-[11px]">Certification Level</span>
+                  <p className="font-semibold text-white mt-0.5">Intermediate</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-[#5d3df3] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
                   📅
                 </div>
                 <div>
-                  <span className="text-gray-400 block text-[11px]">Issue Date</span>
-                  <p className="font-semibold text-gray-800 mt-0.5">23 September 2026</p>
+                  <span className="text-neutral-400 block text-[11px]">Issue Date</span>
+                  <p className="font-semibold text-white mt-0.5">23 September 2026</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-emerald-950/50 text-emerald-400 border border-emerald-800/30 flex items-center justify-center flex-shrink-0">
                   ✓
                 </div>
                 <div>
-                  <span className="text-gray-400 block text-[11px]">Status</span>
-                  <p className="font-semibold text-emerald-700 mt-0.5">Verified &amp; Active</p>
+                  <span className="text-neutral-400 block text-[11px]">Status</span>
+                  <p className="font-semibold text-emerald-400 mt-0.5">Verified &amp; Active</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-gray-100">
+            <div className="pt-2 border-t border-white/[0.08]">
               <button
                 onClick={handleViewCert}
-                className="w-full py-2 bg-[#5d3df3] hover:bg-[#4e2fe0] text-white rounded-xl text-xs font-semibold shadow-sm transition active:scale-98"
+                className="w-full py-2 bg-[#5d3df3] hover:bg-[#4e2fe0] text-white rounded-xl text-xs font-semibold shadow-sm transition active:scale-98 cursor-pointer"
               >
                 View Full Certificate →
               </button>
@@ -522,14 +522,14 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
           </div>
 
           {/* Card 2: Next Steps */}
-          <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm space-y-3">
-            <h4 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2">Next Steps</h4>
-            <p className="text-xs text-gray-500 leading-relaxed">
+          <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-sm space-y-3">
+            <h4 className="text-sm font-bold text-white border-b border-white/[0.08] pb-2">Next Steps</h4>
+            <p className="text-xs text-neutral-300 leading-relaxed">
               Continue advancing your engineering mastery with specialized systems curricula.
             </p>
             <button
               onClick={() => onNavigate("catalog")}
-              className="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-semibold transition"
+              className="w-full py-2 bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white rounded-xl text-xs font-semibold transition cursor-pointer"
             >
               Explore Advanced Tracks →
             </button>

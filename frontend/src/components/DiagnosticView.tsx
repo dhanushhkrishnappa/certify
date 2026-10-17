@@ -128,7 +128,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
   };
 
   return (
-    <div className="bg-[#1E0A3B] text-slate-100 min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] antialiased selection:bg-[#C4B5FD] selection:text-[#1E0A3B]">
+    <div className="bg-[#15062B] text-slate-100 min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] antialiased selection:bg-[#C4B5FD] selection:text-[#15062B]">
       {/* Top Navigation Bar */}
       <header className="bg-[#15062B]/95 backdrop-blur sticky top-0 z-50 w-full border-b border-white/10">
         <div className="flex justify-between items-center w-full px-8 py-3 max-w-7xl mx-auto">
@@ -212,7 +212,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
           </div>
 
           {/* Active Probe Card */}
-          <div className="bg-white/[0.08] border border-white/15 rounded-xl p-8 space-y-7 backdrop-blur-xl relative shadow-2xl">
+          <div className="bg-[#111111] border border-white/[0.08] rounded-xl p-8 space-y-7 relative shadow-2xl">
             {/* Concept Tag Header */}
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center space-x-2">
@@ -264,7 +264,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
                         : "border-white/10 hover:border-white/25 hover:bg-white/[0.08]"
                     }`}
                   >
-                    <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 mt-0.5 mr-3.5 flex-shrink-0 bg-[#1E0A3B] ${
+                    <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 mt-0.5 mr-3.5 flex-shrink-0 bg-[#15062B] ${
                       isSelected ? "border-emerald-400" : "border-white/40"
                     }`}>
                       {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>}
@@ -319,7 +319,7 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
 
         {/* Calibration Footer / Status Deck */}
         <div className="pt-8 pb-4 space-y-4">
-          <div className="bg-white/[0.08] border border-white/15 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-xl">
+          <div className="bg-[#111111] border border-white/[0.08] rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
             {/* Left: Bayesian Realtime Indicator */}
             <div className="flex items-center space-x-3">
               <div className="relative flex items-center justify-center">
@@ -347,10 +347,10 @@ export const DiagnosticView: React.FC<DiagnosticViewProps> = ({
               </button>
               <button
                 onClick={handleContinue}
-                className="px-5 py-2.5 rounded-lg bg-white hover:bg-purple-50 text-[#1E0A3B] text-[14px] font-bold flex items-center space-x-2 transition-all duration-200 active:scale-[0.98] shadow-lg cursor-pointer"
+                className="px-5 py-2.5 rounded-lg bg-white hover:bg-purple-50 text-[#15062B] text-[14px] font-bold flex items-center space-x-2 transition-all duration-200 active:scale-[0.98] shadow-lg cursor-pointer"
               >
                 <span>Submit &amp; Continue Calibration</span>
-                <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-[#1E0A3B]/10 font-mono">↵</span>
+                <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-[#15062B]/10 font-mono">↵</span>
               </button>
             </div>
           </div>

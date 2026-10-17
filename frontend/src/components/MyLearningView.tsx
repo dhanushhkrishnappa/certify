@@ -179,10 +179,10 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
             </div>
 
             {/* In Progress Active Course Card */}
-            <div className="bg-white rounded-2xl border border-[#eae6df] p-4 shadow-xs hover:shadow-sm transition-shadow">
+            <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-xs hover:shadow-sm transition-shadow">
               <div className="flex flex-col md:flex-row items-center gap-5">
                 {/* Left Visual/Thumbnail (Computer Monitor with Python & Data Chart) */}
-                <div className="w-full md:w-48 h-32 bg-[#121623] rounded-xl shrink-0 relative overflow-hidden flex items-center justify-center border border-zinc-800">
+                <div className="w-full md:w-48 h-32 bg-[#0d0f17] rounded-xl shrink-0 relative overflow-hidden flex items-center justify-center border border-white/10">
                   <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-transparent"></div>
                   <div className="relative flex items-center justify-center">
                     <svg className="w-20 h-16 text-blue-400" fill="none" viewBox="0 0 100 80">
@@ -203,13 +203,13 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                     <div>
                       {/* Certified Track Partner Badge */}
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="font-black text-xs tracking-wider text-[#1f70c1] font-mono">CERTIFY</span>
-                        <span className="text-[11px] font-bold text-[#676b74] uppercase tracking-tight">ACADEMIC MASTERY</span>
+                        <span className="font-black text-xs tracking-wider text-sky-400 font-mono">CERTIFY</span>
+                        <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-tight">ACADEMIC MASTERY</span>
                       </div>
-                      <h3 className="text-base font-bold text-[#121316]">
+                      <h3 className="text-base font-bold text-white">
                         {activeTitle}
                       </h3>
-                      <p className="text-xs text-[#676b74] mt-0.5 font-normal">
+                      <p className="text-xs text-neutral-400 mt-0.5 font-normal">
                         Build and deploy real-world algorithms, architectures and verified solutions.
                       </p>
                     </div>
@@ -218,7 +218,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => onViewCourseDetails(activeSlug)}
-                        className="text-xs font-semibold text-[#5436d6] hover:underline cursor-pointer"
+                        className="text-xs font-semibold text-neutral-300 hover:text-white cursor-pointer"
                       >
                         Overview →
                       </button>
@@ -226,33 +226,33 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                   </div>
 
                   {/* Metadata Badges: Level, Modules, Duration */}
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-[#676b74] font-medium">
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-400 font-medium">
                     <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path d="M18 20V10M12 20V4M6 20v-6"></path>
                       </svg>
                       Foundational / Intermediate
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <rect height="16" rx="2" width="18" x="3" y="4"></rect>
                         <line x1="3" x2="21" y1="10" y2="10"></line>
                       </svg>
                       8 modules
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                       </svg>
                       36.5 hours
                     </span>
 
-                    {/* Continue Learning Lavender Pill */}
+                    {/* Continue Learning Pill */}
                     <div className="ml-auto">
                       <button
                         onClick={() => onContinueCourse(activeSlug)}
-                        className="bg-[#f2edfc] hover:bg-[#eae3fb] text-[#5436d6] font-semibold text-xs px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 transition-colors cursor-pointer active:scale-98"
+                        className="bg-white hover:bg-neutral-200 text-neutral-950 font-semibold text-xs px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 transition-colors cursor-pointer active:scale-98"
                       >
                         <span>Continue Learning</span>
                         <span className="text-sm">→</span>
@@ -262,10 +262,10 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
 
                   {/* Bottom Progress Bar Indicator */}
                   <div className="flex items-center gap-3 pt-1">
-                    <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-[#1ddbb2] rounded-full" style={{ width: `${progressPercent}%` }}></div>
                     </div>
-                    <span className="text-[11px] font-medium text-[#676b74]">{progressPercent}% complete</span>
+                    <span className="text-[11px] font-medium text-neutral-400">{progressPercent}% complete</span>
                   </div>
                 </div>
               </div>
@@ -275,17 +275,17 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
           {/* Recommended Learning Path Grid */}
           <section className="space-y-3 pt-2" data-purpose="recommended-courses-section">
             <div>
-              <h3 className="text-base font-bold text-[#121316]">More from your learning path</h3>
-              <p className="text-xs text-[#676b74] mt-0.5">Continue exploring recommended courses to strengthen your skills.</p>
+              <h3 className="text-base font-bold text-white">More from your learning path</h3>
+              <p className="text-xs text-neutral-400 mt-0.5">Continue exploring recommended courses to strengthen your skills.</p>
             </div>
 
             {/* 4 Courses Horizontal Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Card 1: Python Fundamentals */}
-              <article className="bg-white rounded-xl border border-[#eae6df] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
+              <article className="bg-[#111111] rounded-xl border border-white/[0.08] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
                 <div>
                   <div className="w-full h-24 bg-[#14161f] rounded-lg relative overflow-hidden flex items-center justify-center">
-                    <button className="absolute top-2 right-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                    <button className="absolute top-2 right-2 text-neutral-400 hover:text-white transition-colors cursor-pointer">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                       </svg>
@@ -298,24 +298,24 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                     </div>
                   </div>
                   <div className="mt-3">
-                    <h4 className="text-xs font-bold text-[#121316] leading-snug">Python Fundamentals</h4>
-                    <div className="mt-2.5 space-y-1 text-[11px] text-[#676b74] font-medium">
+                    <h4 className="text-xs font-bold text-white leading-snug">Python Fundamentals</h4>
+                    <div className="mt-2.5 space-y-1 text-[11px] text-neutral-400 font-medium">
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path d="M18 20V10M12 20V4M6 20v-6"></path>
                         </svg>
                         <span>Beginner</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <rect height="16" rx="2" width="18" x="3" y="4"></rect>
                         </svg>
                         <span>8 modules</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <circle cx="12" cy="12" r="10"></circle>
-                          <polyline points="12 6 12 12 16 14"></polyline>
+                          <polyline points="12 6 12 16 14"></polyline>
                         </svg>
                         <span>24 hours</span>
                       </div>
@@ -325,7 +325,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                 <div className="mt-4 pt-2">
                   <button
                     onClick={() => onViewCourseDetails("python-fundamentals")}
-                    className="w-full bg-[#f4effc] hover:bg-[#eae3fb] text-[#5436d6] text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    className="w-full bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
                   >
                     <span>Start Learning</span>
                     <span className="text-xs">→</span>
@@ -334,10 +334,10 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
               </article>
 
               {/* Card 2: Web Development Foundations */}
-              <article className="bg-white rounded-xl border border-[#eae6df] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
+              <article className="bg-[#111111] rounded-xl border border-white/[0.08] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
                 <div>
                   <div className="w-full h-24 bg-[#14161f] rounded-lg relative overflow-hidden flex items-center justify-center">
-                    <button className="absolute top-2 right-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                    <button className="absolute top-2 right-2 text-neutral-400 hover:text-white transition-colors cursor-pointer">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                       </svg>
@@ -349,22 +349,22 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                     </div>
                   </div>
                   <div className="mt-3">
-                    <h4 className="text-xs font-bold text-[#121316] leading-snug">Web Development Foundations</h4>
-                    <div className="mt-2.5 space-y-1 text-[11px] text-[#676b74] font-medium">
+                    <h4 className="text-xs font-bold text-white leading-snug">Web Development Foundations</h4>
+                    <div className="mt-2.5 space-y-1 text-[11px] text-neutral-400 font-medium">
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path d="M18 20V10M12 20V4M6 20v-6"></path>
                         </svg>
                         <span>Beginner</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <rect height="16" rx="2" width="18" x="3" y="4"></rect>
                         </svg>
                         <span>12 modules</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <circle cx="12" cy="12" r="10"></circle>
                           <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
@@ -376,7 +376,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                 <div className="mt-4 pt-2">
                   <button
                     onClick={() => onNavigate("catalog")}
-                    className="w-full bg-[#f4effc] hover:bg-[#eae3fb] text-[#5436d6] text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    className="w-full bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
                   >
                     <span>Start Learning</span>
                     <span className="text-xs">→</span>
@@ -385,10 +385,10 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
               </article>
 
               {/* Card 3: Generative AI for Developers */}
-              <article className="bg-white rounded-xl border border-[#eae6df] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
+              <article className="bg-[#111111] rounded-xl border border-white/[0.08] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
                 <div>
                   <div className="w-full h-24 bg-[#14161f] rounded-lg relative overflow-hidden flex items-center justify-center">
-                    <button className="absolute top-2 right-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                    <button className="absolute top-2 right-2 text-neutral-400 hover:text-white transition-colors cursor-pointer">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                       </svg>
@@ -402,22 +402,22 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                     </div>
                   </div>
                   <div className="mt-3">
-                    <h4 className="text-xs font-bold text-[#121316] leading-snug">Generative AI for Developers</h4>
-                    <div className="mt-2.5 space-y-1 text-[11px] text-[#676b74] font-medium">
+                    <h4 className="text-xs font-bold text-white leading-snug">Generative AI for Developers</h4>
+                    <div className="mt-2.5 space-y-1 text-[11px] text-neutral-400 font-medium">
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path d="M18 20V10M12 20V4M6 20v-6"></path>
                         </svg>
                         <span>Intermediate</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <rect height="16" rx="2" width="18" x="3" y="4"></rect>
                         </svg>
                         <span>10 modules</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <circle cx="12" cy="12" r="10"></circle>
                           <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
@@ -429,7 +429,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                 <div className="mt-4 pt-2">
                   <button
                     onClick={() => onNavigate("catalog")}
-                    className="w-full bg-[#f4effc] hover:bg-[#eae3fb] text-[#5436d6] text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    className="w-full bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
                   >
                     <span>Start Learning</span>
                     <span className="text-xs">→</span>
@@ -438,10 +438,10 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
               </article>
 
               {/* Card 4: Databases & SQL */}
-              <article className="bg-white rounded-xl border border-[#eae6df] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
+              <article className="bg-[#111111] rounded-xl border border-white/[0.08] p-3.5 flex flex-col justify-between shadow-xs hover:shadow transition-shadow group">
                 <div>
                   <div className="w-full h-24 bg-[#14161f] rounded-lg relative overflow-hidden flex items-center justify-center">
-                    <button className="absolute top-2 right-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                    <button className="absolute top-2 right-2 text-neutral-400 hover:text-white transition-colors cursor-pointer">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                       </svg>
@@ -453,22 +453,22 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                     </div>
                   </div>
                   <div className="mt-3">
-                    <h4 className="text-xs font-bold text-[#121316] leading-snug">Databases &amp; SQL</h4>
-                    <div className="mt-2.5 space-y-1 text-[11px] text-[#676b74] font-medium">
+                    <h4 className="text-xs font-bold text-white leading-snug">Databases &amp; SQL</h4>
+                    <div className="mt-2.5 space-y-1 text-[11px] text-neutral-400 font-medium">
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path d="M18 20V10M12 20V4M6 20v-6"></path>
                         </svg>
                         <span>Beginner</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <rect height="16" rx="2" width="18" x="3" y="4"></rect>
                         </svg>
                         <span>8 modules</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <svg className="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <circle cx="12" cy="12" r="10"></circle>
                           <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
@@ -480,7 +480,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                 <div className="mt-4 pt-2">
                   <button
                     onClick={() => onNavigate("catalog")}
-                    className="w-full bg-[#f4effc] hover:bg-[#eae3fb] text-[#5436d6] text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                    className="w-full bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-1.5 rounded-full inline-flex items-center justify-center gap-1 transition-colors cursor-pointer"
                   >
                     <span>Start Learning</span>
                     <span className="text-xs">→</span>
@@ -494,17 +494,17 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
         {/* Right 4-Column Block: Calendar & Stats Widgets */}
         <div className="lg:col-span-4 space-y-5">
           {/* Calendar Widget */}
-          <div className="bg-white rounded-2xl border border-[#eae6df] p-5 shadow-xs" data-purpose="calendar-widget">
+          <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-xs" data-purpose="calendar-widget">
             {/* Month Header with Arrows */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-[#121316]">{calendarMonth}</h3>
-              <div className="flex items-center gap-2 text-zinc-400">
-                <button aria-label="Previous Month" className="hover:text-black transition-colors p-1 cursor-pointer">
+              <h3 className="text-sm font-bold text-white">{calendarMonth}</h3>
+              <div className="flex items-center gap-2 text-neutral-400">
+                <button aria-label="Previous Month" className="hover:text-white transition-colors p-1 cursor-pointer">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                 </button>
-                <button aria-label="Next Month" className="hover:text-black transition-colors p-1 cursor-pointer">
+                <button aria-label="Next Month" className="hover:text-white transition-colors p-1 cursor-pointer">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
@@ -513,7 +513,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
             </div>
 
             {/* Calendar Days Header */}
-            <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-[#676b74] mb-2">
+            <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-neutral-400 mb-2">
               <span>Mo</span>
               <span>Tu</span>
               <span>We</span>
@@ -524,7 +524,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
             </div>
 
             {/* Calendar Dates Grid */}
-            <div className="grid grid-cols-7 text-center text-xs text-[#121316] gap-y-2 font-medium">
+            <div className="grid grid-cols-7 text-center text-xs text-neutral-300 gap-y-2 font-medium">
               <span className="text-transparent pointer-events-none">0</span>
               <span className="py-1">1</span>
               <span className="py-1">2</span>
@@ -549,7 +549,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
               <span className="py-1">21</span>
               <span className="py-1">22</span>
               <div className="flex items-center justify-center">
-                <span className="w-6 h-6 rounded-full bg-[#5b3ae2] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                <span className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs shadow-xs">
                   23
                 </span>
               </div>
@@ -563,45 +563,45 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
             </div>
 
             {/* Calendar Legend */}
-            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-[#eae6df]/60 text-[11px] text-[#676b74] font-medium">
+            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/[0.08] text-[11px] text-neutral-400 font-medium">
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#5b3ae2]"></span>
+                <span className="w-2 h-2 rounded-full bg-white"></span>
                 <span>Learning day</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-zinc-300"></span>
+                <span className="w-2 h-2 rounded-full bg-white/20"></span>
                 <span>Has activity</span>
               </div>
             </div>
           </div>
 
           {/* Last 4 Weeks Stats Widget */}
-          <div className="bg-white rounded-2xl border border-[#eae6df] p-5 shadow-xs" data-purpose="metrics-summary-widget">
-            <h3 className="text-xs font-bold text-[#121316] mb-4">Last 4 weeks</h3>
+          <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-xs" data-purpose="metrics-summary-widget">
+            <h3 className="text-xs font-bold text-white mb-4">Last 4 weeks</h3>
             <div className="grid grid-cols-3 gap-2 text-left">
               <div>
-                <div className="text-xl font-bold text-[#121316] tracking-tight">12</div>
-                <div className="text-[11px] text-[#676b74] leading-tight mt-1">Learning days</div>
+                <div className="text-xl font-bold text-white tracking-tight">12</div>
+                <div className="text-[11px] text-neutral-400 leading-tight mt-1">Learning days</div>
               </div>
               <div>
-                <div className="text-xl font-bold text-[#121316] tracking-tight">8</div>
-                <div className="text-[11px] text-[#676b74] leading-tight mt-1">Modules completed</div>
+                <div className="text-xl font-bold text-white tracking-tight">8</div>
+                <div className="text-[11px] text-neutral-400 leading-tight mt-1">Modules completed</div>
               </div>
               <div>
-                <div className="text-xl font-bold text-[#121316] tracking-tight">14.6</div>
-                <div className="text-[11px] text-[#676b74] leading-tight mt-1">Hours learned</div>
+                <div className="text-xl font-bold text-white tracking-tight">14.6</div>
+                <div className="text-[11px] text-neutral-400 leading-tight mt-1">Hours learned</div>
               </div>
             </div>
           </div>
 
           {/* Daily Goal Progress Widget */}
-          <div className="bg-white rounded-2xl border border-[#eae6df] p-5 shadow-xs" data-purpose="daily-goal-widget">
+          <div className="bg-[#111111] rounded-2xl border border-white/[0.08] p-5 shadow-xs" data-purpose="daily-goal-widget">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-bold text-[#121316]">Daily Goal</h3>
+              <h3 className="text-xs font-bold text-white">Daily Goal</h3>
               <button
                 type="button"
                 onClick={() => alert("Goal settings configured in user profile.")}
-                className="text-xs text-[#676b74] hover:text-black font-semibold transition-colors cursor-pointer"
+                className="text-xs text-neutral-400 hover:text-white font-semibold transition-colors cursor-pointer"
               >
                 Edit
               </button>
@@ -611,10 +611,9 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
               <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
                 <svg className="w-14 h-14 transform -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-zinc-100"
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     fill="none"
-                    stroke="currentColor"
+                    stroke="rgba(255, 255, 255, 0.08)"
                     strokeWidth="3.5"
                   ></path>
                   <path
@@ -627,13 +626,13 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
                     strokeWidth="3.5"
                   ></path>
                 </svg>
-                <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[#121316]">
+                <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
                   1/3
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-[#121316]">Keep going!</h4>
-                <p className="text-[11px] text-[#676b74] leading-relaxed mt-0.5">
+                <h4 className="text-xs font-bold text-white">Keep going!</h4>
+                <p className="text-[11px] text-neutral-400 leading-relaxed mt-0.5">
                   Complete 3 learning activities today.
                 </p>
               </div>
@@ -642,16 +641,16 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
 
           {/* Inspirational Quote Banner Card */}
           <div
-            className="rounded-2xl border border-purple-100 p-6 shadow-xs bg-[linear-gradient(135deg,#f5f2fd_0%,#ece8f9_100%)]"
+            className="rounded-2xl border border-white/[0.08] p-6 shadow-xs bg-[#111111]"
             data-purpose="inspirational-quote-card"
           >
             <div className="flex gap-3">
-              <span className="text-3xl text-purple-300 font-serif leading-none select-none">“</span>
+              <span className="text-3xl text-neutral-500 font-serif leading-none select-none">“</span>
               <div>
-                <p className="text-sm font-serif italic text-zinc-700 leading-relaxed">
+                <p className="text-sm font-serif italic text-neutral-200 leading-relaxed">
                   Small steps every day create extraordinary results.
                 </p>
-                <div className="w-8 h-0.5 bg-purple-300 mt-3 rounded-full"></div>
+                <div className="w-8 h-0.5 bg-neutral-600 mt-3 rounded-full"></div>
               </div>
             </div>
           </div>

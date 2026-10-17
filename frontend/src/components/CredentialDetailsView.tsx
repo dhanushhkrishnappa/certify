@@ -68,9 +68,9 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
         <div className="flex items-center gap-2.5">
           <button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm transition active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#111111] border border-white/[0.08] rounded-lg hover:bg-white/[0.05] shadow-sm transition active:scale-95 cursor-pointer"
           >
-            <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="18" cy="5" r="3" />
               <circle cx="6" cy="12" r="3" />
               <circle cx="18" cy="19" r="3" />
@@ -82,9 +82,9 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
 
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm transition active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#111111] border border-white/[0.08] rounded-lg hover:bg-white/[0.05] shadow-sm transition active:scale-95 cursor-pointer"
           >
-            <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
@@ -94,10 +94,10 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
 
           <button
             onClick={() => handleCopyId()}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#10141e] rounded-lg hover:bg-slate-900 shadow-sm transition active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#5B4DF0] hover:bg-[#4C3DE0] rounded-lg shadow-sm transition active:scale-95 cursor-pointer"
           >
             <span>{copied ? "Credential Copied!" : "Copy Credential ID"}</span>
-            <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-purple-200" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
           </button>
@@ -249,36 +249,36 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
           </div>
 
           {/* What This Credential Demonstrates Card */}
-          <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm" data-purpose="credential-evidence-card">
+          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm" data-purpose="credential-evidence-card">
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-600">
+              <div className="w-11 h-11 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <circle cx="12" cy="8" r="6" />
                   <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-slate-900 text-sm">What This Credential Demonstrates</h4>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                <h4 className="font-bold text-white text-sm">What This Credential Demonstrates</h4>
+                <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
                   This credential validates your ability to use Python to solve real-world problems, build practical applications, and apply core programming concepts with clarity and confidence.
                 </p>
 
                 {/* 4 Badges Row */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mt-4">
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/70 text-slate-700 text-xs font-medium">
-                    <span className="text-indigo-600">✓</span>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
+                    <span className="text-indigo-400">✓</span>
                     <span>8 Modules Completed</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/70 text-slate-700 text-xs font-medium">
-                    <span className="text-indigo-600">✓</span>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
+                    <span className="text-indigo-400">✓</span>
                     <span>3 Assessments Passed</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/70 text-slate-700 text-xs font-medium">
-                    <span className="text-indigo-600">✓</span>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
+                    <span className="text-indigo-400">✓</span>
                     <span>1 Project Completed</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/70 text-slate-700 text-xs font-medium">
-                    <span className="text-emerald-600">✓</span>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
+                    <span className="text-emerald-400">✓</span>
                     <span>AI Viva Cleared</span>
                   </div>
                 </div>
@@ -290,65 +290,65 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
         {/* Right Column (4 cols): Meta Sidebar */}
         <div className="xl:col-span-4 space-y-4" data-purpose="credential-meta-sidebar">
           {/* Verified Green Banner */}
-          <div className="bg-[#EBF9F1] border border-emerald-200/80 rounded-xl p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+          <div className="bg-[#111111] border border-emerald-500/30 rounded-xl p-4 flex items-center gap-3.5 shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-sm">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
             <div>
-              <h5 className="text-sm font-bold text-emerald-900 leading-tight">Verified Credential</h5>
-              <p className="text-[11.5px] text-emerald-800/90 leading-tight mt-0.5">
+              <h5 className="text-sm font-bold text-white leading-tight">Verified Credential</h5>
+              <p className="text-[11.5px] text-neutral-300 leading-tight mt-0.5">
                 This credential is officially issued by CERTIFY and can be verified publicly.
               </p>
             </div>
           </div>
 
           {/* Credential Overview Card */}
-          <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-            <h4 className="font-bold text-slate-900 text-sm">Credential Overview</h4>
+          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-4">
+            <h4 className="font-bold text-white text-sm">Credential Overview</h4>
             <div className="space-y-3.5">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 text-sm font-bold">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-sm font-bold">
                   PY
                 </div>
                 <div>
-                  <div className="text-[11px] text-slate-400 font-medium leading-none">Course</div>
-                  <div className="text-xs font-semibold text-slate-800 leading-snug mt-1">Python Fundamentals</div>
+                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Course</div>
+                  <div className="text-xs font-semibold text-white leading-snug mt-1">Python Fundamentals</div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 text-xs font-bold">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-amber-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-bold">
                   LVL
                 </div>
                 <div>
-                  <div className="text-[11px] text-slate-400 font-medium leading-none">Credential Level</div>
-                  <div className="text-xs font-semibold text-slate-800 leading-snug mt-1">Intermediate</div>
+                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Credential Level</div>
+                  <div className="text-xs font-semibold text-white leading-snug mt-1">Intermediate</div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 text-xs font-bold">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-purple-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-bold">
                   CAL
                 </div>
                 <div>
-                  <div className="text-[11px] text-slate-400 font-medium leading-none">Issue Date</div>
-                  <div className="text-xs font-semibold text-slate-800 leading-snug mt-1">{issueDate}</div>
+                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Issue Date</div>
+                  <div className="text-xs font-semibold text-white leading-snug mt-1">{issueDate}</div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 text-xs font-mono font-bold">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-violet-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-mono font-bold">
                   #
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[11px] text-slate-400 font-medium leading-none">Credential ID</div>
+                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Credential ID</div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-mono font-semibold text-slate-800 truncate">{credentialId}</span>
+                    <span className="text-xs font-mono font-semibold text-white truncate">{credentialId}</span>
                     <button
                       onClick={handleCopyId}
-                      className="text-slate-400 hover:text-slate-700 text-[10px] font-sans px-1.5 py-0.5 rounded border border-slate-200"
+                      className="text-neutral-300 hover:text-white text-[10px] font-sans px-1.5 py-0.5 rounded border border-white/[0.08] hover:bg-white/[0.05] cursor-pointer"
                     >
                       {copied ? "Copied" : "Copy"}
                     </button>
@@ -357,14 +357,14 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 text-xs font-bold">
+                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-bold">
                   🔗
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] text-slate-400 font-medium leading-none">Verification URL</div>
+                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Verification URL</div>
                   <div
                     onClick={() => handleCopyId()}
-                    className="text-xs font-mono font-semibold text-indigo-600 truncate leading-snug mt-1 hover:underline cursor-pointer"
+                    className="text-xs font-mono font-semibold text-indigo-400 truncate leading-snug mt-1 hover:underline cursor-pointer"
                     title="Click to copy credential ID"
                   >
                     {credentialId}
@@ -375,8 +375,8 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
           </div>
 
           {/* Skills Demonstrated Card */}
-          <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm space-y-3">
-            <h4 className="font-bold text-slate-900 text-sm">Skills Demonstrated</h4>
+          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-3">
+            <h4 className="font-bold text-white text-sm">Skills Demonstrated</h4>
             <div className="flex flex-wrap gap-2 pt-1">
               {[
                 "Python Programming",
@@ -390,7 +390,7 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
               ].map((skill) => (
                 <span
                   key={skill}
-                  className="px-2.5 py-1 text-xs rounded-full bg-indigo-50 text-indigo-700 font-medium"
+                  className="px-2.5 py-1 text-xs rounded-full bg-white/[0.06] text-indigo-300 border border-white/[0.06] font-medium"
                 >
                   {skill}
                 </span>
@@ -399,9 +399,9 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
           </div>
 
           {/* Assessment Evidence Checklist */}
-          <div className="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm space-y-3">
-            <h4 className="font-bold text-slate-900 text-sm">Assessment Evidence</h4>
-            <div className="space-y-2.5 text-xs text-slate-700 pt-1">
+          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-3">
+            <h4 className="font-bold text-white text-sm">Assessment Evidence</h4>
+            <div className="space-y-2.5 text-xs text-neutral-300 pt-1">
               {[
                 "Completed all 8 curriculum modules",
                 "Passed chapter baseline & diagnostic assessments",
@@ -410,7 +410,7 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                 "Completed oral AI viva defense session",
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2.5">
-                  <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   <span>{item}</span>

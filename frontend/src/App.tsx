@@ -10,7 +10,6 @@ import { ChapterAssessmentView } from "./components/ChapterAssessmentView.js";
 import { DiagnosticView } from "./components/DiagnosticView.js";
 import { RemediationStudioView } from "./components/RemediationStudioView.js";
 import { FinalAssessmentView } from "./components/FinalAssessmentView.js";
-import { VivaChamberView } from "./components/VivaChamberView.js";
 import { CertificationResultView } from "./components/CertificationResultView.js";
 import { CredentialsListView } from "./components/CredentialsListView.js";
 import { CredentialDetailsView } from "./components/CredentialDetailsView.js";
@@ -35,8 +34,6 @@ export type CertifyView =
   | "diagnostic"
   | "remediation"
   | "final-assessment"
-  | "practical"
-  | "viva"
   | "result"
   | "credentials"
   | "credential-details"
@@ -50,6 +47,12 @@ const PUBLIC_VIEWS: CertifyView[] = ["auth", "landing"];
 
 const getViewFromPath = (): CertifyView => {
   const p = window.location.pathname.replace(/^\//, "").toLowerCase();
+
+  // Root and landing always resolve directly to the main landing page
+  if (p === "" || p === "/" || p === "landing") {
+    return "landing";
+  }
+
   const token = localStorage.getItem("certify_token");
   const validViews: Record<string, CertifyView> = {
     landing: "landing",
@@ -66,8 +69,6 @@ const getViewFromPath = (): CertifyView => {
     remediation: "remediation",
     "final-assessment": "final-assessment",
     assessments: "final-assessment",
-    practical: "practical",
-    viva: "viva",
     result: "result",
     credentials: "credentials",
     "credential-details": "credential-details",
@@ -87,7 +88,7 @@ const getViewFromPath = (): CertifyView => {
   // Authenticated user opening auth route goes straight to Dashboard
   if (requestedView === "auth") return "dashboard";
 
-  return requestedView || "dashboard";
+  return requestedView || "landing";
 };
 
 export const App: React.FC = () => {
@@ -95,7 +96,7 @@ export const App: React.FC = () => {
   const [selectedCourseSlug, setSelectedCourseSlug] = useState("python-fundamentals");
   const [selectedCredentialId, setSelectedCredentialId] = useState("CERT-PY-2026-001842");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(false);
 
   /**
    * Navigation with View Transition API and instant fallback
@@ -139,13 +140,14 @@ export const App: React.FC = () => {
     api.getMe()
       .then((data) => {
         setCurrentUser(data.user);
-        navigateWithTransition("dashboard");
+        // Retain landing view if user is intentionally on landing page
+        setCurrentView((prev) => (prev === "landing" ? "landing" : "dashboard"));
       })
       .catch(() => {
-        // Token expired or invalid: clear and force login
+        // Token expired or invalid: clear and return to landing
         localStorage.removeItem("certify_token");
         setCurrentUser(null);
-        setCurrentView((prev) => (!PUBLIC_VIEWS.includes(prev) ? "auth" : prev));
+        setCurrentView("landing");
       });
   }, []);
 
@@ -172,7 +174,7 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("certify_token");
     setCurrentUser(null);
-    navigateWithTransition("auth");
+    navigateWithTransition("landing");
   };
 
   const handleLoginSuccess = (user: User, token: string) => {
@@ -220,9 +222,15 @@ export const App: React.FC = () => {
   // Security barrier: Ensure unauthenticated users cannot access protected views
   if (!currentUser && !PUBLIC_VIEWS.includes(currentView)) {
     return (
-      <AuthView
-        onLoginSuccess={handleLoginSuccess}
-        onCancel={() => navigateWithTransition("landing")}
+      <LandingPageView
+        onExploreCourses={() => navigateWithTransition("auth")}
+        onBeginDiagnostic={() => navigateWithTransition("auth")}
+        onSignIn={() => navigateWithTransition("auth")}
+        onRegister={() => navigateWithTransition("auth")}
+        onSelectCourse={(slug) => {
+          setSelectedCourseSlug(slug);
+          navigateWithTransition("auth");
+        }}
       />
     );
   }
@@ -269,29 +277,27 @@ export const App: React.FC = () => {
     "diagnostic",
     "remediation",
     "final-assessment",
-    "practical",
-    "viva",
     "result",
     "credential-details",
     "verify",
   ].includes(currentView);
 
   return (
-    <div className="min-h-screen bg-[#1E0A3B] text-slate-100 flex overflow-x-hidden">
-      {/* Global Canonical App Sidebar (240px desktop, 68px collapsed) */}
+    <div className="min-h-screen bg-[#15062B] text-slate-100 flex overflow-x-hidden">
+      {/* Global Canonical App Sidebar (Floating Card Dock) */}
       <AppSidebar
         currentView={currentView}
         onNavigate={(view) => navigateWithTransition(view as CertifyView)}
         user={currentUser}
         onLogout={handleLogout}
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        collapsed={!sidebarPinned}
+        onToggleCollapse={() => setSidebarPinned(!sidebarPinned)}
       />
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 min-h-screen transition-all duration-200 ${
-          sidebarCollapsed ? "ml-[68px]" : "ml-[240px]"
+        className={`flex-1 min-h-screen transition-all duration-300 ${
+          sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"
         }`}
       >
         <main className="p-6 md:p-8 max-w-[1600px] mx-auto">
@@ -303,6 +309,8 @@ export const App: React.FC = () => {
               user={currentUser}
               hideGreeting={currentView === "course-details"}
               onSearch={(q) => console.log("Searching:", q)}
+              onNavigate={(view) => navigateWithTransition(view as CertifyView)}
+              onLogout={handleLogout}
             />
           )}
 
@@ -355,8 +363,10 @@ export const App: React.FC = () => {
             {currentView === "studio" && (
               <LearningStudio
                 courseSlug={selectedCourseSlug}
+                user={currentUser}
                 onNavigateVerify={handleNavigateVerify}
                 onNavigate={(v) => setCurrentView(v as CertifyView)}
+                onLogout={handleLogout}
               />
             )}
 
@@ -395,31 +405,9 @@ export const App: React.FC = () => {
               <FinalAssessmentView
                 courseSlug={selectedCourseSlug}
                 onNavigate={(v) => setCurrentView(v as CertifyView)}
-                onSubmitForViva={() => setCurrentView("practical")}
-                onSubmitAssessment={() => setCurrentView("practical")}
+                onSubmitForViva={() => setCurrentView("result")}
+                onSubmitAssessment={() => setCurrentView("result")}
                 onCancel={() => setCurrentView("dashboard")}
-              />
-            )}
-
-            {/* Screen: Practical Implementation Sandbox Milestone */}
-            {currentView === "practical" && (
-              <ChapterAssessmentView
-                courseSlug={selectedCourseSlug}
-                chapterTitle="Practical Capstone: Quorum Invariants & In-Memory State"
-                onNavigate={(v) => setCurrentView(v as CertifyView)}
-                onComplete={() => setCurrentView("viva")}
-                onPassed={() => setCurrentView("viva")}
-                onNavigateRemediation={() => setCurrentView("remediation")}
-              />
-            )}
-
-            {/* Screen 11: Oral Viva Defense */}
-            {currentView === "viva" && (
-              <VivaChamberView
-                courseSlug={selectedCourseSlug}
-                onNavigate={(v) => setCurrentView(v as CertifyView)}
-                onCompleteDefense={() => setCurrentView("result")}
-                onExit={() => setCurrentView("dashboard")}
               />
             )}
 

@@ -246,7 +246,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       style={{ isolation: "isolate" }}
     >
       {/* Pinned Gallery Stage */}
-      <div className="h-screen w-full flex flex-col items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 pt-14 sm:pt-16 pb-6">
+      <div className="h-screen w-full flex flex-col items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 pb-3 sm:pb-4">
         {/* Ambient Top Subtle Light Beam (preserves CERTIFY palette) */}
         <div
           className="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[340px] pointer-events-none z-0 rounded-full blur-[120px] opacity-20"
@@ -258,7 +258,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         />
 
         {/* Top Right Helper Cue: "SCROLL / DRAG" exactly matching the Framer reference */}
-        <div className="absolute top-20 sm:top-24 right-5 sm:right-10 lg:right-14 z-30 flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.22em] text-[#CFC2B4]/60 pointer-events-none">
+        <div className="absolute top-16 sm:top-20 right-5 sm:right-10 lg:right-14 z-30 flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.22em] text-[#CFC2B4]/60 pointer-events-none">
           <span className="w-1.5 h-1.5 rounded-full bg-[#E6CAA4] animate-pulse" />
           <span>SCROLL / DRAG</span>
         </div>
@@ -269,18 +269,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-pan-y"
+          className="relative w-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-pan-y shrink-0"
           style={{
             perspective: "1300px",
             perspectiveOrigin: "50% 50%",
             transformStyle: "preserve-3d",
           }}
         >
-          {/* Card Deck Container (aspect ratio ~1.53 : 1) */}
-          <div className="relative w-[92vw] sm:w-[480px] md:w-[520px] lg:w-[540px] h-[270px] sm:h-[310px] md:h-[340px] lg:h-[350px] flex items-center justify-center">
+          {/* Card Deck Container: Enlarged prominently with ~1.69 : 1 aspect ratio */}
+          <div className="relative w-[92vw] sm:w-[540px] md:w-[600px] lg:w-[650px] h-[275px] sm:h-[325px] md:h-[360px] lg:h-[385px] flex items-center justify-center">
             {SLIDES.map((slide, index) => {
               // Continuous float distance from active slide center
-              const diff = index - slideProgress - dragOffset / 320;
+              const diff = index - slideProgress - dragOffset / 350;
               const absDiff = Math.abs(diff);
               const sign = Math.sign(diff);
 
@@ -292,19 +292,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 translateX = diff * 105;
               } else {
                 if (absDiff <= 1) {
-                  translateX = sign * absDiff * 245;
+                  translateX = sign * absDiff * 275;
                 } else if (absDiff <= 2) {
-                  translateX = sign * (245 + (absDiff - 1) * 185);
+                  translateX = sign * (275 + (absDiff - 1) * 195);
                 } else {
-                  translateX = sign * (430 + (absDiff - 2) * 170);
+                  translateX = sign * (470 + (absDiff - 2) * 175);
                 }
               }
 
-              const translateZ = isReduced ? 0 : -absDiff * 140;
-              const rotateY = isReduced ? 0 : -sign * Math.min(absDiff * 36, 42);
+              const translateZ = isReduced ? 0 : -absDiff * 130;
+              const rotateY = isReduced ? 0 : -sign * Math.min(absDiff * 32, 38);
               const scale = isReduced
                 ? absDiff < 0.5 ? 1 : 0.85
-                : Math.max(0.6, 1 - absDiff * 0.11);
+                : Math.max(0.65, 1 - absDiff * 0.1);
               const blur = isReduced ? 0 : absDiff < 0.35 ? 0 : Math.min(10, (absDiff - 0.35) * 2.8);
               const opacity = absDiff > 3.6 ? 0 : Math.max(0, 1 - Math.max(0, absDiff - 1.2) * 0.4);
               const zIndex = Math.round(1000 - absDiff * 50);
@@ -369,7 +369,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Synchronized Editorial Caption Area (Positioned directly beneath the active center panel) */}
-        <div className="relative z-20 mt-6 sm:mt-7 w-full max-w-xl mx-auto text-center px-4 min-h-[140px] flex flex-col items-center justify-start">
+        <div className="relative z-20 mt-4 sm:mt-5 w-full max-w-xl mx-auto text-center px-4 flex flex-col items-center justify-start shrink-0 min-h-[130px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSlide}
@@ -380,14 +380,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               className="flex flex-col items-center w-full"
             >
               {/* Eyebrow & Slide Counter */}
-              <div className="flex items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-[#E6CAA4] mb-2 font-medium">
+              <div className="flex items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-[#E6CAA4] mb-1.5 font-medium">
                 <span>{SLIDES[activeSlide].eyebrow}</span>
                 <span className="text-white/20">/</span>
                 <span className="text-[#CFC2B4]/80">{SLIDES[activeSlide].number} — 06</span>
               </div>
 
               {/* Editorial Headline */}
-              <h3 className="font-['Newsreader',Georgia,serif] text-xl sm:text-2xl md:text-[26px] font-normal leading-[1.2] text-[#FEF5E5] mb-2">
+              <h3 className="font-['Newsreader',Georgia,serif] text-xl sm:text-2xl md:text-[25px] font-normal leading-[1.2] text-[#FEF5E5] mb-1.5">
                 {activeSlide === 2 ? (
                   <>
                     Understanding begins{" "}
@@ -399,7 +399,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </h3>
 
               {/* Short Supporting Description */}
-              <p className="text-[13px] sm:text-[14px] leading-relaxed text-[#CFC2B4] font-normal max-w-lg mb-3">
+              <p className="text-[13px] sm:text-[14px] leading-relaxed text-[#CFC2B4] font-normal max-w-lg mb-2">
                 {SLIDES[activeSlide].supporting}
               </p>
 
@@ -409,7 +409,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.08 }}
-                  className="flex items-center justify-center gap-3 mt-1 mb-1"
+                  className="flex items-center justify-center gap-3 my-1"
                 >
                   <button
                     onClick={onExploreCourses}
@@ -430,7 +430,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </AnimatePresence>
 
           {/* Discrete Slide Progress Dots matching Framer reference */}
-          <div className="flex items-center justify-center gap-1.5 mt-2">
+          <div className="flex items-center justify-center gap-1.5 mt-1.5">
             {SLIDES.map((s, idx) => (
               <button
                 key={s.id}

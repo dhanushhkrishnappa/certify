@@ -3,14 +3,14 @@ import React, { useState } from "react";
 /**
  * 01: BayesianCurveSvg
  * Rich SVG visualization showing prior Bayesian distribution shifting toward converged mastery P(L) >= 0.920.
- * Calibrated to the Certify Midnight Purple (#1E0A3B / #15062B) & Crisp White/Lavender palette.
+ * Calibrated to the Certify Midnight Purple (#15062B / #0D031A) & Crisp White/Lavender palette.
  */
 export const BayesianCurveSvg: React.FC = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
     <div
-      className="p-3.5 rounded-xl bg-[#15062B]/90 border border-white/15 transition-all duration-300 shadow-sm"
+      className="p-3.5 rounded-xl bg-[#111111] border border-white/[0.08] transition-all duration-300 shadow-sm"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -144,7 +144,7 @@ export const SandboxTerminalSvg: React.FC = () => {
   };
 
   return (
-    <div className="p-3.5 rounded-xl bg-[#15062B]/95 border border-white/15 font-mono text-[12px] shadow-sm">
+    <div className="p-3.5 rounded-xl bg-[#111111] border border-white/[0.08] font-mono text-[12px] shadow-sm">
       <div className="flex items-center justify-between text-[11px] text-purple-200/70 border-b border-white/10 pb-1 mb-2">
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-purple-400"></span>
@@ -189,7 +189,7 @@ export const SandboxTerminalSvg: React.FC = () => {
  */
 export const VivaChamberWaveformSvg: React.FC = () => {
   return (
-    <div className="p-3.5 rounded-xl bg-[#15062B]/90 border border-white/15 shadow-sm">
+    <div className="p-3.5 rounded-xl bg-[#111111] border border-white/[0.08] shadow-sm">
       <div className="flex justify-between items-center text-[11px] font-mono text-purple-200/70 mb-2">
         <span className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse"></span>
@@ -229,7 +229,7 @@ export const VivaChamberWaveformSvg: React.FC = () => {
  */
 export const CryptographicSealSvg: React.FC = () => {
   return (
-    <div className="p-3.5 rounded-xl bg-[#15062B]/90 border border-white/15 font-mono shadow-sm">
+    <div className="p-3.5 rounded-xl bg-[#111111] border border-white/[0.08] font-mono shadow-sm">
       <div className="flex items-center justify-between mb-1.5">
         <div className="text-[10px] text-purple-200/70 uppercase">Cryptographic Seal</div>
         <div className="text-[10px] font-mono text-white font-bold bg-purple-900/60 px-1.5 py-0.5 rounded border border-purple-500/30">

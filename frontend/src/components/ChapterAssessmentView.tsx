@@ -71,7 +71,7 @@ export class QuorumCoordinator<T> {
   };
 
   return (
-    <div className="bg-[#1E0A3B] text-slate-100 antialiased min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] select-none overflow-x-hidden selection:bg-[#C4B5FD] selection:text-[#1E0A3B]">
+    <div className="bg-[#15062B] text-slate-100 antialiased min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] text-[16px] leading-[24px] select-none overflow-x-hidden selection:bg-[#C4B5FD] selection:text-[#15062B]">
       {/* Top Navigation & Status Bar */}
       <header className="sticky top-0 z-50 flex items-center justify-between w-full px-6 h-14 bg-[#15062B]/95 backdrop-blur-md border-b border-white/10">
         {/* Left: Logo & Breadcrumbs */}
@@ -127,10 +127,10 @@ export class QuorumCoordinator<T> {
         {/* LEFT COLUMN: Main Demonstration Surface (~65% width = 8 cols) */}
         <section className="lg:col-span-8 flex flex-col gap-4">
           {/* Challenge Header Card */}
-          <div className="bg-white/[0.08] rounded-xl p-5 border border-white/15 shadow-xl backdrop-blur-xl relative overflow-hidden">
+          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm relative overflow-hidden">
             <div className="absolute -top-16 -right-16 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div className="flex items-center justify-between mb-3">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-white/10 border border-white/15 text-purple-200 font-mono text-[11px] font-medium tracking-wide">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-white/[0.04] border border-white/[0.08] text-purple-200 font-mono text-[11px] font-medium tracking-wide">
                 <span className="material-symbols-outlined text-[13px]">psychology</span>
                 <span>TARGET CONCEPT: QUORUM REPLICATION OVERLAP</span>
               </div>
@@ -152,7 +152,7 @@ export class QuorumCoordinator<T> {
             </p>
 
             {/* Mathematical Invariant & Topology Pill Box */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-lg bg-black/30 border border-white/10 font-mono text-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 rounded-lg bg-black/40 border border-white/[0.08] font-mono text-[12px]">
               <div className="flex items-center gap-2">
                 <span className="text-emerald-400 font-semibold">Invariant:</span>
                 <span className="text-white bg-white/10 px-2 py-0.5 rounded border border-white/15">
@@ -170,11 +170,11 @@ export class QuorumCoordinator<T> {
           </div>
 
           {/* Interactive Solution / Code Area */}
-          <div className="bg-white/[0.08] rounded-xl border border-white/15 overflow-hidden flex flex-col shadow-xl backdrop-blur-xl">
+          <div className="bg-[#111111] rounded-xl border border-white/[0.08] overflow-hidden flex flex-col shadow-sm">
             {/* Tab Bar & Tools Header */}
-            <div className="bg-white/[0.05] px-4 py-2 border-b border-white/10 flex items-center justify-between">
+            <div className="bg-white/[0.02] px-4 py-2 border-b border-white/[0.08] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1 bg-black/30 rounded text-emerald-300 font-mono text-[13px] border border-white/10">
+                <div className="flex items-center gap-2 px-3 py-1 bg-black/40 rounded text-emerald-300 font-mono text-[13px] border border-white/[0.08]">
                   <span className="material-symbols-outlined text-[14px] text-emerald-400">code_blocks</span>
                   <span>quorum_resolver.ts</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -203,7 +203,7 @@ export class QuorumCoordinator<T> {
             </div>
 
             {/* Action Bar beneath Editor */}
-            <div className="bg-white/[0.05] p-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div className="bg-white/[0.02] p-3.5 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
               <button
                 onClick={handleRunChecks}
                 disabled={isRunning}
@@ -227,17 +227,17 @@ export class QuorumCoordinator<T> {
 
               <button
                 onClick={handleSubmitProof}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white hover:bg-purple-50 text-[#1E0A3B] text-sm font-bold transition-all shadow-lg active:scale-[0.98] cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white hover:bg-purple-50 text-[#15062B] text-sm font-bold transition-all shadow-lg active:scale-[0.98] cursor-pointer"
               >
                 <span>Submit Proof for Evaluation</span>
-                <span className="font-mono text-[11px] bg-[#1E0A3B]/10 text-[#1E0A3B] px-1.5 py-0.5 rounded">⌘↵</span>
+                <span className="font-mono text-[11px] bg-[#15062B]/10 text-[#15062B] px-1.5 py-0.5 rounded">⌘↵</span>
                 <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
               </button>
             </div>
           </div>
 
           {/* Execution Feedback Drawer */}
-          <div className="p-3.5 rounded-lg bg-white/[0.08] border border-white/15 flex items-center justify-between font-mono text-[12px]">
+          <div className="p-3.5 rounded-lg bg-[#111111] border border-white/[0.08] flex items-center justify-between font-mono text-[12px]">
             <div className="flex items-center gap-2.5">
               <span className="material-symbols-outlined text-[16px] text-[#b3d33b]">verified</span>
               <span className="text-[#8E93A6]">Diagnostic Rigor:</span>
@@ -252,13 +252,13 @@ export class QuorumCoordinator<T> {
         {/* RIGHT COLUMN: Evaluation Rubric & Mastery Impact Rail (~35% width = 4 cols) */}
         <aside className="lg:col-span-4 flex flex-col gap-4">
           {/* Rubric Card */}
-          <div className="bg-[#171922] rounded-xl p-4 border border-[#494553]/30 shadow-sm flex flex-col gap-3">
-            <div className="flex items-center justify-between pb-3 border-b border-[#494553]/20">
+          <div className="bg-[#111111] rounded-xl p-4 border border-white/[0.08] shadow-sm flex flex-col gap-3">
+            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
               <div>
                 <span className="text-[12px] font-semibold tracking-wider text-white">EVALUATION RUBRIC</span>
                 <div className="font-mono text-[10px] text-[#cebdff] tracking-wide uppercase">WEIGHTED SOCRATIC SCORING</div>
               </div>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#13151A] text-[#b3d33b] border border-[#b3d33b]/30">
+              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-white/[0.04] text-[#b3d33b] border border-[#b3d33b]/30">
                 {criterion2Complete ? "2 of 3 Complete" : "1 of 3 Complete"}
               </span>
             </div>
@@ -266,7 +266,7 @@ export class QuorumCoordinator<T> {
             {/* Rubric Criteria List */}
             <div className="flex flex-col gap-2.5">
               {/* Criterion 1: Passed */}
-              <div className="p-3 rounded-lg bg-[#13151A]/80 border border-[#494553]/20">
+              <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-[#b3d33b]/20 flex items-center justify-center text-[#b3d33b]">
@@ -282,7 +282,7 @@ export class QuorumCoordinator<T> {
               </div>
 
               {/* Criterion 2: Active Focus */}
-              <div className="p-3 rounded-lg bg-[#1E222D] border-2 border-[#9d7bff]/40 shadow-[0_0_15px_rgba(157,123,255,0.08)]">
+              <div className="p-3 rounded-lg bg-white/[0.05] border border-purple-500/40 shadow-sm">
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-2">
                     <span className="relative flex h-3 w-3">
@@ -296,7 +296,7 @@ export class QuorumCoordinator<T> {
                 <p className="text-[12px] text-[#8E93A6] mb-2 pl-5">
                   Implement causal ordering checks to distinguish between direct ancestry and divergent concurrent branches.
                 </p>
-                <div className="flex flex-col gap-1.5 pl-5 pt-1 border-t border-[#494553]/20 text-[12px]">
+                <div className="flex flex-col gap-1.5 pl-5 pt-1 border-t border-white/[0.08] text-[12px]">
                   <div className="flex items-center gap-2 text-white">
                     <span className="material-symbols-outlined text-[14px] text-[#b3d33b]">check_box</span>
                     <span>Causality ordering check</span>
@@ -313,10 +313,10 @@ export class QuorumCoordinator<T> {
               </div>
 
               {/* Criterion 3: Pending */}
-              <div className="p-3 rounded-lg bg-[#13151A]/40 border border-[#494553]/15 opacity-70">
+              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04] opacity-70">
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full border border-[#494553] flex items-center justify-center text-[#948e9f] text-[10px] font-mono">
+                    <span className="w-4 h-4 rounded-full border border-white/20 flex items-center justify-center text-[#948e9f] text-[10px] font-mono">
                       3
                     </span>
                     <span className="text-[12px] text-[#8E93A6]">Partial Node Failure Resilience</span>
@@ -331,7 +331,7 @@ export class QuorumCoordinator<T> {
           </div>
 
           {/* Bayesian Knowledge Tracing (BKT) Mastery Delta Card */}
-          <div className="bg-white/[0.08] rounded-xl p-4 border border-white/15 flex flex-col gap-3 relative overflow-hidden backdrop-blur-xl shadow-xl">
+          <div className="bg-[#111111] rounded-xl p-4 border border-white/[0.08] flex flex-col gap-3 relative overflow-hidden shadow-sm">
             <div className="absolute -bottom-8 -right-8 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
             <div className="flex items-center justify-between">
               <span className="text-[12px] font-semibold tracking-wider text-white">KNOWLEDGE STATE (BKT)</span>
@@ -339,7 +339,7 @@ export class QuorumCoordinator<T> {
                 +0.32 ΔP(L)
               </span>
             </div>
-            <div className="p-3 rounded-lg bg-black/30 border border-white/10 flex flex-col gap-2">
+            <div className="p-3 rounded-lg bg-white/[0.04] border border-white/[0.06] flex flex-col gap-2">
               <div className="flex items-center justify-between font-mono text-[12px]">
                 <span className="text-purple-200/70">Chapter 2 Mastery:</span>
                 <div className="flex items-center gap-1.5 font-semibold">
@@ -357,25 +357,25 @@ export class QuorumCoordinator<T> {
                 <span className="text-emerald-300 font-medium">Demonstrated Projection</span>
               </div>
             </div>
-            <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/10 border border-white/10 text-[12px] text-purple-200/80 leading-normal">
+            <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[12px] text-purple-200/80 leading-normal">
               <span className="material-symbols-outlined text-[16px] text-emerald-400 mt-0.5 shrink-0">lock_open</span>
               <span>
                 Completing this demonstration unlocks the <strong className="text-white font-medium">Chapter 2 Mastery Evidence Seal</strong> and activates <span className="text-white font-medium">Chapter 3: Byzantine Fault Tolerance</span>.
               </span>
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-white/10 font-mono text-[11px]">
+            <div className="flex items-center justify-between pt-2 border-t border-white/[0.08] font-mono text-[11px]">
               <span className="text-purple-200/60 flex items-center gap-1">
                 <span className="material-symbols-outlined text-[13px] text-purple-300">fingerprint</span>
                 Seal Hash:
               </span>
-              <span className="text-purple-200 font-serif italic text-[12px] bg-[#1E0A3B] px-2 py-0.5 rounded border border-white/15">
+              <span className="text-purple-200 font-serif italic text-[12px] bg-black/40 px-2 py-0.5 rounded border border-white/[0.08]">
                 Ledger: 98a4...e210
               </span>
             </div>
           </div>
 
           {/* Quick Reference Invariant Box */}
-          <div className="p-3 rounded-lg bg-white/[0.05] border border-white/10 flex items-center justify-between text-purple-200/70 font-mono text-[11px]">
+          <div className="p-3 rounded-lg bg-[#111111] border border-white/[0.08] flex items-center justify-between text-purple-200/70 font-mono text-[11px]">
             <span className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[14px] text-purple-300">lightbulb</span>
               <span>Hint: Dominance requires <code className="text-white">v1 &gt;= v2</code> for all keys.</span>

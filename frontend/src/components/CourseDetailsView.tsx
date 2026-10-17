@@ -153,7 +153,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
 
           <button
             onClick={() => onStartCourse(courseSlug)}
-            className="bg-white hover:bg-purple-50 text-[#1E0A3B] font-bold px-6 py-2.5 rounded-[8px] text-sm flex items-center space-x-2 shadow-lg transition active:scale-98 cursor-pointer"
+            className="bg-white hover:bg-purple-50 text-[#15062B] font-bold px-6 py-2.5 rounded-[8px] text-sm flex items-center space-x-2 shadow-lg transition active:scale-98 cursor-pointer"
           >
             <span>{isEnrolled ? "Continue Learning" : "Enroll Now"}</span>
             <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,32 +274,32 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
 
           {/* BEGIN: FourValueProps - Canonical 14px cards, 10px wells */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5" data-purpose="features-grid">
-            <div className="bg-white p-4 rounded-[14px] border border-slate-200/80 flex flex-col justify-between shadow-xs">
-              <div className="w-8 h-8 rounded-[10px] bg-purple-50 text-indigo-600 flex items-center justify-center mb-3">
+            <div className="bg-[#111111] p-4 rounded-[14px] border border-white/[0.08] flex flex-col justify-between shadow-xs">
+              <div className="w-8 h-8 rounded-[10px] bg-purple-500/15 border border-purple-500/20 text-purple-300 flex items-center justify-center mb-3">
                 <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-900">Structured Learning</h4>
-                <p className="text-[11px] text-neutral-500 mt-0.5">Step-by-step curriculum</p>
+                <h4 className="text-xs font-bold text-white">Structured Learning</h4>
+                <p className="text-[11px] text-neutral-400 mt-0.5">Step-by-step curriculum</p>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-[14px] border border-slate-200/80 flex flex-col justify-between shadow-xs">
-              <div className="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+            <div className="bg-[#111111] p-4 rounded-[14px] border border-white/[0.08] flex flex-col justify-between shadow-xs">
+              <div className="w-8 h-8 rounded-[10px] bg-emerald-500/15 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
                 <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-900">Hands-on Practice</h4>
-                <p className="text-[11px] text-neutral-500 mt-0.5">Code, build, and apply</p>
+                <h4 className="text-xs font-bold text-white">Hands-on Practice</h4>
+                <p className="text-[11px] text-neutral-400 mt-0.5">Code, build, and apply</p>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-[14px] border border-slate-200/80 flex flex-col justify-between shadow-xs">
-              <div className="w-8 h-8 rounded-[10px] bg-rose-50 text-rose-500 flex items-center justify-center mb-3">
+            <div className="bg-[#111111] p-4 rounded-[14px] border border-white/[0.08] flex flex-col justify-between shadow-xs">
+              <div className="w-8 h-8 rounded-[10px] bg-rose-500/15 border border-rose-500/20 text-rose-400 flex items-center justify-center mb-3">
                 <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="9" />
                   <circle cx="12" cy="12" r="5" />
@@ -307,20 +307,20 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                 </svg>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-900">Real-world Projects</h4>
-                <p className="text-[11px] text-neutral-500 mt-0.5">Build a portfolio</p>
+                <h4 className="text-xs font-bold text-white">Real-world Projects</h4>
+                <p className="text-[11px] text-neutral-400 mt-0.5">Build a portfolio</p>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-[14px] border border-slate-200/80 flex flex-col justify-between shadow-xs">
-              <div className="w-8 h-8 rounded-[10px] bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+            <div className="bg-[#111111] p-4 rounded-[14px] border border-white/[0.08] flex flex-col justify-between shadow-xs">
+              <div className="w-8 h-8 rounded-[10px] bg-amber-500/15 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
                 <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-900">Earn a Certificate</h4>
-                <p className="text-[11px] text-neutral-500 mt-0.5">Showcase your skills</p>
+                <h4 className="text-xs font-bold text-white">Earn a Certificate</h4>
+                <p className="text-[11px] text-neutral-400 mt-0.5">Showcase your skills</p>
               </div>
             </div>
           </div>
@@ -329,16 +329,16 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
           {/* BEGIN: DualLearningSkillsRow - Canonical 14px cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Card 1: What You'll Learn */}
-            <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs" data-purpose="what-you-will-learn">
+            <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs" data-purpose="what-you-will-learn">
               <div className="flex items-center space-x-2.5 mb-4">
-                <div className="text-indigo-600">
+                <div className="text-purple-400">
                   <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <h3 className="font-bold text-sm text-neutral-900">What You'll Learn</h3>
+                <h3 className="font-bold text-sm text-white">What You'll Learn</h3>
               </div>
-              <ul className="space-y-2.5 text-xs text-neutral-700">
+              <ul className="space-y-2.5 text-xs text-neutral-300">
                 {[
                   "Understand Python syntax and core concepts",
                   "Work with variables, data types, and operators",
@@ -350,7 +350,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                   "Solve programming problems with defensible evidence",
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-start space-x-2.5">
-                    <svg className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd" />
                     </svg>
                     <span>{item}</span>
@@ -360,15 +360,15 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
             </div>
 
             {/* Card 2: Skills You'll Gain */}
-            <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs flex flex-col justify-between" data-purpose="skills-gained">
+            <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs flex flex-col justify-between" data-purpose="skills-gained">
               <div>
                 <div className="flex items-center space-x-2.5 mb-4">
-                  <div className="text-indigo-600">
+                  <div className="text-purple-400">
                     <svg className="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
-                  <h3 className="font-bold text-sm text-neutral-900">Skills You'll Gain</h3>
+                  <h3 className="font-bold text-sm text-white">Skills You'll Gain</h3>
                 </div>
                 <div className="flex flex-wrap gap-2 pt-1">
                   {[
@@ -383,7 +383,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                     "Empirical Demonstration",
                     "Analytical Defense",
                   ].map((skill, idx) => (
-                    <span key={idx} className="px-3 py-1.5 bg-[#F0ECFE] text-indigo-700 font-medium text-xs rounded-full">
+                    <span key={idx} className="px-3 py-1.5 bg-white/[0.06] text-neutral-200 border border-white/10 font-medium text-xs rounded-full">
                       {skill}
                     </span>
                   ))}
@@ -391,8 +391,8 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
               </div>
 
               {/* Course Version Indicator */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                <span>Curriculum Version: <strong className="text-slate-700 font-semibold">{course?.version || "1.0.0"}</strong></span>
+              <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-neutral-400">
+                <span>Curriculum Version: <strong className="text-white font-semibold">{course?.version || "1.0.0"}</strong></span>
                 <span>Deterministic Verification</span>
               </div>
             </div>
@@ -400,11 +400,11 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
           {/* END: DualLearningSkillsRow */}
 
           {/* BEGIN: CourseCurriculumAccordion - Real Backend Course Syllabus */}
-          <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs space-y-4" data-purpose="curriculum-section">
+          <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs space-y-4" data-purpose="curriculum-section">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-base text-neutral-900">Course Curriculum</h3>
-                <p className="text-xs text-neutral-500 mt-0.5">
+                <h3 className="font-bold text-base text-white">Course Curriculum</h3>
+                <p className="text-xs text-neutral-400 mt-0.5">
                   {totalModulesCount} modules • {totalChaptersCount} chapters • Socratic AI Learning Studio
                 </p>
               </div>
@@ -419,7 +419,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                     setExpandedModules(all);
                   }
                 }}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
+                className="text-xs font-semibold text-neutral-300 hover:text-white transition-colors cursor-pointer"
               >
                 {Object.keys(expandedModules).length === (course?.modules?.length || 0) ? "Collapse All" : "Expand All"}
               </button>
@@ -433,27 +433,27 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                   return (
                     <div
                       key={mod.id || idx}
-                      className="border border-slate-200 rounded-[10px] overflow-hidden transition-all duration-200"
+                      className="border border-white/[0.08] rounded-[10px] overflow-hidden transition-all duration-200 bg-[#111111]"
                     >
                       {/* Module Header Bar */}
                       <button
                         onClick={() => toggleModule(mod.id)}
-                        className="w-full p-4 flex items-center justify-between bg-stone-50/70 hover:bg-stone-100/70 transition-colors text-left cursor-pointer"
+                        className="w-full p-4 flex items-center justify-between bg-white/[0.03] hover:bg-white/[0.06] transition-colors text-left cursor-pointer"
                       >
                         <div className="flex items-center space-x-3">
-                          <span className="w-6 h-6 rounded-full bg-white border border-slate-300 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
+                          <span className="w-6 h-6 rounded-full bg-white/10 border border-white/20 text-white font-bold text-xs flex items-center justify-center shrink-0">
                             {mod.sequenceOrder || idx + 1}
                           </span>
                           <div>
-                            <h4 className="text-xs font-bold text-neutral-900">{mod.title}</h4>
-                            <span className="text-[10px] text-neutral-500">
+                            <h4 className="text-xs font-bold text-white">{mod.title}</h4>
+                            <span className="text-[10px] text-neutral-400">
                               {mod.chapters?.length || 0} chapters
                             </span>
                           </div>
                         </div>
 
                         <svg
-                          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                          className={`w-4 h-4 text-neutral-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
@@ -465,24 +465,24 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
 
                       {/* Chapters Dropdown */}
                       {isOpen && mod.chapters && mod.chapters.length > 0 && (
-                        <div className="p-3 bg-white space-y-2 border-t border-slate-100">
+                        <div className="p-3 bg-[#111111] space-y-2 border-t border-white/[0.08]">
                           {mod.chapters.map((ch) => (
                             <div
                               key={ch.id}
-                              className="p-2.5 rounded-[8px] bg-slate-50 flex items-center justify-between hover:bg-stone-100/80 transition-colors"
+                              className="p-2.5 rounded-[8px] bg-white/[0.04] flex items-center justify-between hover:bg-white/[0.07] transition-colors"
                             >
                               <div className="flex items-center space-x-3">
-                                <span className="text-[11px] font-bold text-slate-400">
+                                <span className="text-[11px] font-bold text-neutral-400">
                                   {ch.sequenceOrder}.
                                 </span>
                                 <div>
-                                  <h5 className="text-xs font-semibold text-slate-800">{ch.title}</h5>
+                                  <h5 className="text-xs font-semibold text-white">{ch.title}</h5>
                                   {ch.concepts && ch.concepts.length > 0 && (
                                     <div className="flex flex-wrap gap-1.5 mt-1">
                                       {ch.concepts.map((concept) => (
                                         <span
                                           key={concept.id}
-                                          className="text-[9px] font-medium bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-600"
+                                          className="text-[9px] font-medium bg-white/[0.06] px-2 py-0.5 rounded border border-white/10 text-neutral-300"
                                         >
                                           {concept.name}
                                         </span>
@@ -493,10 +493,10 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                               </div>
 
                               <div className="flex items-center space-x-2 shrink-0">
-                                <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                                   Oral Viva
                                 </span>
-                                <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+                                <span className="text-[9px] font-bold text-purple-300 bg-purple-500/15 px-2 py-0.5 rounded-full border border-purple-500/25">
                                   Lab Demo
                                 </span>
                               </div>
@@ -508,7 +508,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                   );
                 })
               ) : (
-                <div className="text-center py-6 text-xs text-slate-400">
+                <div className="text-center py-6 text-xs text-neutral-400">
                   {isLoading ? "Loading curriculum syllabus..." : "Curriculum data ready."}
                 </div>
               )}
@@ -517,47 +517,47 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
           {/* END: CourseCurriculumAccordion */}
 
           {/* BEGIN: Assessment & Certification Pathway Section */}
-          <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs space-y-4" data-purpose="certification-pathway-section">
+          <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs space-y-4" data-purpose="certification-pathway-section">
             <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-[10px] bg-amber-50 text-amber-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-[10px] bg-amber-500/15 border border-amber-500/20 text-amber-400 flex items-center justify-center">
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M12 2a5 5 0 015 5c0 1.95-.97 3.69-2.45 4.54L16 20l-4-2-4 2 1.45-8.46A4.992 4.992 0 017 7a5 5 0 015-5zm0 2a3 3 0 100 6 3 3 0 000-6z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-sm text-neutral-900">Defensible Certification Pathway</h3>
-                <p className="text-[11px] text-neutral-500">How you earn your verified credential</p>
+                <h3 className="font-bold text-sm text-white">Defensible Certification Pathway</h3>
+                <p className="text-[11px] text-neutral-400">How you earn your verified credential</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-              <div className="p-3.5 bg-slate-50 rounded-[10px] border border-slate-200 space-y-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tier 1</span>
-                <h4 className="text-xs font-bold text-slate-900">Foundation Credential</h4>
-                <p className="text-[11px] text-slate-600 leading-relaxed">
+              <div className="p-3.5 bg-white/[0.04] rounded-[10px] border border-white/[0.06] space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Tier 1</span>
+                <h4 className="text-xs font-bold text-white">Foundation Credential</h4>
+                <p className="text-[11px] text-neutral-300 leading-relaxed">
                   Consistent chapter completion, diagnostic verification, and conceptual knowledge checks.
                 </p>
               </div>
 
-              <div className="p-3.5 bg-slate-50 rounded-[10px] border border-slate-200 space-y-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Tier 2</span>
-                <h4 className="text-xs font-bold text-slate-900">Proficient Credential</h4>
-                <p className="text-[11px] text-slate-600 leading-relaxed">
+              <div className="p-3.5 bg-white/[0.04] rounded-[10px] border border-white/[0.06] space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Tier 2</span>
+                <h4 className="text-xs font-bold text-white">Proficient Credential</h4>
+                <p className="text-[11px] text-neutral-300 leading-relaxed">
                   Applied problem solving, low remediation frequency, and verified Bayesian mastery metrics.
                 </p>
               </div>
 
-              <div className="p-3.5 bg-slate-50 rounded-[10px] border border-slate-200 space-y-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Tier 3</span>
-                <h4 className="text-xs font-bold text-slate-900">Advanced Master</h4>
-                <p className="text-[11px] text-slate-600 leading-relaxed">
+              <div className="p-3.5 bg-white/[0.04] rounded-[10px] border border-white/[0.06] space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Tier 3</span>
+                <h4 className="text-xs font-bold text-white">Advanced Master</h4>
+                <p className="text-[11px] text-neutral-300 leading-relaxed">
                   High-order code demonstration, sandbox execution, and oral AI Viva defense with transcript.
                 </p>
               </div>
             </div>
 
-            <div className="p-3 bg-[#FAF3F5] rounded-[10px] border border-rose-100 flex items-center space-x-3 text-xs text-slate-700">
-              <span className="text-rose-600 font-bold shrink-0">Evidence Rule:</span>
+            <div className="p-3 bg-rose-500/10 rounded-[10px] border border-rose-500/20 flex items-center space-x-3 text-xs text-neutral-200">
+              <span className="text-rose-400 font-bold shrink-0">Evidence Rule:</span>
               <span>
                 Certificates are issued with a <strong>Unique Credential ID</strong> and database-backed verification. Every badge represents recorded empirical demonstration.
               </span>
@@ -570,17 +570,17 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
         {/* BEGIN: RightSidebarColumn (4 cols) */}
         <div className="lg:col-span-4 space-y-5" data-purpose="right-sidebar">
           {/* Card 1: Start Your Learning Journey - Canonical 14px card */}
-          <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs">
+          <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs">
             <div className="flex items-center space-x-2.5 mb-4">
-              <div className="w-7 h-7 rounded-[8px] bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[8px] bg-purple-500/15 border border-purple-500/20 text-purple-300 flex items-center justify-center">
                 <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <h3 className="font-bold text-sm text-neutral-900">Start Your Learning Journey</h3>
+              <h3 className="font-bold text-sm text-white">Start Your Learning Journey</h3>
             </div>
 
-            <ul className="space-y-2.5 text-xs text-neutral-700 mb-6">
+            <ul className="space-y-2.5 text-xs text-neutral-300 mb-6">
               {[
                 "Learn at your own pace",
                 "AI-powered personalized learning",
@@ -589,7 +589,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                 "Earn a verified certificate",
               ].map((text, idx) => (
                 <li key={idx} className="flex items-center space-x-2.5">
-                  <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd" />
                   </svg>
                   <span>{text}</span>
@@ -599,7 +599,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
 
             <button
               onClick={() => onStartCourse(courseSlug)}
-              className="w-full bg-[#5025D1] hover:bg-[#431db8] text-white font-medium py-3 rounded-[8px] text-xs flex items-center justify-center space-x-2 shadow-sm shadow-indigo-200 transition active:scale-98 cursor-pointer"
+              className="w-full bg-white hover:bg-neutral-200 text-neutral-950 font-bold py-3 rounded-[8px] text-xs flex items-center justify-center space-x-2 shadow-sm transition active:scale-98 cursor-pointer"
             >
               <span>{isEnrolled ? "Continue Learning" : "Enroll Now"}</span>
               <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -608,7 +608,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
             </button>
 
             {isEnrolled && currentChapterOrder && (
-              <p className="text-[11px] text-center text-emerald-700 bg-emerald-50 py-1.5 px-2 rounded mt-2.5 font-medium border border-emerald-200/60">
+              <p className="text-[11px] text-center text-emerald-400 bg-emerald-500/10 py-1.5 px-2 rounded mt-2.5 font-medium border border-emerald-500/20">
                 You are enrolled • Pick up Chapter {currentChapterOrder}
               </p>
             )}
@@ -619,26 +619,26 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
           </div>
 
           {/* Card 2: Course Instructor - Canonical 14px card */}
-          <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs">
-            <h3 className="font-bold text-xs text-neutral-900 mb-3.5 uppercase tracking-wide">Course Instructor</h3>
+          <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs">
+            <h3 className="font-bold text-xs text-white mb-3.5 uppercase tracking-wide">Course Instructor</h3>
             <div className="flex items-center space-x-3 mb-3">
-              <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center shrink-0">
                 <span className="text-[9px] font-bold tracking-tight">CERTIFY</span>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-neutral-900">CERTIFY Academic Team</h4>
-                <p className="text-[11px] text-neutral-500">Industry experts • Experienced educators</p>
+                <h4 className="text-xs font-bold text-white">CERTIFY Academic Team</h4>
+                <p className="text-[11px] text-neutral-400">Industry experts • Experienced educators</p>
               </div>
             </div>
-            <p className="text-[11.5px] text-neutral-500 leading-relaxed">
+            <p className="text-[11.5px] text-neutral-400 leading-relaxed">
               Curated and reviewed by industry professionals and academic experts to ensure practical, up-to-date, and job-relevant learning.
             </p>
           </div>
 
           {/* Card 3: Prerequisites - Canonical 14px card */}
-          <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs">
-            <h3 className="font-bold text-xs text-neutral-900 mb-3.5 uppercase tracking-wide">Prerequisites</h3>
-            <ul className="space-y-2 text-xs text-neutral-600">
+          <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs">
+            <h3 className="font-bold text-xs text-white mb-3.5 uppercase tracking-wide">Prerequisites</h3>
+            <ul className="space-y-2 text-xs text-neutral-300">
               {[
                 "Basic computer knowledge",
                 "No prior programming experience required",
@@ -655,12 +655,12 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
           </div>
 
           {/* Card 4: Related Courses - Canonical 14px card */}
-          <div className="bg-white p-6 rounded-[14px] border border-slate-200/80 shadow-xs">
+          <div className="bg-[#111111] p-6 rounded-[14px] border border-white/[0.08] shadow-xs">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-xs text-neutral-900 uppercase tracking-wide">Related Courses</h3>
+              <h3 className="font-bold text-xs text-white uppercase tracking-wide">Related Courses</h3>
               <button
                 onClick={() => onNavigate("catalog")}
-                className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 flex items-center transition-colors cursor-pointer"
+                className="text-[11px] font-semibold text-neutral-400 hover:text-white flex items-center transition-colors cursor-pointer"
               >
                 <span>View all</span>
                 <span className="ml-1">→</span>
@@ -673,22 +673,22 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                   slug: "data-structures-problem-solving",
                   title: "Data Structures & Problem Solving",
                   level: "Intermediate",
-                  bg: "bg-purple-50",
-                  text: "text-indigo-600",
+                  bg: "bg-purple-500/15 border border-purple-500/20",
+                  text: "text-purple-300",
                 },
                 {
                   slug: "web-development-foundations",
                   title: "Web Development Foundations",
                   level: "Beginner",
-                  bg: "bg-indigo-50",
-                  text: "text-indigo-600",
+                  bg: "bg-indigo-500/15 border border-indigo-500/20",
+                  text: "text-indigo-300",
                 },
                 {
                   slug: "databases-sql",
                   title: "Databases & SQL",
                   level: "Beginner",
-                  bg: "bg-emerald-50",
-                  text: "text-emerald-600",
+                  bg: "bg-emerald-500/15 border border-emerald-500/20",
+                  text: "text-emerald-300",
                 },
               ].map((rel) => (
                 <button
@@ -702,7 +702,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xs font-semibold text-neutral-900 group-hover:text-indigo-600 transition-colors">
+                    <h4 className="text-xs font-semibold text-white group-hover:text-neutral-300 transition-colors">
                       {rel.title}
                     </h4>
                     <p className="text-[10px] text-neutral-400">{rel.level}</p>

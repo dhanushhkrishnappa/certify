@@ -328,67 +328,67 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
       {/* 5 Information Cards Strip */}
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5" data-purpose="meta-info-strip">
         {/* Card 1: Questions */}
-        <div className="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="w-9 h-9 rounded-lg bg-purple-50 text-[#5a3ee6] flex items-center justify-center flex-shrink-0">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-xl p-3 flex items-center space-x-3 shadow-xs">
+          <div className="w-9 h-9 rounded-lg bg-white/[0.06] text-purple-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
           </div>
           <div>
-            <div className="text-xs font-bold text-gray-900 leading-tight">12 Questions</div>
-            <div className="text-[11px] text-gray-400 font-medium">Multiple formats</div>
+            <div className="text-xs font-bold text-white leading-tight">12 Questions</div>
+            <div className="text-[11px] text-neutral-400 font-medium">Multiple formats</div>
           </div>
         </div>
 
         {/* Card 2: Time limit */}
-        <div className="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-xl p-3 flex items-center space-x-3 shadow-xs">
+          <div className="w-9 h-9 rounded-lg bg-white/[0.06] text-blue-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
           </div>
           <div>
-            <div className="text-xs font-bold text-gray-900 leading-tight">30 Minutes</div>
-            <div className="text-[11px] text-gray-400 font-medium">Time limit</div>
+            <div className="text-xs font-bold text-white leading-tight">30 Minutes</div>
+            <div className="text-[11px] text-neutral-400 font-medium">Time limit</div>
           </div>
         </div>
 
         {/* Card 3: Mixed Difficulty */}
-        <div className="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-xl p-3 flex items-center space-x-3 shadow-xs">
+          <div className="w-9 h-9 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M4 6h16M4 10h16M4 14h16M4 18h16" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
           </div>
           <div>
-            <div className="text-xs font-bold text-gray-900 leading-tight">Mixed Difficulty</div>
-            <div className="text-[11px] text-gray-400 font-medium">Conceptual, Coding, Application</div>
+            <div className="text-xs font-bold text-white leading-tight">Mixed Difficulty</div>
+            <div className="text-[11px] text-neutral-400 font-medium">Conceptual, Coding, Application</div>
           </div>
         </div>
 
         {/* Card 4: Proctored */}
-        <div className="bg-white border border-[#eae8e0] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-xl p-3 flex items-center space-x-3 shadow-xs">
+          <div className="w-9 h-9 rounded-lg bg-white/[0.06] text-blue-400 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
           </div>
           <div>
-            <div className="text-xs font-bold text-gray-900 leading-tight">Proctored</div>
-            <div className="text-[11px] text-gray-400 font-medium">Academic integrity</div>
+            <div className="text-xs font-bold text-white leading-tight">Proctored</div>
+            <div className="text-[11px] text-neutral-400 font-medium">Academic integrity</div>
           </div>
         </div>
 
         {/* Card 5: Passing criteria */}
-        <div className="bg-[#fef9ee] border border-[#fae8c8] rounded-xl p-3 flex items-center space-x-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-xl p-3 flex items-center space-x-3 shadow-xs">
+          <div className="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
           </div>
           <div>
-            <div className="text-[11px] font-bold text-gray-900 leading-tight">Complete with 70% or above</div>
-            <div className="text-[10px] text-gray-500 font-medium">to earn your certificate</div>
+            <div className="text-[11px] font-bold text-white leading-tight">Complete with 70% or above</div>
+            <div className="text-[10px] text-neutral-400 font-medium">to earn your certificate</div>
           </div>
         </div>
       </section>
@@ -396,32 +396,32 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
       {/* Two-Column Assessment Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Main Panel (Col 8) */}
-        <div className="lg:col-span-8 bg-white border border-[#eae8e0] rounded-2xl p-6 shadow-xs space-y-5">
+        <div className="lg:col-span-8 bg-[#111111] border border-white/[0.08] rounded-2xl p-6 shadow-xs space-y-5">
           {/* Question Header Row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <span className="text-base font-bold text-gray-900">Question {currentQ.id} of {questions.length}</span>
-              <span className="bg-[#f0edfc] text-[#5a3ee6] font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
+              <span className="text-base font-bold text-white">Question {currentQ.id} of {questions.length}</span>
+              <span className="bg-white/[0.06] text-purple-300 border border-white/[0.06] font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
                 {currentQ.typeLabel}
               </span>
             </div>
             {markedForReview[currentQIndex] && (
-              <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              <span className="inline-flex items-center space-x-1 text-[11px] font-bold text-amber-400 bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-800/40">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                 <span>Marked for Review</span>
               </span>
             )}
           </div>
 
           {/* Question Prompt */}
-          <p className="text-[13px] text-gray-800 font-medium leading-relaxed">
+          <p className="text-[13px] text-neutral-200 font-medium leading-relaxed">
             {currentQ.prompt}
           </p>
 
           {/* Example Box */}
           {currentQ.exampleInput && (
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 font-mono text-[12px] leading-relaxed text-slate-800">
-              <div className="font-sans text-[11px] font-semibold text-slate-500 mb-1">Example:</div>
+            <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-4 font-mono text-[12px] leading-relaxed text-neutral-200">
+              <div className="font-sans text-[11px] font-semibold text-neutral-400 mb-1">Example:</div>
               <div>Input: {currentQ.exampleInput}</div>
               <div>Output: {currentQ.exampleOutput}</div>
             </div>
@@ -547,9 +547,9 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
 
             {/* Test Cases Table */}
             {activeTab === "tests" ? (
-              <div className="overflow-hidden border border-gray-200 rounded-lg">
+              <div className="overflow-hidden border border-white/[0.08] rounded-lg">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-gray-50/75 border-b border-gray-200 text-gray-700 font-semibold">
+                  <thead className="bg-white/[0.04] border-b border-white/[0.08] text-neutral-300 font-semibold">
                     <tr>
                       <th className="py-2.5 px-4 w-10" scope="col">#</th>
                       <th className="py-2.5 px-4 font-mono font-medium" scope="col">Input</th>
@@ -557,26 +557,26 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
                       <th className="py-2.5 px-4" scope="col">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 text-gray-800 font-mono text-[12px]">
+                  <tbody className="divide-y divide-white/[0.06] text-neutral-200 font-mono text-[12px]">
                     {currentQ.testCases.map((tc) => (
-                      <tr key={tc.id} className="hover:bg-gray-50/50">
-                        <td className="py-2.5 px-4 font-sans font-medium text-gray-600">{tc.id}</td>
-                        <td className="py-2.5 px-4 text-gray-700">{tc.input}</td>
-                        <td className="py-2.5 px-4 text-gray-700">{tc.expected}</td>
-                        <td className="py-2.5 px-4 font-sans text-xs text-gray-500">
+                      <tr key={tc.id} className="hover:bg-white/[0.02]">
+                        <td className="py-2.5 px-4 font-sans font-medium text-neutral-400">{tc.id}</td>
+                        <td className="py-2.5 px-4 text-neutral-300">{tc.input}</td>
+                        <td className="py-2.5 px-4 text-neutral-300">{tc.expected}</td>
+                        <td className="py-2.5 px-4 font-sans text-xs text-neutral-400">
                           {tc.status === "passed" ? (
-                            <span className="flex items-center space-x-2 text-emerald-600 font-semibold">
+                            <span className="flex items-center space-x-2 text-emerald-400 font-semibold">
                               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                               <span>Passed</span>
                             </span>
                           ) : tc.status === "failed" ? (
-                            <span className="flex items-center space-x-2 text-rose-600 font-semibold">
+                            <span className="flex items-center space-x-2 text-rose-400 font-semibold">
                               <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                               <span>Failed</span>
                             </span>
                           ) : (
-                            <span className="flex items-center space-x-2 text-gray-500">
-                              <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                            <span className="flex items-center space-x-2 text-neutral-400">
+                              <span className="w-2 h-2 rounded-full bg-white/20"></span>
                               <span>Not run</span>
                             </span>
                           )}
@@ -587,10 +587,10 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
                 </table>
               </div>
             ) : (
-              <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">Standard Input (stdin):</label>
+              <div className="border border-white/[0.08] rounded-lg p-3 bg-white/[0.02]">
+                <label className="block text-[11px] font-semibold text-neutral-400 mb-1">Standard Input (stdin):</label>
                 <textarea
-                  className="w-full bg-white border border-gray-300 rounded p-2 text-xs font-mono text-gray-800"
+                  className="w-full bg-[#111111] border border-white/[0.08] rounded p-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
                   rows={3}
                   placeholder="Enter arguments or JSON payload to feed test..."
                 />
@@ -602,7 +602,7 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
         {/* Right Column / Assessment Sidebar (Col 4) */}
         <div className="lg:col-span-4 space-y-4">
           {/* Card: Timer & Question Navigation Grid */}
-          <div className="bg-white border border-[#eae8e0] rounded-2xl p-5 shadow-xs space-y-4">
+          <div className="bg-[#111111] border border-white/[0.08] rounded-2xl p-5 shadow-xs space-y-4">
             {/* Timer & Pause Header */}
             <div className="flex items-center justify-between">
               {/* Radial circular timer */}
@@ -610,14 +610,14 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
                 <div className="relative w-12 h-12 flex items-center justify-center">
                   <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
                     <path
-                      className="text-gray-100"
+                      className="text-white/10"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="3"
                     ></path>
                     <path
-                      className="text-indigo-500"
+                      className="text-indigo-400"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
@@ -628,10 +628,10 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
                   </svg>
                 </div>
                 <div>
-                  <div className="text-xl font-bold tracking-tight text-gray-900 leading-none">
+                  <div className="text-xl font-bold tracking-tight text-white leading-none">
                     {formatTime(timeLeft)}
                   </div>
-                  <div className="text-[11px] text-gray-400 font-medium mt-0.5">
+                  <div className="text-[11px] text-neutral-400 font-medium mt-0.5">
                     {isPaused ? "Paused" : "Time Remaining"}
                   </div>
                 </div>
@@ -640,7 +640,7 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPaused(!isPaused)}
-                className="inline-flex items-center space-x-1.5 border border-gray-300 hover:border-gray-400 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-[0.98] cursor-pointer"
+                className="inline-flex items-center space-x-1.5 border border-white/[0.1] hover:border-white/[0.2] bg-white/[0.04] text-neutral-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-[0.98] cursor-pointer"
               >
                 <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                   {isPaused ? (
@@ -655,30 +655,30 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
 
             {/* Horizontal Progress Bar */}
             <div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+              <div className="w-full bg-white/[0.08] rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="bg-[#5a3ee6] h-1.5 rounded-full transition-all duration-300"
+                  className="bg-indigo-500 h-1.5 rounded-full transition-all duration-300"
                   style={{ width: `${progressPct}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between items-center text-[11px] font-medium text-gray-500 mt-1.5">
-                <span className="font-semibold text-gray-800">Question {currentQ.id} of {questions.length}</span>
-                <span className="font-bold text-gray-800">{progressPct}%</span>
+              <div className="flex justify-between items-center text-[11px] font-medium text-neutral-400 mt-1.5">
+                <span className="font-semibold text-neutral-200">Question {currentQ.id} of {questions.length}</span>
+                <span className="font-bold text-neutral-200">{progressPct}%</span>
               </div>
             </div>
 
             {/* Status Legend Pills */}
-            <div className="grid grid-cols-2 gap-y-1.5 text-[10px] text-gray-600 pt-1">
+            <div className="grid grid-cols-2 gap-y-1.5 text-[10px] text-neutral-400 pt-1">
               <div className="flex items-center space-x-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
                 <span>Answered</span>
               </div>
               <div className="flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full border-2 border-[#5a3ee6] flex-shrink-0"></span>
+                <span className="w-2 h-2 rounded-full border-2 border-indigo-400 flex-shrink-0"></span>
                 <span>Current</span>
               </div>
               <div className="flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></span>
+                <span className="w-2 h-2 rounded-full bg-white/20 flex-shrink-0"></span>
                 <span>Not Answered</span>
               </div>
               <div className="flex items-center space-x-1.5">
@@ -696,13 +696,13 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
 
                 let btnClass = "h-9 w-full rounded-lg font-semibold text-xs flex items-center justify-center transition cursor-pointer relative ";
                 if (isCurrent) {
-                  btnClass += "bg-white border-2 border-[#5a3ee6] text-[#5a3ee6] font-bold shadow-xs";
+                  btnClass += "bg-white/[0.1] border-2 border-indigo-400 text-white font-bold shadow-xs";
                 } else if (isMarked) {
-                  btnClass += "bg-amber-400 text-white hover:opacity-90";
+                  btnClass += "bg-amber-400 text-neutral-900 font-bold hover:opacity-90";
                 } else if (isAnswered) {
                   btnClass += "bg-emerald-500 text-white hover:opacity-90";
                 } else {
-                  btnClass += "bg-gray-100 hover:bg-gray-200 text-gray-700";
+                  btnClass += "bg-white/[0.05] hover:bg-white/[0.1] text-neutral-300 border border-white/[0.08]";
                 }
 
                 return (
@@ -734,8 +734,8 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
           </div>
 
           {/* Question Tools Card */}
-          <div className="bg-white border border-[#eae8e0] rounded-2xl p-4 shadow-xs space-y-2.5">
-            <span className="text-xs font-bold text-gray-800">Question Tools</span>
+          <div className="bg-[#111111] border border-white/[0.08] rounded-2xl p-4 shadow-xs space-y-2.5">
+            <span className="text-xs font-bold text-white">Question Tools</span>
             <div className="grid grid-cols-3 gap-2 pt-1">
               {/* Mark for Review */}
               <button
@@ -743,14 +743,14 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
                 onClick={handleToggleMark}
                 className={`flex flex-col items-center justify-center border rounded-xl p-2.5 space-y-1.5 text-center transition group cursor-pointer ${
                   markedForReview[currentQIndex]
-                    ? "border-amber-400 bg-amber-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-amber-400/60 bg-amber-500/10 text-amber-300"
+                    : "border-white/[0.08] hover:border-white/[0.15] bg-white/[0.02]"
                 }`}
               >
-                <svg className="w-4 h-4 text-gray-600 group-hover:text-[#5a3ee6]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-neutral-400 group-hover:text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
-                <span className="text-[10px] font-semibold text-gray-600 leading-tight group-hover:text-gray-900">
+                <span className="text-[10px] font-semibold text-neutral-300 leading-tight group-hover:text-white">
                   {markedForReview[currentQIndex] ? "Unmark" : "Mark for Review"}
                 </span>
               </button>
@@ -758,41 +758,41 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
               <button
                 type="button"
                 onClick={handleClearAnswer}
-                className="flex flex-col items-center justify-center border border-gray-200 hover:border-gray-300 rounded-xl p-2.5 space-y-1.5 text-center transition group cursor-pointer"
+                className="flex flex-col items-center justify-center border border-white/[0.08] hover:border-white/[0.15] bg-white/[0.02] rounded-xl p-2.5 space-y-1.5 text-center transition group cursor-pointer"
               >
-                <svg className="w-4 h-4 text-gray-600 group-hover:text-[#5a3ee6]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-neutral-400 group-hover:text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
-                <span className="text-[10px] font-semibold text-gray-600 leading-tight group-hover:text-gray-900">Clear Answer</span>
+                <span className="text-[10px] font-semibold text-neutral-300 leading-tight group-hover:text-white">Clear Answer</span>
               </button>
               {/* Report an Issue */}
               <button
                 type="button"
                 onClick={() => alert("Issue reported to certification committee.")}
-                className="flex flex-col items-center justify-center border border-gray-200 hover:border-gray-300 rounded-xl p-2.5 space-y-1.5 text-center transition group cursor-pointer"
+                className="flex flex-col items-center justify-center border border-white/[0.08] hover:border-white/[0.15] bg-white/[0.02] rounded-xl p-2.5 space-y-1.5 text-center transition group cursor-pointer"
               >
-                <svg className="w-4 h-4 text-gray-600 group-hover:text-[#5a3ee6]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-neutral-400 group-hover:text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
-                <span className="text-[10px] font-semibold text-gray-600 leading-tight group-hover:text-gray-900">Report an Issue</span>
+                <span className="text-[10px] font-semibold text-neutral-300 leading-tight group-hover:text-white">Report an Issue</span>
               </button>
             </div>
           </div>
 
           {/* Instructions Accordion Card */}
-          <div className="bg-[#f6f5fe] border border-[#e6e2fa] rounded-2xl p-4 shadow-xs">
+          <div className="bg-[#111111] border border-white/[0.08] rounded-2xl p-4 shadow-xs">
             <div
               onClick={() => setInstructionsOpen(!instructionsOpen)}
               className="flex items-center justify-between cursor-pointer"
             >
-              <div className="flex items-center space-x-2 text-[#5a3ee6] font-bold text-xs">
+              <div className="flex items-center space-x-2 text-indigo-400 font-bold text-xs">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 <span>Instructions</span>
               </div>
               <svg
-                className={`w-3.5 h-3.5 text-[#5a3ee6] transform transition-transform ${instructionsOpen ? "rotate-180" : ""}`}
+                className={`w-3.5 h-3.5 text-indigo-400 transform transition-transform ${instructionsOpen ? "rotate-180" : ""}`}
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -802,7 +802,7 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
               </svg>
             </div>
             {instructionsOpen && (
-              <ul className="mt-3 space-y-1.5 text-[11px] text-gray-600 font-normal leading-relaxed list-disc list-inside">
+              <ul className="mt-3 space-y-1.5 text-[11px] text-neutral-300 font-normal leading-relaxed list-disc list-inside">
                 <li>Read each question carefully.</li>
                 <li>Write and test your code before submitting.</li>
                 <li>You can navigate between questions using the panel.</li>
