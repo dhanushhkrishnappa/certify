@@ -208,7 +208,7 @@ export const App: React.FC = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full min-h-screen"
+          className="w-full h-screen overflow-hidden"
         >
           <AuthView
             onLoginSuccess={handleLoginSuccess}
