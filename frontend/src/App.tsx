@@ -296,9 +296,8 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 min-h-screen transition-all duration-300 ${
-          sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"
-        }`}
+        className={`flex-1 min-h-screen transition-all duration-300 ${sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"
+          }`}
       >
         <main className="p-6 md:p-8 max-w-[1600px] mx-auto">
           {/* Global Header (hidden on focused immersive views like Studio/Certificate) */}
