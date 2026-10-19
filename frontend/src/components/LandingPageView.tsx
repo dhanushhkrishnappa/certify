@@ -5,16 +5,11 @@ import { LogoPreloader } from "./landing/LogoPreloader.js";
 import { LandingNavbar } from "./landing/LandingNavbar.js";
 import { HeroSection } from "./landing/HeroSection.js";
 import { ManifestoSection } from "./landing/ManifestoSection.js";
-import { LearnedDemonstratedEarnedSection } from "./landing/LearnedDemonstratedEarnedSection.js";
 import { ProofBentoSection } from "./landing/ProofBentoSection.js";
-import { CertifyVerificationStack } from "./landing/CertifyVerificationStack.js";
 import { DraggableCurriculumCarousel } from "./landing/DraggableCurriculumCarousel.js";
-import { FlagshipCourseSection } from "./landing/FlagshipCourseSection.js";
 import { AnimatedStatsSection } from "./landing/AnimatedStatsSection.js";
 import { TestimonialsSection } from "./landing/TestimonialsSection.js";
-import { ChooseYourPathSection } from "./landing/ChooseYourPathSection.js";
 import { FaqSection } from "./landing/FaqSection.js";
-import { FinalCtaSection } from "./landing/FinalCtaSection.js";
 import { LandingFooter } from "./landing/LandingFooter.js";
 
 // Session-level tracking so preloader runs strictly once on initial landing page entry
@@ -76,54 +71,29 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         {/* 1. Core Value Proposition / Scroll Manifesto (Interactive Text First) */}
         <ManifestoSection isPreloaderActive={showPreloader} />
 
-        {/* 2. Cinematic Narrative Slideshow */}
+        {/* 2. Cinematic Narrative Slideshow ("How It Works") */}
         <HeroSection
           onExploreCourses={onExploreCourses}
           onBeginDiagnostic={onBeginDiagnostic}
         />
 
-        {/* 3. Emotional Core: LEARN -> DEMONSTRATE -> EARN */}
-        <LearnedDemonstratedEarnedSection />
-
-        {/* 4. 6-Pillar Proof Bento Section */}
+        {/* 3. 6-Pillar Proof Bento Section */}
         <ProofBentoSection />
 
-        {/* 6. Continuous Verification 4-Card Scroll Stack */}
-        <CertifyVerificationStack />
-
-        {/* 7. Draggable Curriculum Carousel */}
+        {/* 4. Draggable Curriculum Carousel */}
         <DraggableCurriculumCarousel
           onExploreCourses={onExploreCourses}
           onSelectCourse={onSelectCourse}
         />
 
-        {/* 8. Flagship Track Deep Dive (Python Fundamentals) */}
-        <FlagshipCourseSection
-          onExploreCourses={onExploreCourses}
-          onBeginDiagnostic={onBeginDiagnostic}
-        />
-
-        {/* 9. Animated Product Dimensions & Statistics */}
+        {/* 5. Animated Product Dimensions & Statistics */}
         <AnimatedStatsSection />
 
-        {/* 10. Candidate Experience Reports / Testimonials */}
+        {/* 6. Candidate Experience Reports / Testimonials */}
         <TestimonialsSection />
 
-        {/* 11. Choose Your Path / Product Model */}
-        <ChooseYourPathSection
-          onBeginDiagnostic={onBeginDiagnostic}
-          onExploreCourses={onExploreCourses}
-          onSignIn={onSignIn}
-        />
-
-        {/* 12. Accessible FAQ Accordion */}
+        {/* 7. Accessible FAQ Accordion */}
         <FaqSection />
-
-        {/* 13. Dramatic Bottom CTA ("Don't just say you know it. Prove it.") */}
-        <FinalCtaSection
-          onBeginDiagnostic={onBeginDiagnostic}
-          onExploreCourses={onExploreCourses}
-        />
       </main>
 
       {/* 14. Premium Editorial Footer */}

@@ -54,7 +54,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
     { label: "How It Works", href: "#how-it-works" },
     { label: "Courses", href: "#courses", onClick: onExploreCourses },
     { label: "Pedagogy", href: "#pedagogy" },
-    { label: "Verification Stack", href: "#verification-scroll-stack" },
     { label: "Begin Diagnostic", href: "#diagnostic", onClick: onBeginDiagnostic },
   ];
 
@@ -251,11 +250,14 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
 
                   <div className="space-y-2">
                     <a
-                      href="#verification-scroll-stack"
-                      onClick={() => setSideMenuOpen(false)}
+                      href="#courses"
+                      onClick={() => {
+                        onExploreCourses();
+                        setSideMenuOpen(false);
+                      }}
                       className="block text-[#A1A1AA] hover:text-[#FEF5E5] transition-colors"
                     >
-                      Verification
+                      Courses
                     </a>
                     <a
                       href="#faq"

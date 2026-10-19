@@ -85,10 +85,7 @@ const SLIDES: SlideMeta[] = [
   },
 ];
 
-export const HeroSection: React.FC<HeroSectionProps> = ({
-  onExploreCourses,
-  onBeginDiagnostic,
-}) => {
+export const HeroSection: React.FC<HeroSectionProps> = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
@@ -241,6 +238,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <section
+      id="how-it-works"
       ref={sectionRef}
       className="relative w-full h-screen bg-transparent select-none overflow-hidden"
       style={{ isolation: "isolate" }}
@@ -403,29 +401,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 {SLIDES[activeSlide].supporting}
               </p>
 
-              {/* Slide 06 Action CTAs */}
-              {activeSlide === 5 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.08 }}
-                  className="flex items-center justify-center gap-3 my-1"
-                >
-                  <button
-                    onClick={onExploreCourses}
-                    className="px-4 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-white/20 text-[#FEF5E5] text-[13px] font-medium transition-all active:scale-95 cursor-pointer"
-                  >
-                    Explore Courses →
-                  </button>
-                  <button
-                    onClick={onBeginDiagnostic}
-                    className="px-5 py-2 rounded-full bg-gradient-to-b from-[#2A2A30] via-[#1E1E22] to-[#141416] hover:from-[#34343A] hover:to-[#222226] border border-white/15 text-[#FEF5E5] text-[13px] font-semibold shadow-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 group"
-                  >
-                    <span>Begin Diagnostic</span>
-                    <span className="text-[#E6CAA4] group-hover:translate-x-0.5 transition-transform">→</span>
-                  </button>
-                </motion.div>
-              )}
             </motion.div>
           </AnimatePresence>
 
