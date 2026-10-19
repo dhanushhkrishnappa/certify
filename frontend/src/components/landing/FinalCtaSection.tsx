@@ -15,7 +15,7 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
   const secondaryMagneticRef = useMagnetic<HTMLButtonElement>({ strength: 0.22 });
 
   return (
-    <section className="relative py-28 sm:py-32 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
+    <section className="relative pt-12 sm:pt-16 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
       {/* Dramatic Ambient Light Beams */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[550px] pointer-events-none rounded-full blur-[150px] opacity-20"

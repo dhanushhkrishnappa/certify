@@ -65,7 +65,7 @@ export const FaqSection: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="relative py-20 sm:py-24 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
+    <section id="faq" className="relative pt-12 sm:pt-16 pb-14 sm:pb-18 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
       <div className="relative z-10 max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">

@@ -62,7 +62,7 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({
   };
 
   return (
-    <footer className="relative w-full pt-10 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden z-10 font-sans">
+    <footer className="relative w-full pt-4 sm:pt-6 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden z-10 font-sans">
       {/* Centered Floating Container - Stretched Horizontally */}
       <div className="max-w-[1360px] mx-auto">
         {/* Outer Metallic Gradient Rim / Bezel (3px padding creates the calibrated metallic border) */}

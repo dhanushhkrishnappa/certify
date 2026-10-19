@@ -81,7 +81,7 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
   };
 
   return (
-    <section id="courses" className="relative pt-16 pb-20 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
+    <section id="courses" className="relative pt-10 sm:pt-14 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Editorial Section Header with tight, balanced spacing to the carousel */}
         <div className="text-center max-w-3xl mx-auto mb-4 sm:mb-6">
