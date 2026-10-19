@@ -7,8 +7,6 @@ import { CourseDetailsView } from "./components/CourseDetailsView.js";
 import { MyLearningView } from "./components/MyLearningView.js";
 import { LearningStudio } from "./components/LearningStudio.js";
 import { ChapterAssessmentView } from "./components/ChapterAssessmentView.js";
-import { DiagnosticView } from "./components/DiagnosticView.js";
-import { RemediationStudioView } from "./components/RemediationStudioView.js";
 import { FinalAssessmentView } from "./components/FinalAssessmentView.js";
 import { CertificationResultView } from "./components/CertificationResultView.js";
 import { CredentialsListView } from "./components/CredentialsListView.js";
@@ -31,8 +29,6 @@ export type CertifyView =
   | "studio"
   | "assessments"
   | "chapter-assessment"
-  | "diagnostic"
-  | "remediation"
   | "final-assessment"
   | "result"
   | "credentials"
@@ -64,9 +60,7 @@ const getViewFromPath = (): CertifyView => {
     mylearning: "mylearning",
     dashboard: "dashboard",
     studio: "studio",
-    diagnostic: "diagnostic",
     "chapter-assessment": "chapter-assessment",
-    remediation: "remediation",
     "final-assessment": "final-assessment",
     assessments: "final-assessment",
     result: "result",
@@ -188,7 +182,6 @@ export const App: React.FC = () => {
     return (
       <LandingPageView
         onExploreCourses={() => navigateWithTransition(currentUser ? "catalog" : "auth")}
-        onBeginDiagnostic={() => navigateWithTransition(currentUser ? "diagnostic" : "auth")}
         onSignIn={() => navigateWithTransition("auth")}
         onRegister={() => navigateWithTransition("auth")}
         onSelectCourse={(slug) => {
@@ -224,7 +217,6 @@ export const App: React.FC = () => {
     return (
       <LandingPageView
         onExploreCourses={() => navigateWithTransition("auth")}
-        onBeginDiagnostic={() => navigateWithTransition("auth")}
         onSignIn={() => navigateWithTransition("auth")}
         onRegister={() => navigateWithTransition("auth")}
         onSelectCourse={(slug) => {
@@ -274,8 +266,6 @@ export const App: React.FC = () => {
   const isFullscreenWorkflow = [
     "studio",
     "chapter-assessment",
-    "diagnostic",
-    "remediation",
     "final-assessment",
     "result",
     "credential-details",
@@ -296,10 +286,17 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 min-h-screen transition-all duration-300 ${sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"
-          }`}
+        className={`flex-1 transition-all duration-300 ${
+          currentView === "studio" ? "h-screen overflow-hidden flex flex-col" : "min-h-screen"
+        } ${sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"}`}
       >
-        <main className="p-6 md:p-8 max-w-[1600px] mx-auto">
+        <main
+          className={
+            currentView === "studio"
+              ? "p-4 md:px-6 md:py-3 max-w-[1700px] w-full mx-auto h-full flex flex-col overflow-hidden"
+              : "p-6 md:p-8 max-w-[1600px] mx-auto"
+          }
+        >
           {/* Global Header (hidden on focused immersive views like Studio/Certificate) */}
           {!isFullscreenWorkflow && (
             <AppHeader
@@ -314,7 +311,7 @@ export const App: React.FC = () => {
           )}
 
           {/* Active View Container */}
-          <div className={isFullscreenWorkflow ? "pt-0" : "pt-2"}>
+          <div className={currentView === "studio" ? "flex-1 min-h-0 flex flex-col overflow-hidden" : isFullscreenWorkflow ? "pt-0" : "pt-2"}>
             {/* Screen 1: Dashboard */}
             {currentView === "dashboard" && (
               <DashboardView
@@ -376,26 +373,6 @@ export const App: React.FC = () => {
                 chapterTitle="Memory Model & Mutability"
                 onNavigate={(v) => setCurrentView(v as CertifyView)}
                 onComplete={() => setCurrentView("studio")}
-                onNavigateRemediation={() => setCurrentView("remediation")}
-              />
-            )}
-
-            {/* Screen 7: Diagnostic Pre-Assessment */}
-            {currentView === "diagnostic" && (
-              <DiagnosticView
-                courseSlug={selectedCourseSlug}
-                onNavigate={(v) => setCurrentView(v as CertifyView)}
-                onComplete={() => setCurrentView("studio")}
-                onCancel={() => setCurrentView("course-details")}
-              />
-            )}
-
-            {/* Screen 8: Remediation Studio */}
-            {currentView === "remediation" && (
-              <RemediationStudioView
-                conceptName="Variable Reassignment vs In-Place Mutation"
-                onNavigate={(v) => setCurrentView(v as CertifyView)}
-                onReturnToStudio={() => setCurrentView("studio")}
               />
             )}
 

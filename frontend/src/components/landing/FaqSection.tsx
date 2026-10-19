@@ -33,9 +33,9 @@ const FAQ_ITEMS: FaqItem[] = [
   },
   {
     id: "faq-05",
-    question: "What happens if I have a misconception or fail an invariant check?",
+    question: "What happens if I encounter challenging concepts or fail an invariant check?",
     answer:
-      "Unlike punitive exams, Certify uses targeted remediation. If a misconception is detected (e.g., confusing closure scope with object inheritance), the platform immediately branches into an interactive remediation studio with targeted counter-examples to build intuition.",
+      "Certify pairs you with an interactive Socratic AI Tutor embedded inside every lesson. Instead of punitive failure, the tutor explores your mental model, runs targeted counter-examples in your browser sandbox, and guides you to the correct architectural intuition.",
   },
   {
     id: "faq-06",
@@ -45,9 +45,9 @@ const FAQ_ITEMS: FaqItem[] = [
   },
   {
     id: "faq-07",
-    question: "What is the 7-minute baseline diagnostic?",
+    question: "How do I begin learning on Certify?",
     answer:
-      "The diagnostic is a free, zero-stakes conversational session with the AI tutor. In about 7 minutes, it calibrates your baseline background and highlights which prerequisites you already master, letting you skip redundant material.",
+      "Simply choose any course from the curriculum catalog and start working through its structured interactive modules. Each lesson incorporates theory overviews, key objectives, real-time code execution, and oral viva readiness checks.",
   },
   {
     id: "faq-08",

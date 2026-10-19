@@ -535,7 +535,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                 <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Tier 1</span>
                 <h4 className="text-xs font-bold text-white">Foundation Credential</h4>
                 <p className="text-[11px] text-neutral-300 leading-relaxed">
-                  Consistent chapter completion, diagnostic verification, and conceptual knowledge checks.
+                  Consistent chapter completion, formative assessments, and conceptual knowledge checks.
                 </p>
               </div>
 
@@ -543,7 +543,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                 <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Tier 2</span>
                 <h4 className="text-xs font-bold text-white">Proficient Credential</h4>
                 <p className="text-[11px] text-neutral-300 leading-relaxed">
-                  Applied problem solving, low remediation frequency, and verified Bayesian mastery metrics.
+                  Applied problem solving, code invariant verification, and verified Bayesian mastery metrics.
                 </p>
               </div>
 

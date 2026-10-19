@@ -404,7 +404,7 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
             <div className="space-y-2.5 text-xs text-neutral-300 pt-1">
               {[
                 "Completed all 8 curriculum modules",
-                "Passed chapter baseline & diagnostic assessments",
+                "Passed chapter baseline & milestone evaluations",
                 "Completed hands-on practical project demo",
                 "Cleared deterministic final code assessment",
                 "Completed oral AI viva defense session",

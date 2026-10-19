@@ -6,7 +6,6 @@ interface ChapterAssessmentViewProps {
   chapterTitle?: string;
   onNavigate: (view: string) => void;
   onComplete?: () => void;
-  onNavigateRemediation?: () => void;
   onPassed?: () => void;
 }
 
@@ -15,7 +14,6 @@ export const ChapterAssessmentView: React.FC<ChapterAssessmentViewProps> = ({
   chapterTitle: _chapterTitle,
   onNavigate,
   onComplete,
-  onNavigateRemediation,
   onPassed,
 }) => {
   const [codeContent, setCodeContent] = useState(`import { ReplicaNode, VersionVector, VersionedValue } from '@certify/distributed-core';
@@ -216,13 +214,12 @@ export class QuorumCoordinator<T> {
 
               <button
                 onClick={() => {
-                  if (onNavigateRemediation) onNavigateRemediation();
-                  else onNavigate("remediation");
+                  onNavigate("studio");
                 }}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-purple-200 hover:text-white hover:bg-white/10 text-[12px] transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px] text-purple-300">psychology</span>
-                <span>Ask Socratic Clarifier <span className="text-purple-200/50 text-[11px] font-normal">(Non-punitive hint)</span></span>
+                <span>Ask Socratic Tutor <span className="text-purple-200/50 text-[11px] font-normal">(Return to Studio)</span></span>
               </button>
 
               <button

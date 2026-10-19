@@ -135,7 +135,7 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
             <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: 500, margin: "0 auto 24px" }}>
               {result.isPassed
                 ? "Your responses satisfied the atomic rubric criteria. Bayesian Knowledge Tracing scores updated."
-                : "You demonstrated partial understanding. Socratic remediation will guide your weak concepts."}
+                : "You demonstrated partial understanding. Your Socratic AI Tutor will guide your concepts in the learning studio."}
             </p>
 
             <div style={{

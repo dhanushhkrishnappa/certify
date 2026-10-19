@@ -8,7 +8,6 @@ import { StorySlideOutcome } from "./story/StorySlideOutcome.js";
 
 interface HeroSectionProps {
   onExploreCourses: () => void;
-  onBeginDiagnostic: () => void;
 }
 
 interface SlideMeta {

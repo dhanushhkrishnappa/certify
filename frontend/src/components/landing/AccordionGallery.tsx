@@ -237,24 +237,119 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
     []
   );
 
+  const activeRef = useRef(active);
+  useEffect(() => {
+    activeRef.current = active;
+  }, [active]);
+
+  const lastAutoAdvanceTime = useRef<number>(0);
+  const lastMousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const isArmedForwardRef = useRef<boolean>(true);
+  const isArmedBackwardRef = useRef<boolean>(true);
+  const cardActivationPosRef = useRef<number>(0);
+
+  const activateCard = useCallback((index: number) => {
+    activeRef.current = index;
+    setActive(index);
+    lastAutoAdvanceTime.current = Date.now();
+    isArmedForwardRef.current = false;
+    isArmedBackwardRef.current = false;
+  }, []);
+
   const handleEnter = (i: number) => {
-    if (trigger === "hover") setActive(i);
+    if (trigger !== "hover") return;
+    if (i !== activeRef.current) {
+      activateCard(i);
+    }
+  };
+
+  const handleMouseMove = (i: number, e: React.MouseEvent<HTMLElement>) => {
+    if (trigger !== "hover") return;
+
+    const currentX = e.clientX;
+    const currentY = e.clientY;
+    const prevX = lastMousePosRef.current.x;
+    const prevY = lastMousePosRef.current.y;
+    lastMousePosRef.current = { x: currentX, y: currentY };
+
+    // Only auto-advance from the currently active expanded card
+    if (i !== activeRef.current) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    const currentPos = vertical ? currentY : currentX;
+    const rel = vertical
+      ? (currentY - rect.top) / rect.height
+      : (currentX - rect.left) / rect.width;
+
+    const distFromStart = vertical
+      ? currentY - rect.top
+      : currentX - rect.left;
+
+    const distFromEnd = vertical
+      ? rect.height - (currentY - rect.top)
+      : rect.width - (currentX - rect.left);
+
+    // Arm forward if mouse is in safe content zone or moved forward at least 25px
+    if (!isArmedForwardRef.current) {
+      if (rel < 0.80 || currentPos - cardActivationPosRef.current >= 25) {
+        isArmedForwardRef.current = true;
+      }
+    }
+
+    // Arm backward if mouse is in safe content zone or moved backward at least 25px
+    if (!isArmedBackwardRef.current) {
+      if (rel > 0.20 || cardActivationPosRef.current - currentPos >= 25) {
+        isArmedBackwardRef.current = true;
+      }
+    }
+
+    const now = Date.now();
+    // 220ms cooldown between transitions for fluid, responsive browsing
+    if (now - lastAutoAdvanceTime.current < 220) return;
+
+    const isMovingForward = vertical
+      ? currentY >= prevY - 1
+      : currentX >= prevX - 1;
+
+    const isMovingBackward = vertical
+      ? currentY <= prevY + 1
+      : currentX <= prevX + 1;
+
+    // Reduced effect zone width: triggered in the last ~15% or 80px of the card
+    const isAtEnd = rel >= 0.85 || distFromEnd <= 80;
+    const isAtStart = rel <= 0.15 || distFromStart <= 80;
+
+    // 1. Hovering forward towards the next card
+    if (isMovingForward && isArmedForwardRef.current && isAtEnd && i < count - 1) {
+      cardActivationPosRef.current = currentPos;
+      activateCard(i + 1);
+      return;
+    }
+
+    // 2. Hovering backward from the last card towards the first card
+    if (isMovingBackward && isArmedBackwardRef.current && isAtStart && i > 0) {
+      cardActivationPosRef.current = currentPos;
+      activateCard(i - 1);
+      return;
+    }
   };
 
   const handleClick = (i: number, e: React.MouseEvent) => {
-    if (i !== active) {
+    if (i !== activeRef.current) {
       e.preventDefault();
-      setActive(i);
+      activateCard(i);
     }
   };
 
   const handleKeyDown = (i: number, e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
-      setActive((i + 1) % count);
+      activateCard((i + 1) % count);
     } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       e.preventDefault();
-      setActive((i - 1 + count) % count);
+      activateCard((i - 1 + count) % count);
     }
   };
 
@@ -285,6 +380,7 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
           style: { borderRadius: `${radius}px` },
           onClick: (e: React.MouseEvent) => handleClick(i, e),
           onMouseEnter: () => handleEnter(i),
+          onMouseMove: (e: React.MouseEvent<HTMLElement>) => handleMouseMove(i, e),
           onFocus: () => setActive(i),
           onKeyDown: (e: React.KeyboardEvent) => handleKeyDown(i, e),
           role: "listitem" as const,

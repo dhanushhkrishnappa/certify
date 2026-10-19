@@ -17,7 +17,6 @@ let hasInitialPreloaderRun = false;
 
 interface LandingPageViewProps {
   onExploreCourses: () => void;
-  onBeginDiagnostic: () => void;
   onSignIn: () => void;
   onRegister?: () => void;
   onSelectCourse?: (slug: string) => void;
@@ -25,7 +24,6 @@ interface LandingPageViewProps {
 
 export const LandingPageView: React.FC<LandingPageViewProps> = ({
   onExploreCourses,
-  onBeginDiagnostic,
   onSignIn,
   onRegister,
   onSelectCourse,
@@ -61,7 +59,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* Sticky Transformed Navbar */}
       <LandingNavbar
         onExploreCourses={onExploreCourses}
-        onBeginDiagnostic={onBeginDiagnostic}
         onSignIn={onSignIn}
         onRegister={onRegister || onSignIn}
       />
@@ -74,7 +71,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         {/* 2. Cinematic Narrative Slideshow ("How It Works") */}
         <HeroSection
           onExploreCourses={onExploreCourses}
-          onBeginDiagnostic={onBeginDiagnostic}
         />
 
         {/* 3. 6-Pillar Proof Bento Section */}
@@ -99,7 +95,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* 14. Premium Editorial Footer */}
       <LandingFooter
         onExploreCourses={onExploreCourses}
-        onBeginDiagnostic={onBeginDiagnostic}
         onSignIn={onSignIn}
       />
     </div>

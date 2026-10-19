@@ -3,14 +3,12 @@ import { Check, Loader2 } from "lucide-react";
 
 interface LandingFooterProps {
   onExploreCourses: () => void;
-  onBeginDiagnostic: () => void;
   onSignIn: () => void;
   onRequestEarlyAccess?: (email: string) => Promise<void> | void;
 }
 
 export const LandingFooter: React.FC<LandingFooterProps> = ({
   onExploreCourses,
-  onBeginDiagnostic,
   onSignIn,
   onRequestEarlyAccess,
 }) => {
@@ -182,7 +180,7 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({
                     </li>
                     <li>
                       <button
-                        onClick={onBeginDiagnostic}
+                        onClick={onExploreCourses}
                         className="hover:text-[#111827] transition-colors duration-150 text-left cursor-pointer"
                       >
                         Pricing

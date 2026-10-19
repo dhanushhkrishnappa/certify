@@ -99,7 +99,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             Oral Viva Defenses
           </span>
           <div className="text-2xl font-bold text-emerald-400">100% Cleared</div>
-          <span className="text-xs text-neutral-400 mt-1 block">Zero remediation flags</span>
+          <span className="text-xs text-neutral-400 mt-1 block">Full rubric criteria met</span>
         </div>
       </div>
 

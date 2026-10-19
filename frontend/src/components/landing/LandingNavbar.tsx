@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "motion/react";
 
 interface LandingNavbarProps {
   onExploreCourses: () => void;
-  onBeginDiagnostic: () => void;
   onSignIn: () => void;
   onRegister?: () => void;
   onContactClick?: () => void;
@@ -11,7 +10,6 @@ interface LandingNavbarProps {
 
 export const LandingNavbar: React.FC<LandingNavbarProps> = ({
   onExploreCourses,
-  onBeginDiagnostic,
   onSignIn,
   onRegister,
 }) => {
@@ -54,7 +52,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
     { label: "How It Works", href: "#how-it-works" },
     { label: "Courses", href: "#courses", onClick: onExploreCourses },
     { label: "Pedagogy", href: "#pedagogy" },
-    { label: "Begin Diagnostic", href: "#diagnostic", onClick: onBeginDiagnostic },
   ];
 
   // Close expanding side menu on Escape key

@@ -15,7 +15,7 @@ const STATS: StatItem[] = [
     id: "signals",
     targetNumber: 6,
     label: "Core Evidence Signals",
-    description: "Multi-layered validation across diagnostic, dialogue, code sandboxes, and oral viva.",
+    description: "Multi-layered validation across conceptual mastery, dialogue, code sandboxes, and oral viva.",
   },
   {
     id: "journey",
