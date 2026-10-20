@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "../services/api.js";
 import type { CourseCatalogItem, CourseDetail, Module, Chapter } from "../types/index.js";
 import { SpotlightCard } from "./common/SpotlightCard.js";
+import { useTheme } from "../context/ThemeContext.js";
 
 interface CatalogViewProps {
   onSelectCourse: (slug: string) => void;
@@ -105,6 +106,8 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   onSelectCourse,
   onViewCourseDetails,
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [backendCourses, setBackendCourses] = useState<CourseCatalogItem[]>([]);
   const [activeFilter, setActiveFilter] = useState<"all" | "in-progress" | "completed">("all");
   const [selectedCourseDetail, setSelectedCourseDetail] = useState<CourseDetail | null>(null);
@@ -172,17 +175,27 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           {/* All Courses */}
           <button
             onClick={() => setActiveFilter("all")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${activeFilter === "all"
-              ? "bg-white text-neutral-950 font-bold shadow-md"
-              : "text-neutral-400 hover:text-white hover:bg-white/10"
-              }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+              activeFilter === "all"
+                ? isLight
+                  ? "bg-[#5B4DF0] text-white font-bold shadow-sm"
+                  : "bg-white text-neutral-950 font-bold shadow-md"
+                : isLight
+                  ? "text-slate-700 hover:text-purple-950 hover:bg-white/40 font-medium"
+                  : "text-neutral-400 hover:text-white hover:bg-white/10"
+            }`}
           >
             <span>All Courses</span>
             <span
-              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${activeFilter === "all"
-                ? "bg-neutral-950 text-white"
-                : "bg-white/15 text-neutral-300"
-                }`}
+              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                activeFilter === "all"
+                  ? isLight
+                    ? "bg-white/20 text-white"
+                    : "bg-neutral-950 text-white"
+                  : isLight
+                    ? "bg-purple-900/15 text-purple-950"
+                    : "bg-white/15 text-neutral-300"
+              }`}
             >
               {CURATED_CATALOG.length}
             </span>
@@ -191,17 +204,27 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           {/* In Progress */}
           <button
             onClick={() => setActiveFilter("in-progress")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${activeFilter === "in-progress"
-              ? "bg-white text-neutral-950 font-bold shadow-md"
-              : "text-neutral-400 hover:text-white hover:bg-white/10"
-              }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+              activeFilter === "in-progress"
+                ? isLight
+                  ? "bg-[#5B4DF0] text-white font-bold shadow-sm"
+                  : "bg-white text-neutral-950 font-bold shadow-md"
+                : isLight
+                  ? "text-slate-700 hover:text-purple-950 hover:bg-white/40 font-medium"
+                  : "text-neutral-400 hover:text-white hover:bg-white/10"
+            }`}
           >
             <span>In Progress</span>
             <span
-              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${activeFilter === "in-progress"
-                ? "bg-neutral-950 text-white"
-                : "bg-white/15 text-neutral-300"
-                }`}
+              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                activeFilter === "in-progress"
+                  ? isLight
+                    ? "bg-white/20 text-white"
+                    : "bg-neutral-950 text-white"
+                  : isLight
+                    ? "bg-purple-900/15 text-purple-950"
+                    : "bg-white/15 text-neutral-300"
+              }`}
             >
               {inProgressCount}
             </span>
@@ -210,17 +233,27 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           {/* Completed */}
           <button
             onClick={() => setActiveFilter("completed")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${activeFilter === "completed"
-              ? "bg-white text-neutral-950 font-bold shadow-md"
-              : "text-neutral-400 hover:text-white hover:bg-white/10"
-              }`}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+              activeFilter === "completed"
+                ? isLight
+                  ? "bg-[#5B4DF0] text-white font-bold shadow-sm"
+                  : "bg-white text-neutral-950 font-bold shadow-md"
+                : isLight
+                  ? "text-slate-700 hover:text-purple-950 hover:bg-white/40 font-medium"
+                  : "text-neutral-400 hover:text-white hover:bg-white/10"
+            }`}
           >
             <span>Completed</span>
             <span
-              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${activeFilter === "completed"
-                ? "bg-neutral-950 text-white"
-                : "bg-white/15 text-neutral-300"
-                }`}
+              className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                activeFilter === "completed"
+                  ? isLight
+                    ? "bg-white/20 text-white"
+                    : "bg-neutral-950 text-white"
+                  : isLight
+                    ? "bg-purple-900/15 text-purple-950"
+                    : "bg-white/15 text-neutral-300"
+              }`}
             >
               {completedCount}
             </span>
@@ -236,34 +269,54 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                 setShowFilterDropdown(!showFilterDropdown);
                 setShowSortDropdown(false);
               }}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-[10px] border border-white/[0.08] bg-[#111111] text-xs font-semibold text-neutral-200 hover:bg-white/[0.06] shadow-xs transition-colors cursor-pointer"
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-[10px] border text-xs font-semibold shadow-xs transition-colors cursor-pointer ${
+                isLight
+                  ? "border-purple-900/15 bg-white text-slate-800 hover:bg-purple-50"
+                  : "border-white/[0.08] bg-[#111111] text-neutral-200 hover:bg-white/[0.06]"
+              }`}
             >
-              <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-3.5 h-3.5 ${isLight ? "text-purple-700" : "text-neutral-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
               </svg>
               <span>{levelFilter === "all" ? "Filter" : levelFilter}</span>
-              <svg className="w-3.5 h-3.5 text-neutral-400 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-3.5 h-3.5 ml-0.5 ${isLight ? "text-purple-700" : "text-neutral-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
               </svg>
             </button>
 
             {showFilterDropdown && (
-              <div className="absolute right-0 mt-1 w-36 bg-[#111111] rounded-[10px] shadow-2xl border border-white/[0.08] py-1 z-30 text-xs font-medium">
+              <div className={`absolute right-0 mt-1 w-36 rounded-[10px] shadow-xl border py-1 z-30 text-xs font-medium ${
+                isLight
+                  ? "bg-white border-purple-900/15 text-slate-800 shadow-[0_12px_36px_rgba(76,29,149,0.12)]"
+                  : "bg-[#111111] border-white/[0.08] text-neutral-200 shadow-2xl"
+              }`}>
                 <button
                   onClick={() => { setLevelFilter("all"); setShowFilterDropdown(false); }}
-                  className={`w-full text-left px-3 py-1.5 hover:bg-white/[0.06] transition-colors ${levelFilter === "all" ? "text-white font-bold" : "text-neutral-300"}`}
+                  className={`w-full text-left px-3 py-1.5 transition-colors ${
+                    levelFilter === "all"
+                      ? isLight ? "text-purple-700 font-bold bg-purple-50" : "text-white font-bold bg-white/[0.06]"
+                      : isLight ? "text-slate-700 hover:bg-purple-50/60" : "text-neutral-300 hover:bg-white/[0.06]"
+                  }`}
                 >
                   All Levels
                 </button>
                 <button
                   onClick={() => { setLevelFilter("Beginner"); setShowFilterDropdown(false); }}
-                  className={`w-full text-left px-3 py-1.5 hover:bg-white/[0.06] transition-colors ${levelFilter === "Beginner" ? "text-white font-bold" : "text-neutral-300"}`}
+                  className={`w-full text-left px-3 py-1.5 transition-colors ${
+                    levelFilter === "Beginner"
+                      ? isLight ? "text-purple-700 font-bold bg-purple-50" : "text-white font-bold bg-white/[0.06]"
+                      : isLight ? "text-slate-700 hover:bg-purple-50/60" : "text-neutral-300 hover:bg-white/[0.06]"
+                  }`}
                 >
                   Beginner
                 </button>
                 <button
                   onClick={() => { setLevelFilter("Intermediate"); setShowFilterDropdown(false); }}
-                  className={`w-full text-left px-3 py-1.5 hover:bg-white/[0.06] transition-colors ${levelFilter === "Intermediate" ? "text-white font-bold" : "text-neutral-300"}`}
+                  className={`w-full text-left px-3 py-1.5 transition-colors ${
+                    levelFilter === "Intermediate"
+                      ? isLight ? "text-purple-700 font-bold bg-purple-50" : "text-white font-bold bg-white/[0.06]"
+                      : isLight ? "text-slate-700 hover:bg-purple-50/60" : "text-neutral-300 hover:bg-white/[0.06]"
+                  }`}
                 >
                   Intermediate
                 </button>
@@ -278,36 +331,56 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                 setShowSortDropdown(!showSortDropdown);
                 setShowFilterDropdown(false);
               }}
-              className="flex items-center gap-2 px-4 py-1.5 rounded-[10px] border border-white/[0.08] bg-[#111111] text-xs font-semibold text-neutral-200 hover:bg-white/[0.06] shadow-xs transition-colors cursor-pointer"
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-[10px] border text-xs font-semibold shadow-xs transition-colors cursor-pointer ${
+                isLight
+                  ? "border-purple-900/15 bg-white text-slate-800 hover:bg-purple-50"
+                  : "border-white/[0.08] bg-[#111111] text-neutral-200 hover:bg-white/[0.06]"
+              }`}
             >
-              <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-3.5 h-3.5 ${isLight ? "text-purple-700" : "text-neutral-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
               </svg>
               <span>
                 {sortBy === "relevant" ? "Most Relevant" : sortBy === "modules" ? "By Modules" : "By Duration"}
               </span>
-              <svg className="w-3.5 h-3.5 text-neutral-400 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-3.5 h-3.5 ml-0.5 ${isLight ? "text-purple-700" : "text-neutral-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
               </svg>
             </button>
 
             {showSortDropdown && (
-              <div className="absolute right-0 mt-1 w-40 bg-[#111111] rounded-[10px] shadow-2xl border border-white/[0.08] py-1 z-30 text-xs font-medium">
+              <div className={`absolute right-0 mt-1 w-40 rounded-[10px] shadow-xl border py-1 z-30 text-xs font-medium ${
+                isLight
+                  ? "bg-white border-purple-900/15 text-slate-800 shadow-[0_12px_36px_rgba(76,29,149,0.12)]"
+                  : "bg-[#111111] border-white/[0.08] text-neutral-200 shadow-2xl"
+              }`}>
                 <button
                   onClick={() => { setSortBy("relevant"); setShowSortDropdown(false); }}
-                  className={`w-full text-left px-3 py-1.5 hover:bg-white/[0.06] transition-colors ${sortBy === "relevant" ? "text-white font-bold" : "text-neutral-300"}`}
+                  className={`w-full text-left px-3 py-1.5 transition-colors ${
+                    sortBy === "relevant"
+                      ? isLight ? "text-purple-700 font-bold bg-purple-50" : "text-white font-bold bg-white/[0.06]"
+                      : isLight ? "text-slate-700 hover:bg-purple-50/60" : "text-neutral-300 hover:bg-white/[0.06]"
+                  }`}
                 >
                   Most Relevant
                 </button>
                 <button
                   onClick={() => { setSortBy("modules"); setShowSortDropdown(false); }}
-                  className={`w-full text-left px-3 py-1.5 hover:bg-white/[0.06] transition-colors ${sortBy === "modules" ? "text-white font-bold" : "text-neutral-300"}`}
+                  className={`w-full text-left px-3 py-1.5 transition-colors ${
+                    sortBy === "modules"
+                      ? isLight ? "text-purple-700 font-bold bg-purple-50" : "text-white font-bold bg-white/[0.06]"
+                      : isLight ? "text-slate-700 hover:bg-purple-50/60" : "text-neutral-300 hover:bg-white/[0.06]"
+                  }`}
                 >
                   Most Modules
                 </button>
                 <button
                   onClick={() => { setSortBy("hours"); setShowSortDropdown(false); }}
-                  className={`w-full text-left px-3 py-1.5 hover:bg-white/[0.06] transition-colors ${sortBy === "hours" ? "text-white font-bold" : "text-neutral-300"}`}
+                  className={`w-full text-left px-3 py-1.5 transition-colors ${
+                    sortBy === "hours"
+                      ? isLight ? "text-purple-700 font-bold bg-purple-50" : "text-white font-bold bg-white/[0.06]"
+                      : isLight ? "text-slate-700 hover:bg-purple-50/60" : "text-neutral-300 hover:bg-white/[0.06]"
+                  }`}
                 >
                   Estimated Duration
                 </button>
@@ -323,13 +396,17 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
         {filteredCourses.map((course) => (
           <SpotlightCard
             key={course.id}
-            theme="dark"
-            spotlightColor="#ffffff"
-            intensity={0.02}
+            theme={theme}
+            spotlightColor={isLight ? "#7c3aed" : "#ffffff"}
+            intensity={isLight ? 0.04 : 0.02}
             borderGlow={0.30}
             data-purpose="course-card"
             data-course-slug={course.slug}
-            className="bg-[#111111] rounded-[14px] border border-white/[0.08] shadow-sm overflow-hidden flex flex-col justify-between"
+            className={`rounded-[14px] border shadow-sm overflow-hidden flex flex-col justify-between transition-all duration-300 ${
+              isLight
+                ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)]"
+                : "bg-[#111111] border-white/[0.08]"
+            }`}
           >
             <div>
               {/* Thumbnail Graphic Area */}
@@ -484,29 +561,35 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
               {/* Card Content Body */}
               <div className="p-5">
-                <h3 className="font-bold text-[17px] text-white tracking-tight">
+                <h3 className={`font-bold text-[17px] tracking-tight transition-colors duration-300 ${
+                  isLight ? "text-slate-900" : "text-white"
+                }`}>
                   {course.title}
                 </h3>
-                <p className="text-xs text-neutral-400 mt-1.5 line-clamp-2 leading-relaxed">
+                <p className={`text-xs mt-1.5 line-clamp-2 leading-relaxed transition-colors duration-300 ${
+                  isLight ? "text-slate-600" : "text-neutral-400"
+                }`}>
                   {course.summary}
                 </p>
 
                 {/* Metadata Badges */}
-                <div className="flex items-center gap-4 mt-4 text-[11px] text-neutral-400 font-medium">
+                <div className={`flex items-center gap-4 mt-4 text-[11px] font-medium transition-colors duration-300 ${
+                  isLight ? "text-slate-500" : "text-neutral-400"
+                }`}>
                   <span className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                     </svg>
                     {course.level}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                     </svg>
                     {course.modulesCount} modules
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                     </svg>
                     {course.estimatedHours}
@@ -516,10 +599,14 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                 {/* Progress Bar (if in-progress) */}
                 {course.status === "in-progress" && typeof course.progress === "number" && (
                   <div className="mt-4 flex items-center gap-3">
-                    <div className="flex-1 bg-white/10 rounded-full h-1.5 overflow-hidden">
+                    <div className={`flex-1 rounded-full h-1.5 overflow-hidden ${
+                      isLight ? "bg-purple-100" : "bg-white/10"
+                    }`}>
                       <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${course.progress}%` }}></div>
                     </div>
-                    <span className="text-[11px] font-semibold text-neutral-400 shrink-0">
+                    <span className={`text-[11px] font-semibold shrink-0 ${
+                      isLight ? "text-slate-500" : "text-neutral-400"
+                    }`}>
                       {course.progress}% complete
                     </span>
                   </div>
@@ -532,7 +619,11 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               {course.status === "in-progress" ? (
                 <button
                   onClick={() => onSelectCourse(course.slug)}
-                  className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-neutral-200 text-neutral-950 rounded-[8px] py-2 px-3 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-[8px] py-2 px-3 text-xs font-semibold shadow-xs transition-colors cursor-pointer ${
+                    isLight
+                      ? "bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
+                      : "bg-white hover:bg-neutral-200 text-neutral-950"
+                  }`}
                 >
                   <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                     <polygon points="5 3 19 12 5 21 5 3" />
@@ -542,7 +633,11 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               ) : (
                 <button
                   onClick={() => onSelectCourse(course.slug)}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/15 text-white rounded-[8px] py-2 px-3 text-xs font-semibold transition-colors border border-white/10 cursor-pointer"
+                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-[8px] py-2 px-3 text-xs font-semibold transition-colors border cursor-pointer ${
+                    isLight
+                      ? "bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+                      : "bg-white/10 hover:bg-white/15 text-white border-white/10"
+                  }`}
                 >
                   <span>Start Learning</span>
                   <span aria-hidden="true">&gt;</span>
@@ -557,7 +652,9 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                     handleViewDetails(course);
                   }
                 }}
-                className="text-xs font-semibold text-neutral-300 hover:text-white flex items-center gap-1 transition-colors px-1 cursor-pointer"
+                className={`text-xs font-semibold flex items-center gap-1 transition-colors px-1 cursor-pointer ${
+                  isLight ? "text-purple-700 hover:text-purple-900" : "text-neutral-300 hover:text-white"
+                }`}
               >
                 <span>View Details</span>
                 <span aria-hidden="true">→</span>
@@ -569,12 +666,16 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       {/* END: Course Cards Grid */}
 
       {/* BEGIN: Pagination Footer */}
-      <footer className="mt-8 pt-4 pb-2 flex items-center justify-between text-xs text-purple-200/80" data-purpose="pagination-footer">
+      <footer className={`mt-8 pt-4 pb-2 flex items-center justify-between text-xs ${isLight ? "text-slate-700 font-medium" : "text-purple-200/80"}`} data-purpose="pagination-footer">
         <div>Showing {filteredCourses.length} courses</div>
         <nav aria-label="Pagination" className="flex items-center gap-1.5">
           <button
             aria-label="Previous page"
-            className="w-7 h-7 rounded-[8px] border border-white/15 bg-white/10 hover:bg-white/20 flex items-center justify-center text-purple-200 hover:text-white transition-colors cursor-pointer"
+            className={`w-7 h-7 rounded-[8px] border flex items-center justify-center transition-colors cursor-pointer ${
+              isLight
+                ? "border-purple-900/15 bg-white text-slate-700 hover:text-purple-950 hover:border-purple-900/30"
+                : "border-white/15 bg-white/10 text-purple-200 hover:text-white hover:bg-white/20"
+            }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -582,13 +683,21 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           </button>
           <button
             aria-current="page"
-            className="w-7 h-7 rounded-[8px] bg-white text-neutral-950 font-bold shadow-md flex items-center justify-center text-xs"
+            className={`w-7 h-7 rounded-[8px] font-bold shadow-md flex items-center justify-center text-xs ${
+              isLight
+                ? "bg-[#5B4DF0] text-white"
+                : "bg-white text-neutral-950"
+            }`}
           >
             1
           </button>
           <button
             aria-label="Next page"
-            className="w-7 h-7 rounded-[8px] border border-white/15 bg-white/10 hover:bg-white/20 flex items-center justify-center text-purple-200 hover:text-white transition-colors cursor-pointer"
+            className={`w-7 h-7 rounded-[8px] border flex items-center justify-center transition-colors cursor-pointer ${
+              isLight
+                ? "border-purple-900/15 bg-white text-slate-700 hover:text-purple-950 hover:border-purple-900/30"
+                : "border-white/15 bg-white/10 text-purple-200 hover:text-white hover:bg-white/20"
+            }`}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -601,21 +710,31 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       {/* COURSE DETAILS / SYLLABUS MODAL */}
       {activeModalCourse && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-[#111111] rounded-[20px] max-w-2xl w-full p-6 shadow-2xl border border-white/[0.08] max-h-[85vh] overflow-y-auto space-y-5">
+          <div className={`rounded-[20px] max-w-2xl w-full p-6 shadow-2xl border max-h-[85vh] overflow-y-auto space-y-5 ${
+            isLight
+              ? "bg-white border-purple-900/15 text-slate-900"
+              : "bg-[#111111] border-white/[0.08] text-white"
+          }`}>
             <div className="flex items-start justify-between">
               <div>
-                <div className="inline-flex items-center space-x-1.5 bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-2">
+                <div className={`inline-flex items-center space-x-1.5 border text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-2 ${
+                  isLight
+                    ? "bg-purple-100 text-purple-800 border-purple-300"
+                    : "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                }`}>
                   <span>{activeModalCourse.level}</span>
                   <span>•</span>
                   <span>{activeModalCourse.estimatedHours}</span>
                 </div>
-                <h3 className="text-xl font-bold text-white">
+                <h3 className={`text-xl font-bold ${isLight ? "text-slate-900" : "text-white"}`}>
                   {activeModalCourse.title}
                 </h3>
               </div>
               <button
                 onClick={handleCloseModal}
-                className="text-neutral-400 hover:text-white p-1 rounded-md transition-colors cursor-pointer"
+                className={`p-1 rounded-md transition-colors cursor-pointer ${
+                  isLight ? "text-slate-500 hover:text-slate-800" : "text-neutral-400 hover:text-white"
+                }`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
@@ -623,37 +742,51 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               </button>
             </div>
 
-            <p className="text-xs text-neutral-300 leading-relaxed">
+            <p className={`text-xs leading-relaxed ${isLight ? "text-slate-600" : "text-neutral-300"}`}>
               {activeModalCourse.summary}
             </p>
 
-            <div className="p-3 bg-white/[0.04] rounded-[10px] border border-white/[0.06] text-xs space-y-2">
-              <h4 className="font-bold text-white">Defensible Certification Pipeline</h4>
-              <p className="text-[11px] text-neutral-400 leading-relaxed">
+            <div className={`p-3 rounded-[10px] border text-xs space-y-2 ${
+              isLight
+                ? "bg-purple-50/70 border-purple-100 text-slate-800"
+                : "bg-white/[0.04] border-white/[0.06] text-white"
+            }`}>
+              <h4 className={`font-bold ${isLight ? "text-purple-950" : "text-white"}`}>Defensible Certification Pipeline</h4>
+              <p className={`text-[11px] leading-relaxed ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
                 Complete all syllabus chapters, verify hands-on execution in interactive sandboxes, and defend your codebase in an oral AI Viva to earn your verified credential.
               </p>
             </div>
 
             {selectedCourseDetail?.modules ? (
               <div className="space-y-3 pt-2">
-                <h4 className="text-xs font-bold text-neutral-200 tracking-wide uppercase">
+                <h4 className={`text-xs font-bold tracking-wide uppercase ${isLight ? "text-slate-700" : "text-neutral-200"}`}>
                   Curriculum Modules ({selectedCourseDetail.modules.length})
                 </h4>
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                   {selectedCourseDetail.modules.map((mod: Module, idx: number) => (
-                    <div key={mod.id || idx} className="p-3 rounded-[10px] bg-white/[0.03] border border-white/[0.06]">
-                      <div className="font-semibold text-xs text-white flex items-center justify-between">
+                    <div key={mod.id || idx} className={`p-3 rounded-[10px] border ${
+                      isLight
+                        ? "bg-slate-50 border-slate-200"
+                        : "bg-white/[0.03] border-white/[0.06]"
+                    }`}>
+                      <div className={`font-semibold text-xs flex items-center justify-between ${
+                        isLight ? "text-slate-900" : "text-white"
+                      }`}>
                         <span>{mod.title}</span>
-                        <span className="text-[10px] text-neutral-400 font-normal">
+                        <span className={`text-[10px] font-normal ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
                           {mod.chapters?.length || 0} Chapters
                         </span>
                       </div>
                       {mod.chapters && mod.chapters.length > 0 && (
-                        <div className="mt-2 space-y-1 pl-2 border-l-2 border-white/10">
+                        <div className={`mt-2 space-y-1 pl-2 border-l-2 ${
+                          isLight ? "border-purple-200" : "border-white/10"
+                        }`}>
                           {mod.chapters.map((ch: Chapter) => (
-                            <div key={ch.id} className="text-[11px] text-neutral-300 flex items-center justify-between">
+                            <div key={ch.id} className={`text-[11px] flex items-center justify-between ${
+                              isLight ? "text-slate-700" : "text-neutral-300"
+                            }`}>
                               <span>Chapter {ch.sequenceOrder}: {ch.title}</span>
-                              <span className="text-[9px] text-neutral-400">Oral Viva Covered</span>
+                              <span className={`text-[9px] ${isLight ? "text-purple-600 font-medium" : "text-neutral-400"}`}>Oral Viva Covered</span>
                             </div>
                           ))}
                         </div>
@@ -663,15 +796,21 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="p-4 bg-white/[0.04] rounded-[10px] text-center text-xs text-neutral-400 border border-white/[0.06]">
+              <div className={`p-4 rounded-[10px] text-center text-xs border ${
+                isLight ? "bg-slate-50 text-slate-500 border-slate-200" : "bg-white/[0.04] text-neutral-400 border-white/[0.06]"
+              }`}>
                 Curriculum syllabus loading or seeded track overview.
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+            <div className={`flex items-center justify-end gap-3 pt-3 border-t ${
+              isLight ? "border-slate-200" : "border-white/[0.08]"
+            }`}>
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 text-xs font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                className={`px-4 py-2 text-xs font-semibold transition-colors cursor-pointer ${
+                  isLight ? "text-slate-600 hover:text-slate-900" : "text-neutral-400 hover:text-white"
+                }`}
               >
                 Close
               </button>
@@ -680,7 +819,11 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                   handleCloseModal();
                   onSelectCourse(activeModalCourse.slug);
                 }}
-                className="px-4 py-2 bg-white hover:bg-neutral-200 text-neutral-950 font-bold text-xs rounded-[8px] shadow-sm transition-all cursor-pointer"
+                className={`px-4 py-2 font-bold text-xs rounded-[8px] shadow-sm transition-all cursor-pointer ${
+                  isLight
+                    ? "bg-[#5B4DF0] hover:bg-[#4D3DE0] text-white"
+                    : "bg-white hover:bg-neutral-200 text-neutral-950"
+                }`}
               >
                 Start / Continue Course
               </button>
