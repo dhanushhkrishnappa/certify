@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { api } from "../services/api.js";
 import type { Question } from "../types/index.js";
 import { Award, CheckCircle, Loader2 } from "lucide-react";
+import { useTheme } from "../context/ThemeContext.js";
 
 interface ChapterAssessmentModalProps {
   chapterId: string;
@@ -18,6 +19,8 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
   onClose,
   onAssessmentCompleted,
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<{ [qId: string]: string }>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -74,10 +77,11 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
         maxHeight: "90vh",
         overflowY: "auto",
         padding: 32,
-        background: "#111111",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
+        background: isLight ? "#FFFFFF" : "#111111",
+        border: isLight ? "1px solid rgba(109, 40, 217, 0.12)" : "1px solid rgba(255, 255, 255, 0.08)",
         borderRadius: 16,
-        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
+        color: isLight ? "#0F172A" : "#FFFFFF",
+        boxShadow: isLight ? "0 25px 50px -12px rgba(76, 29, 149, 0.25)" : "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
       }}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
@@ -85,17 +89,17 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
             <span className="badge-tier badge-medium" style={{ marginBottom: 6 }}>
               Chapter Verification
             </span>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 800 }}>{chapterTitle}</h2>
-            <p style={{ fontSize: "0.88rem", color: "var(--text-muted)" }}>
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: isLight ? "#0F172A" : "#FFFFFF" }}>{chapterTitle}</h2>
+            <p style={{ fontSize: "0.88rem", color: isLight ? "#475569" : "var(--text-muted)" }}>
               The AI tutor transitions to assessor mode. Explain and reason through these questions in your own words.
             </p>
           </div>
           <button
             onClick={onClose}
             style={{
-              background: "rgba(255, 255, 255, 0.05)",
+              background: isLight ? "rgba(109, 40, 217, 0.08)" : "rgba(255, 255, 255, 0.05)",
               border: "none",
-              color: "#fff",
+              color: isLight ? "#0F172A" : "#fff",
               width: 32,
               height: 32,
               borderRadius: "50%",
@@ -146,14 +150,14 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
               margin: "0 auto 28px",
               textAlign: "left"
             }}>
-              <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: 14, borderRadius: 10 }}>
-                <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Rubric Criteria Checked</div>
-                <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff" }}>
+              <div style={{ background: isLight ? "rgba(109, 40, 217, 0.05)" : "rgba(255, 255, 255, 0.03)", padding: 14, borderRadius: 10, border: isLight ? "1px solid rgba(109, 40, 217, 0.1)" : "none" }}>
+                <div style={{ fontSize: "0.8rem", color: isLight ? "#64748B" : "var(--text-muted)" }}>Rubric Criteria Checked</div>
+                <div style={{ fontSize: "1.3rem", fontWeight: 800, color: isLight ? "#0F172A" : "#fff" }}>
                   {result.totalCriteriaDemonstrated} / {result.totalCriteriaChecked}
                 </div>
               </div>
-              <div style={{ background: "rgba(255, 255, 255, 0.03)", padding: 14, borderRadius: 10 }}>
-                <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Rubric Score</div>
+              <div style={{ background: isLight ? "rgba(109, 40, 217, 0.05)" : "rgba(255, 255, 255, 0.03)", padding: 14, borderRadius: 10, border: isLight ? "1px solid rgba(109, 40, 217, 0.1)" : "none" }}>
+                <div style={{ fontSize: "0.8rem", color: isLight ? "#64748B" : "var(--text-muted)" }}>Rubric Score</div>
                 <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#6366f1" }}>
                   {Math.round(result.score * 100)}%
                 </div>
@@ -169,20 +173,20 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {questions.map((q, idx) => (
               <div key={q.id} style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: isLight ? "rgba(109, 40, 217, 0.03)" : "rgba(255, 255, 255, 0.03)",
+                border: isLight ? "1px solid rgba(109, 40, 217, 0.12)" : "1px solid rgba(255, 255, 255, 0.08)",
                 borderRadius: 12,
                 padding: 20
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#a5b4fc" }}>
+                  <span style={{ fontSize: "0.8rem", fontWeight: 700, color: isLight ? "#6D28D9" : "#a5b4fc" }}>
                     QUESTION {idx + 1} • {q.questionType}
                   </span>
                   <span className="badge-tier badge-easy" style={{ fontSize: "0.7rem" }}>
                     {q.tier}
                   </span>
                 </div>
-                <p style={{ fontSize: "0.95rem", fontWeight: 600, color: "#f8fafc", marginBottom: 12 }}>
+                <p style={{ fontSize: "0.95rem", fontWeight: 600, color: isLight ? "#0F172A" : "#f8fafc", marginBottom: 12 }}>
                   {q.prompt}
                 </p>
                 <textarea
@@ -192,11 +196,11 @@ export const ChapterAssessmentModal: React.FC<ChapterAssessmentModalProps> = ({
                   placeholder="Explain your reasoning and how Python behaves in memory..."
                   style={{
                     width: "100%",
-                    background: "rgba(0, 0, 0, 0.3)",
-                    border: "1px solid var(--border-subtle)",
+                    background: isLight ? "#FFFFFF" : "rgba(0, 0, 0, 0.3)",
+                    border: isLight ? "1px solid rgba(109, 40, 217, 0.2)" : "1px solid var(--border-subtle)",
                     borderRadius: 8,
                     padding: 12,
-                    color: "#fff",
+                    color: isLight ? "#0F172A" : "#fff",
                     fontFamily: "var(--font-sans)",
                     fontSize: "0.9rem",
                     outline: "none",

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { api } from "../services/api.js";
 import type { LearningSessionContext, User } from "../types/index.js";
 import { UserProfileCard } from "./common/UserProfileCard.js";
+import { useTheme } from "../context/ThemeContext.js";
 
 interface LearningStudioProps {
   courseSlug: string;
@@ -724,7 +725,8 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
   const [streamError, setStreamError] = useState<string | null>(null);
   const [lastFailedMessage, setLastFailedMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"tutor" | "content" | "practice" | "notes" | "resources" | "discussion">("tutor");
-  const [studioTheme, setStudioTheme] = useState<"light" | "dark">("dark");
+  const { isLight } = useTheme();
+  const studioTheme = isLight ? "light" : "dark";
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({ "mod-1": true });
   const [selectedModuleId, setSelectedModuleId] = useState<string>("mod-1");
   const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(2); // Default to Lesson 3 "Your First Program"
@@ -957,49 +959,52 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
 
   return (
     <div
-      className="h-full w-full bg-[#15062B] text-slate-100 transition-colors duration-200 flex flex-col overflow-hidden"
+      className={`w-full flex-1 flex flex-col transition-colors duration-300 pb-12 ${
+        isLight ? "text-slate-900" : "text-slate-100"
+      }`}
       data-purpose="ai-learning-studio-page"
     >
       {/* Top Header & Breadcrumb Bar */}
-      <header className="flex flex-col space-y-2 mb-2 pt-0 shrink-0">
-        <div className="flex items-center justify-between">
+      <header className={`flex flex-col space-y-3 mb-3 p-4 rounded-2xl border transition-all duration-300 shrink-0 ${
+        isLight
+          ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)]"
+          : "bg-[#111111] border-white/[0.08] shadow-sm"
+      }`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Breadcrumb & Main Heading */}
           <div>
-            <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-[11px] font-medium text-purple-200/70 mb-0.5">
+            <nav aria-label="Breadcrumb" className={`flex items-center space-x-2 text-[11px] font-medium mb-1 transition-colors duration-300 ${
+              isLight ? "text-slate-500" : "text-purple-200/70"
+            }`}>
               <button
                 onClick={() => onNavigate && onNavigate("mylearning")}
-                className="hover:text-white cursor-pointer flex items-center gap-1"
+                className={`transition-colors cursor-pointer flex items-center gap-1 ${
+                  isLight ? "hover:text-purple-700" : "hover:text-white"
+                }`}
               >
                 <span>&lt; My Learning</span>
               </button>
-              <span className="text-purple-300/40">&gt;</span>
-              <span className="font-semibold text-white">
+              <span className={isLight ? "text-purple-400" : "text-purple-300/40"}>&gt;</span>
+              <span className={`font-semibold ${isLight ? "text-slate-800" : "text-white"}`}>
                 Python Fundamentals
               </span>
             </nav>
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-xl lg:text-2xl font-serif font-bold tracking-tight leading-tight text-white">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className={`text-xl lg:text-2xl font-serif font-bold tracking-tight leading-tight transition-colors duration-300 ${
+                isLight ? "text-slate-900" : "text-white"
+              }`}>
                 Python Fundamentals
               </h1>
-              {/* Studio Theme Toggle */}
-              <button
-                type="button"
-                onClick={() => setStudioTheme(studioTheme === "light" ? "dark" : "light")}
-                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border transition cursor-pointer ${
-                  studioTheme === "dark"
-                    ? "bg-[#1E222D] border-[#cebdff]/40 text-[#cebdff]"
-                    : "bg-white border-neutral-300 text-neutral-600 hover:bg-neutral-50"
-                }`}
-                title="Toggle Studio Theme"
-              >
-                {studioTheme === "dark" ? "✦ Flagship Dark" : "☀️ Editorial Light"}
-              </button>
             </div>
-            <p className="text-[11px] text-neutral-400 mt-0.5">Build real skills with AI. Learn, practice, and get certified.</p>
+            <p className={`text-xs mt-1 transition-colors duration-300 ${
+              isLight ? "text-slate-600" : "text-neutral-400"
+            }`}>
+              Build real skills with AI. Learn, practice, and get certified.
+            </p>
           </div>
 
           {/* Search Bar */}
-          <div className="w-80 relative hidden md:block">
+          <div className="w-full md:w-80 relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round"></path>
@@ -1008,18 +1013,20 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
             <input
               type="text"
               placeholder="Search lessons, concepts, rubrics..."
-              className={`w-full text-xs pl-10 pr-4 py-2 rounded-full border transition focus:outline-none ${
-                studioTheme === "dark"
-                  ? "bg-[#171922] border-neutral-800 text-neutral-200 placeholder-neutral-500 focus:border-[#cebdff]"
-                  : "bg-neutral-200/50 hover:bg-neutral-200/70 focus:bg-white text-neutral-700 border-[#eae7df]/80 placeholder-neutral-400 focus:ring-1 focus:ring-[#6344e7]"
+              className={`w-full text-xs pl-10 pr-4 py-2.5 rounded-xl border transition focus:outline-none ${
+                isLight
+                  ? "bg-purple-50/60 border-purple-200 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-500"
+                  : "bg-[#171922] border-neutral-800 text-neutral-200 placeholder-neutral-500 focus:border-[#cebdff]"
               }`}
             />
           </div>
 
           {/* Quote & Profile Indicator */}
           <div className="flex items-center space-x-5">
-            <p className="hidden xl:block font-serif italic text-[13px] text-neutral-400 text-right leading-tight max-w-[210px]">
-              “A certified you,<br /><span className="text-neutral-500">a more capable tomorrow.”</span>
+            <p className={`hidden xl:block font-serif italic text-[13px] text-right leading-tight max-w-[210px] transition-colors duration-300 ${
+              isLight ? "text-slate-600" : "text-neutral-400"
+            }`}>
+              “A certified you,<br /><span className={isLight ? "text-purple-800" : "text-neutral-500"}>a more capable tomorrow.”</span>
             </p>
             {/* Notification Bell */}
             <div className="relative cursor-pointer text-neutral-400 hover:text-white p-1">
@@ -1192,32 +1199,36 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
       </header>
 
       {/* ======================================================== */}
-      {/* VIEW A: AI TUTOR SECTION (Course Content is REMOVED)     */}
+      {/* VIEW A: AI TUTOR SECTION (Fluid, Spacious Interface)      */}
       {/* ======================================================== */}
       {activeTab === "tutor" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 mt-1 overflow-hidden">
-          {/* Main Socratic Conversation Container (8 Cols - Fits Frame Perfectly) */}
-          <section className="lg:col-span-8 flex flex-col h-full min-h-0 overflow-hidden" data-purpose="ai-tutor-conversation-container">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 mt-2 items-stretch">
+          {/* Main Socratic Conversation Container (8 Cols - Fluid & Spacious) */}
+          <section className="lg:col-span-8 flex flex-col" data-purpose="ai-tutor-conversation-container">
             <div
-              className={`rounded-2xl p-4 border shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col h-full min-h-0 overflow-hidden ${
-                studioTheme === "dark"
-                  ? "bg-[#111111] border-white/[0.08]"
-                  : "bg-white border-[#eae7df]"
+              className={`rounded-2xl p-5 md:p-6 border flex flex-col flex-1 shadow-sm transition-all duration-300 min-h-[640px] ${
+                isLight
+                  ? "bg-white border-purple-900/10 text-slate-900 shadow-[0_8px_30px_rgba(76,29,149,0.06)]"
+                  : "bg-[#111111] border-white/[0.08] text-white"
               }`}
             >
               {/* Contextual Status Banner linking to Content */}
-              <div className="shrink-0 flex items-center justify-between pb-2 mb-2 border-b border-neutral-800/80">
+              <div className={`shrink-0 flex items-center justify-between pb-3 mb-3 border-b transition-colors duration-300 ${
+                isLight ? "border-purple-100" : "border-neutral-800/80"
+              }`}>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-neutral-400">Current Study Context:</span>
-                  <span className="font-semibold text-white">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className={isLight ? "text-slate-500 font-medium" : "text-neutral-400"}>Current Study Context:</span>
+                  <span className={`font-semibold ${isLight ? "text-purple-950 font-bold" : "text-white"}`}>
                     {currentModule.title} • {currentLesson.title}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveTab("content")}
-                  className="text-xs text-[#cebdff] hover:text-white font-medium flex items-center gap-1 transition cursor-pointer"
+                  className={`text-xs font-semibold flex items-center gap-1 transition cursor-pointer ${
+                    isLight ? "text-purple-700 hover:text-purple-900" : "text-[#cebdff] hover:text-white"
+                  }`}
                 >
                   <span>View Full Curriculum in Content</span>
                   <span>→</span>
@@ -1225,22 +1236,28 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
               </div>
 
               {/* Welcome Banner Bubble */}
-              <div className="shrink-0 flex items-start space-x-3 pb-2 mb-2 border-b border-white/[0.04]">
-                <div className="w-8 h-8 rounded-xl bg-neutral-900 border border-purple-500/30 flex items-center justify-center shrink-0 shadow-xs">
-                  <svg className="w-4 h-4 text-purple-200" fill="currentColor" viewBox="0 0 24 24">
+              <div className={`shrink-0 flex items-start space-x-3.5 p-3.5 rounded-xl border mb-3 transition-colors duration-300 ${
+                isLight ? "bg-purple-50/60 border-purple-100" : "bg-white/[0.03] border-white/[0.05]"
+              }`}>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs mt-0.5 ${
+                  isLight ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-neutral-900 border border-purple-500/30 text-purple-200"
+                }`}>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z"></path>
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h4 className={`text-xs font-bold flex items-center gap-1.5 ${
-                      studioTheme === "dark" ? "text-white" : "text-neutral-900"
+                      isLight ? "text-slate-900" : "text-white"
                     }`}>
                       Hi Dhanush! <span className="text-sm">👋</span>
                     </h4>
                     <div className="flex items-center space-x-2">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20">
-                        <svg className="w-2.5 h-2.5 mr-1 text-purple-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border ${
+                        isLight ? "bg-purple-100 text-purple-800 border-purple-200" : "bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                      }`}>
+                        <svg className="w-2.5 h-2.5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <circle cx="12" cy="12" r="10"></circle>
                           <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
@@ -1248,46 +1265,50 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                       </span>
                     </div>
                   </div>
-                  <p className="text-[11px] text-neutral-400 mt-0.5 leading-relaxed">
+                  <p className={`text-xs mt-1 leading-relaxed ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
                     I'm your AI Socratic Tutor for Python Fundamentals. I'll test your conceptual judgment, probe memory models, and verify understanding without giving away answers.
                   </p>
                 </div>
               </div>
 
-              {/* Conversation Flow - Fills Remaining Vertical Space & Scrolls Smoothly */}
-              <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+              {/* Conversation Flow - Fluid & Comfortable Spacing */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2 min-h-[360px] max-h-[58vh] scrollbar-thin">
                 {/* Default Stitch Exchange */}
                 <div className="flex items-start justify-end space-x-2.5 pt-1">
                   <div className="text-right space-y-1">
-                    <div className={`text-xs px-4 py-2.5 rounded-2xl rounded-tr-none font-medium leading-relaxed max-w-lg shadow-2xs inline-block text-left ${
-                      studioTheme === "dark"
-                        ? "bg-[#1E222D] text-neutral-200 border border-neutral-700/50"
-                        : "bg-[#f5f3ff] text-[#3c2a9a]"
+                    <div className={`text-xs md:text-sm px-4 py-2.5 rounded-2xl rounded-tr-none font-medium leading-relaxed max-w-lg shadow-2xs inline-block text-left ${
+                      isLight
+                        ? "bg-[#5B4DF0] text-white shadow-sm"
+                        : "bg-[#1E222D] text-neutral-200 border border-neutral-700/50"
                     }`}>
                       Can you explain how variable binding works in Python with a simple example?
                     </div>
-                    <p className="text-[10px] text-neutral-400 pr-1">10:42 PM</p>
+                    <p className={`text-[10px] pr-1 ${isLight ? "text-slate-400" : "text-neutral-400"}`}>10:42 PM</p>
                   </div>
-                  <div className="w-7 h-7 rounded-full bg-neutral-900 text-white font-semibold flex items-center justify-center text-[10px] shrink-0 border border-white/10">
+                  <div className={`w-8 h-8 rounded-full font-semibold flex items-center justify-center text-xs shrink-0 border ${
+                    isLight ? "bg-purple-200 text-purple-900 border-purple-300" : "bg-neutral-900 text-white border border-white/10"
+                  }`}>
                     DK
                   </div>
                 </div>
 
                 {/* AI Response Block */}
-                <div className="flex items-start space-x-3 pt-1">
-                  <div className="w-8 h-8 rounded-xl bg-neutral-900 border border-purple-500/30 flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-                    <svg className="w-4 h-4 text-purple-200" fill="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-start space-x-3.5 pt-1">
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs mt-0.5 ${
+                    isLight ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-neutral-900 border border-purple-500/30 text-purple-200"
+                  }`}>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z"></path>
                     </svg>
                   </div>
-                  <div className="flex-1 min-w-0 space-y-2.5">
-                    <p className={`text-xs leading-relaxed ${studioTheme === "dark" ? "text-neutral-300" : "text-neutral-700"}`}>
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <p className={`text-xs md:text-sm leading-relaxed ${isLight ? "text-slate-800" : "text-neutral-300"}`}>
                       In Python, variables are not typed memory buckets; they are <strong>named references (pointers)</strong> bound to heap-allocated objects. When you assign <code>b = a</code>, both names point to the exact same object in memory!
                     </p>
 
                     {/* Dark IDE Code Block */}
                     <div className="bg-[#181a1f] rounded-xl overflow-hidden border border-neutral-800 text-xs font-mono shadow-md" data-purpose="code-editor-block">
-                      <div className="flex items-center justify-between px-3 py-1 bg-[#21252b] border-b border-neutral-700/60 text-[11px] text-neutral-400">
+                      <div className="flex items-center justify-between px-3 py-1.5 bg-[#21252b] border-b border-neutral-700/60 text-xs text-neutral-400">
                         <span className="font-sans font-medium text-neutral-300">python_memory.py</span>
                         <button
                           type="button"
@@ -1298,10 +1319,10 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                             <rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect>
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                           </svg>
-                          <span className="font-sans text-[10.5px]">Copy</span>
+                          <span className="font-sans text-xs">Copy</span>
                         </button>
                       </div>
-                      <div className="p-2.5 text-neutral-200 leading-relaxed overflow-x-auto text-[11px]">
+                      <div className="p-3 text-neutral-200 leading-relaxed overflow-x-auto text-xs font-mono">
                         <div className="flex"><span className="text-neutral-600 select-none w-5 shrink-0 text-right pr-2.5">1</span><span><span className="text-neutral-300">a</span> = [<span className="text-cyan-400">1</span>, <span className="text-cyan-400">2</span>, <span className="text-cyan-400">3</span>]</span></div>
                         <div className="flex"><span className="text-neutral-600 select-none w-5 shrink-0 text-right pr-2.5">2</span><span><span className="text-neutral-300">b</span> = <span className="text-neutral-300">a</span>  <span className="text-neutral-500 italic"># Binds b to same list in heap</span></span></div>
                         <div className="flex"><span className="text-neutral-600 select-none w-5 shrink-0 text-right pr-2.5">3</span><span><span className="text-neutral-300">b</span>.<span className="text-blue-400">append</span>(<span className="text-cyan-400">4</span>)</span></div>
@@ -1312,17 +1333,21 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
 
                     {/* Output Block */}
                     <div className="space-y-1">
-                      <span className={`text-[10.5px] font-semibold ${studioTheme === "dark" ? "text-neutral-400" : "text-neutral-800"}`}>
+                      <span className={`text-xs font-semibold ${isLight ? "text-slate-700" : "text-neutral-400"}`}>
                         Output:
                       </span>
-                      <div className="bg-neutral-900 text-neutral-200 font-mono text-[11px] px-3 py-2 rounded-lg border border-neutral-800">
+                      <div className={`font-mono text-xs px-3 py-2 rounded-lg border ${
+                        isLight ? "bg-purple-50 text-purple-950 border-purple-200" : "bg-neutral-900 text-neutral-200 border-neutral-800"
+                      }`}>
                         a: [1, 2, 3, 4]<br />
                         Same object? True
                       </div>
                     </div>
 
                     {/* Socratic Probe Follow-Up */}
-                    <div className="p-2.5 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs text-purple-200">
+                    <div className={`p-3 rounded-xl border text-xs md:text-sm ${
+                      isLight ? "bg-purple-100/70 border-purple-200 text-purple-950 font-medium" : "bg-purple-950/30 border-purple-500/20 text-purple-200"
+                    }`}>
                       <span className="font-bold text-[#cebdff]">Socratic Probe:</span> What happens if you instead wrote <code>b = a.copy()</code>? Does modifying <code>b</code> affect <code>a</code>?
                     </div>
                   </div>
@@ -1335,21 +1360,29 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                     className={`flex items-start space-x-3 ${msg.sender === "USER" ? "justify-end" : "justify-start"}`}
                   >
                     {msg.sender === "AI_TUTOR" && (
-                      <div className="w-8 h-8 rounded-xl bg-neutral-900 border border-purple-500/30 flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-                        <svg className="w-4 h-4 text-purple-200" fill="currentColor" viewBox="0 0 24 24">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs mt-0.5 ${
+                        isLight ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-neutral-900 border border-purple-500/30 text-purple-200"
+                      }`}>
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z"></path>
                         </svg>
                       </div>
                     )}
-                    <div className={`text-xs px-4 py-2.5 rounded-2xl font-medium leading-relaxed max-w-lg shadow-2xs ${
+                    <div className={`text-xs md:text-sm px-4 py-2.5 rounded-2xl font-medium leading-relaxed max-w-lg shadow-2xs ${
                       msg.sender === "USER"
-                        ? "bg-[#1E222D] text-neutral-200 border border-neutral-700/50 rounded-tr-none text-left"
-                        : "bg-neutral-900 text-neutral-300 border border-white/10 rounded-tl-none whitespace-pre-wrap"
+                        ? isLight
+                          ? "bg-[#5B4DF0] text-white rounded-tr-none text-left"
+                          : "bg-[#1E222D] text-neutral-200 border border-neutral-700/50 rounded-tr-none text-left"
+                        : isLight
+                          ? "bg-purple-50/80 text-slate-800 border border-purple-200/60 rounded-tl-none whitespace-pre-wrap"
+                          : "bg-neutral-900 text-neutral-300 border border-white/10 rounded-tl-none whitespace-pre-wrap"
                     }`}>
                       {msg.content}
                     </div>
                     {msg.sender === "USER" && (
-                      <div className="w-7 h-7 rounded-full bg-neutral-900 text-white font-semibold flex items-center justify-center text-[10px] shrink-0 border border-white/10">
+                      <div className={`w-7 h-7 rounded-full font-semibold flex items-center justify-center text-[10px] shrink-0 border ${
+                        isLight ? "bg-purple-200 text-purple-900 border-purple-300" : "bg-neutral-900 text-white border border-white/10"
+                      }`}>
                         DK
                       </div>
                     )}
@@ -1359,12 +1392,16 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                 {/* Streaming Assistant chunk */}
                 {isStreaming && (
                   <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 rounded-xl bg-neutral-900 border border-purple-500/30 flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-                      <svg className="w-4 h-4 text-purple-200 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs mt-0.5 ${
+                      isLight ? "bg-purple-100 text-purple-700 border border-purple-200" : "bg-neutral-900 border border-purple-500/30 text-purple-200"
+                    }`}>
+                      <svg className="w-4 h-4 text-purple-600 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2L14.4 7.6L20 10L14.4 12.4L12 18L9.6 12.4L4 10L9.6 7.6L12 2Z"></path>
                       </svg>
                     </div>
-                    <div className="text-xs px-4 py-2.5 rounded-2xl rounded-tl-none font-medium leading-relaxed max-w-lg bg-neutral-900 text-neutral-300 border border-white/10 whitespace-pre-wrap">
+                    <div className={`text-xs md:text-sm px-4 py-2.5 rounded-2xl rounded-tl-none font-medium leading-relaxed max-w-lg whitespace-pre-wrap ${
+                      isLight ? "bg-purple-50/80 text-slate-800 border border-purple-200" : "bg-neutral-900 text-neutral-300 border border-white/10"
+                    }`}>
                       {streamingContent || "Reflecting on your reasoning..."}
                     </div>
                   </div>
@@ -1388,25 +1425,31 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
               </div>
 
               {/* Chat Input Bar - Pinned at Bottom of Card */}
-              <div className="shrink-0 pt-2 border-t border-neutral-800/80 mt-1">
+              <div className={`shrink-0 pt-3 border-t mt-3 transition-colors ${
+                isLight ? "border-purple-100" : "border-neutral-800/80"
+              }`}>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleSendMessage();
                   }}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2.5"
                 >
                   <input
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     placeholder="Ask your AI tutor a question, or test your reasoning..."
-                    className="flex-1 text-xs px-3.5 py-2 rounded-xl border border-neutral-700 bg-[#171922] text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-[#cebdff]"
+                    className={`flex-1 text-xs md:text-sm px-4 py-2.5 rounded-xl border transition focus:outline-none ${
+                      isLight
+                        ? "bg-purple-50/60 border-purple-200 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-500"
+                        : "bg-[#171922] border-neutral-700 text-neutral-200 placeholder-neutral-500 focus:border-[#cebdff]"
+                    }`}
                   />
                   <button
                     type="submit"
                     disabled={isStreaming || !inputMessage.trim()}
-                    className="px-4 py-2 rounded-xl bg-[#6344e7] hover:bg-[#5234d9] text-white font-medium text-xs transition active:scale-95 disabled:opacity-40 cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white font-semibold text-xs md:text-sm transition active:scale-95 disabled:opacity-40 cursor-pointer shadow-sm"
                   >
                     Send
                   </button>
@@ -1415,41 +1458,46 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
             </div>
           </section>
 
-          {/* Right Column: Code Playground & Learning Tools (4 Cols - Fits Frame) */}
-          <section className="lg:col-span-4 flex flex-col h-full min-h-0 overflow-hidden" data-purpose="learning-tools-sidebar">
+          {/* Right Column: Code Playground & Learning Tools (4 Cols) */}
+          <section className="lg:col-span-4 flex flex-col" data-purpose="learning-tools-sidebar">
             {/* Code Playground Card */}
             <div
-              className={`rounded-2xl p-4 border shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col h-full min-h-0 overflow-hidden ${
-                studioTheme === "dark" ? "bg-[#111111] border-white/[0.08]" : "bg-white border-[#eae7df]"
+              className={`rounded-2xl p-5 md:p-6 border flex flex-col flex-1 shadow-sm transition-all duration-300 min-h-[640px] ${
+                isLight
+                  ? "bg-white border-purple-900/10 text-slate-900 shadow-[0_8px_30px_rgba(76,29,149,0.06)]"
+                  : "bg-[#111111] border-white/[0.08] text-white"
               }`}
             >
-              <div className="shrink-0 flex items-center justify-between mb-2">
-                <h4 className="text-xs font-bold text-white">Interactive Sandbox</h4>
-                <span className="text-[10px] font-mono text-neutral-400">Python 3.10</span>
+              <div className="shrink-0 flex items-center justify-between mb-3">
+                <h4 className={`text-sm font-bold transition-colors ${isLight ? "text-slate-900" : "text-white"}`}>Interactive Sandbox</h4>
+                <span className={`text-xs font-mono font-medium ${isLight ? "text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200" : "text-neutral-400"}`}>Python 3.10</span>
               </div>
-              <div className="flex-1 min-h-0 flex flex-col bg-[#181a1f] rounded-xl overflow-hidden border border-neutral-800 font-mono text-xs mb-2">
-                <div className="shrink-0 flex items-center justify-between px-3 py-1 bg-[#21252b] border-b border-neutral-700/60 text-[11px] text-neutral-400">
+              <div className="flex-1 min-h-[300px] flex flex-col bg-[#181a1f] rounded-xl overflow-hidden border border-neutral-800 font-mono text-xs mb-3 shadow-inner">
+                <div className="shrink-0 flex items-center justify-between px-3.5 py-1.5 bg-[#21252b] border-b border-neutral-700/60 text-xs text-neutral-400">
                   <span>sandbox.py</span>
                 </div>
                 <textarea
                   value={playgroundCode}
                   onChange={(e) => setPlaygroundCode(e.target.value)}
-                  className="flex-1 min-h-0 w-full p-2.5 bg-transparent text-emerald-400 font-mono text-[11px] focus:outline-none resize-none leading-relaxed border-none overflow-y-auto"
+                  className="flex-1 min-h-[220px] w-full p-3 bg-transparent text-emerald-400 font-mono text-xs focus:outline-none resize-none leading-relaxed border-none overflow-y-auto"
                   spellCheck={false}
                 />
-                <div className="shrink-0 p-2 border-t border-neutral-800 flex justify-end">
+                <div className="shrink-0 p-2.5 border-t border-neutral-800 flex justify-end bg-[#1e222a]">
                   <button
                     type="button"
                     onClick={() => handleRunPlaygroundCode()}
                     disabled={isRunningCode}
-                    className="flex items-center space-x-1 bg-[#6344e7] hover:bg-[#5234d9] text-white px-3 py-1 rounded-md text-[11px] font-sans font-medium transition active:scale-95 cursor-pointer disabled:opacity-50"
+                    className="flex items-center space-x-1.5 bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white px-4 py-1.5 rounded-lg text-xs font-sans font-semibold transition active:scale-95 cursor-pointer disabled:opacity-50 shadow-sm"
                   >
-                    <span>{isRunningCode ? "Running..." : "Run"}</span>
+                    <span>{isRunningCode ? "Running..." : "Run Code ▶"}</span>
                   </button>
                 </div>
               </div>
               {playgroundOutput && (
-                <div className="shrink-0 max-h-32 overflow-y-auto p-2.5 rounded-lg bg-neutral-900 text-neutral-200 font-mono text-[11px] border border-neutral-800 whitespace-pre-wrap">
+                <div className={`shrink-0 min-h-[80px] max-h-48 overflow-y-auto p-3 rounded-lg font-mono text-xs border whitespace-pre-wrap ${
+                  isLight ? "bg-slate-900 text-emerald-300 border-purple-900/20" : "bg-neutral-900 text-neutral-200 border-neutral-800"
+                }`}>
+                  <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Terminal Output</div>
                   {playgroundOutput}
                 </div>
               )}
@@ -1477,24 +1525,32 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                   <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-[#cebdff] font-mono text-[10.5px] font-bold uppercase tracking-wider border border-purple-500/30">
                     Comprehensive Curriculum
                   </span>
-                  <span className="text-xs text-neutral-400 font-medium">8 Modules • 36 Lessons • 36.5 Hours Total</span>
+                  <span className={`text-xs font-medium ${isLight ? "text-slate-600" : "text-neutral-400"}`}>8 Modules • 36 Lessons • 36.5 Hours Total</span>
                 </div>
-                <h2 className="text-2xl font-serif font-bold text-white">
+                <h2 className={`text-2xl font-serif font-bold transition-colors duration-300 ${
+                  isLight ? "text-slate-900" : "text-white"
+                }`}>
                   Python Fundamentals: Conceptual Curriculum &amp; Labs
                 </h2>
-                <p className="text-xs text-neutral-400 mt-1 max-w-2xl leading-relaxed">
+                <p className={`text-xs mt-1 max-w-2xl leading-relaxed transition-colors duration-300 ${
+                  isLight ? "text-slate-600" : "text-neutral-400"
+                }`}>
                   Every module is structured with rigorous conceptual foundations, executable code examples, Socratic inquiries, and chapter verifications.
                 </p>
               </div>
 
               {/* Progress Metric Pill */}
-              <div className="flex items-center gap-4 bg-neutral-900/80 border border-white/10 rounded-2xl p-3.5 shrink-0">
+              <div className={`flex items-center gap-4 border rounded-2xl p-3.5 shrink-0 transition-colors duration-300 ${
+                isLight ? "bg-purple-50/70 border-purple-100 text-purple-950" : "bg-neutral-900/80 border-white/10 text-white"
+              }`}>
                 <div className="text-right">
-                  <div className="text-xs text-neutral-400 font-medium">Overall Progress</div>
-                  <div className="text-xl font-bold font-mono text-emerald-400">42% Completed</div>
-                  <div className="text-[10px] text-neutral-500">3 of 36 lessons verified</div>
+                  <div className={`text-xs font-medium ${isLight ? "text-purple-700" : "text-neutral-400"}`}>Overall Progress</div>
+                  <div className="text-xl font-bold font-mono text-emerald-500">42% Completed</div>
+                  <div className={`text-[10px] ${isLight ? "text-purple-600/80" : "text-neutral-500"}`}>3 of 36 lessons verified</div>
                 </div>
-                <div className="w-12 h-12 rounded-full border-4 border-neutral-800 border-t-emerald-400 flex items-center justify-center font-mono font-bold text-xs text-white">
+                <div className={`w-12 h-12 rounded-full border-4 border-t-emerald-500 flex items-center justify-center font-mono font-bold text-xs ${
+                  isLight ? "border-purple-200 text-purple-950" : "border-neutral-800 text-white"
+                }`}>
                   42%
                 </div>
               </div>
@@ -1676,7 +1732,9 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
                   </div>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-tight">
+                <h2 className={`text-2xl sm:text-3xl font-serif font-bold tracking-tight transition-colors duration-300 ${
+                  isLight ? "text-slate-900" : "text-white"
+                }`}>
                   {currentLesson.title}
                 </h2>
               </div>
@@ -1838,11 +1896,13 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
       {/* VIEW C: PRACTICE / NOTES / RESOURCES / DISCUSSION TABS    */}
       {/* ======================================================== */}
       {activeTab === "practice" && (
-        <div className="flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border border-white/[0.08] bg-[#111111] space-y-4 mt-2">
+        <div className={`flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border space-y-4 mt-2 transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 text-slate-900 shadow-sm" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-serif font-bold text-white">Interactive Python Practice Sandbox</h3>
-              <p className="text-xs text-neutral-400 mt-1">Run live code against unit tests, inspect stdout, and test edge cases.</p>
+              <h3 className={`text-xl font-serif font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Interactive Python Practice Sandbox</h3>
+              <p className={`text-xs mt-1 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>Run live code against unit tests, inspect stdout, and test edge cases.</p>
             </div>
             <button
               type="button"
@@ -1863,8 +1923,10 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
             />
           </div>
           {playgroundOutput && (
-            <div className="p-4 rounded-xl bg-neutral-900 text-neutral-200 font-mono text-xs border border-neutral-800">
-              <div className="text-[11px] text-neutral-500 mb-1">Execution Console Output:</div>
+            <div className={`p-4 rounded-xl font-mono text-xs border ${
+              isLight ? "bg-purple-50/60 text-slate-800 border-purple-200" : "bg-neutral-900 text-neutral-200 border-neutral-800"
+            }`}>
+              <div className={`text-[11px] mb-1 font-semibold ${isLight ? "text-purple-700" : "text-neutral-500"}`}>Execution Console Output:</div>
               {playgroundOutput}
             </div>
           )}
@@ -1872,11 +1934,15 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
       )}
 
       {activeTab === "notes" && (
-        <div className="flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border border-white/[0.08] bg-[#111111] space-y-4 mt-2">
-          <h3 className="text-xl font-serif font-bold text-white">Course Notes &amp; Key Synthesis</h3>
-          <p className="text-xs text-neutral-400">Your personal architectural synthesis, rubrics, and reference notes.</p>
-          <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-neutral-300 space-y-3">
-            <h4 className="font-bold text-[#cebdff]">Python Reference Model Summary</h4>
+        <div className={`flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border space-y-4 mt-2 transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 text-slate-900 shadow-sm" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
+          <h3 className={`text-xl font-serif font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Course Notes &amp; Key Synthesis</h3>
+          <p className={`text-xs ${isLight ? "text-slate-600" : "text-neutral-400"}`}>Your personal architectural synthesis, rubrics, and reference notes.</p>
+          <div className={`p-4 rounded-xl border text-xs space-y-3 ${
+            isLight ? "bg-purple-50/60 border-purple-200 text-slate-800" : "bg-neutral-900 border-neutral-800 text-neutral-300"
+          }`}>
+            <h4 className={`font-bold ${isLight ? "text-purple-900" : "text-[#cebdff]"}`}>Python Reference Model Summary</h4>
             <ul className="list-disc pl-5 space-y-1.5 leading-relaxed">
               <li>Variables are pointers to heap-allocated objects, not fixed memory slots.</li>
               <li>Lists, dicts, and sets are mutable. Integers, floats, strings, and tuples are immutable.</li>
@@ -1888,26 +1954,36 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
       )}
 
       {activeTab === "resources" && (
-        <div className="flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border border-white/[0.08] bg-[#111111] space-y-4 mt-2">
-          <h3 className="text-xl font-serif font-bold text-white">Curated Engineering Resources</h3>
+        <div className={`flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border space-y-4 mt-2 transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 text-slate-900 shadow-sm" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
+          <h3 className={`text-xl font-serif font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Curated Engineering Resources</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <a href="https://docs.python.org/3/" target="_blank" rel="noreferrer" className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-purple-400/40 transition block">
-              <h4 className="text-xs font-bold text-white">Official Python 3.10+ Documentation</h4>
-              <p className="text-[11px] text-neutral-400 mt-1">Canonical reference for syntax, stdlib, and CPython internals.</p>
+            <a href="https://docs.python.org/3/" target="_blank" rel="noreferrer" className={`p-4 rounded-xl border transition block ${
+              isLight ? "bg-purple-50/60 border-purple-200 hover:border-purple-400 text-slate-900" : "bg-neutral-900 border-neutral-800 hover:border-purple-400/40 text-white"
+            }`}>
+              <h4 className={`text-xs font-bold ${isLight ? "text-purple-950 font-bold" : "text-white"}`}>Official Python 3.10+ Documentation</h4>
+              <p className={`text-[11px] mt-1 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>Canonical reference for syntax, stdlib, and CPython internals.</p>
             </a>
-            <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noreferrer" className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-purple-400/40 transition block">
-              <h4 className="text-xs font-bold text-white">PEP 8 — Style Guide for Python Code</h4>
-              <p className="text-[11px] text-neutral-400 mt-1">Conventions and best practices for writing readable, maintainable Python.</p>
+            <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noreferrer" className={`p-4 rounded-xl border transition block ${
+              isLight ? "bg-purple-50/60 border-purple-200 hover:border-purple-400 text-slate-900" : "bg-neutral-900 border-neutral-800 hover:border-purple-400/40 text-white"
+            }`}>
+              <h4 className={`text-xs font-bold ${isLight ? "text-purple-950 font-bold" : "text-white"}`}>PEP 8 — Style Guide for Python Code</h4>
+              <p className={`text-[11px] mt-1 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>Conventions and best practices for writing readable, maintainable Python.</p>
             </a>
           </div>
         </div>
       )}
 
       {activeTab === "discussion" && (
-        <div className="flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border border-white/[0.08] bg-[#111111] space-y-4 mt-2">
-          <h3 className="text-xl font-serif font-bold text-white">Candidate Cohort Discussion</h3>
-          <p className="text-xs text-neutral-400">Discuss Socratic probes and share problem solutions with your cohort.</p>
-          <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-neutral-400">
+        <div className={`flex-1 min-h-0 overflow-y-auto rounded-2xl p-6 border space-y-4 mt-2 transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 text-slate-900 shadow-sm" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
+          <h3 className={`text-xl font-serif font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Candidate Cohort Discussion</h3>
+          <p className={`text-xs ${isLight ? "text-slate-600" : "text-neutral-400"}`}>Discuss Socratic probes and share problem solutions with your cohort.</p>
+          <div className={`p-4 rounded-xl border text-xs ${
+            isLight ? "bg-purple-50/60 border-purple-200 text-slate-700" : "bg-neutral-900 border-neutral-800 text-neutral-400"
+          }`}>
             No unread threads. All module discussions are up to date!
           </div>
         </div>

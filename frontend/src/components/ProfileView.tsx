@@ -1,5 +1,6 @@
 import React from "react";
 import type { User } from "../types/index.js";
+import { useTheme } from "../context/ThemeContext.js";
 
 interface ProfileViewProps {
   user?: User | null;
@@ -12,6 +13,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onNavigateCredentials,
   onNavigateCatalog,
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const learnerName = user?.fullName || user?.name || "Dhanush K";
   const learnerEmail = user?.email || "learner@certify.edu";
   const initials = learnerName
@@ -21,24 +24,31 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     .slice(0, 2)
     .toUpperCase() || "DK";
 
-
   return (
     <div className="space-y-6 pb-12">
       {/* Main Profile Identity Card */}
-      <div className="bg-[#111111] rounded-2xl p-6 md:p-8 border border-white/[0.08] shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className={`rounded-2xl p-6 md:p-8 border shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-all duration-300 ${
+        isLight
+          ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900"
+          : "bg-[#111111] border-white/[0.08] text-white"
+      }`}>
         <div className="flex items-center gap-5">
-          <div className="w-16 h-16 rounded-2xl bg-neutral-900 border border-white/[0.08] text-white font-bold font-serif text-2xl flex items-center justify-center shadow-md shrink-0">
+          <div className={`w-16 h-16 rounded-2xl border font-bold font-serif text-2xl flex items-center justify-center shadow-md shrink-0 transition-colors duration-300 ${
+            isLight ? "bg-purple-100 text-purple-900 border-purple-200" : "bg-neutral-900 text-white border-white/[0.08]"
+          }`}>
             {initials}
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-white">{learnerName}</h2>
+              <h2 className={`text-2xl font-bold transition-colors duration-300 ${isLight ? "text-slate-900" : "text-white"}`}>{learnerName}</h2>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/40 text-emerald-400 border border-emerald-800/40 text-xs font-semibold">
                 Active Candidate
               </span>
             </div>
-            <p className="text-sm text-neutral-400 mt-0.5">{learnerEmail}</p>
-            <div className="flex items-center gap-4 text-xs text-neutral-400 mt-2 font-mono">
+            <p className={`text-sm mt-0.5 transition-colors duration-300 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>{learnerEmail}</p>
+            <div className={`flex items-center gap-4 text-xs mt-2 font-mono transition-colors duration-300 ${
+              isLight ? "text-slate-500" : "text-neutral-400"
+            }`}>
               <span>ID: USR-2026-DK-89</span>
               <span>•</span>
               <span>Joined: August 2026</span>
@@ -58,7 +68,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           {onNavigateCatalog && (
             <button
               onClick={onNavigateCatalog}
-              className="flex-1 md:flex-none px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] hover:bg-white/10 text-white text-xs font-semibold rounded-xl transition cursor-pointer"
+              className={`flex-1 md:flex-none px-4 py-2.5 text-xs font-semibold rounded-xl transition cursor-pointer border ${
+                isLight
+                  ? "bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200"
+                  : "bg-white/[0.06] border-white/[0.08] hover:bg-white/10 text-white"
+              }`}
             >
               Explore Tracks
             </button>
@@ -68,45 +82,55 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
       {/* Academic Highlights & Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-xl bg-[#111111] border border-white/[0.08] shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+        <div className={`p-5 rounded-xl border shadow-sm transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
+          <span className={`text-[10px] font-bold uppercase block mb-1 ${isLight ? "text-purple-700" : "text-neutral-400"}`}>
             Certified Tracks
           </span>
-          <div className="text-2xl font-bold text-white">2</div>
-          <span className="text-xs text-emerald-400 font-semibold mt-1 block">
+          <div className={`text-2xl font-bold ${isLight ? "text-slate-900" : "text-white"}`}>2</div>
+          <span className="text-xs text-emerald-500 font-semibold mt-1 block">
             Python, Web Dev
           </span>
         </div>
 
-        <div className="p-5 rounded-xl bg-[#111111] border border-white/[0.08] shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+        <div className={`p-5 rounded-xl border shadow-sm transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
+          <span className={`text-[10px] font-bold uppercase block mb-1 ${isLight ? "text-purple-700" : "text-neutral-400"}`}>
             Mean Assessment Score
           </span>
-          <div className="text-2xl font-bold text-indigo-400">92.8%</div>
-          <span className="text-xs text-neutral-400 mt-1 block">Across 14 tests</span>
+          <div className="text-2xl font-bold text-indigo-500">92.8%</div>
+          <span className={`text-xs mt-1 block ${isLight ? "text-slate-500" : "text-neutral-400"}`}>Across 14 tests</span>
         </div>
 
-        <div className="p-5 rounded-xl bg-[#111111] border border-white/[0.08] shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+        <div className={`p-5 rounded-xl border shadow-sm transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
+          <span className={`text-[10px] font-bold uppercase block mb-1 ${isLight ? "text-purple-700" : "text-neutral-400"}`}>
             Learning Streak
           </span>
-          <div className="text-2xl font-bold text-amber-400">12 Days</div>
-          <span className="text-xs text-neutral-400 mt-1 block">Continuous activity</span>
+          <div className="text-2xl font-bold text-amber-500">12 Days</div>
+          <span className={`text-xs mt-1 block ${isLight ? "text-slate-500" : "text-neutral-400"}`}>Continuous activity</span>
         </div>
 
-        <div className="p-5 rounded-xl bg-[#111111] border border-white/[0.08] shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+        <div className={`p-5 rounded-xl border shadow-sm transition-all duration-300 ${
+          isLight ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
+          <span className={`text-[10px] font-bold uppercase block mb-1 ${isLight ? "text-purple-700" : "text-neutral-400"}`}>
             Oral Viva Defenses
           </span>
-          <div className="text-2xl font-bold text-emerald-400">100% Cleared</div>
-          <span className="text-xs text-neutral-400 mt-1 block">Full rubric criteria met</span>
+          <div className="text-2xl font-bold text-emerald-500">100% Cleared</div>
+          <span className={`text-xs mt-1 block ${isLight ? "text-slate-500" : "text-neutral-400"}`}>Full rubric criteria met</span>
         </div>
       </div>
 
       {/* Verified Skills Ledger Summary */}
-      <div className="bg-[#111111] rounded-2xl p-6 border border-white/[0.08] shadow-sm space-y-4">
-        <h3 className="text-base font-bold text-white">Verified Competency Ledger</h3>
-        <p className="text-xs text-neutral-400">
+      <div className={`rounded-2xl p-6 border shadow-sm space-y-4 transition-all duration-300 ${
+        isLight ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+      }`}>
+        <h3 className={`text-base font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Verified Competency Ledger</h3>
+        <p className={`text-xs ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
           Skills verified through deterministic code assertion test suites and AI oral defense:
         </p>
 
@@ -123,7 +147,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           ].map((skill) => (
             <span
               key={skill}
-              className="px-3 py-1.5 rounded-lg bg-white/[0.06] text-purple-200 text-xs font-medium border border-purple-500/20"
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors duration-300 ${
+                isLight
+                  ? "bg-purple-50 text-purple-900 border-purple-200"
+                  : "bg-white/[0.06] text-purple-200 border-purple-500/20"
+              }`}
             >
               ✓ {skill}
             </span>

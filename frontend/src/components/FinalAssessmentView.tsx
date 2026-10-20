@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../services/api.js";
+import { useTheme } from "../context/ThemeContext.js";
 
 interface FinalAssessmentViewProps {
   courseSlug: string;
@@ -182,6 +183,7 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
   onCancel: _onCancel,
   onSubmitAssessment,
 }) => {
+  const { isLight } = useTheme();
   const [questions, setQuestions] = useState<QuestionItem[]>(DEFAULT_QUESTIONS);
   const [currentQIndex, setCurrentQIndex] = useState(3); // Default to Question 4 as in Stitch
   const [isPaused, setIsPaused] = useState(false);
@@ -300,29 +302,47 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
   return (
     <div className="space-y-6 max-w-[1400px] w-full mx-auto pb-12" data-purpose="final-assessment-page">
       {/* Top Header Row / Breadcrumb Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1 border-b border-white/10">
-        <nav className="flex items-center text-xs font-medium text-purple-200/70 space-x-2">
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1 border-b transition-colors duration-300 ${
+        isLight ? "border-purple-200/60" : "border-white/10"
+      }`}>
+        <nav className={`flex items-center text-xs font-medium space-x-2 ${
+          isLight ? "text-purple-900/70" : "text-purple-200/70"
+        }`}>
           <button
             onClick={() => onNavigate("course-details")}
-            className="flex items-center space-x-1 hover:text-white cursor-pointer transition"
+            className={`flex items-center space-x-1 cursor-pointer transition ${
+              isLight ? "hover:text-purple-950 text-purple-900" : "hover:text-white"
+            }`}
           >
-            <svg className="w-3.5 h-3.5 text-purple-300/60" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round"></path>
             </svg>
             <span>Python Fundamentals</span>
           </button>
-          <span className="text-purple-300/40 font-normal">&gt;</span>
-          <span className="font-semibold text-white">Final Assessment</span>
+          <span className={isLight ? "text-purple-400 font-normal" : "text-purple-300/40 font-normal"}>&gt;</span>
+          <span className={`font-semibold ${isLight ? "text-purple-950" : "text-white"}`}>Final Assessment</span>
         </nav>
-        <div className="flex items-center space-x-6 text-xs text-purple-200/60">
-          <span className="italic font-serif tracking-tight">"Discipline today, opportunities tomorrow."</span>
+        <div className="flex items-center space-x-4 text-xs">
+          <span className={`italic font-serif tracking-tight hidden sm:inline ${
+            isLight ? "text-purple-950/70" : "text-purple-200/60"
+          }`}>
+            "Discipline today, opportunities tomorrow."
+          </span>
         </div>
       </div>
 
       {/* Title & Subtitle */}
       <div>
-        <h1 className="font-serif text-3xl font-bold tracking-tight text-white">Final Assessment</h1>
-        <p className="text-xs text-purple-200/80 mt-1 font-medium">Demonstrate your understanding and earn your certification.</p>
+        <h1 className={`font-serif text-3xl font-bold tracking-tight transition-colors duration-300 ${
+          isLight ? "text-slate-900" : "text-white"
+        }`}>
+          Final Assessment
+        </h1>
+        <p className={`text-xs mt-1 font-medium transition-colors duration-300 ${
+          isLight ? "text-slate-700" : "text-purple-200/80"
+        }`}>
+          Demonstrate your understanding and earn your certification.
+        </p>
       </div>
 
       {/* 5 Information Cards Strip */}

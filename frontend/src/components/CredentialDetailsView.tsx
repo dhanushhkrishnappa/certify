@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { User } from "../types/index.js";
+import { useTheme } from "../context/ThemeContext.js";
 
 interface CredentialDetailsViewProps {
   user?: User | null;
@@ -12,6 +13,7 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
   credentialId = "CERT-PY-2026-001842",
   onBack,
 }) => {
+  const { isLight } = useTheme();
   const [copied, setCopied] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
 
@@ -45,21 +47,29 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
       {/* Title & Actions Header */}
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <nav aria-label="Breadcrumbs" className="flex items-center gap-1.5 text-xs font-medium text-purple-200/70 mb-2">
+          <nav aria-label="Breadcrumbs" className={`flex items-center gap-1.5 text-xs font-medium mb-2 transition-colors duration-300 ${
+            isLight ? "text-purple-900/70" : "text-purple-200/70"
+          }`}>
             <button
               onClick={onBack}
-              className="hover:text-white transition flex items-center gap-1"
+              className={`transition flex items-center gap-1 cursor-pointer ${
+                isLight ? "text-purple-950 hover:text-purple-700" : "hover:text-white"
+              }`}
             >
               <span>←</span>
               <span>My Credentials</span>
             </button>
-            <span className="text-purple-300/40">/</span>
-            <span className="text-white font-semibold">Python Fundamentals</span>
+            <span className={isLight ? "text-purple-400" : "text-purple-300/40"}>/</span>
+            <span className={`font-semibold ${isLight ? "text-purple-950" : "text-white"}`}>Python Fundamentals</span>
           </nav>
-          <h1 className="text-3xl font-serif font-bold text-white tracking-tight">
+          <h1 className={`text-3xl font-serif font-bold tracking-tight transition-colors duration-300 ${
+            isLight ? "text-slate-900" : "text-white"
+          }`}>
             Credential Details
           </h1>
-          <p className="text-sm text-purple-200/80 mt-1">
+          <p className={`text-sm mt-1 transition-colors duration-300 ${
+            isLight ? "text-slate-700" : "text-purple-200/80"
+          }`}>
             Your verified achievement with real skills and proven understanding.
           </p>
         </div>
@@ -68,7 +78,11 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
         <div className="flex items-center gap-2.5">
           <button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#111111] border border-white/[0.08] rounded-lg hover:bg-white/[0.05] shadow-sm transition active:scale-95 cursor-pointer"
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition active:scale-95 cursor-pointer ${
+              isLight
+                ? "bg-white text-slate-800 border border-purple-900/10 hover:bg-purple-50"
+                : "bg-[#111111] text-white border border-white/[0.08] hover:bg-white/[0.05]"
+            }`}
           >
             <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="18" cy="5" r="3" />
@@ -82,7 +96,11 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
 
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#111111] border border-white/[0.08] rounded-lg hover:bg-white/[0.05] shadow-sm transition active:scale-95 cursor-pointer"
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition active:scale-95 cursor-pointer ${
+              isLight
+                ? "bg-white text-slate-800 border border-purple-900/10 hover:bg-purple-50"
+                : "bg-[#111111] text-white border border-white/[0.08] hover:bg-white/[0.05]"
+            }`}
           >
             <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

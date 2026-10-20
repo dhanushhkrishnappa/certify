@@ -1,5 +1,6 @@
 import React from "react";
 import type { User } from "../types/index.js";
+import { useTheme } from "../context/ThemeContext.js";
 
 interface ProgressViewProps {
   user?: User | null;
@@ -7,39 +8,53 @@ interface ProgressViewProps {
 }
 
 export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavigateToStudio }) => {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   return (
     <div className="space-y-6 pb-12">
       {/* Hero Overview Card */}
-      <div className="bg-[#111111] rounded-2xl p-6 border border-white/[0.08] shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className={`rounded-2xl p-6 border shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-300 ${
+        isLight
+          ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900"
+          : "bg-[#111111] border-white/[0.08] text-white"
+      }`}>
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/40 border border-indigo-800/40 text-indigo-300 text-xs font-semibold">
             <span>✦</span>
             <span>Flagship Track: Python Fundamentals</span>
           </div>
-          <h2 className="text-2xl font-serif font-bold text-white">
+          <h2 className={`text-2xl font-serif font-bold transition-colors duration-300 ${
+            isLight ? "text-slate-900" : "text-white"
+          }`}>
             Overall Curriculum Mastery: 78.4%
           </h2>
-          <p className="text-xs text-neutral-300 max-w-xl leading-relaxed">
+          <p className={`text-xs max-w-xl leading-relaxed transition-colors duration-300 ${
+            isLight ? "text-slate-600" : "text-neutral-300"
+          }`}>
             Continuous Bayesian Knowledge Tracing updates in real-time as you formulate answers in the Socratic AI Studio, run unit tests in the code sandbox, and defend solutions.
           </p>
         </div>
 
         <div className="flex items-center gap-6 shrink-0">
-          <div className="text-center p-4 bg-white/[0.04] rounded-xl border border-white/[0.06] w-28">
-            <div className="text-2xl font-bold text-indigo-400">6 / 8</div>
-            <div className="text-[10px] uppercase font-bold text-neutral-400 mt-0.5">Modules Clear</div>
+          <div className={`text-center p-4 rounded-xl border w-28 ${
+            isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.04] border-white/[0.06]"
+          }`}>
+            <div className="text-2xl font-bold text-indigo-500">6 / 8</div>
+            <div className={`text-[10px] uppercase font-bold mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>Modules Clear</div>
           </div>
-          <div className="text-center p-4 bg-white/[0.04] rounded-xl border border-white/[0.06] w-28">
-            <div className="text-2xl font-bold text-emerald-400">0.892</div>
-            <div className="text-[10px] uppercase font-bold text-neutral-400 mt-0.5">Mean P(L)</div>
+          <div className={`text-center p-4 rounded-xl border w-28 ${
+            isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.04] border-white/[0.06]"
+          }`}>
+            <div className="text-2xl font-bold text-emerald-500">0.892</div>
+            <div className={`text-[10px] uppercase font-bold mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>Mean P(L)</div>
           </div>
         </div>
       </div>
 
       {/* Module Breakdown Grid */}
       <div className="space-y-3">
-        <h3 className="text-base font-bold text-white">Module Knowledge States</h3>
+        <h3 className={`text-base font-bold transition-colors duration-300 ${isLight ? "text-slate-900" : "text-white"}`}>Module Knowledge States</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
@@ -108,9 +123,13 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
               concepts: ["End-to-end project", "Integration test suite", "Oral defense prep"],
             },
           ].map((mod) => (
-            <div key={mod.id} className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-3">
+            <div key={mod.id} className={`rounded-xl p-5 border shadow-sm space-y-3 transition-all duration-300 ${
+              isLight
+                ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)] text-slate-900"
+                : "bg-[#111111] border-white/[0.08] text-white"
+            }`}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-neutral-400">{mod.id}</span>
+                <span className={`text-xs font-mono font-bold ${isLight ? "text-purple-700" : "text-neutral-400"}`}>{mod.id}</span>
                 <span
                   className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
                     mod.status === "Mastered"
@@ -127,9 +146,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
               </div>
 
               <div>
-                <h4 className="text-sm font-bold text-white">{mod.title}</h4>
+                <h4 className={`text-sm font-bold transition-colors duration-300 ${isLight ? "text-slate-900" : "text-white"}`}>{mod.title}</h4>
                 <div className="flex items-center gap-3 mt-2">
-                  <div className="flex-1 bg-white/[0.08] h-2 rounded-full overflow-hidden">
+                  <div className={`flex-1 h-2 rounded-full overflow-hidden ${
+                    isLight ? "bg-purple-100" : "bg-white/[0.08]"
+                  }`}>
                     <div
                       className={`h-full rounded-full ${
                         mod.status === "Mastered"
@@ -143,7 +164,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
                       style={{ width: `${mod.pL * 100}%` }}
                     />
                   </div>
-                  <span className="text-xs font-mono font-semibold text-neutral-300">
+                  <span className={`text-xs font-mono font-semibold ${isLight ? "text-slate-600" : "text-neutral-300"}`}>
                     {(mod.pL * 100).toFixed(0)}%
                   </span>
                 </div>
@@ -153,7 +174,11 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
                 {mod.concepts.map((c) => (
                   <span
                     key={c}
-                    className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-neutral-300 border border-white/[0.06]"
+                    className={`text-[10px] px-2 py-0.5 rounded border transition-colors duration-300 ${
+                      isLight
+                        ? "bg-purple-100/60 text-purple-900 border-purple-200"
+                        : "bg-white/[0.06] text-neutral-300 border-white/[0.06]"
+                    }`}
                   >
                     {c}
                   </span>
@@ -165,10 +190,14 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
       </div>
 
       {onNavigateToStudio && (
-        <div className="p-4 bg-[#111111] border border-white/[0.08] rounded-xl flex items-center justify-between gap-4">
+        <div className={`p-4 border rounded-xl flex items-center justify-between gap-4 transition-all duration-300 ${
+          isLight
+            ? "bg-white border-purple-900/10 shadow-sm text-slate-900"
+            : "bg-[#111111] border-white/[0.08] text-white"
+        }`}>
           <div>
-            <h4 className="text-xs font-bold text-white">Continue Active Module</h4>
-            <p className="text-[11px] text-neutral-300">
+            <h4 className={`text-xs font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Continue Active Module</h4>
+            <p className={`text-[11px] ${isLight ? "text-slate-600" : "text-neutral-300"}`}>
               Module 5: File I/O & Exception Handling has 2 pending interactive code challenges.
             </p>
           </div>
