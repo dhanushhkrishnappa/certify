@@ -129,6 +129,111 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Universal Light Mode Card Theme Rules */
+html[data-theme='light'] body {
+  background-color: #C5B8D6;
+  color: #0F172A;
+}
+
+/* Every card surface turns to crisp white in light mode, strictly preserving sidebar & user profile cards */
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] .bg-\[\#111111\]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [class*="bg-[#171922]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [class*="bg-[#0b0f19]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [class*="bg-[#0d0e12]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [class*="bg-[#14161f]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [class*="bg-[#181920]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [data-purpose*="hero-current-course"],
+html[data-theme='light'] [data-purpose*="current-focus-hero-card"],
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]):not([data-purpose*="user-quick"]),
+html[data-theme='light'] [data-purpose="meta-info-strip"] > div {
+  --spotlight-card-surface: #FFFFFF !important;
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  border-color: rgba(109, 40, 217, 0.12) !important;
+  color: #0F172A !important;
+  box-shadow: 0 8px 30px rgba(76, 29, 149, 0.06) !important;
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, color 0.4s ease;
+}
+
+/* Headings inside white cards in light mode */
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h1,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h2,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h3,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h4,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h5,
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h1,
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h2,
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h3,
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h4,
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h5,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h1,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h2,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h3,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h4,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h5,
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h1,
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h2,
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h3,
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h4,
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) h5 {
+  color: #0F172A !important;
+}
+
+/* Paragraphs and secondary text inside white cards in light mode */
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) p,
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) p,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) p,
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) p {
+  color: #334155 !important;
+}
+
+/* White text classes inside white cards turn to deep slate (excluding colored buttons/badges) */
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-white:not([class*="bg-"]):not(button):not(svg *):not([class*="badge"]),
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-white:not([class*="bg-"]):not(button):not(svg *):not([class*="badge"]),
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-white:not([class*="bg-"]):not(button):not(svg *):not([class*="badge"]),
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-white:not([class*="bg-"]):not(button):not(svg *):not([class*="badge"]) {
+  color: #0F172A !important;
+}
+
+/* Neutral text inside white cards */
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-neutral-400,
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-zinc-400,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-neutral-400,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-zinc-400,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-neutral-400,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) .text-zinc-400 {
+  color: #64748B !important;
+}
+
+/* Translucent dark sub-containers inside white cards become crisp light purple/slate insets */
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) [class*="bg-white/["],
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) [class*="bg-white/["],
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) [class*="bg-white/["],
+html[data-theme='light'] [data-purpose$="-widget"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) [class*="bg-white/["] {
+  background-color: #F8FAFC !important;
+  border-color: rgba(109, 40, 217, 0.08) !important;
+}
+
+/* White buttons inside white cards turn to high-contrast brand purple buttons */
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) button.bg-white,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) button.bg-white,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) button.bg-white {
+  background-color: #7C3AED !important;
+  color: #FFFFFF !important;
+  border-color: #6D28D9 !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25) !important;
+}
+
+html[data-theme='light'] [class*="bg-[#111111]"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) button.bg-white:hover,
+html[data-theme='light'] .spotlight-card:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) button.bg-white:hover,
+html[data-theme='light'] [data-purpose$="-card"]:not([data-purpose*="sidebar"]):not([data-purpose*="user-spotlight"]) button.bg-white:hover {
+  background-color: #6D28D9 !important;
 }
 
 /* Full-screen opaque black preloader overlay */
