@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import './SpotlightCard.css';
+import { useTheme } from '../../context/ThemeContext.js';
 
 export interface SpotlightCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
@@ -76,9 +77,17 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
   ambient = false,
   flare = true,
   grain = 0,
-  theme = 'dark',
+  theme: explicitTheme,
   ...rest
 }) => {
+  let activeTheme: 'dark' | 'light' = 'dark';
+  try {
+    const themeContext = useTheme();
+    activeTheme = themeContext.theme;
+  } catch {
+    // Outside of ThemeProvider or in isolated tests
+  }
+  const theme = explicitTheme ?? activeTheme;
   const rootRef = useRef<HTMLDivElement | null>(null);
   const lightRef = useRef<HTMLSpanElement | null>(null);
   const grainRef = useRef<HTMLSpanElement | null>(null);

@@ -31,6 +31,7 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
       grain={0.06}
       ambient={false}
       flare={true}
+      data-purpose="user-spotlight-card"
       className={`w-[248px] !p-4 !rounded-[20px] shadow-[0_20px_45px_rgba(0,0,0,0.85)] ${className}`}
     >
       {/* Top Row: Avatar & Top-Right Action */}
