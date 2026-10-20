@@ -20,6 +20,7 @@ import { api } from "./services/api.js";
 import type { User } from "./types/index.js";
 import { prefersReducedMotion } from "./motion/motionVocabulary.js";
 import { motion, AnimatePresence } from "motion/react";
+import { ThemeProvider, useTheme } from "./context/ThemeContext.js";
 
 export type CertifyView =
   | "dashboard"
@@ -85,7 +86,8 @@ const getViewFromPath = (): CertifyView => {
   return requestedView || "landing";
 };
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { theme } = useTheme();
   const [currentView, setCurrentView] = useState<CertifyView>(getViewFromPath);
   const [selectedCourseSlug, setSelectedCourseSlug] = useState("python-fundamentals");
   const [selectedCredentialId, setSelectedCredentialId] = useState("CERT-PY-2026-001842");
@@ -273,7 +275,11 @@ export const App: React.FC = () => {
   ].includes(currentView);
 
   return (
-    <div className="min-h-screen bg-[#15062B] text-slate-100 flex overflow-x-hidden">
+    <div
+      className={`min-h-screen flex overflow-x-hidden transition-colors duration-400 ${
+        theme === "light" ? "bg-[#C5B8D6] text-slate-900" : "bg-[#15062B] text-slate-100"
+      }`}
+    >
       {/* Global Canonical App Sidebar (Floating Card Dock) */}
       <AppSidebar
         currentView={currentView}
@@ -286,15 +292,15 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 transition-all duration-300 ${
-          currentView === "studio" ? "h-screen overflow-hidden flex flex-col" : "min-h-screen"
-        } ${sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"}`}
+        className={`flex-1 transition-all duration-300 min-h-screen ${
+          sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"
+        }`}
       >
         <main
           className={
             currentView === "studio"
-              ? "p-4 md:px-6 md:py-3 max-w-[1700px] w-full mx-auto h-full flex flex-col overflow-hidden"
-              : "p-6 md:p-8 max-w-[1600px] mx-auto"
+              ? "p-4 md:p-6 w-full max-w-[1800px] mx-auto min-h-screen flex flex-col"
+              : "p-6 md:p-8 max-w-[1600px] mx-auto min-h-screen"
           }
         >
           {/* Global Header (hidden on focused immersive views like Studio/Certificate) */}
@@ -307,11 +313,12 @@ export const App: React.FC = () => {
               onSearch={(q) => console.log("Searching:", q)}
               onNavigate={(view) => navigateWithTransition(view as CertifyView)}
               onLogout={handleLogout}
+              showThemeToggle={currentView === "dashboard"}
             />
           )}
 
           {/* Active View Container */}
-          <div className={currentView === "studio" ? "flex-1 min-h-0 flex flex-col overflow-hidden" : isFullscreenWorkflow ? "pt-0" : "pt-2"}>
+          <div className={currentView === "studio" ? "flex-1 flex flex-col" : isFullscreenWorkflow ? "pt-0" : "pt-2"}>
             {/* Screen 1: Dashboard */}
             {currentView === "dashboard" && (
               <DashboardView
@@ -444,6 +451,14 @@ export const App: React.FC = () => {
         </main>
       </div>
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 };
 
