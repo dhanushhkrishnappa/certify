@@ -1,0 +1,370 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+// ==========================================
+// User, Identity & Better Auth Core Models
+// ==========================================
+
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  passwordHash  String?
+  fullName      String
+  role          String       @default("STUDENT") // STUDENT, INSTRUCTOR, ADMIN
+  emailVerified Boolean      @default(false)
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  enrollments   Enrollment[]
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+// ==========================================
+// Course & Versioned Curriculum Hierarchy
+// ==========================================
+
+model Course {
+  id          String          @id @default(uuid())
+  slug        String          @unique
+  title       String
+  summary     String
+  description String
+  status      String          @default("PUBLISHED") // DRAFT, REVIEW, PUBLISHED, ARCHIVED
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  versions    CourseVersion[]
+}
+
+model CourseVersion {
+  id            String       @id @default(uuid())
+  courseId      String
+  course        Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  versionNumber String       @default("1.0.0")
+  changelog     String?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  modules       Module[]
+  enrollments   Enrollment[]
+
+  @@unique([courseId, versionNumber])
+  @@index([courseId])
+}
+
+model Module {
+  id              String        @id @default(uuid())
+  courseVersionId String
+  courseVersion   CourseVersion @relation(fields: [courseVersionId], references: [id], onDelete: Cascade)
+  title           String
+  sequenceOrder   Int
+  createdAt       DateTime      @default(now())
+  chapters        Chapter[]
+
+  @@index([courseVersionId])
+}
+
+model Chapter {
+  id              String           @id @default(uuid())
+  moduleId        String
+  module          Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title           String
+  sequenceOrder   Int
+  teachingContent String
+  createdAt       DateTime         @default(now())
+  concepts        Concept[]
+  questions       Question[]
+  sessions        LearningSession[]
+
+  @@index([moduleId])
+}
+
+model Concept {
+  id             String           @id @default(uuid())
+  chapterId      String
+  chapter        Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  slug           String
+  name           String
+  description    String
+  sequenceOrder  Int
+  createdAt      DateTime         @default(now())
+  rubrics        Rubric[]
+  conceptMastery ConceptMastery[]
+
+  @@unique([chapterId, slug])
+  @@index([chapterId])
+}
+
+model Rubric {
+  id        String            @id @default(uuid())
+  conceptId String
+  concept   Concept           @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  title     String
+  createdAt DateTime          @default(now())
+  criteria  RubricCriterion[]
+
+  @@index([conceptId])
+}
+
+model RubricCriterion {
+  id                 String             @id @default(uuid())
+  rubricId           String
+  rubric             Rubric             @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+  criterionStatement String
+  weight             Float              @default(1.0)
+  tierRequired       String             @default("EASY") // EASY, MEDIUM, HARD
+  createdAt          DateTime           @default(now())
+  masteryEvidences   MasteryEvidence[]
+  rubricEvaluations  RubricEvaluation[]
+
+  @@index([rubricId])
+}
+
+model Question {
+  id           String             @id @default(uuid())
+  chapterId    String
+  chapter      Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questionType String             // RECALL, EXPLAIN, REASON, DEBUG, APPLY, VIVA
+  prompt       String
+  tier         String             @default("EASY")
+  parameters   String?            // JSON string for dynamic variants
+  createdAt    DateTime           @default(now())
+  answers      AssessmentAnswer[]
+
+  @@index([chapterId])
+}
+
+// ==========================================
+// Learner Progress, Sessions & Evidence
+// ==========================================
+
+model Enrollment {
+  id               String            @id @default(uuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseVersionId  String
+  courseVersion    CourseVersion     @relation(fields: [courseVersionId], references: [id], onDelete: Restrict)
+  status           String            @default("ACTIVE") // ACTIVE, COMPLETED, DROPPED
+  currentTier      String            @default("EASY") // EASY, MEDIUM, HARD
+  enrolledAt       DateTime          @default(now())
+  completedAt      DateTime?
+  sessions         LearningSession[]
+  conceptMasteries ConceptMastery[]
+  assessments      AssessmentAttempt[]
+  certificate      Certificate?
+
+  @@unique([userId, courseVersionId])
+  @@index([userId])
+  @@index([courseVersionId])
+}
+
+model LearningSession {
+  id           String        @id @default(uuid())
+  enrollmentId String
+  enrollment   Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  chapterId    String
+  chapter      Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  phase        String        @default("TEACHING") // DIAGNOSTIC, TEACHING, CHECKING, REMEDIATING, ASSESSING
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  messages     ChatMessage[]
+
+  @@index([enrollmentId])
+  @@index([chapterId])
+}
+
+model ChatMessage {
+  id        String          @id @default(uuid())
+  sessionId String
+  session   LearningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sender    String          // USER, AI_TUTOR, AI_EVALUATOR, SYSTEM
+  role      String          @default("user") // user, assistant, system
+  content   String
+  metadata  String?         // JSON metadata (tokens, latency, model)
+  createdAt DateTime        @default(now())
+
+  @@index([sessionId])
+}
+
+model ConceptMastery {
+  id                String            @id @default(uuid())
+  enrollmentId      String
+  enrollment        Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  conceptId         String
+  concept           Concept           @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  pMastery          Float             @default(0.1500) // BKT Probability [0.0 - 1.0]
+  confidence        Float             @default(0.2000)
+  state             String            @default("UNENCOUNTERED") // UNENCOUNTERED, LEARNING, NEEDS_REMEDIATION, MASTERED, ADVANCED
+  remediationCycles Int               @default(0)
+  lastAssessedAt    DateTime?
+  evidences         MasteryEvidence[]
+
+  @@unique([enrollmentId, conceptId])
+  @@index([enrollmentId])
+  @@index([conceptId])
+}
+
+model MasteryEvidence {
+  id                 String           @id @default(uuid())
+  conceptMasteryId   String
+  conceptMastery     ConceptMastery   @relation(fields: [conceptMasteryId], references: [id], onDelete: Cascade)
+  rubricCriterionId  String?
+  rubricCriterion    RubricCriterion? @relation(fields: [rubricCriterionId], references: [id])
+  evidenceType       String           // DIALOGUE_PROBE, CHAPTER_ASSESSMENT, PRACTICAL_TASK, VIVA
+  isDemonstrated     Boolean
+  evidenceQuote      String?
+  evaluatorReasoning String?
+  createdAt          DateTime         @default(now())
+
+  @@index([conceptMasteryId])
+}
+
+model AssessmentAttempt {
+  id             String             @id @default(uuid())
+  enrollmentId   String
+  enrollment     Enrollment         @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  assessmentType String             // DIAGNOSTIC, CHAPTER, FINAL_KNOWLEDGE, PRACTICAL, VIVA
+  targetId       String?            // ChapterId or TaskId
+  status         String             @default("IN_PROGRESS") // IN_PROGRESS, SUBMITTED, EVALUATED
+  score          Float?
+  createdAt      DateTime           @default(now())
+  completedAt    DateTime?
+  answers        AssessmentAnswer[]
+
+  @@index([enrollmentId])
+}
+
+model AssessmentAnswer {
+  id            String             @id @default(uuid())
+  attemptId     String
+  attempt       AssessmentAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId    String
+  question      Question           @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  studentAnswer String
+  score         Float?
+  createdAt     DateTime           @default(now())
+  evaluations   RubricEvaluation[]
+
+  @@index([attemptId])
+  @@index([questionId])
+}
+
+model RubricEvaluation {
+  id                String          @id @default(uuid())
+  answerId          String
+  answer            AssessmentAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  rubricCriterionId String
+  rubricCriterion   RubricCriterion @relation(fields: [rubricCriterionId], references: [id], onDelete: Cascade)
+  isDemonstrated    Boolean
+  evidenceQuote     String?
+  reasoning         String?
+  createdAt         DateTime        @default(now())
+
+  @@index([answerId])
+  @@index([rubricCriterionId])
+}
+
+// ==========================================
+// Verifiable Credentials & Signing
+// ==========================================
+
+model Certificate {
+  id               String     @id @default(uuid())
+  credentialId     String     @unique // e.g. 'CERT-2026-PY-98124'
+  enrollmentId     String     @unique
+  enrollment       Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Restrict)
+  tier             String     // FOUNDATION, PROFICIENT, ADVANCED
+  compositeScore   Float
+  evidenceSummary  String     // JSON stringified
+  signatureHash    String
+  keyId            String     @default("ed25519-2026-v1")
+  status           String     @default("VALID") // VALID, REVOKED, SUSPENDED
+  issuedAt         DateTime   @default(now())
+  revokedAt        DateTime?
+  revocationReason String?
+
+  @@index([credentialId])
+  @@index([status])
+}
+
+// ==========================================
+// Private Storage & Transactional Email Logs
+// ==========================================
+
+model StorageArtifact {
+  id           String   @id @default(uuid())
+  storageKey   String   @unique
+  enrollmentId String
+  userId       String
+  fileSize     Int
+  mimeType     String
+  checksum     String?
+  uploadedAt   DateTime @default(now())
+
+  @@index([enrollmentId])
+  @@index([userId])
+}
+
+model EmailLog {
+  id             String   @id @default(uuid())
+  recipient      String
+  template       String
+  idempotencyKey String   @unique
+  status         String   @default("SENT") // SENT, FAILED
+  errorDetails   String?
+  sentAt         DateTime @default(now())
+
+  @@index([recipient])
+}
