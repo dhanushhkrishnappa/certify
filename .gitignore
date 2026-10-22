@@ -3,11 +3,8 @@
 .env.local
 *.local
 
-# Stitch Cache & Local Designs
-.stitch/designs/
-.stitch/*.tmp
-.stitch/*.html
-.stitch/*.png
+# Stitch Cache
+.stitch/
 
 # Dependencies & Build Outputs
 node_modules/

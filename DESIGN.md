@@ -1,17 +1,7 @@
 # CERTIFY Canonical Design System (`DESIGN.md`)
 
 > **Authoritative Visual Source of Truth for CERTIFY**  
-> *Primary canonical specification file: [`.stitch/DESIGN.md`](file:///.stitch/DESIGN.md)*  
-> *Consolidated from Approved Platform Screens: Dashboard, Explore Courses, Course Details, My Learning, Learning Studio / AI Tutor, Assessments, Certification Result, Credentials, and Credential Details.*
-
----
-
-## Notice of Canonical Source
-
-This document mirrors the primary Stitch-generated specification located at:
-[`/.stitch/DESIGN.md`](.stitch/DESIGN.md)
-
-All visual implementation across the Certify application must strictly adhere to the tokens and specifications below. The previous dark obsidian charcoal system has been archived to [`docs/legacy/OLD_DESIGN.md`](docs/legacy/OLD_DESIGN.md).
+> *Consolidated design specifications across all screens: Dashboard, Explore Courses, Course Details, My Learning, Learning Studio / AI Tutor, Assessments, Certification Result, Credentials, and Credential Details.*
 
 ---
 
