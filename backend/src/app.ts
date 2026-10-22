@@ -1,34 +1,108 @@
-import express from "express";
-import cors from "cors";
-import { authRouter } from "./modules/auth/auth.routes.js";
-import { coursesRouter } from "./modules/courses/courses.routes.js";
-import { sessionsRouter } from "./modules/sessions/sessions.routes.js";
-import { assessmentRouter } from "./modules/assessment/assessment.routes.js";
-import { certificatesRouter } from "./modules/certificates/certificates.routes.js";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
+import crypto from "crypto";
+import { authHonoRouter } from "./modules/auth/auth.hono.js";
+import { coursesHonoRouter } from "./modules/courses/courses.hono.js";
+import { sessionsHonoRouter } from "./modules/sessions/sessions.hono.js";
+import { assessmentHonoRouter } from "./modules/assessment/assessment.hono.js";
+import { certificatesHonoRouter } from "./modules/certificates/certificates.hono.js";
+import { sandboxHonoRouter } from "./modules/sandbox/sandbox.hono.js";
+import { storageHonoRouter } from "./modules/storage/storage.hono.js";
+import { config } from "./config/index.js";
+import { logger } from "./shared/logger.js";
 
-export const app = express();
+export const app = new Hono();
 
-app.use(cors());
-app.use(express.json());
+// 1. Request Context & Unique Request ID Tracing
+app.use("*", async (c, next) => {
+  const requestId = c.req.header("x-request-id") || crypto.randomUUID();
+  c.set("requestId", requestId);
+  c.header("X-Request-Id", requestId);
+  return await next();
+});
 
-// Health Check
-app.get("/api/v1/health", (req, res) => {
-  res.json({
+// 2. Production Security Headers
+app.use(
+  "*",
+  secureHeaders({
+    xContentTypeOptions: "nosniff",
+    xFrameOptions: "DENY",
+    referrerPolicy: "strict-origin-when-cross-origin",
+  })
+);
+
+// 3. Credential-Aware CORS Configuration
+app.use(
+  "*",
+  cors({
+    origin: (origin) => {
+      if (!origin) return "*";
+      if (
+        origin.startsWith("http://localhost:") ||
+        origin.startsWith("http://127.0.0.1:") ||
+        origin.endsWith(".pages.dev") ||
+        origin === config.corsOrigin
+      ) {
+        return origin;
+      }
+      return config.corsOrigin || origin;
+    },
+    credentials: true,
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
+    exposeHeaders: ["Retry-After", "X-Request-Id"],
+  })
+);
+
+// 4. Health Check Endpoint
+app.get("/api/v1/health", (c) => {
+  return c.json({
     status: "ok",
     service: "certify-backend",
-    version: "1.0.0",
+    version: "2026.1.0",
+    runtime: "Cloudflare Workers / Hono Web Standards",
     timestamp: new Date().toISOString(),
+    crypto: {
+      algorithm: "Ed25519 (RFC 8032)",
+      keyId: config.ed25519KeyId,
+    },
+    models: {
+      tutorModel: config.anthropicTutorModel,
+      evaluatorModel: config.anthropicEvaluatorModel,
+    },
   });
 });
 
-// Register Domain Modules
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/courses", coursesRouter);
-app.use("/api/v1", sessionsRouter);
-app.use("/api/v1/assessments", assessmentRouter);
-app.use("/api/v1/certificates", certificatesRouter);
+// 5. Mount Domain Routers under /api/v1
+app.route("/api/v1/auth", authHonoRouter);
+app.route("/api/v1/courses", coursesHonoRouter);
+app.route("/api/v1", sessionsHonoRouter);
+app.route("/api/v1/assessments", assessmentHonoRouter);
+app.route("/api/v1/certificates", certificatesHonoRouter);
+app.route("/api/v1", sandboxHonoRouter);
+app.route("/api/v1/storage", storageHonoRouter);
 
-// Fallback 404
-app.use((req, res) => {
-  res.status(404).json({ error: `Endpoint not found: ${req.method} ${req.url}` });
+// 6. Fallback 404
+app.notFound((c) => {
+  return c.json({ error: `Endpoint not found: ${c.req.method} ${c.req.url}` }, 404);
+});
+
+// 7. Global Error Handler - Never Leaks Secrets or Internal Stack Traces
+app.onError((err, c) => {
+  const requestId = c.get("requestId") || "unknown";
+  logger.error("Unhandled API exception", {
+    requestId,
+    url: c.req.url,
+    method: c.req.method,
+    errorMessage: err.message,
+  });
+
+  return c.json(
+    {
+      error: err.message || "An unexpected internal server error occurred",
+      requestId,
+    },
+    500
+  );
 });

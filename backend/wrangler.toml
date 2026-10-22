@@ -1,0 +1,23 @@
+name = "certify-api"
+main = "src/worker.ts"
+compatibility_date = "2024-10-22"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NODE_ENV = "production"
+AI_PROVIDER = "anthropic"
+ANTHROPIC_TUTOR_MODEL = "claude-sonnet-4-6"
+ANTHROPIC_EVALUATOR_MODEL = "claude-haiku-4-5-20251001"
+OPENAI_TUTOR_MODEL = "gpt-4o"
+OPENAI_EVALUATOR_MODEL = "gpt-4o-mini"
+ALLOW_DEV_AI_FALLBACK = "false"
+RULE_VERSION = "2026.1"
+PROMPT_VERSION = "2026-10-v1"
+ED25519_KEY_ID = "ed25519-2026-v1"
+CORS_ORIGIN = "https://certify.pages.dev"
+EMAIL_FROM = "security@certify.edu"
+
+# Production bindings to be bound in Cloudflare dashboard
+# [[r2_buckets]]
+# binding = "R2_BUCKET"
+# bucket_name = "certify-private-artifacts"

@@ -1,11 +1,19 @@
+import { serve } from "@hono/node-server";
 import { app } from "./app.js";
 import { config } from "./config/index.js";
 
-app.listen(config.port, () => {
-  console.log(`====================================================`);
-  console.log(`Certify Modular Monolith Backend Running on Port ${config.port}`);
-  console.log(`Health Check: http://localhost:${config.port}/api/v1/health`);
-  console.log(`Course Catalog: http://localhost:${config.port}/api/v1/courses`);
-  console.log(`Environment: ${config.nodeEnv}`);
-  console.log(`====================================================`);
-});
+serve(
+  {
+    fetch: app.fetch,
+    port: config.port,
+  },
+  (info) => {
+    console.log(`====================================================`);
+    console.log(`Certify Hono API Running on Port ${info.port}`);
+    console.log(`Health Check: http://localhost:${info.port}/api/v1/health`);
+    console.log(`Course Catalog: http://localhost:${info.port}/api/v1/courses`);
+    console.log(`Environment: ${config.nodeEnv}`);
+    console.log(`Runtime Target: Cloudflare Workers / Node.js 22 LTS`);
+    console.log(`====================================================`);
+  }
+);
