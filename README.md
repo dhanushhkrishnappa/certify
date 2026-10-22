@@ -13,9 +13,11 @@
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.6%20%7C%206.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
   [![React](https://img.shields.io/badge/React-19.2-61dafb?style=flat-square&logo=react)](https://react.dev/)
   [![Vite](https://img.shields.io/badge/Vite-8.3-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
-  [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs)](https://nodejs.org/)
-  [![Express](https://img.shields.io/badge/Express-4.21-black?style=flat-square&logo=express)](https://expressjs.com/)
-  [![Prisma](https://img.shields.io/badge/Prisma-5.20-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
+  [![Hono](https://img.shields.io/badge/Hono-4.13-E36002?style=flat-square&logo=hono)](https://hono.dev/)
+  [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?style=flat-square&logo=cloudflare)](https://workers.cloudflare.com/)
+  [![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
+  [![Neon Postgres](https://img.shields.io/badge/Neon-PostgreSQL-00E599?style=flat-square&logo=postgresql)](https://neon.tech/)
+  [![Ed25519](https://img.shields.io/badge/Signature-Ed25519-indigo?style=flat-square)](https://ed25519.cr.yp.to/)
   [![WebGL / OGL](https://img.shields.io/badge/WebGL-OGL%20Shaders-critical?style=flat-square&logo=webgl)](https://github.com/oframe/ogl)
   [![Vitest](https://img.shields.io/badge/Tested%20With-Vitest-FCC72B?style=flat-square&logo=vitest)](https://vitest.dev/)
   [![License](https://img.shields.io/badge/License-ISC-green?style=flat-square)](LICENSE)
@@ -26,103 +28,114 @@
 
 ## 📖 Table of Contents
 
-- [Overview & The Core Thesis](#-overview--the-core-thesis)
-- [The Pedagogical & Certification Protocol](#-the-pedagogical--certification-protocol)
-- [Key Innovations & Features](#-key-innovations--features)
+- [The Problem: Why Online Certificates Are Broken](#-the-problem-why-online-certificates-are-broken)
+- [The Solution: How Certify Fixes It](#-the-solution-how-certify-fixes-it)
+- [How Certify Works (The 4-Step Learner Journey)](#-how-certify-works-the-4-step-learner-journey)
+- [Key Features Explained Simply](#-key-features-explained-simply)
 - [Visual Interface Tour](#-visual-interface-tour)
 - [System Architecture](#-system-architecture)
 - [Technology Stack](#-technology-stack)
 - [Repository Structure](#-repository-structure)
-- [Getting Started & Quickstart](#-getting-started--quickstart)
+- [Quickstart Guide (Get Running in 2 Minutes)](#-quickstart-guide-get-running-in-2-minutes)
   - [Prerequisites](#prerequisites)
   - [1. Backend Setup](#1-backend-setup)
   - [2. Frontend Setup](#2-frontend-setup)
   - [Default Test Credentials](#default-test-credentials)
-- [Quality Assurance & Visual Testing](#-quality-assurance--visual-testing)
-- [Canonical Design System](#-canonical-design-system)
+- [Testing & Quality Assurance](#-testing--quality-assurance)
+- [Design System & Aesthetics](#-design-system--aesthetics)
 - [In-Depth Documentation](#-in-depth-documentation)
 - [License](#-license)
 
 ---
 
-## 💡 Overview & The Core Thesis
+## ❌ The Problem: Why Online Certificates Are Broken
 
-The current online learning ecosystem is plagued by a fundamental incentive breakdown: **it rewards passive consumption ("watch until done") rather than demonstrated understanding.** Platforms issue certificates based on video watch times or easily gamed multiple-choice questionnaires (MCQs) that can be brute-forced or shared.
+Today, millions of students and engineers take online courses, yet tech companies and universities routinely ignore course certificates on resumes. Why?
 
-**Certify fundamentally reverses this model:**
+Because the modern online learning model is plagued by **three fatal flaws**:
 
-> **"A learner earns a credential only when they demonstrate defensible, multi-dimensional mastery — through diagnostic probing, Socratic dialogue, code reasoning, and live oral defense."**
+1. **Passive Consumption ("Watch to Complete")**  
+   Most platforms award completion if a video simply finishes playing. Learners can mute the tab, let it run in the background, and receive a certificate without absorbing a single concept.
 
-Certify is designed as an **interactive learning environment first** and a **credentialing engine second**. The AI acts not as an antagonistic proctor, but as an empathetic Socratic mentor that:
-1. Conducts continuous conceptual dialogues without spoon-feeding answers.
-2. Identifies deep conceptual misconceptions in real-time.
-3. Guides learners through targeted remediation studios.
-4. Evaluates learners across code debugging, architectural trade-offs, and an oral defense chamber.
-5. Issues tamper-evident, cryptographically verifiable credentials backed by deterministic scoring logic.
+2. **Easily Gamed Multiple-Choice Questions (MCQs)**  
+   Assessments rely on static 4-choice questions. Learners can guess until they pass, Google the exact questions, or paste them into an AI to get instant answers in seconds.
+
+3. **Zero Proof of Real Understanding**  
+   A traditional PDF certificate displays a name and a logo, but offers **zero evidence** of what the learner actually understands. It cannot tell an employer whether the person can debug real code, make engineering trade-offs, or defend technical decisions under scrutiny.
+
+> **Result:** Certificates have become meaningless participation trophies. Learners waste time on superficial learning, and employers have no reliable signal of competence.
 
 ---
 
-## 🔄 The Pedagogical & Certification Protocol
+## 💡 The Solution: How Certify Fixes It
 
-Certify implements a mathematically grounded, multi-stage educational progression:
+**Certify fundamentally reverses this dynamic:**
+
+> ### *"You only earn a credential when you can actively explain, build, and defend your understanding."*
+
+Certify combines an **interactive Socratic AI mentor**, **hands-on code execution**, an **oral viva defense chamber**, and **cryptographic verification**:
+
+* 🧠 **No Spoon-Fed Answers**: Instead of just lecturing or generating code for you, the AI acts as a patient mentor that uses Socratic dialogue to lead you to the "aha!" moment yourself.
+* 🛠️ **Real Hands-On Debugging**: You write, run, and fix real code directly in the browser.
+* 🎙️ **The Oral Viva Defense Chamber**: To graduate, you must defend your architectural decisions in a conversational interview with the AI. You are asked *why* you chose a specific data structure, what trade-offs exist (speed vs. memory), and how your system behaves when things break.
+* 🔒 **Deterministic & Tamper-Evident Credentials**: The AI cannot hand out certificates arbitrarily. Hard deterministic scoring rules evaluate your performance, and certificates are cryptographically signed using **Ed25519 digital signatures** that anyone (employers, recruiters, professors) can instantly verify online.
+
+---
+
+## 🔄 How Certify Works (The 4-Step Learner Journey)
 
 ```mermaid
-flowchart LR
-    A[Curated Track] --> B[Baseline Diagnostic]
-    B --> C[AI Learning Studio]
-    C --> D[Active Practice & Code Sandbox]
-    D --> E[Chapter Assessment]
-    E -->|Misconceptions| F[Remediation Studio]
-    F --> C
-    E -->|Mastery Proven| G[Final Assessment]
-    G --> H[Practical Application Task]
-    H --> I[Oral Viva Defense Chamber]
-    I --> J[Deterministic Grading Engine]
-    J --> K[Verifiable Public Credential]
+flowchart TD
+    Step1["1. Adaptive Diagnostic<br/><i>Calibrates initial skill level (Foundation, Proficient, Advanced)</i>"]
+    --> Step2["2. AI Learning Studio<br/><i>Socratic dialogue + interactive code editor</i>"]
+    
+    Step2 --> Step3["3. Chapter Assessment & Practice<br/><i>Code debugging, conceptual probes & edge cases</i>"]
+    
+    Step3 -- Misconceptions Detected --> Remediation["Remediation Studio<br/><i>Targeted intervention to fix specific knowledge gaps</i>"]
+    Remediation --> Step2
+    
+    Step3 -- Mastery Demonstrated --> Step4["4. Oral Viva Defense Chamber<br/><i>Live technical interview defending architecture & trade-offs</i>"]
+    
+    Step4 --> DeterministicEngine["Deterministic Evaluation Engine<br/><i>Strict rubric checks (LLM cannot unilaterally grant credentials)</i>"]
+    
+    DeterministicEngine --> Credential["Verified Ed25519 Credential<br/><i>Publicly verifiable tamper-evident certificate</i>"]
+
+    style Step1 fill:#f9f9f9,stroke:#5B4DF0,stroke-width:2px
+    style Step2 fill:#f9f9f9,stroke:#5B4DF0,stroke-width:2px
+    style Step3 fill:#f9f9f9,stroke:#5B4DF0,stroke-width:2px
+    style Remediation fill:#fff3f3,stroke:#EF4444,stroke-width:2px
+    style Step4 fill:#f0f7ff,stroke:#0066cc,stroke-width:2px
+    style DeterministicEngine fill:#f9f9f9,stroke:#10B981,stroke-width:2px
+    style Credential fill:#fefce8,stroke:#C59B27,stroke-width:2px
 ```
 
-### Protocol Stages:
-1. **Curated Track**: Structured syllabus modules authored with atomic learning objectives, rubrics, and competencies.
-2. **Baseline Diagnostic**: Non-punitive adaptive pre-assessment calibrating starting difficulty tier (*Foundation*, *Proficient*, or *Advanced*).
-3. **AI Learning Studio**: High-focus Socratic conversational workspace paired with an in-browser live code editor.
-4. **Active Practice**: Hands-on code manipulation, scenario debugging, and guided conceptual probes.
-5. **Chapter Assessments**: Multi-format evaluation testing comprehension, synthesis, and edge-case reasoning.
-6. **Remediation Studio**: Targeted intervention sessions triggered when conceptual friction or misconceptions are detected.
-7. **Final Knowledge Checkpoint & Practical Sandbox**: Rigorous application challenge with automated test runs.
-8. **Oral Viva Defense Chamber**: Conversational defense where the AI probes architectural trade-offs, design rationale, and failure modes.
-9. **Deterministic Result Engine**: Strict mathematical separation between probabilistic LLM evaluation and deterministic business logic.
-10. **Cryptographically Signed Credential**: Tamper-evident credential issued with unique SHA-256 hash and verifiable public URL ledger.
+### The 4 Main Stages Explained:
+
+1. **Diagnostic Pre-Assessment**  
+   Before diving into a track, a brief diagnostic calibrates your existing knowledge. You aren't forced to repeat what you already know; the system adapts to your current level.
+
+2. **The Socratic AI Learning Studio**  
+   You learn by doing. A dual-pane workspace pairs a live code editor with a Socratic conversational mentor. If you make a mistake, the AI doesn't just hand you the solution—it points out contradictory assumptions or asks guiding questions until you discover the fix.
+
+3. **Active Remediation**  
+   If the system detects persistent misconceptions (e.g., confusing variable scope, recursion base cases, or reference vs. value semantics), you are smoothly routed into a **Remediation Studio** designed to resolve that exact blind spot.
+
+4. **Oral Viva Defense & Credential Issuance**  
+   Once practical milestones are reached, you enter the Viva Chamber. You answer probing questions about your project: *“What is the time complexity of your lookup? How would this perform under 10,000 concurrent requests? What if network calls fail?”* Once you successfully defend your work, a cryptographically signed credential is generated and entered into the public verification ledger.
 
 ---
 
-## ⚡ Key Innovations & Features
+## ⚡ Key Features Explained Simply
 
-### 🧠 Socratic Interactive AI Mentor
-- **Guided Inquiry**: Uses Socratic questioning techniques to help learners arrive at core engineering principles independently.
-- **Adaptive Explanations**: Dynamically shifts between high-level mental models, code snippets, hardware analogies, and mathematical proofs.
-- **Anti-Hallucination Guardrails**: Prompts bounded strictly by syllabus rubrics and vetted course knowledge graphs.
-
-### 📊 Bayesian Knowledge Tracing (BKT) Engine
-- Continuously models each learner's latent probability of understanding across atomic concepts ($P(L_t)$).
-- Mathematically balances slip ($P(S)$) and guess ($P(G)$) probabilities to calculate defensible competency metrics.
-- Surfaces visual radar charts and mastery percentages across every chapter.
-
-### 🎙️ Oral Viva Defense Chamber
-- Simulates academic and elite engineering viva defenses.
-- Probes *why* an implementation was chosen, what trade-offs exist (time vs. memory, synchronous vs. asynchronous), and how code behaves under catastrophic inputs.
-- Accumulates multi-signal evidence to award difficulty tiers: **Foundation**, **Proficient**, or **Advanced**.
-
-### 🔒 Deterministic, Tamper-Evident Certification Authority
-- The LLM never holds unilateral authority to issue credentials. It produces structured rubric evaluations that feed into deterministic verification algorithms.
-- Each credential contains a cryptographically hashed certificate ID and an immutable timestamp.
-- Full public verification ledger (`/verify`) enables universities, employers, and peers to audit proof of mastery without leaking private chat logs.
-
-### 🎨 State-of-the-Art Aesthetic & Micro-Interactions
-- **Custom WebGL Silk Shader**: Dynamic, fluid GPU-accelerated backdrop using OGL for visual immersion.
-- **Inertial Smooth Scrolling**: Integrated with Lenis for silky 60fps editorial transitions.
-- **Tactile Gestures & Spring Motion**: Fluid animations powered by Framer Motion.
-- **Reactive Dither Canvas**: Interactive particle and dithering effects on authentication and assessment gates.
-- **Academic Serifs & JetBrains Mono**: Editorial typography inspired by prestigious scientific journals.
+| Feature | What It Is | Why It Matters |
+| :--- | :--- | :--- |
+| **Socratic AI Tutor** | An AI mentor powered by Claude (`claude-sonnet-4-6`) bounded by rigorous educational rubrics. | Encourages true problem-solving and critical thinking rather than copy-pasting answers. |
+| **Bayesian Knowledge Tracing (BKT)** | A mathematical model estimating the probability that a learner actually understands a concept ($P(L_t)$). | Accounts for lucky guesses and accidental slips, giving a realistic mastery score across every skill. |
+| **Oral Viva Defense** | A simulated technical oral exam modeled after academic defenses and senior engineering interviews. | Proves that you understand *why* your code works, not just that it runs. |
+| **Deterministic Grading Engine** | Strict mathematical rule engine that separates AI conversation from credential approval. | Guarantees that AI hallucinations or prompt injections can never trick the system into granting a certificate. |
+| **Ed25519 Cryptographic Signatures** | Public-key digital signatures issued with unique Key IDs (`kid`) and historical key rotation support. | Every certificate is tamper-evident. Changing even one letter of a name or grade invalidates the signature. |
+| **Privacy-Preserving Public Ledger** | Public URL (`/verify/:id`) where anyone can inspect verified competencies and dates. | Proves your accomplishment to recruiters and universities without exposing private chat logs or sensitive personal info. |
+| **Editorial & Sensory UI** | Dynamic WebGL GPU silk shader, tactile typography, 60fps smooth scrolling, and spring physics. | Provides a high-end, inspiring workspace that makes learning feel serious, elegant, and engaging. |
 
 ---
 
@@ -130,12 +143,12 @@ flowchart LR
 
 | Screen | Preview | Description |
 | :--- | :---: | :--- |
-| **Editorial Landing** | <img src="docs/screenshots/landing/01_desktop_hero.png" width="380" /> | Calibrated hero experience featuring fluid WebGL background, manifesto, and curriculum carousel. |
-| **AI Learning Studio** | <img src="docs/screenshots/08_learning_studio.png" width="380" /> | Dual-pane Socratic chat mentor and dark code editor environment with instant execution. |
-| **Oral Viva Defense** | <img src="docs/screenshots/11_viva_defense.png" width="380" /> | High-stakes conversational examination chamber assessing architectural trade-offs. |
-| **Verifiable Credential** | <img src="docs/screenshots/14_credential_details.png" width="380" /> | Gold filigree certificate with verified skill radar, syllabus breakdown, and tamper-evident SHA hash. |
-| **Learner Dashboard** | <img src="docs/screenshots/03_dashboard.png" width="380" /> | Comprehensive telemetry displaying active courses, mastery score, BKT tracking, and upcoming viva sessions. |
-| **Authentication Portal** | <img src="docs/screenshots/landing/auth_view.png" width="380" /> | Minimalist glass card with interactive reactive dither shader backdrop. |
+| **Editorial Landing Experience** | <img src="docs/screenshots/landing/01_desktop_hero.png" width="380" /> | Warm ivory aesthetic with fluid WebGL silk backdrop, philosophy manifesto, and curriculum overview. |
+| **AI Learning Studio** | <img src="docs/screenshots/08_learning_studio.png" width="380" /> | High-focus dual-pane workspace pairing the Socratic conversational mentor with a live code editor. |
+| **Oral Viva Defense Chamber** | <img src="docs/screenshots/11_viva_defense.png" width="380" /> | Conversational examination chamber probing code rationale, architectural trade-offs, and failure recovery. |
+| **Tamper-Evident Credential** | <img src="docs/screenshots/14_credential_details.png" width="380" /> | Gold-filigree certificate display with competency radar, verified syllabus breakdown, and signature hash. |
+| **Learner Mastery Dashboard** | <img src="docs/screenshots/03_dashboard.png" width="380" /> | Real-time telemetry tracking active tracks, Bayesian skill probabilities, and upcoming milestones. |
+| **Secure Authentication Portal** | <img src="docs/screenshots/landing/auth_view.png" width="380" /> | Minimalist card design featuring an interactive reactive particle dither shader. |
 
 *Full screenshot archive available in [`docs/screenshots/SCREENSHOT_INDEX.md`](docs/screenshots/SCREENSHOT_INDEX.md).*
 
@@ -143,54 +156,60 @@ flowchart LR
 
 ## 🏗️ System Architecture
 
-Certify is built as a **Modular Monolith** to maximize engineering velocity, code cohesion, and auditability while maintaining clean domain boundaries for microservice extraction.
+Certify is built with a modern edge-ready architecture, combining a blazing-fast **React 19** frontend with an ultra-lightweight **Hono** backend deployable to **Cloudflare Workers** or standard **Node.js**:
 
 ```
-                      ┌───────────────────────────────────────────────┐
-                      │              Client Presentation              │
-                      │  React 19 • Vite • OGL WebGL • Framer Motion  │
-                      └───────────────────────┬───────────────────────┘
-                                              │ HTTP / REST / JSON
-                                              ▼
-                      ┌───────────────────────────────────────────────┐
-                      │           Modular Application Core            │
-                      ├──────────────┬────────────────┬───────────────┤
-                      │ Auth & Users │ Course Catalog │  AI Sessions  │
-                      ├──────────────┼────────────────┼───────────────┤
-                      │  BKT Mastery │  Assessments   │ Cert Authority│
-                      └──────────────┴───────┬────────┴───────────────┘
-                                             │
-                      ┌──────────────────────┴────────────────────────┐
-                      │              Persistent Storage               │
-                      │        Prisma ORM • SQLite / PostgreSQL       │
-                      └───────────────────────────────────────────────┘
+ ┌─────────────────────────────────────────────────────────────────────────────┐
+ │                             FRONTEND CLIENT                                 │
+ │     React 19 • Vite • OGL WebGL Shaders • Motion (Framer) • Lenis Scroll    │
+ └──────────────────────────────────────┬──────────────────────────────────────┘
+                                        │ HTTPS / JSON API
+                                        ▼
+ ┌─────────────────────────────────────────────────────────────────────────────┐
+ │                       BACKEND API (HONO FRAMEWORK)                          │
+ │         Cloudflare Workers Edge Runtime / Node.js 22 LTS Local Server       │
+ ├─────────────────────┬───────────────────────┬───────────────────────────────┤
+ │  Better Auth Auth   │ Course Catalog Engine │  AI Socratic Tutor (Claude)   │
+ ├─────────────────────┼───────────────────────┼───────────────────────────────┤
+ │ BKT Mastery Engine  │ Chapter Assessments   │ Oral Viva Defense Engine      │
+ ├─────────────────────┼───────────────────────┼───────────────────────────────┤
+ │ Ed25519 Signing     │ Resend Notifications  │ Cloudflare R2 Artifact Vault  │
+ └─────────────────────┴───────────┬───────────┴───────────────────────────────┘
+                                   │
+                                   ▼
+ ┌─────────────────────────────────────────────────────────────────────────────┐
+ │                             DATA PERSISTENCE                                │
+ │       Prisma 5.22 ORM • Neon Serverless PostgreSQL (Production)             │
+ │                         SQLite (Fast Local Dev & Testing)                   │
+ └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Architectural Principles:
-1. **Separation of Cognitive vs. Deterministic Logic**: Probabilistic LLM evaluations are strictly bounded; credentialing rules and mastery state transitions are deterministic code.
-2. **Auditability by Design**: Every rubric score, user answer, and assessment attempt is logged with trace identifiers for reproducibility.
-3. **High Cohesion Domains**: Clear directory structure separating `auth`, `courses`, `sessions`, `mastery`, `assessment`, and `certificates`.
+### Core Architecture Highlights:
+* **Edge & Web Standards**: Built using standard Web APIs (`fetch`, `Request`, `Response`, `crypto.subtle`). Runs with zero cold starts on Cloudflare Workers and seamlessly in Node.js 22 LTS during local development.
+* **Deterministic Isolation**: Cognitive LLM workflows are strictly sandboxed. The AI produces structured scores against rubrics, but only deterministic application code can update learner state or issue credentials.
+* **Session Security**: Sessions are authoritative in the database via **Better Auth**, stored in secure, HttpOnly, SameSite cookies with automatic CSRF origin verification on mutations.
+* **Two-Tier Rate Limiting**: Coarse edge protection via Cloudflare rate limiting combined with coordinated stateful quotas (Cloudflare Durable Objects) on expensive AI and certificate endpoints.
 
 ---
 
 ## 🛠️ Technology Stack
 
-### Frontend Architecture
-- **Framework**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Bundler & Tooling**: [Vite 8](https://vitejs.dev/) + [Oxlint](https://oxc.rs/)
-- **Visuals & Shaders**: [OGL](https://github.com/oframe/ogl) (WebGL shader silk backdrop), [Three.js](https://threejs.org/) / `@react-three/fiber`
-- **Animations & Motion**: [Motion](https://motion.dev/) (Framer Motion) + [Lenis](https://lenis.darkroom.engineering/) (Smooth inertia scrolling)
-- **Icons & Effects**: [Lucide React](https://lucide.dev/), [Canvas Confetti](https://github.com/catdad/canvas-confetti)
-- **Styling**: Tailored Design Token System (Warm Ivory, Royal Purple, Obsidian, Mint)
+### 🖥️ Frontend
+* **Core**: [React 19](https://react.dev/), [TypeScript 5.6+](https://www.typescriptlang.org/), [Vite 8](https://vitejs.dev/)
+* **Graphics & Shaders**: [OGL](https://github.com/oframe/ogl) (Fluid WebGL silk canvas), [Three.js](https://threejs.org/)
+* **Animations**: [Motion](https://motion.dev/) (Framer Motion) & [Lenis](https://lenis.darkroom.engineering/) (Smooth 60fps inertia scrolling)
+* **Icons & Feedback**: [Lucide React](https://lucide.dev/), [Canvas Confetti](https://github.com/catdad/canvas-confetti)
+* **Code Inspection**: [Oxlint](https://oxc.rs/) for blazing-fast static linting
 
-### Backend Architecture
-- **Runtime**: [Node.js](https://nodejs.org/) (ES Modules) + [TypeScript](https://www.typescriptlang.org/)
-- **Server Framework**: [Express 4.21](https://expressjs.com/)
-- **Database ORM**: [Prisma 5.20](https://www.prisma.io/)
-- **Primary Database**: SQLite (Development) / PostgreSQL 16+ (Production Ready)
-- **Authentication**: JWT (`jsonwebtoken`) + Salted Hashing (`bcryptjs`)
-- **Schema Validation**: [Zod 3.23](https://zod.dev/)
-- **Testing**: [Vitest 2.1](https://vitest.dev/)
+### ⚙️ Backend & Edge
+* **Server Framework**: [Hono 4.13](https://hono.dev/) (Runs anywhere: Cloudflare Workers, Node.js, Bun, Deno)
+* **Runtimes**: [Cloudflare Workers](https://workers.cloudflare.com/) (Edge Production) & [Node.js 22 LTS](https://nodejs.org/) (`@hono/node-server`)
+* **ORM & Database**: [Prisma 5.22](https://www.prisma.io/) with Neon Serverless driver adapter (`@prisma/adapter-neon`) + [PostgreSQL](https://neon.tech/) / [SQLite](https://sqlite.org/)
+* **Authentication**: [Better Auth](https://www.better-auth.com/) sole session authority in database with HttpOnly cookies & CSRF protection
+* **AI Provider**: [Anthropic Claude](https://www.anthropic.com/) (Tutor: `claude-sonnet-4-6`, Evaluator: `claude-haiku-4-5-20251001`)
+* **Cryptography**: RFC 8032 Ed25519 asymmetric keypairs (`crypto.subtle` / `@noble/ed25519`) with Key ID rotation registry
+* **Email & Storage**: [Resend](https://resend.com/) for notifications, [Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/) for object storage
+* **Validation & Testing**: [Zod](https://zod.dev/) 3.23, [Vitest](https://vitest.dev/) 2.1
 
 ---
 
@@ -198,92 +217,96 @@ Certify is built as a **Modular Monolith** to maximize engineering velocity, cod
 
 ```
 certify/
-├── backend/                        # Modular monolith Express backend
+├── backend/                        # Hono API Backend (Cloudflare Workers & Node.js)
 │   ├── prisma/
-│   │   ├── schema.prisma           # Relational schema (Users, Courses, Mastery, Certs)
-│   │   └── seed.ts                 # Database seeding with flagship Python track
+│   │   ├── schema.prisma           # SQLite schema for instant zero-dependency local dev
+│   │   ├── schema.postgresql.prisma # PostgreSQL schema for Neon production deployment
+│   │   └── seed.ts                 # Database seeding with flagship Python track & accounts
 │   ├── src/
-│   │   ├── config/                 # Environment & server settings
+│   │   ├── config/                 # Environment variables & model configuration
 │   │   ├── modules/
-│   │   │   ├── assessment/         # Chapter assessments & Viva defense logic
-│   │   │   ├── auth/               # User registration, login, JWT middleware
-│   │   │   ├── certificates/       # Cryptographic certificate issuance & verification
-│   │   │   ├── courses/            # Course catalog & syllabus engine
-│   │   │   ├── mastery/            # BKT evidence aggregation & skill tracking
-│   │   │   └── sessions/           # AI Socratic chat orchestrator
-│   │   ├── shared/                 # Common middlewares, utilities, errors
-│   │   ├── app.ts                  # Express application setup
-│   │   └── server.ts               # Server entry point (port 5000)
+│   │   │   ├── ai/                 # Socratic prompting, rubric evaluation & guardrails
+│   │   │   ├── assessment/         # Chapter assessments, rubrics & Viva defense
+│   │   │   ├── auth/               # User registration, login & Better Auth sessions
+│   │   │   ├── certificates/       # Ed25519 signing, key rotation & public verification
+│   │   │   ├── courses/            # Course tracks, chapters, syllabus management
+│   │   │   ├── email/              # Resend email templates & delivery logs
+│   │   │   ├── mastery/            # Bayesian Knowledge Tracing (BKT) engine
+│   │   │   ├── sandbox/            # Isolated execution gatekeeper (HTTP 503 fail-closed)
+│   │   │   ├── sessions/           # AI learning studio chat sessions & history
+│   │   │   └── storage/            # Cloudflare R2 asset storage & signed URLs
+│   │   ├── shared/                 # Middleware (auth, rate limiting, error handler, prisma)
+│   │   ├── app.ts                  # Core Hono application configuration
+│   │   ├── server.ts               # Local Node.js server runner (port 5000)
+│   │   └── worker.ts               # Cloudflare Worker entrypoint with Durable Objects
+│   ├── wrangler.toml               # Cloudflare Workers configuration
 │   └── package.json
 │
-├── frontend/                       # React 19 Vite application
+├── frontend/                       # React 19 + Vite User Interface
 │   ├── public/                     # Static assets, branding, and icons
 │   ├── src/
-│   │   ├── assets/                 # SVGs and brand assets
 │   │   ├── components/             # High-fidelity UI views
-│   │   │   ├── ai/                 # Socratic chat & prompt interfaces
-│   │   │   ├── credentials/        # Certificate cards & gold filigree renderer
-│   │   │   ├── landing/            # Editorial landing sections (Silk, Hero, Bento)
-│   │   │   ├── mastery/            # Skill radar & mastery telemetry
-│   │   │   ├── motion/             # Animated transition wrappers
+│   │   │   ├── ai/                 # Socratic chat mentor & prompt inputs
+│   │   │   ├── credentials/        # Certificate viewer & gold filigree renderer
+│   │   │   ├── landing/            # Editorial landing sections (WebGL Silk, Bento, Steps)
+│   │   │   ├── mastery/            # Radar charts & Bayesian knowledge telemetry
 │   │   │   ├── AuthView.tsx        # Dither canvas authentication portal
-│   │   │   ├── CatalogView.tsx     # Explore courses directory
-│   │   │   ├── CourseDetailsView.tsx # Syllabus & prerequisites breakdown
-│   │   │   ├── DashboardView.tsx   # Learner hub & metric cards
-│   │   │   ├── LearningStudio.tsx  # Flagship AI tutor & code editor
+│   │   │   ├── CatalogView.tsx     # Course catalog directory
+│   │   │   ├── CourseDetailsView.tsx # Syllabus & competency prerequisites
+│   │   │   ├── DashboardView.tsx   # Learner home hub & metric summaries
+│   │   │   ├── LearningStudio.tsx  # Interactive AI tutor & live code editor
 │   │   │   ├── VivaChamberView.tsx # Oral Viva examination chamber
-│   │   │   └── ...                 # Diagnostic, Remediation, Results views
-│   │   ├── motion/                 # Lenis smooth scroll hooks & easing tokens
-│   │   ├── services/api.ts         # Type-safe API client
-│   │   ├── types/                  # Shared domain TypeScript definitions
-│   │   ├── index.css               # Canonical CSS tokens & typography
-│   │   └── App.tsx                 # View state router & layout shell
-│   ├── qa-all-screens.mjs          # Puppeteer automated visual QA suite
+│   │   │   └── ...                 # Diagnostic, Remediation, Results & Verify views
+│   │   ├── motion/                 # Lenis smooth scroll & easing curves
+│   │   ├── services/api.ts         # Type-safe backend API client
+│   │   ├── index.css               # Editorial CSS design tokens & typography
+│   │   └── App.tsx                 # View state router & application layout
 │   └── package.json
 │
-├── docs/                           # Comprehensive architectural specifications
-│   ├── SYSTEM_ARCHITECTURE.md      # Architectural blueprints & diagrams
+├── docs/                           # Architectural blueprints & engineering specifications
+│   ├── SYSTEM_ARCHITECTURE.md      # Full architecture blueprint & sequence diagrams
 │   ├── PRODUCT_SCOPE.md            # Product thesis & scope boundaries
-│   ├── ASSESSMENT_ENGINE.md        # Rubrics, Viva protocol & question design
-│   ├── CERTIFICATION_ENGINE.md     # Cryptographic verification & tamper proofs
-│   ├── MASTERY_ENGINE.md           # Bayesian Knowledge Tracing specifications
-│   └── screenshots/                # Rendered screenshots of all 20+ view states
+│   ├── ASSESSMENT_ENGINE.md        # Viva protocol, rubrics & diagnostic design
+│   ├── CERTIFICATION_ENGINE.md     # Ed25519 signing & verification specifications
+│   ├── MASTERY_ENGINE.md           # Bayesian Knowledge Tracing formulas
+│   └── screenshots/                # 30+ visual screenshots across all screens
 │
-├── .stitch/                        # Google Stitch canonical design specs
-├── DESIGN.md                       # Authoritative UI token source of truth
-└── README.md                       # Project documentation
+├── DESIGN.md                       # Canonical design system source of truth
+└── README.md                       # This document
 ```
 
 ---
 
-## 🚀 Getting Started & Quickstart
+## 🚀 Quickstart Guide (Get Running in 2 Minutes)
+
+You can run the entire platform locally with zero external cloud dependencies. Local development defaults to a self-contained SQLite database.
 
 ### Prerequisites
-- **Node.js**: Version `18.x` or `20.x` or higher
-- **npm**: Version `9.x` or higher
-- **Git**
+* **Node.js**: Version `20.x` or `22.x LTS` (Node 18+ supported)
+* **npm**: Version `9.x` or `10.x`
+* **Git**
 
 ---
 
 ### 1. Backend Setup
 
-Open a terminal and navigate to the backend directory:
+Open a terminal and navigate to the backend:
 
 ```bash
 cd backend
 npm install
 ```
 
-Initialize and seed the database (SQLite by default):
+Initialize your local database and seed it with courses and test accounts:
 
 ```bash
-# Push Prisma schema to local database
+# Push schema to local SQLite database
 npm run db:push
 
 # Generate the Prisma client
 npm run db:generate
 
-# Seed the database with the flagship Python Fundamentals course and accounts
+# Seed the database with the flagship Python track and demo users
 npm run db:seed
 ```
 
@@ -293,27 +316,27 @@ Start the backend development server:
 npm run dev
 ```
 
-The backend server will start on **`http://localhost:5000`**.  
-You can verify health by visiting: `http://localhost:5000/api/v1/health`
+The backend will start immediately at **`http://localhost:5000`**.  
+Verify it is running by checking the health endpoint: `http://localhost:5000/api/v1/health`
 
 ---
 
 ### 2. Frontend Setup
 
-Open a second terminal window and navigate to the frontend directory:
+Open a second terminal window and navigate to the frontend:
 
 ```bash
 cd frontend
 npm install
 ```
 
-Launch the Vite development server:
+Start the Vite development server:
 
 ```bash
 npm run dev
 ```
 
-Open **`http://localhost:5173`** in your browser to explore Certify.
+Open **`http://localhost:5173`** in your browser. You can now explore the full Certify application!
 
 ---
 
@@ -321,80 +344,65 @@ Open **`http://localhost:5173`** in your browser to explore Certify.
 
 The database seed provides two pre-configured accounts:
 
-| Role | Email | Password | Access Level |
+| Role | Email | Password | What You Can Explore |
 | :--- | :--- | :--- | :--- |
-| **Learner** | `learner@certify.edu` | `Password123!` | Enrolled in *Python Fundamentals*, active BKT history |
-| **Instructor** | `instructor@certify.edu` | `Password123!` | Course authoring & assessment overview |
+| **Learner** | `learner@certify.edu` | `Password123!` | Enrolled in *Python Fundamentals*, active BKT history, learning studio, and viva defense |
+| **Instructor** | `instructor@certify.edu` | `Password123!` | Course catalog overview & assessment inspection |
 
-*You can also click **"Get Started"** or switch to the **Sign Up** tab in the auth portal to create a brand new learner account.*
+*Want to start completely fresh? You can also click **"Get Started"** on the landing page and register a brand new learner account.*
 
 ---
 
-## 🧪 Quality Assurance & Visual Testing
+## 🧪 Testing & Quality Assurance
 
-Certify includes end-to-end visual and interaction regression testing powered by Puppeteer:
+Certify is built with a comprehensive automated test suite covering unit logic, cryptographic signatures, rate limiting, and Better Auth session security:
 
 ```bash
-# Run unit tests across backend modules
+# Run the complete backend test suite (44+ tests across 11 test files)
 cd backend
-npm run test
+npm test
 
-# Run Oxlint static analysis on frontend
+# Verify TypeScript compilation with zero errors
+npx tsc --noEmit
+
+# Run Cloudflare Worker bundle verification (dry run)
+npx wrangler deploy --dry-run
+```
+
+```bash
+# Run Oxlint static analysis on the frontend
 cd ../frontend
 npm run lint
 
-# Run headless Puppeteer visual regression verification across all screens
-node qa-all-screens.mjs
-
-# Capture fresh high-resolution screenshots for all views
-node capture-all-screens.mjs
+# Build production bundle for the frontend
+npm run build
 ```
 
 ---
 
-## 🎨 Canonical Design System
+## 🎨 Design System & Aesthetics
 
-The visual design language is strictly enforced via [`DESIGN.md`](DESIGN.md) and `.stitch/DESIGN.md`:
+Certify's visual identity balances academic rigor with cutting-edge digital craftsmanship:
 
-```css
-:root {
-  /* Surface Tokens */
-  --certify-bg-canvas: #F8F7F4;         /* Warm ivory backdrop */
-  --certify-bg-surface: #FFFFFF;        /* Elevated white container cards */
-  --certify-bg-surface-subtle: #F3F1EC; /* Inset wells and secondary chips */
-  
-  /* Text & Ink Tokens */
-  --certify-text-primary: #0F1117;      /* High-contrast charcoal ink */
-  --certify-text-secondary: #525866;    /* Editorial prose & descriptions */
-  --certify-text-muted: #8A909E;        /* Timestamps, chevrons, meta copy */
+* **Editorial Color Palette**: Warm ivory backgrounds (`#F8F7F4`), elevated white cards, deep obsidian text (`#0F1117`), and gold filigree accents (`#C59B27`) on credentials.
+* **GPU-Accelerated Shaders**: A custom WebGL silk ribbon canvas powered by OGL creates subtle, ambient depth without distracting from deep learning.
+* **Academic Typography**: High-contrast serifs for chapter headings paired with clean grotesques for readability and monospace fonts (`JetBrains Mono`) for code telemetry.
+* **Tactile Interactions**: Inertial smooth scrolling via Lenis, spring physics on modal transitions, and interactive particle dithering.
 
-  /* Brand & State Accents */
-  --certify-brand-purple: #5B4DF0;     /* Primary interactive accent */
-  --certify-status-success: #10B981;   /* Demonstrated mastery & pass state */
-  --certify-status-warning: #F59E0B;   /* Review & diagnostic attention */
-  --certify-status-danger: #EF4444;    /* Diagnosed misconception */
-  --certify-gold-primary: #C59B27;     /* Credential seal & gold filigree */
-}
-```
-
-### Typography Matrix
-- **Serif Display**: *Newsreader / Merriweather* (Hero H1s, Certificate Titles)
-- **Interface Grotesque**: *Plus Jakarta Sans / Inter* (Headings, Buttons, Body Prose)
-- **Monospace Telemetry**: *JetBrains Mono / SF Mono* (Code Editor, Verification Hashes, Timestamps)
+For complete token definitions and CSS variable specifications, see [`DESIGN.md`](DESIGN.md).
 
 ---
 
 ## 📚 In-Depth Documentation
 
-For detailed architectural specifications, consult the documents in [`docs/`](docs/):
+Explore the comprehensive engineering documentation in [`docs/`](docs/):
 
-- 🏛️ [System Architecture](docs/SYSTEM_ARCHITECTURE.md) — Module boundaries, sequence flows, caching, and database schemas.
-- 🎯 [Product Scope & Thesis](docs/PRODUCT_SCOPE.md) — In-scope capabilities vs. deferred roadmaps.
-- 📝 [Assessment Engine](docs/ASSESSMENT_ENGINE.md) — Diagnostic Rubrics, MCQ mechanics, and Viva Defense criteria.
-- 🎓 [Certification Engine](docs/CERTIFICATION_ENGINE.md) — Deterministic evaluation authority & cryptographic ledger.
-- 📈 [Mastery Engine](docs/MASTERY_ENGINE.md) — Bayesian Knowledge Tracing formulas and evidence weighting.
-- 🎨 [Canonical Design Tokens](DESIGN.md) — Authoritative CSS variables, typography, and spacing tokens.
-- 📸 [Screenshot Directory Index](docs/screenshots/SCREENSHOT_INDEX.md) — Comprehensive visual reference for all 20+ view states.
+* 🏛️ [System Architecture Blueprint](docs/SYSTEM_ARCHITECTURE.md) — Comprehensive service topology, edge deployment, and sequence flows.
+* 🎯 [Product Scope & Thesis](docs/PRODUCT_SCOPE.md) — The founding principles and scope boundaries of Certify.
+* 📝 [Assessment & Viva Engine](docs/ASSESSMENT_ENGINE.md) — Scoring rubrics, diagnostic protocols, and oral viva questioning methodology.
+* 🎓 [Certification & Cryptography Engine](docs/CERTIFICATION_ENGINE.md) — Ed25519 asymmetric cryptography, key rotation, and privacy-preserving public verification.
+* 📈 [Mastery Engine & BKT](docs/MASTERY_ENGINE.md) — Mathematical formulas and parameters behind Bayesian Knowledge Tracing.
+* 📸 [Screenshot Directory](docs/screenshots/SCREENSHOT_INDEX.md) — High-resolution screenshot gallery for every view state.
 
 ---
 
@@ -405,5 +413,5 @@ This project is licensed under the [ISC License](LICENSE).
 <br />
 
 <div align="center">
-  <sub>Built with precision for authentic engineering education.</sub>
+  <sub>Built with precision for authentic, defensible engineering education.</sub>
 </div>
