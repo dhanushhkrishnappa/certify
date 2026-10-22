@@ -1,0 +1,21 @@
+# Environment & Local Secrets
+.env
+.env.local
+*.local
+
+# Stitch Cache & Local Designs
+.stitch/designs/
+.stitch/*.tmp
+.stitch/*.html
+.stitch/*.png
+
+# Dependencies & Build Outputs
+node_modules/
+dist/
+build/
+
+# Databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3

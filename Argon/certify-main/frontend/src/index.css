@@ -1,0 +1,400 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Surface & Background Tokens */
+  --certify-bg-canvas: #15062B;
+  --certify-bg-surface: #111111;
+  --certify-bg-surface-subtle: #181818;
+  --certify-bg-surface-muted: #222222;
+  --certify-bg-sidebar: #111111;
+  --certify-bg-code-ide: #13151A;
+  --certify-bg-code-header: #1B1E26;
+
+  /* Text & Ink Tokens */
+  --certify-text-primary: #FFFFFF;
+  --certify-text-secondary: #CBD5E1;
+  --certify-text-muted: #94A3B8;
+  --certify-text-disabled: #64748B;
+  --certify-text-on-dark: #FFFFFF;
+
+  /* Primary Brand & Interactive Tokens */
+  --certify-brand-purple: #7C3AED;
+  --certify-brand-purple-hover: #6D28D9;
+  --certify-brand-purple-active: #5B21B6;
+  --certify-brand-purple-light: rgba(124, 58, 237, 0.15);
+  --certify-brand-purple-border: rgba(196, 181, 253, 0.35);
+
+  /* Semantic Mastery & Status Tokens */
+  --certify-status-success: #10B981;
+  --certify-status-success-bg: rgba(16, 185, 129, 0.15);
+  --certify-status-success-border: rgba(16, 185, 129, 0.35);
+
+  --certify-status-warning: #F59E0B;
+  --certify-status-warning-bg: rgba(245, 158, 11, 0.15);
+  --certify-status-warning-border: rgba(245, 158, 11, 0.35);
+
+  --certify-status-danger: #EF4444;
+  --certify-status-danger-bg: rgba(239, 68, 68, 0.15);
+  --certify-status-danger-border: rgba(239, 68, 68, 0.35);
+
+  --certify-status-info: #3B82F6;
+  --certify-status-info-bg: rgba(59, 130, 246, 0.15);
+  --certify-status-info-border: rgba(59, 130, 246, 0.35);
+
+  /* Hairlines, Rules & Outlines */
+  --certify-border-subtle: rgba(255, 255, 255, 0.12);
+  --certify-border-medium: rgba(255, 255, 255, 0.22);
+  --certify-border-focus: #7C3AED;
+
+  /* Gold & Certificate Embellishments */
+  --certify-gold-primary: #C59B27;
+  --certify-gold-secondary: #E3B341;
+  --certify-gold-bg: #FDF9EC;
+
+  /* Typography Stack */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Newsreader', 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-elevated: 0 12px 36px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  /* CERTIFY Master Translucent Surface System on #15062B Canvas */
+  --certify-surface-strong: rgba(18, 5, 36, 0.92);
+  --certify-surface: rgba(21, 6, 43, 0.85);
+  --certify-surface-soft: rgba(32, 10, 64, 0.75);
+  --certify-surface-elevated: rgba(40, 14, 78, 0.85);
+  --certify-surface-hover: rgba(50, 18, 96, 0.90);
+  --certify-border: rgba(255, 255, 255, 0.12);
+  --certify-border-strong: rgba(255, 255, 255, 0.22);
+  --certify-border-subtle: rgba(255, 255, 255, 0.08);
+  --certify-text-ivory: #FFFFFF;
+  --certify-text-secondary: #CBD5E1;
+  --certify-text-muted: #94A3B8;
+  --certify-champagne: #C4B5FD;
+  --certify-violet-muted: #C4B5FD;
+
+  /* CERTIFY Inner Card Product Mockup Tokens */
+  --certify-mockup-bg: #FFFFFF;
+  --certify-mockup-border: rgba(255, 255, 255, 0.12);
+  --certify-mockup-text-primary: #111827;
+  --certify-mockup-text-secondary: #4B5563;
+  --certify-mockup-bubble-ai: #F5F3FF;
+  --certify-mockup-bubble-user: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #15062B;
+  color: #FFFFFF;
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Full-screen opaque black preloader overlay */
+.certify-logo-preloader-root {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background-color: #000000 !important;
+  background: #000000 !important;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Custom Editorial Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8D2C6;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B5AE9E;
+}
+
+/* Circular Gauge Meter Styling */
+.meter-circle {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* Hero card radial glow matching approved Stitch screen */
+.hero-glow-bg {
+  background: radial-gradient(circle at 80% 40%, rgba(217, 119, 6, 0.22) 0%, rgba(30, 27, 75, 0.6) 40%, rgba(13, 14, 18, 0.98) 80%),
+    linear-gradient(135deg, #121318 0%, #0F1015 100%);
+}
+
+/* Sidebar motivation card gradient */
+.sidebar-art-bg {
+  background: linear-gradient(145deg, #181920 0%, #101115 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-art-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  right: -20%;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(10px);
+}
+
+/* Base Component Classes */
+.btn-primary {
+  background-color: var(--certify-brand-purple);
+  color: #FFFFFF;
+  border: 1px solid transparent;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover {
+  background-color: var(--certify-brand-purple-hover);
+  transform: translateY(-0.5px);
+}
+
+.btn-primary:active {
+  background-color: var(--certify-brand-purple-active);
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: var(--certify-text-primary);
+  border: 1px solid var(--certify-border-subtle);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease-out;
+}
+
+.btn-secondary:hover {
+  background-color: var(--certify-bg-surface-subtle);
+  border-color: var(--certify-border-medium);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Card Utility */
+.certify-card {
+  background-color: var(--certify-bg-surface);
+  border: 1px solid var(--certify-border-subtle);
+  border-radius: 20px;
+  box-shadow: var(--shadow-subtle);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.certify-card:hover {
+  border-color: #DDD9D0;
+  box-shadow: var(--shadow-card);
+}
+
+/* Badges */
+.badge-tier {
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-easy {
+  background-color: var(--certify-status-success-bg);
+  color: #047857;
+  border: 1px solid var(--certify-status-success-border);
+}
+
+.badge-medium {
+  background-color: var(--certify-brand-purple-light);
+  color: var(--certify-brand-purple);
+  border: 1px solid var(--certify-brand-purple-border);
+}
+
+.badge-hard {
+  background-color: var(--certify-status-warning-bg);
+  color: #B45309;
+  border: 1px solid var(--certify-status-warning-border);
+}
+
+/* Animations & Motion System */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes waveformPulse {
+  0% {
+    transform: scaleY(0.3);
+    opacity: 0.65;
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   VIEW TRANSITION API (with instant reduced-motion fallback)
+   ========================================================================== */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root) {
+    animation: 200ms cubic-bezier(0.16, 1, 0.3, 1) both certifyFadeOut;
+  }
+
+  ::view-transition-new(root) {
+    animation: 300ms cubic-bezier(0.16, 1, 0.3, 1) both certifyFadeIn;
+  }
+}
+
+@keyframes certifyFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes certifyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   LENIS SMOOTH SCROLL INTEGRATION
+   ========================================================================== */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   PREFERS-REDUCED-MOTION SAFEGUARD
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

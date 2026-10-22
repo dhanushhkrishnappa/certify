@@ -1,0 +1,71 @@
+name: CERTIFY CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-verify:
+    name: Backend Typecheck, Schema & Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: certify
+          POSTGRES_PASSWORD: certify_test_password
+          POSTGRES_DB: certify_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install Python 3 for Sandbox Tests
+        run: sudo apt-get update && sudo apt-get install -y python3
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Generate Prisma Client & Push Schema
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://certify:certify_test_password@localhost:5432/certify_test?schema=public
+        run: |
+          npx prisma generate
+          npx prisma db push
+      - name: TypeScript Build Verification
+        working-directory: backend
+        run: npm run build
+      - name: Run Automated Backend Test Suite
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://certify:certify_test_password@localhost:5432/certify_test?schema=public
+          JWT_SECRET: ci-test-jwt-secret-key-at-least-32-bytes-long
+        run: npm test
+
+  frontend-verify:
+    name: Frontend Typecheck & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Build Production Frontend Bundle
+        working-directory: frontend
+        run: npm run build
