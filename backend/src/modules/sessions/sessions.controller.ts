@@ -2,8 +2,14 @@ import { Request, Response } from "express";
 import { prisma } from "../../shared/prisma.js";
 import { AuthenticatedRequest } from "../../shared/middleware/auth.js";
 import { BayesianKnowledgeTracer } from "../mastery/bkt.js";
+import { AiProviderService } from "../ai/ai.provider.js";
+import { config } from "../../config/index.js";
 
 export class SessionsController {
+  /**
+   * Strictly read-only query of learner session context for a course.
+   * NEVER creates enrollments, concept masteries, or sessions on GET!
+   */
   public static async getSessionContext(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { slug } = req.params;
@@ -42,8 +48,8 @@ export class SessionsController {
 
       const activeVersion = course.versions[0];
 
-      // 2. Find or Auto-Enroll User
-      let enrollment = await prisma.enrollment.findUnique({
+      // 2. Query Enrollment (Strictly Read-Only)
+      const enrollment = await prisma.enrollment.findUnique({
         where: {
           userId_courseVersionId: {
             userId,
@@ -53,34 +59,15 @@ export class SessionsController {
       });
 
       if (!enrollment) {
-        enrollment = await prisma.enrollment.create({
-          data: {
-            userId,
-            courseVersionId: activeVersion.id,
-            status: "ACTIVE",
-            currentTier: "EASY",
-          },
+        res.status(404).json({
+          error: "Learner is not enrolled in this course version. Please enroll first.",
+          enrolled: false,
+          course: { id: course.id, slug: course.slug, title: course.title },
         });
-
-        // Initialize ConceptMastery
-        const allConcepts = activeVersion.modules.flatMap((m) =>
-          m.chapters.flatMap((c) => c.concepts)
-        );
-        for (const concept of allConcepts) {
-          await prisma.conceptMastery.create({
-            data: {
-              enrollmentId: enrollment.id,
-              conceptId: concept.id,
-              pMastery: 0.15,
-              confidence: 0.20,
-              state: "UNENCOUNTERED",
-            },
-          });
-        }
+        return;
       }
 
-      // 3. Find or Create Active Session
-      const firstChapter = activeVersion.modules[0]?.chapters[0];
+      // 3. Query Active Session (Strictly Read-Only)
       let session = await prisma.learningSession.findFirst({
         where: {
           enrollmentId: enrollment.id,
@@ -96,49 +83,10 @@ export class SessionsController {
           },
           messages: {
             orderBy: { createdAt: "asc" },
-            take: 30,
+            take: 50,
           },
         },
       });
-
-      if (!session && firstChapter) {
-        session = await prisma.learningSession.create({
-          data: {
-            enrollmentId: enrollment.id,
-            chapterId: firstChapter.id,
-            phase: "TEACHING",
-            isActive: true,
-          },
-          include: {
-            chapter: {
-              include: {
-                concepts: {
-                  include: { rubrics: { include: { criteria: true } } },
-                },
-              },
-            },
-            messages: {
-              orderBy: { createdAt: "asc" },
-            },
-          },
-        });
-
-        // Seed initial welcoming tutor turn if fresh
-        await prisma.chatMessage.create({
-          data: {
-            sessionId: session.id,
-            sender: "AI_TUTOR",
-            role: "assistant",
-            content: `Welcome to **${session.chapter.title}**! I'm your Socratic AI Tutor.\n\nHere is what we are exploring today: ${session.chapter.concepts.map((c) => c.name).join(", ")}.\n\nTo get started: have you worked with this before, or should we build our intuition from first principles?`,
-          },
-        });
-
-        // Reload messages
-        session.messages = await prisma.chatMessage.findMany({
-          where: { sessionId: session.id },
-          orderBy: { createdAt: "asc" },
-        });
-      }
 
       // 4. Fetch concept masteries for current enrollment
       const conceptMasteries = await prisma.conceptMastery.findMany({
@@ -148,28 +96,140 @@ export class SessionsController {
 
       res.json({
         course: { id: course.id, slug: course.slug, title: course.title },
-        enrollment: { id: enrollment.id, currentTier: enrollment.currentTier, status: enrollment.status },
-        session: {
-          id: session!.id,
-          phase: session!.phase,
-          chapter: session!.chapter,
-          messages: session!.messages,
+        enrollment: {
+          id: enrollment.id,
+          currentTier: enrollment.currentTier,
+          status: enrollment.status,
         },
+        session: session
+          ? {
+              id: session.id,
+              phase: session.phase,
+              chapter: session.chapter,
+              messages: session.messages,
+            }
+          : null,
         conceptMasteries,
         curriculum: activeVersion.modules,
       });
-    } catch (err) {
-      console.error("Session context error:", err);
-      res.status(500).json({ error: "Failed to load session context" });
+    } catch (err: any) {
+      console.error("Session context query error:", err);
+      res.status(500).json({ error: "Failed to load session context", details: err?.message });
+    }
+  }
+
+  /**
+   * Explicit POST endpoint to initialize a new learning session for a chapter.
+   */
+  public static async createSession(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { slug } = req.params;
+      const { chapterId } = req.body;
+      const userId = req.user!.id;
+
+      const course = await prisma.course.findUnique({
+        where: { slug },
+        include: {
+          versions: {
+            where: { isActive: true },
+            include: {
+              modules: {
+                include: { chapters: true },
+              },
+            },
+          },
+        },
+      });
+
+      if (!course || !course.versions[0]) {
+        res.status(404).json({ error: "Course not found" });
+        return;
+      }
+
+      const activeVersion = course.versions[0];
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_courseVersionId: {
+            userId,
+            courseVersionId: activeVersion.id,
+          },
+        },
+      });
+
+      if (!enrollment) {
+        res.status(400).json({ error: "You must enroll in this course before starting a session." });
+        return;
+      }
+
+      // Determine target chapter
+      let targetChapterId = chapterId;
+      if (!targetChapterId) {
+        const firstChapter = activeVersion.modules[0]?.chapters[0];
+        if (!firstChapter) {
+          res.status(400).json({ error: "No chapters available in this course." });
+          return;
+        }
+        targetChapterId = firstChapter.id;
+      }
+
+      // Deactivate any previous active sessions for this enrollment
+      await prisma.learningSession.updateMany({
+        where: { enrollmentId: enrollment.id, isActive: true },
+        data: { isActive: false },
+      });
+
+      // Create new learning session and initial welcome message atomically
+      const session = await prisma.learningSession.create({
+        data: {
+          enrollmentId: enrollment.id,
+          chapterId: targetChapterId,
+          phase: "TEACHING",
+          isActive: true,
+        },
+        include: {
+          chapter: {
+            include: {
+              concepts: {
+                include: { rubrics: { include: { criteria: true } } },
+              },
+            },
+          },
+        },
+      });
+
+      const initialMessage = await prisma.chatMessage.create({
+        data: {
+          sessionId: session.id,
+          sender: "AI_TUTOR",
+          role: "assistant",
+          content: `Welcome to **${session.chapter.title}**! I'm your Socratic AI Tutor.\n\nHere is what we are exploring: ${session.chapter.concepts.map((c) => c.name).join(", ")}.\n\nTo begin: have you worked with this concept before, or would you like to explore it from first principles?`,
+        },
+      });
+
+      res.status(201).json({
+        message: "Session started successfully",
+        session: {
+          id: session.id,
+          phase: session.phase,
+          chapter: session.chapter,
+          messages: [initialMessage],
+        },
+      });
+    } catch (err: any) {
+      console.error("Create session error:", err);
+      res.status(500).json({ error: "Failed to create session", details: err?.message });
     }
   }
 
   /**
    * SSE Streaming Socratic Tutor dialogue endpoint.
+   * Incorporates ownership checks, real AI provider streaming, cancellation,
+   * and single-observation BKT updating without keyword spam vulnerabilities.
    */
   public static async streamMessage(req: AuthenticatedRequest, res: Response): Promise<void> {
     const { sessionId } = req.params;
     const { content } = req.body;
+    const userId = req.user!.id;
 
     if (!content || typeof content !== "string" || content.trim().length === 0) {
       res.status(400).json({ error: "Content is required" });
@@ -188,6 +248,10 @@ export class SessionsController {
             },
           },
           enrollment: true,
+          messages: {
+            orderBy: { createdAt: "asc" },
+            take: 20,
+          },
         },
       });
 
@@ -196,7 +260,13 @@ export class SessionsController {
         return;
       }
 
-      // 1. Save User Message
+      // Enforce ownership: learner A cannot message on learner B's session
+      if (session.enrollment.userId !== userId) {
+        res.status(403).json({ error: "Forbidden: You do not own this learning session" });
+        return;
+      }
+
+      // 1. Persist User Message
       await prisma.chatMessage.create({
         data: {
           sessionId: session.id,
@@ -212,160 +282,161 @@ export class SessionsController {
       res.setHeader("Connection", "keep-alive");
       res.flushHeaders();
 
-      // 3. Socratic Pedagogical Response Generator
-      // Produces guided, conceptual responses grounded in current chapter teaching content
-      const userLower = content.toLowerCase();
+      // Client cancellation handling
+      let clientDisconnected = false;
+      req.on("close", () => {
+        clientDisconnected = true;
+      });
+
+      // 3. Build dialogue history for AI context
+      const chatHistory = session.messages.map((m) => ({
+        role: m.role as "user" | "assistant" | "system",
+        content: m.content,
+      }));
+      chatHistory.push({ role: "user", content: content.trim() });
+
       const currentChapter = session.chapter;
       const currentConcept = currentChapter.concepts[0];
 
-      let replyStreamChunks: string[] = [];
-      let updatedPMastery: number | null = null;
-      let stateUpdatePayload: any = null;
+      // 4. Stream response from real AI Provider
+      let fullAssistantReply = "";
 
-      // Check if user answer demonstrates understanding of current concept
-      const isDemonstration =
-        userLower.includes("pointer") ||
-        userLower.includes("reference") ||
-        userLower.includes("lazy") ||
-        userLower.includes("on-demand") ||
-        userLower.includes("closure") ||
-        userLower.includes("encapsulate") ||
-        userLower.includes("nonlocal") ||
-        userLower.includes("immutable") ||
-        userLower.includes("hash") ||
-        userLower.includes("o(1)") ||
-        userLower.includes("stream");
+      await AiProviderService.generateSocraticStream({
+        teachingContent: currentChapter.teachingContent,
+        conceptName: currentConcept?.name || currentChapter.title,
+        history: chatHistory,
+        onChunk: (chunk: string) => {
+          if (clientDisconnected) return;
+          fullAssistantReply += chunk;
+          res.write(`event: token\ndata: ${JSON.stringify({ chunk })}\n\n`);
+        },
+      });
 
-      if (isDemonstration && currentConcept) {
-        // Run BKT Update!
-        const existingMastery = await prisma.conceptMastery.findUnique({
-          where: {
-            enrollmentId_conceptId: {
-              enrollmentId: session.enrollmentId,
-              conceptId: currentConcept.id,
-            },
-          },
-        });
-
-        const currentP = existingMastery?.pMastery || 0.15;
-        updatedPMastery = BayesianKnowledgeTracer.update(currentP, true);
-
-        await prisma.conceptMastery.update({
-          where: {
-            enrollmentId_conceptId: {
-              enrollmentId: session.enrollmentId,
-              conceptId: currentConcept.id,
-            },
-          },
-          data: {
-            pMastery: updatedPMastery,
-            state: updatedPMastery >= 0.75 ? "MASTERED" : "LEARNING",
-            lastAssessedAt: new Date(),
-          },
-        });
-
-        // Record Evidence
-        await prisma.masteryEvidence.create({
-          data: {
-            conceptMasteryId: existingMastery!.id,
-            evidenceType: "DIALOGUE_PROBE",
-            isDemonstrated: true,
-            evidenceQuote: content.substring(0, 200),
-            evaluatorReasoning: "Learner accurately articulated core conceptual mechanics in dialogue.",
-          },
-        });
-
-        stateUpdatePayload = {
-          conceptId: currentConcept.id,
-          conceptName: currentConcept.name,
-          pMastery: updatedPMastery,
-          state: updatedPMastery >= 0.75 ? "MASTERED" : "LEARNING",
-        };
-
-        replyStreamChunks = [
-          `That is an insightful observation! `,
-          `You've identified the core mechanism: when you explain it that way, `,
-          `you clearly see how the execution frame and memory layout behave. `,
-          `\n\nTo probe just one level deeper: how does this affect performance or edge cases when scaling? `,
-          `Can you provide an example where this design choice prevents a common bug?`
-        ];
-      } else if (userLower.includes("don't understand") || userLower.includes("what is") || userLower.includes("explain")) {
-        // Teaching / Explanation Turn
-        replyStreamChunks = [
-          `Let's break this down from first principles. `,
-          `In **${currentChapter.title}**, the critical concept is **${currentConcept?.name || "the underlying logic"}**.\n\n`,
-          `Think of it like this: ${currentChapter.teachingContent}\n\n`,
-          `Instead of memorizing the syntax, think about what Python is doing in memory. `,
-          `Does that analogy click, or would you like to see a step-by-step code demonstration?`
-        ];
-      } else {
-        // Conversational Socratic Probe
-        replyStreamChunks = [
-          `I see your train of thought! `,
-          `Consider what happens behind the scenes in Python when that executes.\n\n`,
-          `In your own words: why did the Python language designers choose this specific behavior instead of copying values eagerly?`
-        ];
+      if (clientDisconnected) {
+        return;
       }
 
-      // Stream Chunks with Human-Like Cadence
-      let fullResponse = "";
-      for (const chunk of replyStreamChunks) {
-        fullResponse += chunk;
-        res.write(`event: token\ndata: ${JSON.stringify({ chunk })}\n\n`);
-        await new Promise((resolve) => setTimeout(resolve, 80));
-      }
-
-      // If state updated, send state_update event
-      if (stateUpdatePayload) {
-        res.write(`event: state_update\ndata: ${JSON.stringify(stateUpdatePayload)}\n\n`);
-      }
-
-      // Save AI Response to Database
-      const aiMessage = await prisma.chatMessage.create({
+      // 5. Persist complete Assistant Message
+      const savedAssistantMsg = await prisma.chatMessage.create({
         data: {
           sessionId: session.id,
           sender: "AI_TUTOR",
           role: "assistant",
-          content: fullResponse,
-          metadata: JSON.stringify({
-            updatedPMastery,
-            model: "claude-3-5-sonnet-pedagogical-v1",
-          }),
+          content: fullAssistantReply,
+          metadata: JSON.stringify({ model: config.anthropicTutorModel, streamed: true }),
         },
       });
 
-      res.write(`event: done\ndata: ${JSON.stringify({ messageId: aiMessage.id })}\n\n`);
+      // 6. Perform Qualitative Rubric Evaluation on Demonstration (Anti-gaming check)
+      let stateUpdatePayload: any = null;
+      if (currentConcept) {
+        const rubricStatements = currentConcept.rubrics.flatMap((r) =>
+          r.criteria.map((c) => c.criterionStatement)
+        );
+
+        const evalResult = await AiProviderService.evaluateSocraticDemonstration({
+          teachingContent: currentChapter.teachingContent,
+          conceptName: currentConcept.name,
+          userDialogue: content.trim(),
+          rubricStatements,
+        });
+
+        if (evalResult.isDemonstrated && evalResult.confidence >= 0.7) {
+          // Perform exactly ONE atomic BKT update
+          const existingMastery = await prisma.conceptMastery.findUnique({
+            where: {
+              enrollmentId_conceptId: {
+                enrollmentId: session.enrollmentId,
+                conceptId: currentConcept.id,
+              },
+            },
+          });
+
+          const currentP = existingMastery?.pMastery || 0.15;
+          const updatedPMastery = BayesianKnowledgeTracer.update(currentP, true);
+          const nextState = updatedPMastery >= 0.85 ? "MASTERED" : "LEARNING";
+
+          await prisma.$transaction([
+            prisma.conceptMastery.update({
+              where: {
+                enrollmentId_conceptId: {
+                  enrollmentId: session.enrollmentId,
+                  conceptId: currentConcept.id,
+                },
+              },
+              data: {
+                pMastery: updatedPMastery,
+                confidence: Math.min((existingMastery?.confidence || 0.2) + 0.15, 0.95),
+                state: nextState,
+                lastAssessedAt: new Date(),
+              },
+            }),
+            prisma.masteryEvidence.create({
+              data: {
+                conceptMasteryId: existingMastery?.id || "",
+                evidenceType: "DIALOGUE_PROBE",
+                isDemonstrated: true,
+                evidenceQuote: evalResult.evidenceQuote || content.slice(0, 200),
+                evaluatorReasoning: evalResult.reasoning,
+              },
+            }),
+          ]);
+
+          stateUpdatePayload = {
+            conceptId: currentConcept.id,
+            conceptName: currentConcept.name,
+            pMastery: updatedPMastery,
+            state: nextState,
+            evidenceQuote: evalResult.evidenceQuote,
+          };
+
+          res.write(
+            `event: state_update\ndata: ${JSON.stringify(stateUpdatePayload)}\n\n`
+          );
+        }
+      }
+
+      res.write(
+        `event: done\ndata: ${JSON.stringify({ messageId: savedAssistantMsg.id })}\n\n`
+      );
       res.end();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Stream message error:", err);
       if (!res.headersSent) {
-        res.status(500).json({ error: "Failed to stream message" });
+        res.status(500).json({ error: "Failed to process tutor message", details: err?.message });
       } else {
-        res.write(`event: error\ndata: ${JSON.stringify({ error: "Stream aborted" })}\n\n`);
+        res.write(`event: error\ndata: ${JSON.stringify({ error: err?.message })}\n\n`);
         res.end();
       }
     }
   }
 
   /**
-   * Advances to next chapter when current chapter concepts reach >= 0.75
+   * Advances the learner to the next chapter.
    */
   public static async advanceChapter(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { sessionId } = req.params;
-      const session = await prisma.learningSession.findUnique({
+      const userId = req.user!.id;
+
+      const currentSession = await prisma.learningSession.findUnique({
         where: { id: sessionId },
         include: {
-          chapter: {
+          chapter: { include: { module: true } },
+          enrollment: {
             include: {
-              concepts: true,
-              module: {
+              courseVersion: {
                 include: {
-                  courseVersion: {
+                  modules: {
+                    orderBy: { sequenceOrder: "asc" },
                     include: {
-                      modules: {
+                      chapters: {
                         orderBy: { sequenceOrder: "asc" },
-                        include: { chapters: { orderBy: { sequenceOrder: "asc" } } },
+                        include: {
+                          concepts: {
+                            include: { rubrics: { include: { criteria: true } } },
+                          },
+                        },
                       },
                     },
                   },
@@ -373,80 +444,80 @@ export class SessionsController {
               },
             },
           },
-          enrollment: {
-            include: { conceptMasteries: true },
-          },
         },
       });
 
-      if (!session) {
+      if (!currentSession) {
         res.status(404).json({ error: "Session not found" });
         return;
       }
 
-      // Check mastery of current chapter's concepts
-      const chapterConceptIds = session.chapter.concepts.map((c) => c.id);
-      const relevantMasteries = session.enrollment.conceptMasteries.filter((cm) =>
-        chapterConceptIds.includes(cm.conceptId)
-      );
-
-      const unmastered = relevantMasteries.filter((m) => m.pMastery < 0.70);
-      if (unmastered.length > 0) {
-        res.status(400).json({
-          error: "Progression Gate: You have not yet demonstrated sufficient mastery for all concepts in this chapter.",
-          unmasteredConcepts: unmastered.map((u) => u.conceptId),
-          requiredPMastery: 0.70,
-        });
+      if (currentSession.enrollment.userId !== userId) {
+        res.status(403).json({ error: "Forbidden: You do not own this session" });
         return;
       }
 
-      // Find next chapter in curriculum
-      const allChapters = session.chapter.module.courseVersion.modules.flatMap((m) => m.chapters);
-      const currentIndex = allChapters.findIndex((c) => c.id === session.chapterId);
+      // Mark current session completed
+      await prisma.learningSession.update({
+        where: { id: sessionId },
+        data: { isActive: false, phase: "ASSESSING" },
+      });
+
+      // Find next chapter in curriculum sequence
+      const allChapters = currentSession.enrollment.courseVersion.modules.flatMap(
+        (m) => m.chapters
+      );
+      const currentIndex = allChapters.findIndex((c) => c.id === currentSession.chapterId);
       const nextChapter = allChapters[currentIndex + 1];
 
       if (!nextChapter) {
         res.json({
-          message: "All chapters completed! Proceed to the Final Capstone & AI Viva Defense.",
-          isCourseCompleted: true,
+          completedCourse: true,
+          message: "All chapters completed! You are ready for final assessment.",
         });
         return;
       }
 
-      // Update session to next chapter
-      const updatedSession = await prisma.learningSession.update({
-        where: { id: session.id },
+      // Create new session for next chapter
+      const newSession = await prisma.learningSession.create({
         data: {
+          enrollmentId: currentSession.enrollmentId,
           chapterId: nextChapter.id,
           phase: "TEACHING",
+          isActive: true,
         },
         include: {
           chapter: {
-            include: { concepts: true },
+            include: {
+              concepts: {
+                include: { rubrics: { include: { criteria: true } } },
+              },
+            },
           },
         },
       });
 
-      // Post welcoming message for the new chapter
-      await prisma.chatMessage.create({
+      const initialMessage = await prisma.chatMessage.create({
         data: {
-          sessionId: updatedSession.id,
+          sessionId: newSession.id,
           sender: "AI_TUTOR",
           role: "assistant",
-          content: `Congratulations on mastering **${session.chapter.title}**!\n\nWe are now advancing to **${nextChapter.title}**. Let's explore how these concepts connect.`,
+          content: `Welcome to **${nextChapter.title}**!\n\nHere are the core concepts: ${nextChapter.concepts.map((c) => c.name).join(", ")}.\n\nReady to dive in?`,
         },
       });
 
       res.json({
-        message: "Advanced to next chapter successfully",
-        nextChapter: {
-          id: nextChapter.id,
-          title: nextChapter.title,
+        completedCourse: false,
+        session: {
+          id: newSession.id,
+          phase: newSession.phase,
+          chapter: newSession.chapter,
+          messages: [initialMessage],
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Advance chapter error:", err);
-      res.status(500).json({ error: "Failed to advance chapter" });
+      res.status(500).json({ error: "Failed to advance chapter", details: err?.message });
     }
   }
 }

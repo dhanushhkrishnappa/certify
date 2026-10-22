@@ -145,46 +145,49 @@ export class CoursesController {
           },
         },
       });
-
       if (!enrollment) {
-        enrollment = await prisma.enrollment.create({
-          data: {
-            userId,
-            courseVersionId: activeVersion.id,
-            status: "ACTIVE",
-            currentTier: "EASY",
-          },
+        enrollment = await prisma.$transaction(async (tx) => {
+          const newEnrollment = await tx.enrollment.create({
+            data: {
+              userId,
+              courseVersionId: activeVersion.id,
+              status: "ACTIVE",
+              currentTier: "EASY",
+            },
+          });
+
+          // Initialize ConceptMastery for all concepts in the course
+          const allConcepts = activeVersion.modules.flatMap((m) =>
+            m.chapters.flatMap((c) => c.concepts)
+          );
+
+          for (const concept of allConcepts) {
+            await tx.conceptMastery.create({
+              data: {
+                enrollmentId: newEnrollment.id,
+                conceptId: concept.id,
+                pMastery: 0.15, // Initial non-demonstrated prior
+                confidence: 0.20,
+                state: "UNENCOUNTERED",
+              },
+            });
+          }
+
+          // Initialize first learning session on Chapter 1
+          const firstChapter = activeVersion.modules[0]?.chapters[0];
+          if (firstChapter) {
+            await tx.learningSession.create({
+              data: {
+                enrollmentId: newEnrollment.id,
+                chapterId: firstChapter.id,
+                phase: "TEACHING",
+                isActive: true,
+              },
+            });
+          }
+
+          return newEnrollment;
         });
-
-        // Initialize ConceptMastery for all concepts in the course
-        const allConcepts = activeVersion.modules.flatMap((m) =>
-          m.chapters.flatMap((c) => c.concepts)
-        );
-
-        for (const concept of allConcepts) {
-          await prisma.conceptMastery.create({
-            data: {
-              enrollmentId: enrollment.id,
-              conceptId: concept.id,
-              pMastery: 0.15, // Initial non-demonstrated prior
-              confidence: 0.20,
-              state: "UNENCOUNTERED",
-            },
-          });
-        }
-
-        // Initialize first learning session on Chapter 1
-        const firstChapter = activeVersion.modules[0]?.chapters[0];
-        if (firstChapter) {
-          await prisma.learningSession.create({
-            data: {
-              enrollmentId: enrollment.id,
-              chapterId: firstChapter.id,
-              phase: "TEACHING",
-              isActive: true,
-            },
-          });
-        }
       }
 
       res.status(200).json({

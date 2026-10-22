@@ -213,7 +213,6 @@ export const api = {
   },
 
   async executeCode(code: string, language: string = "python"): Promise<{ output: string; status: "success" | "error"; error?: string }> {
-
     try {
       const res = await fetch(`${API_BASE}/execute`, {
         method: "POST",
@@ -223,13 +222,19 @@ export const api = {
       if (res.ok) {
         return res.json();
       }
-    } catch {
-      // Local fallback simulation if endpoint is pending
+      const data = await res.json().catch(() => ({}));
+      return {
+        output: data.error || `Execution unavailable (HTTP ${res.status}): Sandboxed runtime gated pending container deployment.`,
+        status: "error",
+        error: data.error || "Sandbox runtime unavailable",
+      };
+    } catch (err: any) {
+      return {
+        output: `Execution service network error: ${err.message}`,
+        status: "error",
+        error: err.message,
+      };
     }
-    return {
-      output: `[Python 3.11 Execution]\nStatus: Verified\nResult: 0 errors detected.`,
-      status: "success",
-    };
   },
 };
 

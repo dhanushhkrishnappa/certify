@@ -62,7 +62,7 @@ export class AuthController {
       const { email, password } = LoginSchema.parse(req.body);
 
       const user = await prisma.user.findUnique({ where: { email } });
-      if (!user) {
+      if (!user || !user.passwordHash) {
         res.status(401).json({ error: "Invalid email or password" });
         return;
       }
