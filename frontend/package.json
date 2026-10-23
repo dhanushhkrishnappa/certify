@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@assistant-ui/react": "^0.15.31",
+    "@assistant-ui/react-markdown": "^0.14.24",
     "@gsap/react": "^2.1.2",
     "@react-three/fiber": "^9.8.1",
     "@react-three/postprocessing": "^3.1.3",
