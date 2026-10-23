@@ -12,6 +12,7 @@ interface AppHeaderProps {
   onSearch?: (query: string) => void;
   breadcrumbs?: Array<{ label: string; onClick?: () => void }>;
   hideGreeting?: boolean;
+  hideSearch?: boolean;
   onNavigate?: (view: string) => void;
   onLogout?: () => void;
   showThemeToggle?: boolean;
@@ -24,6 +25,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onSearch,
   breadcrumbs,
   hideGreeting = false,
+  hideSearch = false,
   onNavigate,
   onLogout,
   showThemeToggle = false,
@@ -99,29 +101,33 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       )}
 
       {/* Universal Search Bar */}
-      <div className={`flex-1 ${hideGreeting ? "max-w-xl" : "max-w-md mx-2"}`}>
-        <div className="relative">
-          <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none transition-colors duration-300 ${isLight ? "text-purple-900/60" : "text-purple-200/60"}`}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-          <input
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className={`w-full pl-9 pr-4 py-2 rounded-full text-xs transition-all duration-300 focus:outline-none focus:ring-2 shadow-inner ${
-              isLight
-                ? "bg-white/80 border border-purple-900/15 text-slate-900 placeholder-purple-900/40 focus:bg-white focus:ring-purple-500/40 focus:text-slate-900"
-                : "bg-white/10 border border-white/15 text-white placeholder-purple-200/50 focus:ring-white/40 focus:bg-white focus:text-slate-900"
-            }`}
-            placeholder={title ? "Search courses, concepts or skills..." : "Search courses, concepts or ask anything..."}
-            type="text"
-          />
+      {!hideSearch ? (
+        <div className={`flex-1 ${hideGreeting ? "max-w-xl" : "max-w-md mx-2"}`}>
+          <div className="relative">
+            <span className={`absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none transition-colors duration-300 ${isLight ? "text-purple-900/60" : "text-purple-200/60"}`}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <input
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className={`w-full pl-9 pr-4 py-2 rounded-full text-xs transition-all duration-300 focus:outline-none focus:ring-2 shadow-inner ${
+                isLight
+                  ? "bg-white/80 border border-purple-900/15 text-slate-900 placeholder-purple-900/40 focus:bg-white focus:ring-purple-500/40 focus:text-slate-900"
+                  : "bg-white/10 border border-white/15 text-white placeholder-purple-200/50 focus:ring-white/40 focus:bg-white focus:text-slate-900"
+              }`}
+              placeholder={title ? "Search courses, concepts or skills..." : "Search courses, concepts or ask anything..."}
+              type="text"
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex-1" />
+      )}
 
       {/* Header Right: Academic Motto, Theme Switcher, Notification Bell, User Avatar */}
-      <div className="flex items-center space-x-3.5 shrink-0">
+      <div className={`flex items-center space-x-3.5 shrink-0 ${hideGreeting && hideSearch ? "ml-auto" : ""}`}>
         <div className="text-right hidden xl:block">
           <p className={`text-[11px] italic font-serif leading-snug transition-colors duration-300 ${isLight ? "text-purple-950/80 font-medium" : "text-purple-200/70"}`}>
             “A certified you,<br />a more capable tomorrow.”
