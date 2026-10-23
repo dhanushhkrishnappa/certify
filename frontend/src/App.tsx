@@ -238,10 +238,6 @@ const AppContent: React.FC = () => {
         return "My Learning";
       case "progress":
         return "Learning Progress";
-      case "profile":
-        return "Learner Profile";
-      case "settings":
-        return "Settings";
       case "credentials":
         return "My Credentials";
       case "assessments":
@@ -276,10 +272,24 @@ const AppContent: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen flex overflow-x-hidden transition-colors duration-400 ${
+      className={`min-h-screen flex overflow-x-hidden transition-colors duration-400 relative ${
         theme === "light" ? "bg-[#C5B8D6] text-slate-900" : "bg-[#15062B] text-slate-100"
       }`}
     >
+      {/* Background Doodle Art Overlay (Visible across all logged-in views in both dark and light mode) */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500"
+        style={{
+          backgroundImage: "url('/doodle-bg.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "850px auto",
+          opacity: theme === "light" ? 0.09 : 0.075,
+          filter: theme === "light" ? "contrast(1.15)" : "invert(1) brightness(1.35) contrast(1.1)",
+          mixBlendMode: theme === "light" ? "multiply" : "screen",
+        }}
+        aria-hidden="true"
+      />
+
       {/* Global Canonical App Sidebar (Floating Card Dock) */}
       <AppSidebar
         currentView={currentView}
@@ -292,7 +302,7 @@ const AppContent: React.FC = () => {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 transition-all duration-300 min-h-screen ${
+        className={`flex-1 transition-all duration-300 min-h-screen relative z-10 ${
           sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"
         }`}
       >
@@ -300,6 +310,8 @@ const AppContent: React.FC = () => {
           className={
             currentView === "studio"
               ? "p-4 md:p-6 w-full max-w-[1800px] mx-auto min-h-screen flex flex-col"
+              : currentView === "settings" || currentView === "profile"
+              ? "p-6 md:p-8 w-full min-h-screen"
               : "p-6 md:p-8 max-w-[1600px] mx-auto min-h-screen"
           }
         >
@@ -309,7 +321,8 @@ const AppContent: React.FC = () => {
               title={getHeaderTitle()}
               subtitle={getHeaderSubtitle()}
               user={currentUser}
-              hideGreeting={currentView === "course-details"}
+              hideGreeting={currentView === "course-details" || currentView === "settings" || currentView === "profile"}
+              hideSearch={currentView === "settings" || currentView === "profile"}
               onSearch={(q) => console.log("Searching:", q)}
               onNavigate={(view) => navigateWithTransition(view as CertifyView)}
               onLogout={handleLogout}
@@ -437,6 +450,8 @@ const AppContent: React.FC = () => {
                 user={currentUser}
                 onNavigateCredentials={() => setCurrentView("credentials")}
                 onNavigateCatalog={() => setCurrentView("catalog")}
+                onNavigateSettings={() => setCurrentView("settings")}
+                onSelectCourse={handleSelectCourse}
               />
             )}
 
@@ -445,6 +460,7 @@ const AppContent: React.FC = () => {
               <SettingsView
                 user={currentUser}
                 onLogout={handleLogout}
+                onNavigateProfile={() => setCurrentView("profile")}
               />
             )}
           </div>
