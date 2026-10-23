@@ -97,6 +97,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
 
   // Drag interaction tracking state
   const isDraggingRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef(0);
   const currentDragOffsetRef = useRef(0);
   const [dragOffset, setDragOffset] = useState<number>(0);
@@ -205,6 +206,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
     if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest("button")) return;
     isDraggingRef.current = true;
+    setIsDragging(true);
     startXRef.current = e.clientX;
     currentDragOffsetRef.current = 0;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -220,9 +222,12 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
   const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
     isDraggingRef.current = false;
+    setIsDragging(false);
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch (_) {}
+    } catch {
+      // Ignore release pointer errors
+    }
 
     const deltaX = currentDragOffsetRef.current;
     setDragOffset(0);
@@ -327,7 +332,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
                     filter: blur > 0 ? `blur(${blur}px)` : "none",
                     zIndex,
                     transformStyle: "preserve-3d",
-                    transition: isDraggingRef.current
+                    transition: isDragging
                       ? "none"
                       : "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, filter 0.45s ease",
                   }}

@@ -39,8 +39,8 @@ export const useLenis = (enabled: boolean = true) => {
     };
 
     gsap.ticker.add(updateLenis);
-    // Smooth frame recovery for fluid uninterrupted scrolling
-    gsap.ticker.lagSmoothing(500, 33);
+    // lagSmoothing(0) ensures ScrollTrigger pins and scrubs track the ticker synchronously without frame lag
+    gsap.ticker.lagSmoothing(0);
 
     // Ensure ScrollTrigger calculates correct heights after layout paint
     const refreshTimer = setTimeout(() => {

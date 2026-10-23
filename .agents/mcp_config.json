@@ -10,6 +10,12 @@
       "env": {
         "STITCH_PROJECT_ID": "${STITCH_PROJECT_ID}"
       }
+    },
+    "motion": {
+      "url": "https://mcp.motion.dev"
+    },
+    "motion-plus": {
+      "url": "https://mcp.motion.dev/plus"
     }
   }
 }

@@ -305,7 +305,7 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
       }
     }
 
-    const now = Date.now();
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
     // 220ms cooldown between transitions for fluid, responsive browsing
     if (now - lastAutoAdvanceTime.current < 220) return;
 

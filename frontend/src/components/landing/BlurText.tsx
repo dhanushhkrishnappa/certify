@@ -236,7 +236,9 @@ export const BlurText: React.FC<BlurTextProps> = ({
   const [focusWord, setFocusWord] = useState(-1);
   const settledRef = useRef(phase === 'rest');
   const completeRef = useRef(onAnimationComplete);
-  completeRef.current = onAnimationComplete;
+  useEffect(() => {
+    completeRef.current = onAnimationComplete;
+  }, [onAnimationComplete]);
 
   const fx = useMemo(() => buildEffect(effect, direction, blur, distance), [effect, direction, blur, distance]);
 

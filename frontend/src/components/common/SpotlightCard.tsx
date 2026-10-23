@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import './SpotlightCard.css';
-import { useTheme } from '../../context/ThemeContext.js';
+import { useOptionalTheme } from '../../context/ThemeContext.js';
 
 export interface SpotlightCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
@@ -80,14 +80,8 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
   theme: explicitTheme,
   ...rest
 }) => {
-  let activeTheme: 'dark' | 'light' = 'dark';
-  try {
-    const themeContext = useTheme();
-    activeTheme = themeContext.theme;
-  } catch {
-    // Outside of ThemeProvider or in isolated tests
-  }
-  const theme = explicitTheme ?? activeTheme;
+  const themeContext = useOptionalTheme();
+  const theme = explicitTheme ?? themeContext?.theme ?? 'dark';
   const rootRef = useRef<HTMLDivElement | null>(null);
   const lightRef = useRef<HTMLSpanElement | null>(null);
   const grainRef = useRef<HTMLSpanElement | null>(null);
@@ -96,7 +90,7 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
   const palette = THEMES[theme] ?? THEMES.dark;
   const color = spotlightColor ?? palette.light;
   const form = SHAPES.includes(shape) ? shape : 'circle';
-  const settings = {
+  const settings = useMemo(() => ({
     shape: form,
     fill: falloff(color, softness),
     edge: falloff(color, 1),
@@ -108,13 +102,13 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
     ambient,
     flare,
     grain: clamp(grain, 0, 1)
-  };
+  }), [form, color, softness, spotlightSize, intensity, palette, borderGlow, proximity, smoothing, ambient, flare, grain]);
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
 
   useEffect(() => {
+    settingsRef.current = settings;
     wakeRef.current?.();
-  });
+  }, [settings]);
 
   useEffect(() => {
     const root = rootRef.current;

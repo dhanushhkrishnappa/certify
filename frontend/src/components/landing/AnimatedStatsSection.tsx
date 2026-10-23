@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { gsap, ScrollTrigger, MOTION_EASING, prefersReducedMotion } from "../../motion/motionVocabulary.js";
 
 interface StatItem {
@@ -41,14 +41,18 @@ const STATS: StatItem[] = [
 
 export const AnimatedStatsSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [counts, setCounts] = useState<{ [key: string]: number }>(() =>
-    prefersReducedMotion()
-      ? { signals: 6, journey: 1, invariants: 14, defensibility: 100 }
-      : { signals: 0, journey: 0, invariants: 0, defensibility: 0 }
-  );
+  const numberRefs = useRef<{ [key: string]: HTMLSpanElement | null }>({});
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion()) {
+      STATS.forEach((stat) => {
+        const el = numberRefs.current[stat.id];
+        if (el) {
+          el.textContent = `${stat.prefix || ""}${stat.targetNumber}${stat.suffix || ""}`;
+        }
+      });
+      return;
+    }
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
@@ -56,16 +60,17 @@ export const AnimatedStatsSection: React.FC = () => {
         start: "top 82%",
         onEnter: () => {
           STATS.forEach((stat) => {
+            const el = numberRefs.current[stat.id];
+            if (!el) return;
             const obj = { val: 0 };
             gsap.to(obj, {
               val: stat.targetNumber,
               duration: 1.6,
               ease: MOTION_EASING.expoOut,
               onUpdate: () => {
-                setCounts((prev) => ({
-                  ...prev,
-                  [stat.id]: Math.round(obj.val),
-                }));
+                if (el) {
+                  el.textContent = `${stat.prefix || ""}${Math.round(obj.val)}${stat.suffix || ""}`;
+                }
               },
             });
           });
@@ -92,9 +97,9 @@ export const AnimatedStatsSection: React.FC = () => {
             >
               <div>
                 <div className="font-['Newsreader',Georgia,serif] text-5xl sm:text-6xl text-[#FEF5E5] font-normal leading-none mb-3">
-                  {st.prefix}
-                  {counts[st.id]}
-                  {st.suffix}
+                  <span ref={(el) => { numberRefs.current[st.id] = el; }}>
+                    {st.prefix}0{st.suffix}
+                  </span>
                 </div>
 
                 <h4 className="font-mono text-sm font-semibold text-[#CEA4F2] mb-2 uppercase tracking-wide">

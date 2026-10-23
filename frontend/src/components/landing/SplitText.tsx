@@ -134,14 +134,19 @@ export const SplitText: React.FC<SplitTextProps> = ({
     };
   }, [fontsLoaded]);
 
+  const fromSerialized = JSON.stringify(from);
+  const toSerialized = JSON.stringify(to);
+
   useEffect(() => {
     const el = ref.current;
     if (!el || !fontsLoaded) return;
 
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      setReady(true);
-      onCompleteRef.current?.();
-      return;
+      const id = requestAnimationFrame(() => {
+        setReady(true);
+        onCompleteRef.current?.();
+      });
+      return () => cancelAnimationFrame(id);
     }
 
     const startPct = (1 - threshold) * 100;
@@ -414,8 +419,10 @@ export const SplitText: React.FC<SplitTextProps> = ({
     duration,
     ease,
     splitType,
-    JSON.stringify(from),
-    JSON.stringify(to),
+    fromSerialized,
+    toSerialized,
+    from,
+    to,
     threshold,
     rootMargin,
     staggerFrom,

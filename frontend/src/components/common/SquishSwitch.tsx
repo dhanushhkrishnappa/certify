@@ -86,7 +86,9 @@ export const SquishSwitch: React.FC<SquishSwitchProps> = ({
   const trackRef = useRef<HTMLSpanElement | null>(null);
   const grip = useRef<GripState | null>(null);
   const onRef = useRef(on);
-  onRef.current = on;
+  useEffect(() => {
+    onRef.current = on;
+  }, [on]);
   const skipClick = useRef(false);
   const autoId = useId();
   const buttonId = id ?? autoId;
