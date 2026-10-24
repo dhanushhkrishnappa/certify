@@ -21,7 +21,7 @@ const allowDevAiFallback =
   nodeEnv === "production"
     ? false
     : process.env.ALLOW_DEV_AI_FALLBACK === "true" ||
-      process.env.ALLOW_DEV_AI_FALLBACK !== "false";
+    process.env.ALLOW_DEV_AI_FALLBACK !== "false";
 
 // Whitelist & Retired Model Validation
 export const RETIRED_MODELS = new Set([
@@ -53,9 +53,13 @@ export const config = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "2h",
   nodeEnv,
   corsOrigin: process.env.CORS_ORIGIN || "https://certify.pages.dev",
-  aiProvider: (process.env.AI_PROVIDER || "anthropic") as "anthropic" | "openai",
+  aiProvider: (process.env.AI_PROVIDER || "anthropic") as "anthropic" | "openai" | "gemini",
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || "",
   openaiApiKey: process.env.OPENAI_API_KEY || "",
+  geminiApiKey: process.env.GEMINI_API_KEY || "",
+  geminiTutorModel: process.env.GEMINI_TUTOR_MODEL || "gemini-2.5-flash",
+  geminiEvaluatorModel: process.env.GEMINI_EVALUATOR_MODEL || "gemini-2.5-flash",
+  geminiAutoFallback: process.env.GEMINI_AUTO_FALLBACK !== "false",
   anthropicTutorModel: validateModelIdentifier(rawTutorModel, "tutor"),
   anthropicEvaluatorModel: validateModelIdentifier(rawEvaluatorModel, "evaluator"),
   openaiTutorModel: process.env.OPENAI_TUTOR_MODEL || "gpt-4o",

@@ -16,3 +16,6 @@ build/
 *.db-journal
 *.sqlite
 *.sqlite3
+
+# Brag video outputs
+brag-output/

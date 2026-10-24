@@ -65,6 +65,8 @@ export class AIProvider {
   public static isRealProviderConfigured(): boolean {
     if (config.aiProvider === "anthropic" && Boolean(config.anthropicApiKey)) return true;
     if (config.aiProvider === "openai" && Boolean(config.openaiApiKey)) return true;
+    if (config.aiProvider === "gemini" && Boolean(config.geminiApiKey)) return true;
+    if (config.geminiAutoFallback && Boolean(config.geminiApiKey)) return true;
     return false;
   }
 
@@ -77,6 +79,91 @@ export class AIProvider {
         );
       }
     }
+  }
+
+  public static async streamGeminiReply(
+    context: {
+      courseTitle: string;
+      chapterTitle: string;
+      teachingContent?: string;
+      concepts: Array<{ id: string; slug: string; name: string; description: string }>;
+      history: Array<{ role: "user" | "assistant"; content: string }>;
+      learnerMessage: string;
+    },
+    onChunk: (chunk: string) => void,
+    signal?: AbortSignal
+  ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
+    const systemPrompt = `You are the Socratic AI Tutor for the CERTIFY course "${context.courseTitle}", chapter "${context.chapterTitle}".
+Concepts in this chapter: ${context.concepts.map((c) => c.name).join(", ")}.
+Teaching notes: ${context.teachingContent || "First-principles Python semantics."}
+Guidelines:
+- Guide with Socratic questions; probe mental models of memory, identity, and runtime state.
+- Keep responses concise (under 120 words). Never give direct code answers to assessment questions.`;
+
+    const contents = [
+      ...context.history.slice(-8).map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+      { role: "user", parts: [{ text: context.learnerMessage }] },
+    ];
+
+    const model = config.geminiTutorModel || "gemini-2.5-flash";
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${config.geminiApiKey}&alt=sse`;
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: {
+          parts: [{ text: systemPrompt }],
+        },
+        contents,
+        generationConfig: {
+          maxOutputTokens: 400,
+          temperature: 0.7,
+        },
+      }),
+      signal,
+    });
+
+    if (!res.ok) {
+      throw new AIProviderError(`Gemini API error: HTTP ${res.status}`, 502);
+    }
+
+    const reader = res.body?.getReader();
+    if (!reader) throw new AIProviderError("Gemini stream body unavailable", 502);
+    const decoder = new TextDecoder();
+    let fullText = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const textChunk = decoder.decode(value, { stream: true });
+      const lines = textChunk.split("\n").filter((l) => l.startsWith("data: "));
+      for (const line of lines) {
+        const dataStr = line.slice(6).trim();
+        if (dataStr === "[DONE]") break;
+        try {
+          const eventObj = JSON.parse(dataStr);
+          const candidateText =
+            eventObj.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidateText) {
+            fullText += candidateText;
+            onChunk(candidateText);
+          }
+        } catch {
+          // skip unparseable SSE line
+        }
+      }
+    }
+
+    return {
+      fullText,
+      modelUsed: model,
+      promptVersion: config.promptVersion,
+      provider: "gemini",
+    };
   }
 
   public static async streamTutorReply(
@@ -93,7 +180,12 @@ export class AIProvider {
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
     this.assertConfiguredOrFallbackAllowed();
 
-    // 1. Live Anthropic API Integration
+    // Direct Gemini provider mode
+    if (config.aiProvider === "gemini" && config.geminiApiKey) {
+      return this.streamGeminiReply(context, onChunk, signal);
+    }
+
+    // 1. Live Anthropic API Integration with Auto-Fallback to Gemini
     if (config.aiProvider === "anthropic" && config.anthropicApiKey) {
       try {
         const systemPrompt = `You are the Socratic AI Tutor for the CERTIFY course "${context.courseTitle}", chapter "${context.chapterTitle}".
@@ -125,7 +217,30 @@ Guidelines:
           signal,
         });
 
+        // Auto-switch to Gemini if token limit / rate limit exceeded (HTTP 429, 529, 402)
+        if (res.status === 429 || res.status === 529 || res.status === 402) {
+          if (config.geminiAutoFallback && config.geminiApiKey) {
+            console.warn(
+              `[AIProvider] Anthropic rate/token limit hit (HTTP ${res.status}). Auto-switching to Gemini fallback...`
+            );
+            return await this.streamGeminiReply(context, onChunk, signal);
+          }
+        }
+
         if (!res.ok) {
+          const errBody = await res.text().catch(() => "");
+          if (
+            (errBody.includes("rate_limit") ||
+              errBody.includes("credit_balance_too_low") ||
+              errBody.includes("overloaded")) &&
+            config.geminiAutoFallback &&
+            config.geminiApiKey
+          ) {
+            console.warn(
+              `[AIProvider] Anthropic limit exceeded. Auto-switching to Gemini fallback...`
+            );
+            return await this.streamGeminiReply(context, onChunk, signal);
+          }
           throw new AIProviderError(`Anthropic API error: HTTP ${res.status}`, 502);
         }
 
@@ -162,6 +277,17 @@ Guidelines:
         };
       } catch (err: any) {
         if (err.name === "AbortError") throw err;
+        if (config.geminiAutoFallback && config.geminiApiKey) {
+          console.warn(
+            `[AIProvider] Exception during Anthropic streaming (${err.message}). Auto-switching to Gemini fallback...`
+          );
+          try {
+            return await this.streamGeminiReply(context, onChunk, signal);
+          } catch (geminiErr: any) {
+            if (geminiErr.name === "AbortError") throw geminiErr;
+            if (!config.allowDevAiFallback) throw geminiErr;
+          }
+        }
         if (!config.allowDevAiFallback) throw err;
       }
     }

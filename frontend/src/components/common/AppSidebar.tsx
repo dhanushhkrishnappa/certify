@@ -185,45 +185,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           })}
         </nav>
 
-        {/* Secondary Navigation Section (AI Tutor, Profile, Settings) */}
+        {/* Secondary Navigation Section (Profile, Settings) */}
         <div className="pt-2.5 mt-2.5 border-t border-white/[0.08] space-y-1 w-full relative z-10">
-          {/* AI Tutor */}
-          <button
-            onClick={() => onNavigate("studio")}
-            title={!isExpanded ? "AI Tutor / Ask Certify" : undefined}
-            className={`w-full flex items-center rounded-xl transition-all duration-150 text-left cursor-pointer group ${
-              isExpanded ? "gap-3 px-3 py-2.5" : "justify-center p-2.5"
-            } ${
-              currentView === "studio"
-                ? "bg-white text-[#111111] font-bold shadow-md"
-                : "text-neutral-400 hover:text-white hover:bg-white/[0.08]"
-            }`}
-          >
-            <svg
-              className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-105 ${
-                currentView === "studio"
-                  ? "text-[#111111]"
-                  : "text-neutral-400 group-hover:text-white"
-              }`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span
-              className={`text-xs font-semibold whitespace-nowrap overflow-hidden transition-all duration-200 ${
-                isExpanded ? "opacity-100 max-w-[140px]" : "opacity-0 max-w-0"
-              }`}
-            >
-              AI Tutor
-            </span>
-          </button>
 
           {/* Profile */}
           <button

@@ -23,11 +23,12 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
     if (!section || !container) return;
 
     const ctx = gsap.context(() => {
-      // Set explicit initial states: Phrase 1 is centered in crisp focus, Phrases 2 & 3 are hidden
+      // Set explicit initial states: Phrase 1 in focus; Phrases 2 & 3 initially hidden
       gsap.set(".manifesto-phrase-1", { opacity: 1, scale: 1, y: 0, filter: "blur(0px)" });
       gsap.set(".manifesto-phrase-2", { opacity: 0, scale: 0.98, y: 0, filter: "blur(0px)" });
       gsap.set(".manifesto-phrase-2 .split-char", { opacity: 0, y: 45 });
-      gsap.set(".manifesto-phrase-3", { opacity: 0, scale: 0.96, y: 28, filter: "blur(6px)" });
+      gsap.set(".manifesto-phrase-3", { opacity: 0, scale: 0.97, y: 26, filter: "blur(8px)" });
+      gsap.set(".manifesto-line", { opacity: 0, y: 24, filter: "blur(6px)" });
 
       // Generous, weighted narrative scroll timeline coordinated with Lenis ticker
       const tl = gsap.timeline({
@@ -35,21 +36,21 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
           trigger: section,
           pin: true,
           start: "top top",
-          end: "+=1100",
-          scrub: 0.6,
+          end: "+=1350",
+          scrub: 0.65,
           anticipatePin: 1,
         },
       });
 
-      // Stage 1: Comfortable reading pause on "Watching lectures is not proof."
+      // Stage 1: Reading pause on "Watching lectures is not proof."
       tl.to({}, { duration: 0.35 })
-        // Stage 2: Phrase 1 gracefully lifts and dissolves
+        // Stage 2: Phrase 1 gracefully lifts and dissolves with soft blur
         .to(".manifesto-phrase-1", {
           opacity: 0,
           scale: 0.96,
-          y: -36,
-          filter: "blur(6px)",
-          duration: 0.8,
+          y: -38,
+          filter: "blur(8px)",
+          duration: 0.75,
           ease: "power2.inOut",
         })
         // Stage 3: Phrase 2 ("Understanding is.") blooms into the exact same central focal spot
@@ -60,12 +61,12 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
             scale: 1,
             y: 0,
             filter: "blur(0px)",
-            duration: 0.4,
+            duration: 0.45,
             ease: "power2.out",
           },
-          "<0.15"
+          "<0.12"
         )
-        // Stage 3b: SplitText character rise animation (staggered letters from start: Understanding -> is.)
+        // Stage 3b: SplitText character rise animation (staggered letters)
         .fromTo(
           ".manifesto-phrase-2 .split-char",
           {
@@ -86,13 +87,13 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
         // Stage 4: Phrase 2 gracefully lifts and dissolves completely
         .to(".manifesto-phrase-2", {
           opacity: 0,
-          scale: 0.97,
-          y: -36,
-          filter: "blur(6px)",
-          duration: 0.8,
+          scale: 0.96,
+          y: -38,
+          filter: "blur(8px)",
+          duration: 0.75,
           ease: "power2.inOut",
         })
-        // Stage 5: Phrase 3 ("Certify captures...") rises into full brilliance with crisp isolation
+        // Stage 5: Phrase 3 ("Certify builds real...") rises into full brilliance
         .to(
           ".manifesto-phrase-3",
           {
@@ -100,13 +101,26 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
             scale: 1,
             y: 0,
             filter: "blur(0px)",
-            duration: 0.8,
-            ease: "power2.inOut",
+            duration: 0.7,
+            ease: "power2.out",
           },
-          "<0.2"
+          "<0.15"
+        )
+        // Stage 5b: Sequential line reveal from soft blur to crisp brilliance
+        .to(
+          ".manifesto-line",
+          {
+            opacity: 1,
+            y: 0,
+            filter: "blur(0px)",
+            stagger: 0.09,
+            duration: 0.65,
+            ease: "power3.out",
+          },
+          "<0.1"
         )
         // Final resting pause before smooth handoff to next section
-        .to({}, { duration: 0.35 });
+        .to({}, { duration: 0.5 });
     }, section);
 
     return () => {
@@ -122,10 +136,10 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
     >
       {/* Background ambient lighting */}
       <div
-        className="absolute w-[680px] h-[680px] rounded-full pointer-events-none blur-[140px] opacity-25"
+        className="absolute w-[720px] h-[720px] rounded-full pointer-events-none blur-[140px] opacity-30"
         style={{
           background:
-            "radial-gradient(circle, rgba(206, 164, 242, 0.4) 0%, rgba(230, 202, 164, 0.22) 50%, transparent 70%)",
+            "radial-gradient(circle, rgba(196, 161, 236, 0.45) 0%, rgba(138, 92, 246, 0.25) 45%, transparent 70%)",
         }}
         aria-hidden="true"
       />
@@ -133,7 +147,7 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
       {/* Central Focal Stage: All 3 phrases occupy the screen's prime focal center */}
       <div
         ref={containerRef}
-        className="relative z-10 w-full max-w-5xl xl:max-w-6xl mx-auto min-h-[280px] sm:min-h-[340px] md:min-h-[380px] flex items-center justify-center text-center px-4"
+        className="relative z-10 w-full max-w-5xl xl:max-w-6xl mx-auto min-h-[360px] sm:min-h-[460px] md:min-h-[520px] lg:min-h-[580px] flex items-center justify-center text-center px-4"
       >
         {/* Phase 1: Watching lectures is not proof */}
         <div className="manifesto-phrase-1 absolute inset-0 flex items-center justify-center will-change-[transform,opacity,filter] opacity-100">
@@ -145,10 +159,10 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
               direction="top"
               staggerFrom="start"
               trigger="view"
-              delay={200}
-              stepDuration={0.35}
-              blur={10}
-              distance={50}
+              delay={150}
+              stepDuration={0.4}
+              blur={12}
+              distance={40}
               onAnimationComplete={handleAnimationComplete}
               className="justify-center font-['Newsreader',Georgia,serif] text-5xl sm:text-7xl md:text-8xl lg:text-[96px] xl:text-[108px] font-normal text-[#FEF5E5] leading-[1.08] tracking-tight text-center"
             />
@@ -179,13 +193,29 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
           />
         </div>
 
-        {/* Phase 3: Certify makes that understanding visible */}
-        <div className="manifesto-phrase-3 absolute inset-0 flex items-center justify-center will-change-[transform,opacity,filter] opacity-0">
-          <p className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl md:text-6xl lg:text-[60px] xl:text-[68px] font-normal text-[#FEF5E5] max-w-3xl lg:max-w-4xl leading-[1.2] tracking-tight">
-            Certify captures, challenges, and verifies every atomic concept into an immutable record.
+        {/* Phase 3: Exact replica of Image 2 */}
+        <div className="manifesto-phrase-3 absolute inset-0 flex items-center justify-center will-change-[transform,opacity,filter] opacity-0 pointer-events-none">
+          <p className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl md:text-6xl lg:text-[66px] xl:text-[74px] font-normal max-w-4xl lg:max-w-5xl leading-[1.18] sm:leading-[1.22] tracking-tight text-center select-none">
+            <span className="manifesto-line block text-[#FEF5E5]">
+              Certify builds real
+            </span>
+            <span className="manifesto-line block text-[#FEF5E5]">
+              understanding through
+            </span>
+            <span className="manifesto-line block italic text-[#C4A1EC] drop-shadow-[0_2px_28px_rgba(196,161,236,0.38)]">
+              two-way AI interaction
+            </span>
+            <span className="manifesto-line block text-[#FEF5E5]">
+              and verifies what you truly know
+            </span>
+            <span className="manifesto-line block italic text-[#C4A1EC] drop-shadow-[0_2px_28px_rgba(196,161,236,0.38)]">
+              not just what you complete.
+            </span>
           </p>
         </div>
       </div>
     </section>
   );
 };
+
+export default ManifestoSection;

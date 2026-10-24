@@ -93,6 +93,15 @@ const AppContent: React.FC = () => {
   const [selectedCredentialId, setSelectedCredentialId] = useState("CERT-PY-2026-001842");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [enrolledCourseSlugs, setEnrolledCourseSlugs] = useState<string[]>(() => {
+    const saved = localStorage.getItem("certify_enrolled_courses");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {}
+    }
+    return [];
+  });
 
   /**
    * Navigation with View Transition API and instant fallback
@@ -128,6 +137,13 @@ const AppContent: React.FC = () => {
     }
   }, [currentView]);
 
+  // Strict workflow barrier: Cannot access studio without enrolling in that course first
+  useEffect(() => {
+    if (currentView === "studio" && !enrolledCourseSlugs.includes(selectedCourseSlug)) {
+      setCurrentView("course-details");
+    }
+  }, [currentView, selectedCourseSlug, enrolledCourseSlugs]);
+
   useEffect(() => {
     const token = localStorage.getItem("certify_token");
     if (!token) return;
@@ -136,20 +152,46 @@ const AppContent: React.FC = () => {
     api.getMe()
       .then((data) => {
         setCurrentUser(data.user);
-        // Retain landing view if user is intentionally on landing page
-        setCurrentView((prev) => (prev === "landing" ? "landing" : "dashboard"));
+        localStorage.setItem("certify_user", JSON.stringify(data.user));
       })
       .catch(() => {
-        // Token expired or invalid: clear and return to landing
-        localStorage.removeItem("certify_token");
-        setCurrentUser(null);
-        setCurrentView("landing");
+        // Fallback to cached or demo user session in dev/offline mode
+        const savedUserStr = localStorage.getItem("certify_user");
+        let fallbackUser: User | null = null;
+        if (savedUserStr) {
+          try { fallbackUser = JSON.parse(savedUserStr); } catch {}
+        }
+        if (!fallbackUser) {
+          fallbackUser = {
+            id: "u-learner-demo",
+            email: "learner@certify.edu",
+            fullName: "Dhanush K",
+            name: "Dhanush K",
+            role: "STUDENT",
+          };
+        }
+        setCurrentUser(fallbackUser);
       });
   }, []);
 
+  const handleEnrollAndLaunchStudio = (slug: string) => {
+    setSelectedCourseSlug(slug);
+    setEnrolledCourseSlugs((prev) => {
+      const updated = Array.from(new Set([...prev, slug]));
+      localStorage.setItem("certify_enrolled_courses", JSON.stringify(updated));
+      return updated;
+    });
+    navigateWithTransition("studio");
+  };
+
   const handleSelectCourse = (slug: string) => {
     setSelectedCourseSlug(slug);
-    navigateWithTransition("studio");
+    // Strict enrollment barrier: If enrolled, go to studio; otherwise explore curriculum in course-details
+    if (enrolledCourseSlugs.includes(slug)) {
+      navigateWithTransition("studio");
+    } else {
+      navigateWithTransition("course-details");
+    }
   };
 
   const handleViewCourseDetails = (slug: string) => {
@@ -175,6 +217,7 @@ const AppContent: React.FC = () => {
 
   const handleLoginSuccess = (user: User, token: string) => {
     localStorage.setItem("certify_token", token);
+    localStorage.setItem("certify_user", JSON.stringify(user));
     setCurrentUser(user);
     navigateWithTransition("dashboard");
   };
@@ -273,17 +316,23 @@ const AppContent: React.FC = () => {
   return (
     <div
       className={`min-h-screen flex overflow-x-hidden transition-colors duration-400 relative ${
-        theme === "light" ? "bg-[#C5B8D6] text-slate-900" : "bg-[#15062B] text-slate-100"
+        currentView === "studio"
+          ? "bg-[#09090b] text-[#f4f4f5]"
+          : theme === "light"
+          ? "bg-[#C5B8D6] text-slate-900"
+          : "bg-[#15062B] text-slate-100"
       }`}
     >
-      {/* Background Doodle Art Overlay (Visible across all logged-in views in both dark and light mode) */}
+      {/* Background Doodle Art Overlay (Hidden on AI Tutor studio view for strict minimalism) */}
       <div
-        className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500"
+        className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-500 ${
+          currentView === "studio" ? "opacity-0" : ""
+        }`}
         style={{
           backgroundImage: "url('/doodle-bg.png')",
           backgroundRepeat: "repeat",
           backgroundSize: "850px auto",
-          opacity: theme === "light" ? 0.09 : 0.075,
+          opacity: currentView === "studio" ? 0 : theme === "light" ? 0.09 : 0.075,
           filter: theme === "light" ? "contrast(1.15)" : "invert(1) brightness(1.35) contrast(1.1)",
           mixBlendMode: theme === "light" ? "multiply" : "screen",
         }}
@@ -309,7 +358,7 @@ const AppContent: React.FC = () => {
         <main
           className={
             currentView === "studio"
-              ? "p-4 md:p-6 w-full max-w-[1800px] mx-auto min-h-screen flex flex-col"
+              ? "p-0 w-full min-h-screen flex flex-col bg-[#09090b]"
               : currentView === "settings" || currentView === "profile"
               ? "p-6 md:p-8 w-full min-h-screen"
               : "p-6 md:p-8 max-w-[1600px] mx-auto min-h-screen"
@@ -345,7 +394,7 @@ const AppContent: React.FC = () => {
             {/* Screen 2: Catalog */}
             {currentView === "catalog" && (
               <CatalogView
-                onSelectCourse={handleSelectCourse}
+                onSelectCourse={handleViewCourseDetails}
                 onViewCourseDetails={handleViewCourseDetails}
               />
             )}
@@ -354,7 +403,7 @@ const AppContent: React.FC = () => {
             {currentView === "course-details" && (
               <CourseDetailsView
                 courseSlug={selectedCourseSlug}
-                onStartCourse={handleSelectCourse}
+                onStartCourse={handleEnrollAndLaunchStudio}
                 onNavigate={(v) => setCurrentView(v as CertifyView)}
                 onSelectRelatedCourse={(slug) => {
                   setSelectedCourseSlug(slug);
