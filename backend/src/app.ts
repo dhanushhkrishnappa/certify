@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import crypto from "crypto";
+import { auth } from "./lib/auth.js";
 import { authHonoRouter } from "./modules/auth/auth.hono.js";
 import { coursesHonoRouter } from "./modules/courses/courses.hono.js";
 import { sessionsHonoRouter } from "./modules/sessions/sessions.hono.js";
@@ -74,8 +75,15 @@ app.get("/api/v1/health", (c) => {
   });
 });
 
-// 5. Mount Domain Routers under /api/v1
+// 5a. Mount Better Auth handler — handles all /api/auth/* natively
+//     (sign-in/email, sign-up/email, sign-out, session, etc.)
+app.on(["GET", "POST"], "/api/auth/**", (c) => auth.handler(c.req.raw));
+
+// 5b. Mount the /api/v1/auth/* compatibility shim router
+//     (login, register, logout, me — keeps frontend unchanged)
 app.route("/api/v1/auth", authHonoRouter);
+
+// 5c. Mount remaining domain routers under /api/v1
 app.route("/api/v1/courses", coursesHonoRouter);
 app.route("/api/v1", sessionsHonoRouter);
 app.route("/api/v1/assessments", assessmentHonoRouter);

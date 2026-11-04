@@ -1,3 +1,11 @@
+/**
+ * Certify API client.
+ *
+ * Authentication is now handled by Better Auth via `authClient`.
+ * All non-auth API calls to /api/v1/* remain the same and use the
+ * session token stored in localStorage (set after Better Auth login).
+ */
+import { authClient } from "../lib/authClient.js";
 import type {
   User,
   CourseCatalogItem,
@@ -20,40 +28,97 @@ function getHeaders(): HeadersInit {
 }
 
 export const api = {
-  // Auth
+  // ─── Auth (Better Auth) ──────────────────────────────────────────────────
+
+  /**
+   * Sign in with email & password via Better Auth.
+   * Stores the returned session token in localStorage so Bearer-token
+   * API calls to /api/v1/* continue to work.
+   */
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Login failed");
+    const result = await authClient.signIn.email({ email, password });
+
+    if (result.error) {
+      throw new Error(result.error.message || "Login failed");
     }
-    return res.json();
+
+    // Better Auth returns the session token in the response
+    const token = (result.data as any)?.token ?? "";
+    if (token) {
+      localStorage.setItem("certify_token", token);
+    }
+
+    const baUser = result.data?.user as any;
+    const user: User = {
+      id: baUser.id,
+      email: baUser.email,
+      fullName: baUser.fullName ?? baUser.name ?? email,
+      name: baUser.fullName ?? baUser.name ?? email,
+      role: baUser.role ?? "STUDENT",
+    };
+
+    return { user, token };
   },
 
-  async register(email: string, password: string, fullName: string): Promise<{ user: User; token: string }> {
-    const res = await fetch(`${API_BASE}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, fullName }),
+  /**
+   * Register a new account via Better Auth.
+   * `fullName` is passed as an additional field.
+   */
+  async register(
+    email: string,
+    password: string,
+    fullName: string
+  ): Promise<{ user: User; token: string }> {
+    const result = await authClient.signUp.email({
+      email,
+      password,
+      name: fullName,       // Better Auth `name` field
+      // @ts-ignore — additional field declared in backend auth config
+      fullName,
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Registration failed");
+
+    if (result.error) {
+      throw new Error(result.error.message || "Registration failed");
     }
-    return res.json();
+
+    const token = (result.data as any)?.token ?? "";
+    if (token) {
+      localStorage.setItem("certify_token", token);
+    }
+
+    const baUser = result.data?.user as any;
+    const user: User = {
+      id: baUser.id,
+      email: baUser.email,
+      fullName: baUser.fullName ?? fullName,
+      name: baUser.fullName ?? fullName,
+      role: baUser.role ?? "STUDENT",
+    };
+
+    return { user, token };
   },
 
+  /**
+   * Sign out the current session via Better Auth.
+   */
+  async logout(): Promise<void> {
+    await authClient.signOut();
+    localStorage.removeItem("certify_token");
+    localStorage.removeItem("certify_user");
+  },
+
+  /**
+   * Get the current authenticated user.
+   * Falls back to the /api/v1/auth/me shim (which proxies Better Auth session).
+   */
   async getMe(): Promise<{ user: User }> {
-    const res = await fetch(`${API_BASE}/auth/me`, { headers: getHeaders() });
+    const res = await fetch(`${API_BASE}/auth/me`, { headers: getHeaders(), credentials: "include" });
     if (!res.ok) throw new Error("Failed to load user profile");
     return res.json();
   },
 
-  // Courses
+  // ─── Courses ──────────────────────────────────────────────────────────────
+
   async listCourses(): Promise<{ courses: CourseCatalogItem[] }> {
     const res = await fetch(`${API_BASE}/courses`);
     if (!res.ok) throw new Error("Failed to load courses");
@@ -70,15 +135,18 @@ export const api = {
     const res = await fetch(`${API_BASE}/courses/${slug}/enroll`, {
       method: "POST",
       headers: getHeaders(),
+      credentials: "include",
     });
     if (!res.ok) throw new Error("Failed to enroll in course");
     return res.json();
   },
 
-  // Sessions
+  // ─── Sessions ─────────────────────────────────────────────────────────────
+
   async getSessionContext(slug: string): Promise<LearningSessionContext> {
     const res = await fetch(`${API_BASE}/courses/${slug}/session`, {
       headers: getHeaders(),
+      credentials: "include",
     });
     if (!res.ok) throw new Error("Failed to load session context");
     return res.json();
@@ -88,6 +156,7 @@ export const api = {
     const res = await fetch(`${API_BASE}/sessions/${sessionId}/advance`, {
       method: "POST",
       headers: getHeaders(),
+      credentials: "include",
     });
     if (!res.ok) {
       const err = await res.json();
@@ -96,7 +165,8 @@ export const api = {
     return res.json();
   },
 
-  // Stream message via SSE
+  // ─── SSE Streaming Tutor ─────────────────────────────────────────────────
+
   async streamMessage(
     sessionId: string,
     content: string,
@@ -109,8 +179,9 @@ export const api = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
+      credentials: "include",
       body: JSON.stringify({ content }),
     });
 
@@ -156,47 +227,63 @@ export const api = {
             onDone(parsed.messageId);
           }
         } catch {
-          // ignore parsing error on stream chunk
+          // ignore parse errors on stream chunks
         }
-
       }
     }
   },
 
-  // Assessments
+  // ─── Assessments ──────────────────────────────────────────────────────────
+
   async getChapterQuestions(chapterId: string): Promise<{ questions: Question[] }> {
     const res = await fetch(`${API_BASE}/assessments/chapters/${chapterId}`, {
       headers: getHeaders(),
+      credentials: "include",
     });
     if (!res.ok) throw new Error("Failed to load questions");
     return res.json();
   },
 
-  async submitChapterAssessment(chapterId: string, enrollmentId: string, answers: any[]): Promise<any> {
+  async submitChapterAssessment(
+    chapterId: string,
+    enrollmentId: string,
+    answers: any[]
+  ): Promise<any> {
     const res = await fetch(`${API_BASE}/assessments/chapters/${chapterId}/submit`, {
       method: "POST",
       headers: getHeaders(),
+      credentials: "include",
       body: JSON.stringify({ enrollmentId, answers }),
     });
     if (!res.ok) throw new Error("Failed to submit chapter assessment");
     return res.json();
   },
 
-  async conductVivaTurn(enrollmentId: string, questionId: string, studentAnswer: string, turnNumber: number): Promise<any> {
+  async conductVivaTurn(
+    enrollmentId: string,
+    questionId: string,
+    studentAnswer: string,
+    turnNumber: number
+  ): Promise<any> {
     const res = await fetch(`${API_BASE}/assessments/final/viva`, {
       method: "POST",
       headers: getHeaders(),
+      credentials: "include",
       body: JSON.stringify({ enrollmentId, questionId, studentAnswer, turnNumber }),
     });
     if (!res.ok) throw new Error("Failed to process viva defense turn");
     return res.json();
   },
 
-  // Certificates
-  async issueCertificate(enrollmentId: string): Promise<{ certificate: Certificate; verificationUrl: string }> {
+  // ─── Certificates ─────────────────────────────────────────────────────────
+
+  async issueCertificate(
+    enrollmentId: string
+  ): Promise<{ certificate: Certificate; verificationUrl: string }> {
     const res = await fetch(`${API_BASE}/certificates/issue`, {
       method: "POST",
       headers: getHeaders(),
+      credentials: "include",
       body: JSON.stringify({ enrollmentId }),
     });
     if (!res.ok) {
@@ -212,11 +299,17 @@ export const api = {
     return res.json();
   },
 
-  async executeCode(code: string, language: string = "python"): Promise<{ output: string; status: "success" | "error"; error?: string }> {
+  // ─── Code Execution ───────────────────────────────────────────────────────
+
+  async executeCode(
+    code: string,
+    language: string = "python"
+  ): Promise<{ output: string; status: "success" | "error"; error?: string }> {
     try {
       const res = await fetch(`${API_BASE}/execute`, {
         method: "POST",
         headers: getHeaders(),
+        credentials: "include",
         body: JSON.stringify({ code, language }),
       });
       if (res.ok) {
@@ -224,7 +317,9 @@ export const api = {
       }
       const data = await res.json().catch(() => ({}));
       return {
-        output: data.error || `Execution unavailable (HTTP ${res.status}): Sandboxed runtime gated pending container deployment.`,
+        output:
+          data.error ||
+          `Execution unavailable (HTTP ${res.status}): Sandboxed runtime gated pending container deployment.`,
         status: "error",
         error: data.error || "Sandbox runtime unavailable",
       };
@@ -237,4 +332,3 @@ export const api = {
     }
   },
 };
-

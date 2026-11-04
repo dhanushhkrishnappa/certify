@@ -10,7 +10,10 @@
     "test": "vitest run",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:neon:generate": "prisma generate --schema=prisma/schema.postgresql.prisma",
+    "db:neon:push": "prisma db push --schema=prisma/schema.postgresql.prisma",
+    "db:neon:migrate": "prisma migrate dev --schema=prisma/schema.postgresql.prisma"
   },
   "keywords": [
     "ai",
@@ -28,6 +31,7 @@
     "@prisma/adapter-neon": "^5.22.0",
     "@prisma/client": "^5.20.0",
     "bcryptjs": "^2.4.3",
+    "better-auth": "^1.7.16",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",

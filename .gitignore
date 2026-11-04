@@ -19,3 +19,4 @@ build/
 
 # Brag video outputs
 brag-output/
+.neon

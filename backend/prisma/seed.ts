@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
+import { prisma } from "../src/shared/prisma.js";
+import { auth } from "../src/lib/auth.js";
 
 async function main() {
   console.log("Seeding database with flagship course: Python Fundamentals...");
@@ -24,30 +23,43 @@ async function main() {
   await prisma.module.deleteMany();
   await prisma.courseVersion.deleteMany();
   await prisma.course.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.verification.deleteMany();
   await prisma.user.deleteMany();
 
-  // 2. Create Default Users (Instructor & Student)
-  const passwordHash = await bcrypt.hash("Password123!", 10);
-  
-  const instructor = await prisma.user.create({
-    data: {
+  // 2. Create Default Users (Instructor & Student) via Better Auth
+  const instructorRes = await auth.api.signUpEmail({
+    body: {
       email: "instructor@certify.edu",
+      password: "Password123!",
+      name: "Dr. Eleanor Vance",
+      // @ts-ignore
       fullName: "Dr. Eleanor Vance",
-      passwordHash,
-      role: "INSTRUCTOR",
     },
   });
 
-  const student = await prisma.user.create({
-    data: {
+  const studentRes = await auth.api.signUpEmail({
+    body: {
       email: "learner@certify.edu",
+      password: "Password123!",
+      name: "Alex Chen",
+      // @ts-ignore
       fullName: "Alex Chen",
-      passwordHash,
-      role: "STUDENT",
     },
   });
 
-  console.log(`Created users: ${instructor.email}, ${student.email}`);
+  await prisma.user.update({
+    where: { email: "instructor@certify.edu" },
+    data: { role: "INSTRUCTOR", fullName: "Dr. Eleanor Vance" },
+  });
+
+  await prisma.user.update({
+    where: { email: "learner@certify.edu" },
+    data: { role: "STUDENT", fullName: "Alex Chen" },
+  });
+
+  console.log(`Created users: instructor@certify.edu, learner@certify.edu`);
 
   // 3. Create Course: Python Fundamentals
   const course = await prisma.course.create({
