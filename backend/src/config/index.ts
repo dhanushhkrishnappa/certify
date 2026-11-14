@@ -70,6 +70,8 @@ export const config = {
   ed25519KeyId: process.env.ED25519_KEY_ID || "certify-2026-key-1",
   resendApiKey: process.env.RESEND_API_KEY || "",
   emailFrom: process.env.EMAIL_FROM || "security@certify.edu",
+  smtpUser: process.env.SMTP_USER || "",
+  smtpPass: process.env.SMTP_PASS || "",
   databaseUrl: process.env.DATABASE_URL || "file:./dev.db",
   ruleVersion: "2026.1",
   promptVersion: "2026-10-v1",

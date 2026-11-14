@@ -1,4 +1,15 @@
 {
+  "name": "certify",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "start:backend": "npm --prefix backend run start",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "db:users": "node backend/scripts/manage_users.cjs list",
+    "db:delete-user": "node backend/scripts/manage_users.cjs delete",
+    "db:delete-all": "node backend/scripts/manage_users.cjs delete-all"
+  },
   "dependencies": {
     "@neon/config": "^1.10.1",
     "@neon/env": "^1.6.9"
