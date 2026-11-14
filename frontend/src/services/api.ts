@@ -31,78 +31,218 @@ export const api = {
   // ─── Auth (Better Auth) ──────────────────────────────────────────────────
 
   /**
-   * Sign in with email & password via Better Auth.
-   * Stores the returned session token in localStorage so Bearer-token
-   * API calls to /api/v1/* continue to work.
+   * Sign in with email & password via the Certify Auth API.
+   * Stores the returned session token and user in localStorage.
    */
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
-    const result = await authClient.signIn.email({ email, password });
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email: email.trim(), password }),
+    });
 
-    if (result.error) {
-      throw new Error(result.error.message || "Login failed");
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Invalid email or password");
     }
 
-    // Better Auth returns the session token in the response
-    const token = (result.data as any)?.token ?? "";
-    if (token) {
-      localStorage.setItem("certify_token", token);
+    if (data.token) {
+      localStorage.setItem("certify_token", data.token);
+    }
+    if (data.user) {
+      localStorage.setItem("certify_user", JSON.stringify(data.user));
     }
 
-    const baUser = result.data?.user as any;
-    const user: User = {
-      id: baUser.id,
-      email: baUser.email,
-      fullName: baUser.fullName ?? baUser.name ?? email,
-      name: baUser.fullName ?? baUser.name ?? email,
-      role: baUser.role ?? "STUDENT",
-    };
-
-    return { user, token };
+    return { user: data.user, token: data.token };
   },
 
   /**
-   * Register a new account via Better Auth.
-   * `fullName` is passed as an additional field.
+   * Register a new account via the Certify Auth API.
+   * Dispatches email verification and initializes user profile.
    */
   async register(
     email: string,
     password: string,
-    fullName: string
-  ): Promise<{ user: User; token: string }> {
-    const result = await authClient.signUp.email({
-      email,
-      password,
-      name: fullName,       // Better Auth `name` field
-      // @ts-ignore — additional field declared in backend auth config
-      fullName,
+    fullName: string,
+    extraFields?: {
+      dob?: string;
+      persona?: string;
+      primaryGoal?: string;
+      image?: string;
+    }
+  ): Promise<{ message: string; email: string; otp?: string; user?: User; token?: string }> {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        fullName,
+        ...extraFields,
+      }),
     });
 
-    if (result.error) {
-      throw new Error(result.error.message || "Registration failed");
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Registration failed");
     }
 
-    const token = (result.data as any)?.token ?? "";
-    if (token) {
-      localStorage.setItem("certify_token", token);
+    if (data.token) {
+      localStorage.setItem("certify_token", data.token);
     }
 
-    const baUser = result.data?.user as any;
-    const user: User = {
-      id: baUser.id,
-      email: baUser.email,
-      fullName: baUser.fullName ?? fullName,
-      name: baUser.fullName ?? fullName,
-      role: baUser.role ?? "STUDENT",
-    };
-
-    return { user, token };
+    return data;
   },
 
   /**
-   * Sign out the current session via Better Auth.
+   * Update the user profile (dob, persona, image, bio, etc.)
+   */
+  async updateProfile(profileData: Partial<User>): Promise<{ user: User }> {
+    const res = await fetch(`${API_BASE}/auth/profile`, {
+      method: "PUT",
+      headers: getHeaders(),
+      credentials: "include",
+      body: JSON.stringify(profileData),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to update profile");
+    }
+
+    return data;
+  },
+
+  /**
+   * Request resending the email verification link.
+   */
+  async resendVerification(email?: string): Promise<{ message: string }> {
+    const res = await fetch(`${API_BASE}/auth/resend-verification`, {
+      method: "POST",
+      headers: getHeaders(),
+      credentials: "include",
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to resend verification email");
+    }
+
+    return data;
+  },
+
+  /**
+   * Verify an email address with a 6-digit OTP code.
+   */
+  async verifyOtp(email: string, otp: string): Promise<{ message: string; emailVerified: boolean; user?: User; token?: string }> {
+    const res = await fetch(`${API_BASE}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Invalid verification code");
+    }
+
+    if (data.token) {
+      localStorage.setItem("certify_token", data.token);
+    }
+
+    return data;
+  },
+
+  /**
+   * Request resending a fresh 6-digit OTP verification code.
+   */
+  async resendOtp(email: string): Promise<{ message: string; otp?: string }> {
+    const res = await fetch(`${API_BASE}/auth/resend-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to resend verification code");
+    }
+
+    return data;
+  },
+
+  /**
+   * Request a 6-digit password reset code sent to email.
+   */
+  async forgotPassword(email: string): Promise<{ message: string; otp?: string }> {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to process password reset request");
+    }
+
+    return data;
+  },
+
+  /**
+   * Reset password using the 6-digit OTP code received via email.
+   */
+  async resetPassword(
+    email: string,
+    otp: string,
+    newPassword: string
+  ): Promise<{ message: string; success: boolean }> {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp, newPassword }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to reset password");
+    }
+
+    return data;
+  },
+
+  /**
+   * Verify an email address with a token.
+   */
+  async verifyEmail(token: string, email?: string): Promise<{ message: string; user?: User }> {
+    const res = await fetch(`${API_BASE}/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, email }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to verify email");
+    }
+
+    return data;
+  },
+
+  /**
+   * Sign out the current session.
    */
   async logout(): Promise<void> {
-    await authClient.signOut();
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: "POST",
+        headers: getHeaders(),
+        credentials: "include",
+      });
+      await authClient.signOut().catch(() => {});
+    } catch {}
     localStorage.removeItem("certify_token");
     localStorage.removeItem("certify_user");
   },

@@ -93,6 +93,7 @@ const AppContent: React.FC = () => {
   const [selectedCredentialId, setSelectedCredentialId] = useState("CERT-PY-2026-001842");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState<"signin" | "signup">("signin");
   const [enrolledCourseSlugs, setEnrolledCourseSlugs] = useState<string[]>(() => {
     const saved = localStorage.getItem("certify_enrolled_courses");
     if (saved) {
@@ -211,7 +212,9 @@ const AppContent: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("certify_token");
+    localStorage.removeItem("certify_user");
     setCurrentUser(null);
+    api.logout().catch(() => {});
     navigateWithTransition("landing");
   };
 
@@ -227,8 +230,14 @@ const AppContent: React.FC = () => {
     return (
       <LandingPageView
         onExploreCourses={() => navigateWithTransition(currentUser ? "catalog" : "auth")}
-        onSignIn={() => navigateWithTransition("auth")}
-        onRegister={() => navigateWithTransition("auth")}
+        onSignIn={() => {
+          setAuthInitialMode("signin");
+          navigateWithTransition("auth");
+        }}
+        onRegister={() => {
+          setAuthInitialMode("signup");
+          navigateWithTransition("auth");
+        }}
         onSelectCourse={(slug) => {
           setSelectedCourseSlug(slug);
           navigateWithTransition(currentUser ? "course-details" : "auth");
@@ -249,6 +258,7 @@ const AppContent: React.FC = () => {
           className="w-full h-screen overflow-hidden"
         >
           <AuthView
+            initialMode={authInitialMode}
             onLoginSuccess={handleLoginSuccess}
             onCancel={() => navigateWithTransition("landing")}
           />
@@ -262,8 +272,14 @@ const AppContent: React.FC = () => {
     return (
       <LandingPageView
         onExploreCourses={() => navigateWithTransition("auth")}
-        onSignIn={() => navigateWithTransition("auth")}
-        onRegister={() => navigateWithTransition("auth")}
+        onSignIn={() => {
+          setAuthInitialMode("signin");
+          navigateWithTransition("auth");
+        }}
+        onRegister={() => {
+          setAuthInitialMode("signup");
+          navigateWithTransition("auth");
+        }}
         onSelectCourse={(slug) => {
           setSelectedCourseSlug(slug);
           navigateWithTransition("auth");
@@ -329,7 +345,7 @@ const AppContent: React.FC = () => {
           currentView === "studio" ? "opacity-0" : ""
         }`}
         style={{
-          backgroundImage: "url('/doodle-bg.png')",
+          backgroundImage: "url('/doodle-bg.webp'), url('/doodle-bg.png')",
           backgroundRepeat: "repeat",
           backgroundSize: "850px auto",
           opacity: currentView === "studio" ? 0 : theme === "light" ? 0.09 : 0.075,

@@ -289,7 +289,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           title={`${displayName} • ${displayEmail}`}
         >
           <img
-            src="/user-avatar.jpg"
+            src={user?.image || "/user-avatar.jpg"}
             alt={displayName}
             className="w-full h-full object-cover"
           />

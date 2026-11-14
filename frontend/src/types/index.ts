@@ -4,6 +4,16 @@ export interface User {
   fullName: string;
   name?: string;
   role: string;
+  emailVerified?: boolean;
+  image?: string | null;
+  bio?: string | null;
+  timezone?: string | null;
+  language?: string | null;
+  dob?: string | null;
+  persona?: string | null;
+  primaryGoal?: string | null;
+  onboardingCompleted?: boolean;
+  createdAt?: string;
 }
 
 export interface CourseCatalogItem {

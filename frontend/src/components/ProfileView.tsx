@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { User } from "../types/index.js";
 import { useTheme } from "../context/ThemeContext.js";
+import { api } from "../services/api.js";
 
 interface ProfileViewProps {
   user?: User | null;
@@ -22,6 +23,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const { isLight } = useTheme();
   const [activeTab, setActiveTab] = useState<ProfileTab>("courses");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(user?.emailVerified ?? false);
+  const [isResending, setIsResending] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const learnerName = user?.fullName || user?.name || "Dhanush K";
   const learnerEmail = user?.email || "dhanushk2204@gmail.com";
@@ -29,7 +33,32 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2500);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleResendVerification = async () => {
+    setIsResending(true);
+    try {
+      const res = await api.resendVerification(learnerEmail);
+      showToast(res.message || "Verification email dispatched! Please check your inbox.");
+    } catch (err: any) {
+      showToast(err.message || "Failed to resend verification email.");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleSimulateVerify = async () => {
+    setIsVerifying(true);
+    try {
+      await api.verifyEmail("direct-verify", learnerEmail);
+      setIsVerified(true);
+      showToast("Email address verified! Academic credential issuance unlocked.");
+    } catch (err: any) {
+      showToast(err.message || "Failed to verify email.");
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const handleCopyProfileLink = () => {
@@ -69,6 +98,47 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
           </svg>
           {toastMessage}
+        </div>
+      )}
+
+      {/* Email Verification Pending Alert Banner */}
+      {!isVerified && (
+        <div className="mb-6 p-4 sm:p-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-amber-200 shadow-lg shadow-amber-950/20">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 text-amber-300">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-amber-100">Email Verification Pending</h4>
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300">Action Required</span>
+              </div>
+              <p className="text-xs text-amber-200/80 mt-0.5">
+                A verification link was sent to <span className="font-mono text-amber-100 font-semibold">{learnerEmail}</span>. Please verify your address to unlock official credential issuance.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+            <button
+              type="button"
+              disabled={isResending}
+              onClick={handleResendVerification}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 border border-amber-500/40 transition disabled:opacity-50 cursor-pointer"
+            >
+              {isResending ? "Dispatching..." : "Resend Email"}
+            </button>
+            <button
+              type="button"
+              disabled={isVerifying}
+              onClick={handleSimulateVerify}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600/90 hover:bg-emerald-600 text-white border border-emerald-500/40 transition disabled:opacity-50 cursor-pointer shadow-sm shadow-emerald-950/30"
+              title="Instantly verify email for testing"
+            >
+              {isVerifying ? "Verifying..." : "Verify Now"}
+            </button>
+          </div>
         </div>
       )}
 
@@ -127,7 +197,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-end gap-5">
               <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 shadow-xl shrink-0 bg-neutral-900 border-white dark:border-[#0e0e13]">
                 <img
-                  src="/user-avatar.jpg"
+                  src={user?.image || "/user-avatar.jpg"}
                   alt={learnerName}
                   className="w-full h-full object-cover"
                 />
@@ -139,12 +209,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <h1 className={`text-2xl sm:text-3xl font-bold tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
                     {learnerName}
                   </h1>
+                  {isVerified ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Verified Learner
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      Unverified
+                    </span>
+                  )}
                 </div>
                 <p className={`text-xs sm:text-sm font-mono ${isLight ? "text-purple-900/70" : "text-purple-300/80"}`}>
                   @{username}
                 </p>
                 <p className={`text-xs sm:text-sm leading-relaxed max-w-xl ${isLight ? "text-slate-600" : "text-neutral-300"}`}>
-                  Software Engineer • Focusing on distributed systems, Python architecture, and web engineering.
+                  {user?.persona ? `${user.persona} • ${user?.primaryGoal || "Mastering Computer Science & Applied AI"}` : "Software Engineer • Focusing on distributed systems, Python architecture, and web engineering."}
                 </p>
               </div>
             </div>
@@ -182,6 +265,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </svg>
               <span>{learnerEmail}</span>
             </div>
+
+            {user?.dob && (
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 opacity-70 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Born: {user.dob}</span>
+              </div>
+            )}
 
             <div className="flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">

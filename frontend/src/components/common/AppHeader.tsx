@@ -237,7 +237,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             title={`${displayName} • ${user?.email || "learner@certify.edu"}`}
           >
             <img
-              src="/user-avatar.jpg"
+              src={user?.image || "/user-avatar.jpg"}
               alt={displayName}
               className="w-full h-full object-cover"
             />

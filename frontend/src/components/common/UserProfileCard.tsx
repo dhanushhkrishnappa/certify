@@ -36,9 +36,9 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
     >
       {/* Top Row: Avatar & Top-Right Action */}
       <div className="flex items-start justify-between mb-2.5">
-        <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/10 shadow-md shrink-0">
+        <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/10 shadow-md shrink-0 bg-neutral-900">
           <img
-            src="/user-avatar.jpg"
+            src={user?.image || "/user-avatar.jpg"}
             alt={displayName}
             className="w-full h-full object-cover"
           />
@@ -62,15 +62,21 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
           {displayName}
         </h3>
         <p className="text-[11px] text-neutral-400 mt-0.5 font-normal truncate">
-          {user?.role === "ADMIN" ? "Platform Administrator" : "Product Designer & AI Scholar"}
+          {user?.persona || (user?.role === "ADMIN" ? "Platform Administrator" : "Software Engineer & AI Scholar")}
         </p>
       </div>
 
       {/* Badges Row */}
       <div className="flex items-center gap-1.5 mb-3">
-        <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[10px] font-medium text-white/90 border border-white/[0.06]">
-          Verified Learner
-        </span>
+        {user?.emailVerified ? (
+          <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-[10px] font-medium text-emerald-300 border border-emerald-500/20">
+            ✓ Verified
+          </span>
+        ) : (
+          <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-[10px] font-medium text-amber-300 border border-amber-500/20">
+            ⏳ Unverified
+          </span>
+        )}
         <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[10px] font-medium text-white/90 border border-white/[0.06]">
           AI Scholar
         </span>
