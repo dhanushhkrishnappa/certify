@@ -95,8 +95,10 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
               aria-label="Certify Home"
             >
               <img
-                src="/certify-logo.png"
+                src="/certify-logo.webp"
                 alt="Certify"
+                fetchPriority="high"
+                decoding="async"
                 className="h-[30px] sm:h-[38px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
               />
             </a>

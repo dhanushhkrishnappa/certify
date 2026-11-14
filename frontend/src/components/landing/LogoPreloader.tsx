@@ -71,9 +71,9 @@ export interface LogoPreloaderProps {
  * 5. Done (t=2600ms): Overlay unmounts completely, scrolling and pointer interaction restored.
  */
 export const LogoPreloader: React.FC<LogoPreloaderProps> = ({
-  logo = { src: "/certify-logo.png", alt: "Certify" },
+  logo = { src: "/certify-logo.webp", alt: "Certify" },
   backgroundColor = "#000000", // Solid black background
-  duration = 1.8,
+  duration = 0.9,
   logoSize = 72,
   videoFile = "",
   backgroundImage = { src: "", alt: "" },
