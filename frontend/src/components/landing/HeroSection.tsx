@@ -19,6 +19,7 @@ interface SlideMeta {
   supporting: string;
   type: "video" | "graphic";
   videoSrc?: string;
+  poster?: string;
 }
 
 const SLIDES: SlideMeta[] = [
@@ -32,6 +33,7 @@ const SLIDES: SlideMeta[] = [
       "A lesson can make a concept feel familiar. Applying it on your own reveals what you truly understand.",
     type: "video",
     videoSrc: "/videos/certify-passive-learning.mp4",
+    poster: "/videos/poster-passive-learning.webp",
   },
   {
     id: 1,
@@ -51,6 +53,7 @@ const SLIDES: SlideMeta[] = [
     supporting: "Move from watching to working through an idea yourself.",
     type: "video",
     videoSrc: "/videos/certify-practical-learning.mp4",
+    poster: "/videos/poster-practical-learning.webp",
   },
   {
     id: 3,
@@ -341,14 +344,24 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
                   {slide.type === "video" ? (
                     /* Video Panel (Slide 01 and Slide 03) */
                     <div className="relative w-full h-full bg-[#0D0D10] overflow-hidden select-none">
+                      {slide.poster && (
+                        <img
+                          src={slide.poster}
+                          alt={slide.headline}
+                          loading="eager"
+                          decoding="async"
+                          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+                        />
+                      )}
                       <video
                         ref={slide.id === 0 ? video1Ref : video2Ref}
                         src={slide.videoSrc}
+                        poster={slide.poster}
                         muted
                         playsInline
                         loop
-                        preload="metadata"
-                        className="w-full h-full object-cover"
+                        preload="auto"
+                        className="relative z-10 w-full h-full object-cover"
                       />
                     </div>
                   ) : slide.id === 1 ? (

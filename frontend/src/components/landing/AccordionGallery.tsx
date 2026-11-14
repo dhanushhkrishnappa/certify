@@ -5,6 +5,7 @@ import "./AccordionGallery.css";
 export interface AccordionGalleryItem {
   id?: string;
   image: string;
+  fallbackImage?: string;
   label?: string;
   sublabel?: string;
   number?: string;
@@ -38,7 +39,8 @@ export const CERTIFY_PILLARS: AccordionGalleryItem[] = [
   {
     id: "01",
     number: "01",
-    image: "/pillars/pillar-01-ai-guided.jpg",
+    image: "/pillars/pillar-01-ai-guided.webp",
+    fallbackImage: "/pillars/pillar-01-ai-guided.jpg",
     label: "AI-Guided Learning",
     sublabel: "Learn through an AI tutor that adapts to you.",
     alt: "AI-Guided Learning with interactive Socratic dialogue",
@@ -46,7 +48,8 @@ export const CERTIFY_PILLARS: AccordionGalleryItem[] = [
   {
     id: "02",
     number: "02",
-    image: "/pillars/pillar-02-adaptive.jpg",
+    image: "/pillars/pillar-02-adaptive.webp",
+    fallbackImage: "/pillars/pillar-02-adaptive.jpg",
     label: "Adaptive Progress",
     sublabel: "Your learning path evolves with your understanding.",
     alt: "Adaptive Progress evolving dynamically with concept mastery",
@@ -54,7 +57,8 @@ export const CERTIFY_PILLARS: AccordionGalleryItem[] = [
   {
     id: "03",
     number: "03",
-    image: "/pillars/pillar-03-chapter-assessment.jpg",
+    image: "/pillars/pillar-03-chapter-assessment.webp",
+    fallbackImage: "/pillars/pillar-03-chapter-assessment.jpg",
     label: "Chapter Assessment",
     sublabel: "Check understanding before moving forward.",
     alt: "Chapter Assessment measuring understanding through interactive checks",
@@ -62,7 +66,8 @@ export const CERTIFY_PILLARS: AccordionGalleryItem[] = [
   {
     id: "04",
     number: "04",
-    image: "/pillars/pillar-04-practical-demo.jpg",
+    image: "/pillars/pillar-04-practical-demo.webp",
+    fallbackImage: "/pillars/pillar-04-practical-demo.jpg",
     label: "Practical Demonstration",
     sublabel: "Apply what you've learned in practice.",
     alt: "Practical Demonstration applying skills in hands-on tasks",
@@ -70,7 +75,8 @@ export const CERTIFY_PILLARS: AccordionGalleryItem[] = [
   {
     id: "05",
     number: "05",
-    image: "/pillars/pillar-05-evidence-trail.jpg",
+    image: "/pillars/pillar-05-evidence-trail.webp",
+    fallbackImage: "/pillars/pillar-05-evidence-trail.jpg",
     label: "Evidence Trail",
     sublabel: "Learning and assessment build evidence over time.",
     alt: "Evidence Trail compiling an authentic record of learning",
@@ -78,7 +84,8 @@ export const CERTIFY_PILLARS: AccordionGalleryItem[] = [
   {
     id: "06",
     number: "06",
-    image: "/pillars/pillar-06-verified-credential.jpg",
+    image: "/pillars/pillar-06-verified-credential.webp",
+    fallbackImage: "/pillars/pillar-06-verified-credential.jpg",
     label: "Verified Credential",
     sublabel: "Earn a credential backed by your learning evidence.",
     alt: "Verified Credential determined from accumulated proof",
@@ -398,7 +405,16 @@ export const AccordionGallery: React.FC<AccordionGalleryProps> = ({
                   mediaRefs.current[i] = el;
                 }}
               >
-                <img src={item.image} alt={item.alt || item.label || ""} draggable="false" />
+                <picture>
+                  <source srcSet={item.image} type="image/webp" />
+                  <img
+                    src={item.fallbackImage || item.image}
+                    alt={item.alt || item.label || ""}
+                    draggable="false"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
               </span>
               <span className="ag-panel__overlay" aria-hidden="true" />
             </span>

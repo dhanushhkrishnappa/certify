@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 
 export interface CourseCardData {
   slug: string;
   image: string;
+  fallbackImage: string;
   badgeTrack: string;
   level: string;
   title: string;
@@ -12,10 +13,58 @@ export interface CourseCardData {
   highlight: string;
 }
 
+const CourseCardMedia: React.FC<{
+  webpSrc: string;
+  fallbackSrc: string;
+  title: string;
+  badgeTrack: string;
+}> = ({ webpSrc, fallbackSrc, title, badgeTrack }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div className="h-[125px] sm:h-[135px] w-full overflow-hidden relative bg-[#1E1A2E] shrink-0">
+      {/* Animated shimmer skeleton while image is loading */}
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 bg-gradient-to-r from-[#181424] via-[#2D2345] to-[#181424] animate-pulse" />
+      )}
+
+      {!hasError ? (
+        <picture>
+          <source srcSet={webpSrc} type="image/webp" />
+          <img
+            src={fallbackSrc}
+            alt={title}
+            draggable={false}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setIsLoaded(true)}
+            onError={() => setHasError(true)}
+            className={`w-full h-full object-cover select-none pointer-events-none transition-all duration-500 ease-out hover:scale-105 ${
+              isLoaded ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        </picture>
+      ) : (
+        /* Themed geometric fallback if offline */
+        <div className="w-full h-full bg-gradient-to-br from-[#1C162E] via-[#2A1D45] to-[#120F24] p-3 flex flex-col justify-between">
+          <div className="w-6 h-6 rounded-md bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 font-mono text-[10px] font-bold">
+            {badgeTrack.slice(0, 2).toUpperCase()}
+          </div>
+          <span className="font-['Newsreader',Georgia,serif] text-xs text-purple-100 font-medium line-clamp-1">
+            {title}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const COURSES_DATA: CourseCardData[] = [
   {
     slug: "web-development-foundations",
-    image: "/courses/web-dev-master-photo.jpg",
+    image: "/courses/web-dev-master-photo.webp",
+    fallbackImage: "/courses/web-dev-master-photo.jpg",
     badgeTrack: "FOUNDATION TRACK",
     level: "Beginner",
     title: "Web Development Foundations",
@@ -27,7 +76,8 @@ const COURSES_DATA: CourseCardData[] = [
   },
   {
     slug: "python-fundamentals",
-    image: "/courses/python-fundamentals.jpg",
+    image: "/courses/python-fundamentals.webp",
+    fallbackImage: "/courses/python-fundamentals.jpg",
     badgeTrack: "FOUNDATION TRACK",
     level: "Beginner",
     title: "Python Fundamentals",
@@ -39,7 +89,8 @@ const COURSES_DATA: CourseCardData[] = [
   },
   {
     slug: "data-structures-problem-solving",
-    image: "/courses/data-structures-problem-solving.jpg",
+    image: "/courses/data-structures-problem-solving.webp",
+    fallbackImage: "/courses/data-structures-problem-solving.jpg",
     badgeTrack: "CORE TRACK",
     level: "Intermediate",
     title: "Data Structures & Problem Solving",
@@ -51,7 +102,8 @@ const COURSES_DATA: CourseCardData[] = [
   },
   {
     slug: "genai-llm-application-engineering",
-    image: "/courses/genai-llm-application-engineering.jpg",
+    image: "/courses/genai-llm-application-engineering.webp",
+    fallbackImage: "/courses/genai-llm-application-engineering.jpg",
     badgeTrack: "SPECIALIZED TRACK",
     level: "Intermediate",
     title: "GenAI & LLM Engineering",
@@ -63,7 +115,8 @@ const COURSES_DATA: CourseCardData[] = [
   },
   {
     slug: "sql-relational-database-design",
-    image: "/courses/sql-relational-database-design.jpg",
+    image: "/courses/sql-relational-database-design.webp",
+    fallbackImage: "/courses/sql-relational-database-design.jpg",
     badgeTrack: "CORE TRACK",
     level: "Beginner",
     title: "SQL & Relational Databases",
@@ -156,15 +209,13 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
               onClick={() => handleNavigateToCourse(course.slug)}
               className="w-[275px] sm:w-[295px] md:w-[310px] shrink-0 mx-2.5 sm:mx-3 rounded-[20px] sm:rounded-[22px] bg-[#FFFCF7] text-[#111827] overflow-hidden border border-[#E8E2D9] shadow-[0_12px_30px_-10px_rgba(0,0,0,0.6)] hover:shadow-[0_18px_40px_-10px_rgba(0,0,0,0.8)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-[360px] sm:h-[375px] cursor-pointer"
             >
-              {/* Top Course Photo (Compact Height) */}
-              <div className="h-[125px] sm:h-[135px] w-full overflow-hidden relative bg-[#121215] shrink-0">
-                <img
-                  src={course.image}
-                  alt={course.title}
-                  draggable={false}
-                  className="w-full h-full object-cover select-none pointer-events-none transition-transform duration-700 ease-out hover:scale-105"
-                />
-              </div>
+              {/* Top Course Photo (Compact Height with WebP, Skeleton, and Fallback) */}
+              <CourseCardMedia
+                webpSrc={course.image}
+                fallbackSrc={course.fallbackImage}
+                title={course.title}
+                badgeTrack={course.badgeTrack}
+              />
 
               {/* Card Body */}
               <div className="p-3.5 sm:p-4 flex flex-col justify-between flex-1">

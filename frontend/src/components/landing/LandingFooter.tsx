@@ -93,11 +93,16 @@ export const LandingFooter: React.FC<LandingFooterProps> = ({
                   className="inline-flex items-center cursor-pointer select-none group"
                   aria-label="Certify Home"
                 >
-                  <img
-                    src="/certify-logo-dark.png"
-                    alt="Certify"
-                    className="h-[36px] sm:h-[42px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-                  />
+                  <picture>
+                    <source srcSet="/certify-logo-dark.webp" type="image/webp" />
+                    <img
+                      src="/certify-logo-dark.png"
+                      alt="Certify"
+                      loading="lazy"
+                      decoding="async"
+                      className="h-[36px] sm:h-[42px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+                    />
+                  </picture>
                 </a>
 
                 {/* Updated Target Footer Sentence */}

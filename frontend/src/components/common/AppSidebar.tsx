@@ -131,11 +131,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           title="Certify Home"
         >
           {isExpanded ? (
-            <img
-              src="/certify-logo.png"
-              alt="Certify"
-              className="h-8 w-auto object-contain shrink-0 transition-transform duration-200 hover:scale-[1.02] brightness-110 drop-shadow-[0_2px_8px_rgba(255,255,255,0.15)]"
-            />
+            <picture>
+              <source srcSet="/certify-logo.webp" type="image/webp" />
+              <img
+                src="/certify-logo.png"
+                alt="Certify"
+                decoding="async"
+                className="h-8 w-auto object-contain shrink-0 transition-transform duration-200 hover:scale-[1.02] brightness-110 drop-shadow-[0_2px_8px_rgba(255,255,255,0.15)]"
+              />
+            </picture>
           ) : (
             <img
               src="/certify-icon.png"
