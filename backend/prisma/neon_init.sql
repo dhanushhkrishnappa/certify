@@ -7,6 +7,9 @@ CREATE TABLE "users" (
     "role" TEXT NOT NULL DEFAULT 'STUDENT',
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "image" TEXT,
+    "bio" TEXT,
+    "timezone" TEXT DEFAULT 'UTC',
+    "language" TEXT DEFAULT 'en',
     "passwordHash" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -153,6 +156,7 @@ CREATE TABLE "rubric_criteria" (
 CREATE TABLE "questions" (
     "id" TEXT NOT NULL,
     "chapterId" TEXT NOT NULL,
+    "conceptId" TEXT,
     "questionType" TEXT NOT NULL,
     "prompt" TEXT NOT NULL,
     "tier" TEXT NOT NULL DEFAULT 'EASY',
@@ -168,6 +172,7 @@ CREATE TABLE "enrollments" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "courseVersionId" TEXT NOT NULL,
+    "currentChapterId" TEXT,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "currentTier" TEXT NOT NULL DEFAULT 'EASY',
     "enrolledAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -453,6 +458,9 @@ CREATE INDEX "rubric_criteria_rubricId_idx" ON "rubric_criteria"("rubricId");
 CREATE INDEX "questions_chapterId_idx" ON "questions"("chapterId");
 
 -- CreateIndex
+CREATE INDEX "questions_conceptId_idx" ON "questions"("conceptId");
+
+-- CreateIndex
 CREATE INDEX "questions_chapterId_questionType_idx" ON "questions"("chapterId", "questionType");
 
 -- CreateIndex
@@ -460,6 +468,9 @@ CREATE INDEX "enrollments_userId_idx" ON "enrollments"("userId");
 
 -- CreateIndex
 CREATE INDEX "enrollments_courseVersionId_idx" ON "enrollments"("courseVersionId");
+
+-- CreateIndex
+CREATE INDEX "enrollments_currentChapterId_idx" ON "enrollments"("currentChapterId");
 
 -- CreateIndex
 CREATE INDEX "enrollments_status_idx" ON "enrollments"("status");
@@ -606,10 +617,16 @@ ALTER TABLE "rubric_criteria" ADD CONSTRAINT "rubric_criteria_rubricId_fkey" FOR
 ALTER TABLE "questions" ADD CONSTRAINT "questions_chapterId_fkey" FOREIGN KEY ("chapterId") REFERENCES "chapters"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "questions" ADD CONSTRAINT "questions_conceptId_fkey" FOREIGN KEY ("conceptId") REFERENCES "concepts"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_courseVersionId_fkey" FOREIGN KEY ("courseVersionId") REFERENCES "course_versions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "enrollments" ADD CONSTRAINT "enrollments_currentChapterId_fkey" FOREIGN KEY ("currentChapterId") REFERENCES "chapters"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "daily_activities" ADD CONSTRAINT "daily_activities_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -658,4 +675,10 @@ ALTER TABLE "viva_defense_turns" ADD CONSTRAINT "viva_defense_turns_attemptId_fk
 
 -- AddForeignKey
 ALTER TABLE "certificates" ADD CONSTRAINT "certificates_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "enrollments"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "storage_artifacts" ADD CONSTRAINT "storage_artifacts_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "enrollments"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "storage_artifacts" ADD CONSTRAINT "storage_artifacts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 

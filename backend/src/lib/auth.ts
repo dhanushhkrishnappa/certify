@@ -30,8 +30,11 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:3000",
     "http://127.0.0.1:5173",
     "https://certify.pages.dev",
+    "https://certify-ashy-sigma.vercel.app",
     process.env.CORS_ORIGIN || "",
   ].filter(Boolean),
 
@@ -59,6 +62,30 @@ export const auth = betterAuth({
         required: false,
         defaultValue: "STUDENT",
         input: false, // role is never set by the client
+      },
+      dob: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+        input: true,
+      },
+      persona: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+        input: true,
+      },
+      primaryGoal: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+        input: true,
+      },
+      onboardingCompleted: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+        input: true,
       },
     },
   },

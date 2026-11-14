@@ -156,10 +156,12 @@ coursesHonoRouter.post("/:slug/enroll", honoAuthMiddleware, async (c) => {
 
     // Atomic transaction initializing enrollment, concept masteries, and first chapter session
     const newEnrollment = await prisma.$transaction(async (tx) => {
+      const firstChapter = activeVersion.modules[0]?.chapters[0];
       const enrollment = await tx.enrollment.create({
         data: {
           userId: user.id,
           courseVersionId: activeVersion.id,
+          currentChapterId: firstChapter?.id || null,
           status: "ACTIVE",
           currentTier: "EASY",
         },
@@ -181,7 +183,6 @@ coursesHonoRouter.post("/:slug/enroll", honoAuthMiddleware, async (c) => {
         });
       }
 
-      const firstChapter = activeVersion.modules[0]?.chapters[0];
       if (firstChapter) {
         await tx.learningSession.create({
           data: {

@@ -23,22 +23,30 @@ generator client {
 // extended fields (fullName, role, academic credentials).
 
 model User {
-  id            String       @id @default(uuid())
-  email         String       @unique
-  name          String       @default("")
-  fullName      String       @default("")
-  role          String       @default("STUDENT") // STUDENT | INSTRUCTOR | ADMIN
-  emailVerified Boolean      @default(false)
-  image         String?
-  passwordHash  String?      // Backward compatibility during migration
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id                  String            @id @default(uuid())
+  email               String            @unique
+  name                String            @default("")
+  fullName            String            @default("")
+  role                String            @default("STUDENT") // STUDENT | INSTRUCTOR | ADMIN
+  emailVerified       Boolean           @default(false)
+  image               String?
+  bio                 String?
+  timezone            String?           @default("UTC")
+  language            String?           @default("en")
+  dob                 String?           // Date of birth: YYYY-MM-DD
+  persona             String?           // e.g. "Software Engineer" | "University Student"
+  primaryGoal         String?           // e.g. "Python & Backend Systems"
+  onboardingCompleted Boolean           @default(false)
+  passwordHash        String?           // Backward compatibility during migration
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 
   // Domain Relations
-  enrollments   Enrollment[]
-  sessions      Session[]
-  accounts      Account[]
-  dailyActivity DailyActivity[]
+  enrollments         Enrollment[]
+  sessions            Session[]
+  accounts            Account[]
+  dailyActivity       DailyActivity[]
+  storageArtifacts    StorageArtifact[]
 
   @@index([email])
   @@index([role])
@@ -156,18 +164,19 @@ model Module {
 }
 
 model Chapter {
-  id              String           @id @default(uuid())
-  moduleId        String
-  module          Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  title           String
-  sequenceOrder   Int
-  teachingContent String           // First-principles pedagogical notes & Socratic boundaries
-  estimatedMins   Int              @default(45)
-  createdAt       DateTime         @default(now())
+  id                 String            @id @default(uuid())
+  moduleId           String
+  module             Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title              String
+  sequenceOrder      Int
+  teachingContent    String            // First-principles pedagogical notes & Socratic boundaries
+  estimatedMins      Int               @default(45)
+  createdAt          DateTime          @default(now())
 
-  concepts        Concept[]
-  questions       Question[]
-  sessions        LearningSession[]
+  concepts           Concept[]
+  questions          Question[]
+  sessions           LearningSession[]
+  currentEnrollments Enrollment[]
 
   @@index([moduleId])
   @@index([moduleId, sequenceOrder])
@@ -187,6 +196,7 @@ model Concept {
 
   rubrics        Rubric[]
   conceptMastery ConceptMastery[]
+  questions      Question[]
 
   @@unique([chapterId, slug])
   @@index([chapterId])
@@ -226,6 +236,8 @@ model Question {
   id           String             @id @default(uuid())
   chapterId    String
   chapter      Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  conceptId    String?
+  concept      Concept?           @relation(fields: [conceptId], references: [id], onDelete: SetNull)
   questionType String             // RECALL | EXPLAIN | REASON | DEBUG | APPLY | VIVA | DIAGNOSTIC
   prompt       String
   tier         String             @default("EASY")
@@ -236,6 +248,7 @@ model Question {
   answers      AssessmentAnswer[]
 
   @@index([chapterId])
+  @@index([conceptId])
   @@index([chapterId, questionType])
   @@map("questions")
 }
@@ -250,6 +263,8 @@ model Enrollment {
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseVersionId  String
   courseVersion    CourseVersion     @relation(fields: [courseVersionId], references: [id], onDelete: Restrict)
+  currentChapterId String?
+  currentChapter   Chapter?          @relation(fields: [currentChapterId], references: [id], onDelete: SetNull)
   status           String            @default("ACTIVE") // ACTIVE | COMPLETED | DROPPED | REMEDIATING
   currentTier      String            @default("EASY")   // EASY (Foundation) | MEDIUM (Proficient) | HARD (Advanced)
   enrolledAt       DateTime          @default(now())
@@ -258,11 +273,13 @@ model Enrollment {
   sessions         LearningSession[]
   conceptMasteries ConceptMastery[]
   assessments      AssessmentAttempt[]
+  storageArtifacts StorageArtifact[]
   certificate      Certificate?
 
   @@unique([userId, courseVersionId])
   @@index([userId])
   @@index([courseVersionId])
+  @@index([currentChapterId])
   @@index([status])
   @@map("enrollments")
 }
@@ -354,7 +371,7 @@ model MasteryEvidence {
   conceptMasteryId   String
   conceptMastery     ConceptMastery   @relation(fields: [conceptMasteryId], references: [id], onDelete: Cascade)
   rubricCriterionId  String?
-  rubricCriterion    RubricCriterion? @relation(fields: [rubricCriterionId], references: [id])
+  rubricCriterion    RubricCriterion? @relation(fields: [rubricCriterionId], references: [id], onDelete: SetNull)
   evidenceType       String           // DIALOGUE_PROBE | CHAPTER_ASSESSMENT | PRACTICAL_TASK | VIVA | DIAGNOSTIC
   isDemonstrated     Boolean
   evidenceQuote      String?          // Exact student response quote proving comprehension
@@ -509,14 +526,16 @@ model SigningKeyRegistry {
 // ==============================================================================
 
 model StorageArtifact {
-  id           String   @id @default(uuid())
-  storageKey   String   @unique
+  id           String     @id @default(uuid())
+  storageKey   String     @unique
   enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   fileSize     Int
   mimeType     String
   checksum     String?
-  uploadedAt   DateTime @default(now())
+  uploadedAt   DateTime   @default(now())
 
   @@index([enrollmentId])
   @@index([userId])

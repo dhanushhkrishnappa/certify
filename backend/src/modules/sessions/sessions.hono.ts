@@ -437,6 +437,12 @@ sessionsHonoRouter.post("/sessions/:sessionId/advance", honoAuthMiddleware, asyn
       });
     }
 
+    // Update enrollment's active chapter milestone
+    await prisma.enrollment.update({
+      where: { id: currentSession.enrollmentId },
+      data: { currentChapterId: nextChapter.id },
+    });
+
     const newSession = await prisma.learningSession.create({
       data: {
         enrollmentId: currentSession.enrollmentId,
