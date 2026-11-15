@@ -17,6 +17,7 @@ import { SettingsView } from "./components/SettingsView.js";
 import { LandingPageView } from "./components/LandingPageView.js";
 import { AuthView } from "./components/AuthView.js";
 import { api } from "./services/api.js";
+import { authClient } from "./lib/authClient.js";
 import type { User } from "./types/index.js";
 import { prefersReducedMotion } from "./motion/motionVocabulary.js";
 import { motion, AnimatePresence } from "motion/react";
@@ -147,15 +148,32 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("certify_token");
-    if (!token) return;
 
-    // Verify existing token against backend
+    // Query active profile either via stored token or active Better Auth session cookie (e.g. after Google OAuth)
     api.getMe()
       .then((data) => {
-        setCurrentUser(data.user);
-        localStorage.setItem("certify_user", JSON.stringify(data.user));
+        if (data.user) {
+          setCurrentUser(data.user);
+          localStorage.setItem("certify_user", JSON.stringify(data.user));
+
+          // Ensure session token is stored in localStorage for subsequent API calls
+          if (!token) {
+            authClient.getSession().then(({ data: sess }) => {
+              if (sess?.session?.token) {
+                localStorage.setItem("certify_token", sess.session.token);
+              }
+            }).catch(() => {});
+          }
+
+          // If user landed on auth page, redirect into app
+          if (currentView === "auth") {
+            setCurrentView("catalog");
+          }
+        }
       })
       .catch(() => {
+        if (!token) return; // Unauthenticated guest, remain on landing/auth
+
         // Fallback to cached or demo user session in dev/offline mode
         const savedUserStr = localStorage.getItem("certify_user");
         let fallbackUser: User | null = null;

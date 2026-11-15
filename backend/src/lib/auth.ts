@@ -13,6 +13,9 @@ const isPostgres =
  * Automatically adapts between SQLite (local dev) and PostgreSQL (Neon production).
  */
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "https://api.certify.studio",
+  secret: process.env.BETTER_AUTH_SECRET || process.env.JWT_SECRET || "certify_super_secure_jwt_secret_dev_key_2026",
+
   database: prismaAdapter(prisma, {
     provider: isPostgres ? "postgresql" : "sqlite",
   }),
@@ -22,6 +25,17 @@ export const auth = betterAuth({
     minPasswordLength: 6,
     // Auto-sign-in after registration (matches existing UX)
     autoSignIn: true,
+  },
+
+  socialProviders: {
+    google: {
+      get clientId() {
+        return process.env.GOOGLE_CLIENT_ID || "";
+      },
+      get clientSecret() {
+        return process.env.GOOGLE_CLIENT_SECRET || "";
+      },
+    },
   },
 
   plugins: [bearer()],
