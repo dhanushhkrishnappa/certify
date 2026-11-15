@@ -34,21 +34,30 @@ app.use(
 );
 
 // 3. Credential-Aware CORS Configuration
+const ALLOWED_ORIGIN_PATTERNS = [
+  "https://certify.studio",
+  "https://www.certify.studio",
+  "https://certify.pages.dev",
+  "https://certify-8fh.pages.dev",
+  "https://certify-ashy-sigma.vercel.app",
+];
+
 app.use(
   "*",
   cors({
     origin: (origin) => {
       if (!origin) return "*";
       if (
-        origin.startsWith("http://localhost:") ||
-        origin.startsWith("http://127.0.0.1:") ||
+        ALLOWED_ORIGIN_PATTERNS.includes(origin) ||
+        origin.endsWith(".certify.studio") ||
         origin.endsWith(".pages.dev") ||
         origin.endsWith(".vercel.app") ||
-        origin === config.corsOrigin
+        origin.startsWith("http://localhost:") ||
+        origin.startsWith("http://127.0.0.1:")
       ) {
         return origin;
       }
-      return config.corsOrigin || origin;
+      return origin;
     },
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

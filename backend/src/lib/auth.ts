@@ -28,13 +28,16 @@ export const auth = betterAuth({
 
   // Trusted origins — CORS + CSRF protection
   trustedOrigins: [
+    "https://certify.studio",
+    "https://www.certify.studio",
+    "https://certify.pages.dev",
+    "https://certify-8fh.pages.dev",
+    "https://certify-ashy-sigma.vercel.app",
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
     "http://localhost:3000",
     "http://127.0.0.1:5173",
-    "https://certify.pages.dev",
-    "https://certify-ashy-sigma.vercel.app",
     process.env.CORS_ORIGIN || "",
   ].filter(Boolean),
 

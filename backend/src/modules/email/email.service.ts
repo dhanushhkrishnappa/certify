@@ -108,60 +108,13 @@ export class EmailService {
 
         return { delivered: true, status: "SENT", messageId: info.messageId };
       } catch (smtpErr: any) {
-        logger.error("[EmailService] Gmail SMTP dispatch failed:", {
+        logger.warn("[EmailService] Gmail SMTP dispatch failed, attempting Resend fallback:", {
           error: smtpErr?.message,
           to,
           template: templateName,
         });
-
-        // For OTP & auth verification emails, Resend is strictly disabled. Fail immediately.
-        if (isAuthEmail) {
-          await prisma.emailLog.upsert({
-            where: { idempotencyKey },
-            create: {
-              recipient: to,
-              template: templateName,
-              idempotencyKey,
-              status: "FAILED",
-              errorDetails: `Gmail SMTP failed: ${smtpErr?.message}`,
-            },
-            update: {
-              status: "FAILED",
-              errorDetails: `Gmail SMTP failed: ${smtpErr?.message}`,
-            },
-          });
-
-          return { delivered: false, status: "FAILED", error: smtpErr?.message };
-        }
-        // For non-auth emails, fall through to Resend if configured
+        // Fall through to Resend HTTP API
       }
-    } else if (isAuthEmail) {
-      // SMTP required for all OTP / auth emails; Resend is strictly disabled for OTPs
-      logger.error("[EmailService] OTP verification blocked: Gmail SMTP (certify.auth@gmail.com) is not configured", {
-        to,
-        templateName,
-      });
-
-      await prisma.emailLog.upsert({
-        where: { idempotencyKey },
-        create: {
-          recipient: to,
-          template: templateName,
-          idempotencyKey,
-          status: "FAILED",
-          errorDetails: "Gmail SMTP (SMTP_USER & SMTP_PASS) is required for OTP verification.",
-        },
-        update: {
-          status: "FAILED",
-          errorDetails: "Gmail SMTP (SMTP_USER & SMTP_PASS) is required for OTP verification.",
-        },
-      });
-
-      return {
-        delivered: false,
-        status: "BLOCKED",
-        error: "Gmail SMTP credentials not configured for OTP verification",
-      };
     }
 
     // 4. Provider Check 2: Resend (Only used for non-OTP transactional notifications if configured)
