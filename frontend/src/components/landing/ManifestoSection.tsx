@@ -164,7 +164,7 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
               blur={12}
               distance={40}
               onAnimationComplete={handleAnimationComplete}
-              className="justify-center font-['Newsreader',Georgia,serif] text-5xl sm:text-7xl md:text-8xl lg:text-[96px] xl:text-[108px] font-normal text-[#FEF5E5] leading-[1.08] tracking-tight text-center"
+              className="justify-center font-sans font-bold text-5xl sm:text-7xl md:text-8xl lg:text-[96px] xl:text-[108px] font-normal text-[#FEF5E5] leading-[1.08] tracking-tight text-center"
             />
           )}
         </div>
@@ -182,7 +182,7 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
                 className: "font-normal not-italic text-[#FEF5E5]",
               },
             ]}
-            className="font-['Newsreader',Georgia,serif] text-6xl sm:text-8xl md:text-[100px] lg:text-[116px] xl:text-[132px] font-normal leading-none tracking-tight text-center"
+            className="font-sans font-bold text-6xl sm:text-8xl md:text-[100px] lg:text-[116px] xl:text-[132px] font-normal leading-none tracking-tight text-center"
             effect="rise"
             splitType="chars"
             delay={50}
@@ -195,7 +195,7 @@ export const ManifestoSection: React.FC<ManifestoSectionProps> = ({ isPreloaderA
 
         {/* Phase 3: Exact replica of Image 2 */}
         <div className="manifesto-phrase-3 absolute inset-0 flex items-center justify-center will-change-[transform,opacity,filter] opacity-0 pointer-events-none">
-          <p className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl md:text-6xl lg:text-[66px] xl:text-[74px] font-normal max-w-4xl lg:max-w-5xl leading-[1.18] sm:leading-[1.22] tracking-tight text-center select-none">
+          <p className="font-sans font-bold text-3xl sm:text-5xl md:text-6xl lg:text-[66px] xl:text-[74px] font-normal max-w-4xl lg:max-w-5xl leading-[1.18] sm:leading-[1.22] tracking-tight text-center select-none">
             <span className="manifesto-line block text-[#FEF5E5]">
               Certify builds real
             </span>

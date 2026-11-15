@@ -118,7 +118,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
               {/* Right Column: Visual and Quote Badge */}
               <div className="md:col-span-5 flex flex-col justify-between items-end text-right">
                 <div className="w-full">
-                  <p className={`text-xs italic font-serif leading-relaxed ${
+                  <p className={`text-xs italic font-sans leading-relaxed ${
                     isLight ? "text-purple-950/80 font-medium" : "text-zinc-300"
                   }`}>
                     “ Projects build proof. Proof earns opportunity. ”
@@ -787,12 +787,12 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
             }`}
             data-purpose="inspirational-quote-card"
           >
-            <div className="flex gap-3">
-              <span className={`text-3xl font-serif leading-none select-none ${
+            <div className="flex gap-3 font-sans">
+              <span className={`text-3xl font-sans font-bold leading-none select-none ${
                 isLight ? "text-purple-300" : "text-neutral-500"
               }`}>“</span>
               <div>
-                <p className={`text-sm font-serif italic leading-relaxed ${
+                <p className={`text-sm font-sans italic leading-relaxed ${
                   isLight ? "text-slate-800" : "text-neutral-200"
                 }`}>
                   Small steps every day create extraordinary results.

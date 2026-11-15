@@ -95,7 +95,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
       {/* BEGIN: HeaderSection */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4" data-purpose="course-header-section">
         <div>
-          <h1 className={`text-3xl font-extrabold tracking-tight font-serif transition-colors duration-300 ${
+          <h1 className={`text-3xl font-extrabold tracking-tight font-sans transition-colors duration-300 ${
             isLight ? "text-slate-900" : "text-white"
           }`}>
             {course?.title || "Python Fundamentals"}
@@ -238,7 +238,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               {/* Left: Punchy Text Stack & Preview Button */}
               <div className="flex-1 space-y-5">
-                <div className={`space-y-0.5 font-serif text-3xl md:text-4xl font-bold tracking-tight leading-tight transition-colors duration-300 ${
+                <div className={`space-y-0.5 font-sans text-3xl md:text-4xl font-extrabold tracking-tight leading-tight transition-colors duration-300 ${
                   isLight ? "text-slate-900" : "text-neutral-100"
                 }`}>
                   <div>Think</div>

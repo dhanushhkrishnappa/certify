@@ -107,7 +107,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       <aside
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`fixed left-4 top-4 z-40 flex flex-col py-4 select-none rounded-[28px] border border-white/[0.08] bg-[#111111]/95 backdrop-blur-2xl shadow-[0_24px_60px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
+        className={`fixed left-4 top-4 z-40 flex flex-col py-4 select-none font-sans antialiased rounded-[28px] border border-white/[0.08] bg-[#111111]/95 backdrop-blur-2xl shadow-[0_24px_60px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${
           isExpanded ? "w-[244px] px-3.5" : "w-[68px] px-2.5 items-center"
         }`}
         style={{

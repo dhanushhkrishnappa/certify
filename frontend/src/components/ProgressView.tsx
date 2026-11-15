@@ -24,7 +24,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ user: _user, onNavig
             <span>✦</span>
             <span>Flagship Track: Python Fundamentals</span>
           </div>
-          <h2 className={`text-2xl font-serif font-bold transition-colors duration-300 ${
+          <h2 className={`text-2xl font-sans font-bold tracking-tight transition-colors duration-300 ${
             isLight ? "text-slate-900" : "text-white"
           }`}>
             Overall Curriculum Mastery: 78.4%

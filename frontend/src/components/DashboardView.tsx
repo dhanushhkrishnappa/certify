@@ -421,7 +421,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               data-purpose="inspirational-quote-card"
             >
               <div className="p-2">
-                <p className={`font-serif italic text-base sm:text-lg leading-relaxed font-normal transition-colors duration-300 ${
+                <p className={`font-sans italic text-base sm:text-lg leading-relaxed font-normal transition-colors duration-300 ${
                   isLight ? "text-purple-950 font-medium" : "text-neutral-200"
                 }`}>
                   “Small steps every day create extraordinary results.”

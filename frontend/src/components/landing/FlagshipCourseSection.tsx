@@ -52,7 +52,7 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           {/* Left Column: Flagship Overview */}
           <div className="lg:col-span-6 space-y-6">
-            <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
+            <h2 className="font-sans font-bold text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
               Python Fundamentals: Deep Architecture
             </h2>
 
@@ -91,7 +91,7 @@ export const FlagshipCourseSection: React.FC<FlagshipCourseSectionProps> = ({
                     </span>
                   </div>
                   <h4
-                    className={`font-['Newsreader',Georgia,serif] text-[17px] mb-1 ${
+                    className={`font-sans font-bold text-[17px] mb-1 ${
                       selectedMod === idx ? "text-[#FEF5E5] font-semibold" : "text-[#FEF5E5]/80"
                     }`}
                   >

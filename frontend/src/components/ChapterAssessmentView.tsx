@@ -435,7 +435,7 @@ export class QuorumCoordinator<T> {
                 <span className="material-symbols-outlined text-[13px] text-purple-600">fingerprint</span>
                 Seal Hash:
               </span>
-              <span className={`font-serif italic text-[12px] px-2 py-0.5 rounded border ${
+              <span className={`font-mono text-[11px] px-2 py-0.5 rounded border ${
                 isLight ? "bg-purple-50 text-purple-950 border-purple-200" : "text-purple-200 bg-black/40 border-white/[0.08]"
               }`}>
                 Ledger: 98a4...e210

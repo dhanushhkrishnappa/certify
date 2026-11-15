@@ -86,11 +86,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           ) : null}
 
           {title ? (
-            <h1 className={`text-3xl lg:text-[34px] font-serif font-semibold tracking-tight transition-colors duration-300 ${isLight ? "text-slate-900" : "text-white"}`}>
+            <h1 className={`text-3xl lg:text-[34px] font-sans font-bold tracking-tight transition-colors duration-300 ${isLight ? "text-slate-900" : "text-white"}`}>
               {title}
             </h1>
           ) : (
-            <h1 className={`text-2xl font-extrabold tracking-tight flex items-center gap-2 transition-colors duration-300 ${isLight ? "text-slate-900" : "text-white"}`}>
+            <h1 className={`text-2xl font-bold tracking-tight flex items-center gap-2 transition-colors duration-300 ${isLight ? "text-slate-900" : "text-white"}`}>
               Good morning, {displayName} <span className="text-xl">👋</span>
             </h1>
           )}
@@ -129,7 +129,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Header Right: Academic Motto, Theme Switcher, Notification Bell, User Avatar */}
       <div className={`flex items-center space-x-3.5 shrink-0 ${hideGreeting && hideSearch ? "ml-auto" : ""}`}>
         <div className="text-right hidden xl:block">
-          <p className={`text-[11px] italic font-serif leading-snug transition-colors duration-300 ${isLight ? "text-purple-950/80 font-medium" : "text-purple-200/70"}`}>
+          <p className={`text-[11px] font-medium leading-snug transition-colors duration-300 ${isLight ? "text-purple-950/80" : "text-purple-200/70"}`}>
             “A certified you,<br />a more capable tomorrow.”
           </p>
         </div>

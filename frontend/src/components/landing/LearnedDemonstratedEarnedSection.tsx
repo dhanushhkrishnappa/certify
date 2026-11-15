@@ -98,7 +98,7 @@ export const LearnedDemonstratedEarnedSection: React.FC = () => {
       <div className="relative z-10 max-w-6xl mx-auto w-full">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl md:text-6xl text-[#FEF5E5] font-normal leading-tight">
+          <h2 className="font-sans font-bold text-3xl sm:text-5xl md:text-6xl text-[#FEF5E5] font-normal leading-tight">
             Learn. Demonstrate. Earn.
           </h2>
           <p className="text-[15px] sm:text-[17px] text-[#D1D5DB] mt-3">
@@ -189,7 +189,7 @@ export const LearnedDemonstratedEarnedSection: React.FC = () => {
                 <span>{current.phaseTag}</span>
               </div>
 
-              <h3 className="font-['Newsreader',Georgia,serif] text-2xl sm:text-3xl lg:text-4xl text-[#FEF5E5] leading-tight font-normal">
+              <h3 className="font-sans font-bold text-2xl sm:text-3xl lg:text-4xl text-[#FEF5E5] leading-tight font-normal">
                 {current.headline}
               </h3>
 
@@ -362,7 +362,7 @@ export const LearnedDemonstratedEarnedSection: React.FC = () => {
                   {/* Credential Card Preview */}
                   <div className="p-4 rounded-xl bg-gradient-to-br from-[#1E1E26] to-[#121216] text-[#FEF5E5] border border-white/[0.06] space-y-2 shadow-lg">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-['Newsreader',Georgia,serif] text-[#FEF5E5] font-semibold tracking-wide">
+                      <span className="text-[11px] font-sans font-bold text-[#FEF5E5] font-semibold tracking-wide">
                         CERTIFY
                       </span>
                       <span className="inline-flex items-center gap-1 text-[10px] text-[#34D399] bg-[#0E2818]/60 px-2 py-0.5 rounded-md border border-[#10B981]/40 font-bold">
@@ -370,7 +370,7 @@ export const LearnedDemonstratedEarnedSection: React.FC = () => {
                       </span>
                     </div>
                     <div>
-                      <p className="text-[13.5px] font-['Newsreader',Georgia,serif] text-[#FEF5E5] font-semibold">
+                      <p className="text-[13.5px] font-sans font-bold text-[#FEF5E5] font-semibold">
                         Python Fundamentals
                       </p>
                       <p className="text-[10px] text-[#9CA3AF] font-mono mt-0.5">

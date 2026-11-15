@@ -53,7 +53,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
             <span className={isLight ? "text-purple-900/40 font-normal" : "text-purple-300/40 font-normal"}>&gt;</span>
             <span className={isLight ? "text-purple-950 font-bold" : "text-white font-semibold"}>Result</span>
           </nav>
-          <h1 className={`text-3xl font-['Newsreader',serif] font-bold tracking-tight ${
+          <h1 className={`text-3xl font-sans font-bold tracking-tight ${
             isLight ? "text-slate-900" : "text-white"
           }`}>
             Certification Result
@@ -217,7 +217,7 @@ export const CertificationResultView: React.FC<CertificationResultViewProps> = (
                 </div>
 
                 <div className="max-w-[160px] text-left">
-                  <p className={`font-['Newsreader',serif] italic text-sm leading-snug ${
+                  <p className={`font-sans italic text-sm leading-snug ${
                     isLight ? "text-slate-800" : "text-neutral-200"
                   }`}>
                     “Discipline today, expertise tomorrow.”

@@ -51,7 +51,7 @@ const CourseCardMedia: React.FC<{
           <div className="w-6 h-6 rounded-md bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 font-mono text-[10px] font-bold">
             {badgeTrack.slice(0, 2).toUpperCase()}
           </div>
-          <span className="font-['Newsreader',Georgia,serif] text-xs text-purple-100 font-medium line-clamp-1">
+          <span className="font-sans font-bold text-xs text-purple-100 font-medium line-clamp-1">
             {title}
           </span>
         </div>
@@ -183,7 +183,7 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
               Curated Tracks
             </span>
           </div>
-          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-white font-normal leading-tight">
+          <h2 className="font-sans font-bold text-3xl sm:text-5xl text-white font-normal leading-tight">
             Courses built for real understanding.
           </h2>
           <p className="mt-2 text-sm sm:text-base text-[#D1D5DB] font-normal max-w-2xl mx-auto leading-relaxed">
@@ -236,7 +236,7 @@ export const DraggableCurriculumCarousel: React.FC<DraggableCurriculumCarouselPr
                   </div>
 
                   {/* Course Title */}
-                  <h3 className="font-['Newsreader',Georgia,serif] text-[18px] sm:text-[20px] text-[#111827] font-normal leading-[1.2] tracking-tight mb-1.5 line-clamp-1">
+                  <h3 className="font-sans font-bold text-[18px] sm:text-[20px] text-[#111827] font-normal leading-[1.2] tracking-tight mb-1.5 line-clamp-1">
                     {course.title}
                   </h3>
 

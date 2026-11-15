@@ -59,7 +59,7 @@ export const TestimonialsSection: React.FC = () => {
       <div className="relative z-10 max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
+          <h2 className="font-sans font-bold text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
             How Learners Experience the Standard
           </h2>
           <p className="text-[15px] sm:text-[17px] text-[#CFC2B4] mt-3">
@@ -85,7 +85,7 @@ export const TestimonialsSection: React.FC = () => {
               </div>
             </div>
 
-            <p className="font-['Newsreader',Georgia,serif] text-xl sm:text-2xl text-[#FEF5E5] italic leading-relaxed mb-8">
+            <p className="font-sans font-bold text-xl sm:text-2xl text-[#FEF5E5] italic leading-relaxed mb-8">
               "{current.quote}"
             </p>
 

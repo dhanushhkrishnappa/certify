@@ -552,7 +552,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                 </div>
 
                 {/* Left Manifesto Words */}
-                <div className="absolute left-4 bottom-4 z-10 text-left font-serif text-slate-300 text-xs tracking-wide leading-tight select-none opacity-90">
+                <div className="absolute left-4 bottom-4 z-10 text-left font-sans font-medium text-slate-300 text-xs tracking-wide leading-tight select-none opacity-90">
                   {course.manifesto.map((word, idx) => (
                     <p key={idx}>{word}</p>
                   ))}

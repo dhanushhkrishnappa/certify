@@ -127,10 +127,10 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
                   </span>
 
                   <div className="text-center text-white">
-                    <span className="text-[10px] font-serif uppercase tracking-widest text-amber-300">
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-amber-300">
                       CERTIFY
                     </span>
-                    <h4 className="text-xs font-bold font-serif text-white mt-1">{cred.course}</h4>
+                    <h4 className="text-xs font-bold font-sans text-white mt-1">{cred.course}</h4>
                     <span className="text-[9px] text-neutral-400 font-mono mt-1 block">
                       {cred.id}
                     </span>
@@ -141,7 +141,7 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
                 <div className="flex-1 flex flex-col justify-between space-y-3">
                   <div>
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <h2 className={`text-lg font-bold tracking-tight font-serif transition-colors duration-300 ${
+                      <h2 className={`text-lg font-bold tracking-tight font-sans transition-colors duration-300 ${
                         isLight ? "text-slate-900" : "text-white"
                       }`}>
                         {cred.course}
@@ -197,7 +197,7 @@ export const CredentialsListView: React.FC<CredentialsListViewProps> = ({
                 isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.04] border-white/[0.06]"
               }`}>
                 <span className={`text-[10px] uppercase font-bold ${isLight ? "text-purple-700" : "text-neutral-400"}`}>Total Earned</span>
-                <p className={`text-lg font-bold font-serif ${isLight ? "text-slate-900" : "text-white"}`}>2 Verified Credentials</p>
+                <p className={`text-lg font-bold font-sans ${isLight ? "text-slate-900" : "text-white"}`}>2 Verified Credentials</p>
               </div>
 
               <div className={`p-3 rounded-[8px] border space-y-1 ${

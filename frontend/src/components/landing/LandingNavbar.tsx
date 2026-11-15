@@ -216,7 +216,7 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
                           }
                           setSideMenuOpen(false);
                         }}
-                        className="font-['Newsreader',Georgia,serif] text-3xl sm:text-[36px] font-normal text-[#FEF5E5] hover:text-[#CEA4F2] transition-colors leading-tight inline-block cursor-pointer"
+                        className="font-sans font-bold text-3xl sm:text-[36px] font-normal text-[#FEF5E5] hover:text-[#CEA4F2] transition-colors leading-tight inline-block cursor-pointer"
                       >
                         {item.label}
                       </a>

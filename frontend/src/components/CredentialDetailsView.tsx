@@ -62,7 +62,7 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
             <span className={isLight ? "text-purple-400" : "text-purple-300/40"}>/</span>
             <span className={`font-semibold ${isLight ? "text-purple-950" : "text-white"}`}>Python Fundamentals</span>
           </nav>
-          <h1 className={`text-3xl font-serif font-bold tracking-tight transition-colors duration-300 ${
+          <h1 className={`text-3xl font-sans font-bold tracking-tight transition-colors duration-300 ${
             isLight ? "text-slate-900" : "text-white"
           }`}>
             Credential Details
@@ -155,10 +155,10 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
 
                 {/* Main Certificate Headings */}
                 <div className="text-center flex-1 px-4">
-                  <h2 className="font-serif text-3xl md:text-4xl font-bold tracking-[0.2em] text-slate-900 uppercase">
+                  <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-[0.2em] text-slate-900 uppercase">
                     Certificate
                   </h2>
-                  <p className="font-serif text-sm md:text-base tracking-[0.3em] text-slate-700 uppercase mt-1">
+                  <p className="font-sans text-sm md:text-base tracking-[0.3em] text-slate-700 uppercase mt-1">
                     of Completion
                   </p>
                   <div className="flex items-center justify-center gap-3 my-2 text-amber-600/70">
@@ -166,13 +166,13 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                     <span className="text-[10px] text-amber-700">❖</span>
                     <div className="h-[1px] w-12 bg-amber-600/50" />
                   </div>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-slate-600 font-semibold">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-slate-600 font-semibold font-sans">
                     This is to certify that
                   </p>
                 </div>
 
                 {/* Right Corner Pillar Text */}
-                <div className="text-right text-[8px] tracking-widest text-slate-400 font-bold space-y-0.5 uppercase pt-1">
+                <div className="text-right text-[8px] tracking-widest text-slate-400 font-bold space-y-0.5 uppercase pt-1 font-sans">
                   <div>SKILLS</div>
                   <div>KNOWLEDGE</div>
                   <div>PRACTICE</div>
@@ -181,9 +181,9 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
               </div>
 
               {/* Recipient & Course Details */}
-              <div className="text-center my-auto py-8 relative z-10">
-                {/* Recipient Name in Distinguished Calligraphic Typography */}
-                <div className="font-serif italic text-4xl sm:text-5xl md:text-6xl text-slate-950 my-2 font-normal tracking-wide">
+              <div className="text-center my-auto py-8 relative z-10 font-sans">
+                {/* Recipient Name in Distinguished Crisp Typography */}
+                <div className="font-sans text-4xl sm:text-5xl md:text-6xl text-slate-950 my-2 font-bold tracking-tight">
                   {recipientName}
                 </div>
                 <div className="flex items-center justify-center gap-3 my-3 text-slate-400 max-w-sm mx-auto">
@@ -191,13 +191,13 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                   <span className="text-xs text-amber-700">✦</span>
                   <div className="h-[1px] flex-1 bg-amber-600/30" />
                 </div>
-                <p className="text-xs text-slate-600 font-medium">
+                <p className="text-xs text-slate-600 font-medium font-sans">
                   has successfully completed the course
                 </p>
-                <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-slate-950 mt-1 tracking-tight">
+                <h3 className="font-sans text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-950 mt-1 tracking-tight">
                   Python Fundamentals
                 </h3>
-                <p className="text-xs text-slate-600 max-w-xl mx-auto mt-2 leading-relaxed font-normal">
+                <p className="text-xs text-slate-600 max-w-xl mx-auto mt-2 leading-relaxed font-normal font-sans">
                   and demonstrated understanding through structured learning, assessments, practical implementation, and an AI oral viva, earning the
                 </p>
 
@@ -206,11 +206,11 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                   <svg className="w-6 h-6 text-amber-600/80 transform scale-x-[-1]" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2a10 10 0 0 0-4.5 1.1A8 8 0 0 1 8 8a8 8 0 0 1-5 2.1 10 10 0 0 0 3 4.2A8 8 0 0 1 9 16a8 8 0 0 1-2 5.3 10 10 0 0 0 5 .7c0-2 .8-3.9 2.2-5.3A8 8 0 0 1 12 11c0-2 .8-3.9 2.2-5.3A8 8 0 0 0 12 2z" />
                   </svg>
-                  <div className="text-center">
-                    <div className="font-serif text-sm font-bold tracking-[0.18em] text-[#9B681F] uppercase">
+                  <div className="text-center font-sans">
+                    <div className="font-sans text-sm font-bold tracking-[0.18em] text-[#9B681F] uppercase">
                       Intermediate
                     </div>
-                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-bold">
+                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-bold font-sans">
                       Certification Level
                     </div>
                   </div>
@@ -241,13 +241,13 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                 </div>
 
                 {/* Director Signature Center */}
-                <div className="text-center px-2">
-                  <div className="font-serif italic text-2xl md:text-3xl text-slate-900 leading-none mb-1">
+                <div className="text-center px-2 font-sans">
+                  <div className="font-sans italic text-2xl md:text-3xl text-slate-900 leading-none mb-1 font-semibold">
                     Hlashefja
                   </div>
                   <div className="h-[1px] bg-slate-300 w-36 mx-auto mb-1" />
-                  <div className="text-[10px] font-bold text-slate-900">Academic Director</div>
-                  <div className="text-[8px] uppercase tracking-widest text-slate-400 font-semibold">CERTIFY ACADEMIC BOARD</div>
+                  <div className="text-[10px] font-bold text-slate-900 font-sans">Academic Director</div>
+                  <div className="text-[8px] uppercase tracking-widest text-slate-400 font-semibold font-sans">CERTIFY ACADEMIC BOARD</div>
                 </div>
 
                 {/* Embossed Metallic Gold Python Seal Right */}

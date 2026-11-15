@@ -322,8 +322,8 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
           <span className={isLight ? "text-purple-400 font-normal" : "text-purple-300/40 font-normal"}>&gt;</span>
           <span className={`font-semibold ${isLight ? "text-purple-950" : "text-white"}`}>Final Assessment</span>
         </nav>
-        <div className="flex items-center space-x-4 text-xs">
-          <span className={`italic font-serif tracking-tight hidden sm:inline ${
+        <div className="flex items-center space-x-4 text-xs font-sans">
+          <span className={`italic font-sans tracking-tight hidden sm:inline ${
             isLight ? "text-purple-950/70" : "text-purple-200/60"
           }`}>
             "Discipline today, opportunities tomorrow."
@@ -332,8 +332,8 @@ export const FinalAssessmentView: React.FC<FinalAssessmentViewProps> = ({
       </div>
 
       {/* Title & Subtitle */}
-      <div>
-        <h1 className={`font-serif text-3xl font-bold tracking-tight transition-colors duration-300 ${
+      <div className="font-sans">
+        <h1 className={`font-sans text-3xl font-bold tracking-tight transition-colors duration-300 ${
           isLight ? "text-slate-900" : "text-white"
         }`}>
           Final Assessment

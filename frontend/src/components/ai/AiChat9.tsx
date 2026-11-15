@@ -448,7 +448,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
             title="Click to cycle prompt"
           >
             <h1
-              className={`text-2xl sm:text-3xl md:text-[38px] font-['Newsreader',Georgia,serif] text-zinc-100 font-normal tracking-tight transition-all duration-300 leading-snug ${
+              className={`text-2xl sm:text-3xl md:text-[36px] font-sans font-bold text-zinc-100 tracking-tight transition-all duration-300 leading-snug ${
                 fadeState === "visible" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
               }`}
             >
