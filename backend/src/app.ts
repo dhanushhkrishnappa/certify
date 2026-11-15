@@ -12,8 +12,22 @@ import { sandboxHonoRouter } from "./modules/sandbox/sandbox.hono.js";
 import { storageHonoRouter } from "./modules/storage/storage.hono.js";
 import { config } from "./config/index.js";
 import { logger } from "./shared/logger.js";
+import { LOGO_EMAIL_BASE64 } from "./modules/email/logoAsset.js";
 
 export const app = new Hono();
+
+// Static branded email logo asset
+app.get("/certify-logo-email.png", () => {
+  const binary = Buffer.from(LOGO_EMAIL_BASE64, "base64");
+  return new Response(binary, {
+    status: 200,
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+});
 
 // 1. Request Context & Unique Request ID Tracing
 app.use("*", async (c, next) => {

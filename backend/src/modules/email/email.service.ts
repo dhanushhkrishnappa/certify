@@ -290,7 +290,7 @@ export class EmailService {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 24px; background: #FFFFFF; color: #111827; text-align: left;">
         <div style="margin-bottom: 32px;">
-          <img src="https://certify.studio/certify-logo.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
+          <img src="https://api.certify.studio/certify-logo-email.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
         </div>
         <h1 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 16px 0; letter-spacing: -0.2px;">Verify your email address</h1>
         <p style="font-size: 14px; line-height: 22px; color: #4B5563; margin: 0 0 24px 0;">
@@ -336,7 +336,7 @@ export class EmailService {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 24px; background: #FFFFFF; color: #111827; text-align: left;">
         <div style="margin-bottom: 32px;">
-          <img src="https://certify.studio/certify-logo.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
+          <img src="https://api.certify.studio/certify-logo-email.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
         </div>
         <h1 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 16px 0; letter-spacing: -0.2px;">Reset your password</h1>
         <p style="font-size: 14px; line-height: 22px; color: #4B5563; margin: 0 0 24px 0;">
@@ -383,7 +383,7 @@ export class EmailService {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 24px; background: #FFFFFF; color: #111827; text-align: left;">
         <div style="margin-bottom: 32px;">
-          <img src="https://certify.studio/certify-logo.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
+          <img src="https://api.certify.studio/certify-logo-email.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
         </div>
         <h1 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 16px 0; letter-spacing: -0.2px;">Verify your email address</h1>
         <p style="font-size: 14px; line-height: 22px; color: #4B5563; margin: 0 0 24px 0;">
@@ -433,7 +433,7 @@ export class EmailService {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 24px; background: #FFFFFF; color: #111827; text-align: left;">
         <div style="margin-bottom: 32px;">
-          <img src="https://certify.studio/certify-logo.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
+          <img src="https://api.certify.studio/certify-logo-email.png" alt="Certify" width="124" style="width: 124px; height: auto; display: block; border: 0;" />
         </div>
         <h1 style="font-size: 20px; font-weight: 600; color: #111827; margin: 0 0 16px 0; letter-spacing: -0.2px;">Congratulations, ${params.recipientName}!</h1>
         <p style="font-size: 14px; line-height: 22px; color: #4B5563; margin: 0 0 24px 0;">
