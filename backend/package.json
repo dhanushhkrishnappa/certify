@@ -11,9 +11,9 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
-    "db:neon:generate": "prisma generate --schema=prisma/schema.postgresql.prisma",
-    "db:neon:push": "prisma db push --schema=prisma/schema.postgresql.prisma",
-    "db:neon:migrate": "prisma migrate dev --schema=prisma/schema.postgresql.prisma",
+    "db:neon:generate": "prisma generate",
+    "db:neon:push": "prisma db push",
+    "db:neon:migrate": "prisma migrate dev",
     "db:users": "node scripts/manage_users.cjs list",
     "db:delete-user": "node scripts/manage_users.cjs delete"
   },
