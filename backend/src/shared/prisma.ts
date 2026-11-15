@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { config } from "../config/index.js";
 
 // Ensure resilient DNS resolution for local Node dev against router DNS blocks
@@ -56,33 +58,47 @@ if (typeof process !== "undefined" && process.release?.name === "node") {
   }
 }
 
-function createPrismaClient(): PrismaClient {
-  const isPostgres =
-    config.databaseUrl.startsWith("postgres://") ||
-    config.databaseUrl.startsWith("postgresql://");
+let _clientInstance: PrismaClient | null = null;
 
-  if (isPostgres) {
-    try {
-      const { Pool, neonConfig } = require("@neondatabase/serverless");
-      const { PrismaNeon } = require("@prisma/adapter-neon");
+function getPrismaClient(): PrismaClient {
+  if (_clientInstance) return _clientInstance;
 
-      // Attach WebSocket constructor if in Node.js environment
-      if (typeof process !== "undefined" && !process.env.WORKERS) {
-        try {
-          const ws = require("ws");
-          neonConfig.webSocketConstructor = ws;
-        } catch {}
-      }
+  const envUrl = typeof process !== "undefined" ? process.env?.DATABASE_URL : undefined;
+  const configUrl = config.databaseUrl && config.databaseUrl.startsWith("postgres") ? config.databaseUrl : undefined;
+  const fallbackUrl = "postgresql://neondb_owner:npg_MNS2lThuz7rQ@ep-falling-bar-azobl4io-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
+  const rawUrl = envUrl || configUrl || fallbackUrl;
 
-      const pool = new Pool({ connectionString: config.databaseUrl });
-      const adapter = new PrismaNeon(pool);
-      return new PrismaClient({ adapter } as any);
-    } catch {
-      return new PrismaClient();
-    }
+  // Clean connection string (remove channel_binding if present to prevent handshake rejections)
+  let dbUrl = rawUrl.replace(/([?&])channel_binding=[^&]+(&|$)/g, "$1").replace(/[?&]$/, "");
+  if (!dbUrl.includes("sslmode=")) {
+    dbUrl += (dbUrl.includes("?") ? "&" : "?") + "sslmode=require";
   }
 
-  return new PrismaClient();
+  // Configure Neon transport
+  if (typeof process !== "undefined" && process.release?.name === "node") {
+    try {
+      const ws = require("ws");
+      neonConfig.webSocketConstructor = ws;
+    } catch {}
+  } else {
+    // Cloudflare Workers edge environment: use HTTP fetch transport
+    neonConfig.poolQueryViaFetch = true;
+  }
+
+  const pool = new Pool({ connectionString: dbUrl });
+  const adapter = new PrismaNeon(pool);
+  _clientInstance = new PrismaClient({ adapter } as any);
+  return _clientInstance;
 }
 
-export const prisma = createPrismaClient();
+// Lazy Proxy: Prevents initialization errors during Cloudflare Workers script validation
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getPrismaClient() as any;
+    const value = client[prop];
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+    return value;
+  },
+});

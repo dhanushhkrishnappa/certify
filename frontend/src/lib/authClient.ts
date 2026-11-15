@@ -8,9 +8,10 @@
  * Bearer tokens via the `bearer` plugin (enabled on backend).
  */
 import { createAuthClient } from "better-auth/client";
+import { API_ORIGIN } from "../constants/api.js";
 
 export const authClient = createAuthClient({
-  baseURL: "http://localhost:5000",
+  baseURL: API_ORIGIN,
 });
 
 export type AuthSession = typeof authClient.$Infer.Session;

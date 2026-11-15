@@ -57,21 +57,25 @@ export class RateLimiterDO {
 
 // Local coordinated memory store for dev/testing with automatic cleanup
 const localMemoryStore = new Map<string, { count: number; resetAt: number }>();
+let lastLocalCleanup = Date.now();
 
-setInterval(() => {
+function cleanupExpiredLocalMemory() {
   const now = Date.now();
+  if (now - lastLocalCleanup < 60_000) return;
+  lastLocalCleanup = now;
   for (const [key, entry] of localMemoryStore.entries()) {
     if (now >= entry.resetAt) {
       localMemoryStore.delete(key);
     }
   }
-}, 5 * 60 * 1000).unref();
+}
 
 export function honoRateLimiter(options: HonoRateLimitOptions) {
   const { windowSeconds, maxRequests, keyPrefix = "rl", strictGlobal = false } = options;
   const windowMs = windowSeconds * 1000;
 
   return async (c: Context, next: Next): Promise<Response | void> => {
+    cleanupExpiredLocalMemory();
     // 1. Determine Actor Key: Prioritize authenticated user ID over IP address
     const user = c.get("user");
     const ip =

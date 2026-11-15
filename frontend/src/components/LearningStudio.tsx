@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AiChat9, type AIModel, type ReasoningEffort } from "./ai/AiChat9.js";
 import { api } from "../services/api.js";
+import { API_BASE } from "../constants/api.js";
 import type { User, LearningSessionContext } from "../types/index.js";
 
 interface LearningStudioProps {
@@ -68,7 +69,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
       try {
         const token = localStorage.getItem("certify_token");
         const res = await fetch(
-          `http://localhost:5000/api/v1/sessions/${sessionContext.session.id}/messages`,
+          `${API_BASE}/sessions/${sessionContext.session.id}/messages`,
           {
             method: "POST",
             headers: {

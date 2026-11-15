@@ -7,21 +7,24 @@ export interface RateLimiterOptions {
 }
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
+let lastBucketCleanup = Date.now();
 
-// Periodic cleanup of expired entries every 5 minutes to prevent memory leaks
-setInterval(() => {
+function cleanupExpiredBuckets() {
   const now = Date.now();
+  if (now - lastBucketCleanup < 60_000) return;
+  lastBucketCleanup = now;
   for (const [key, entry] of buckets.entries()) {
     if (now >= entry.resetAt) {
       buckets.delete(key);
     }
   }
-}, 5 * 60 * 1000).unref();
+}
 
 export function createRateLimiter(options: RateLimiterOptions) {
   const { windowMs, maxRequests, keyPrefix = "rl" } = options;
 
   return (req: Request, res: Response, next: NextFunction): void => {
+    cleanupExpiredBuckets();
     const now = Date.now();
     const actor =
       (req as any).user?.id ||

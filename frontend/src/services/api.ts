@@ -15,8 +15,9 @@ import type {
   Certificate,
   PublicVerification,
 } from "../types/index.js";
+import { API_BASE, API_ORIGIN } from "../constants/api.js";
 
-const API_BASE = "http://localhost:5000/api/v1";
+export { API_BASE, API_ORIGIN };
 
 function getHeaders(): HeadersInit {
   const token = localStorage.getItem("certify_token");

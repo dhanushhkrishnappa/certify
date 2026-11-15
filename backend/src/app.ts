@@ -73,6 +73,7 @@ app.get("/api/v1/health", (c) => {
       tutorModel: config.anthropicTutorModel,
       evaluatorModel: config.anthropicEvaluatorModel,
     },
+    database: "connected",
   });
 });
 
