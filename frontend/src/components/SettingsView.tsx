@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { User } from "../types/index.js";
 import { useTheme } from "../context/ThemeContext.js";
 
@@ -42,6 +42,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, onLogout }) =>
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  useEffect(() => {
+    if (!showDeleteModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowDeleteModal(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showDeleteModal]);
 
   const handlePersonalInfoSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -765,7 +774,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, onLogout }) =>
 
       {/* Delete Account Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowDeleteModal(false);
+          }}
+        >
           <div className={`max-w-md w-full p-6 rounded-2xl border shadow-2xl space-y-4 ${
             isLight ? "bg-white border-slate-300 text-slate-900" : "bg-[#121217] border-neutral-800 text-white"
           }`}>

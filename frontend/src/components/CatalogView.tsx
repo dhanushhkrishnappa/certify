@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { api } from "../services/api.js";
 import type { CourseCatalogItem, CourseDetail, Module, Chapter } from "../types/index.js";
 import { SpotlightCard } from "./common/SpotlightCard.js";
@@ -116,6 +116,49 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [sortBy, setSortBy] = useState<"relevant" | "modules" | "hours">("relevant");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showFilterDropdown && !showSortDropdown && !activeModalCourse) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (
+        showFilterDropdown &&
+        filterDropdownRef.current &&
+        !filterDropdownRef.current.contains(target)
+      ) {
+        setShowFilterDropdown(false);
+      }
+      if (
+        showSortDropdown &&
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(target)
+      ) {
+        setShowSortDropdown(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowFilterDropdown(false);
+        setShowSortDropdown(false);
+        setActiveModalCourse(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showFilterDropdown, showSortDropdown, activeModalCourse]);
 
   useEffect(() => {
     api.listCourses()
@@ -263,7 +306,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
         {/* Filter & Sorting Dropdowns */}
         <div className="flex items-center gap-3 relative">
           {/* Level Filter Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={filterDropdownRef}>
             <button
               onClick={() => {
                 setShowFilterDropdown(!showFilterDropdown);
@@ -325,7 +368,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           </div>
 
           {/* Sort Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => {
                 setShowSortDropdown(!showSortDropdown);
@@ -709,7 +752,12 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
       {/* COURSE DETAILS / SYLLABUS MODAL */}
       {activeModalCourse && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleCloseModal();
+          }}
+        >
           <div className={`rounded-[20px] max-w-2xl w-full p-6 shadow-2xl border max-h-[85vh] overflow-y-auto space-y-5 ${
             isLight
               ? "bg-white border-purple-900/15 text-slate-900"

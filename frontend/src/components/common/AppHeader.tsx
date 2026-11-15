@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import type { User } from "../../types/index.js";
 import { UserProfileCard } from "./UserProfileCard.js";
@@ -33,8 +33,38 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadNotifications, setUnreadNotifications] = useState(3);
   const [showNotifications, setShowNotifications] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const profileCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!showNotifications) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showNotifications]);
 
   const handleProfileEnter = () => {
     if (profileCloseTimeoutRef.current) {
@@ -167,7 +197,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         )}
 
         {/* Notification Bell */}
-        <div className="relative">
+        <div className="relative" ref={notificationsRef}>
           <button
             onClick={() => {
               setShowNotifications(!showNotifications);
