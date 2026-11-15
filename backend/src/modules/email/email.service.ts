@@ -3,23 +3,25 @@ import nodemailer, { type Transporter } from "nodemailer";
 import { config } from "../../config/index.js";
 import { prisma } from "../../shared/prisma.js";
 import { logger } from "../../shared/logger.js";
+import { sendEmailViaCloudflareSockets } from "./cloudflareSmtp.js";
 
 let resendClient: Resend | null = null;
 let smtpTransporter: Transporter | null = null;
 
 function getSmtpTransporter(): Transporter | null {
+  const user = (process.env.SMTP_USER || config.smtpUser || "").trim();
+  const pass = (process.env.SMTP_PASS || config.smtpPass || "").replace(/\s+/g, "");
+  if (!user || !pass) return null;
   if (smtpTransporter) return smtpTransporter;
-  if (config.smtpUser && config.smtpPass) {
-    smtpTransporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: config.smtpUser.trim(),
-        pass: config.smtpPass.replace(/\s+/g, ""), // remove any spaces in 16-char app password
-      },
-    });
-    return smtpTransporter;
-  }
-  return null;
+
+  smtpTransporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user,
+      pass,
+    },
+  });
+  return smtpTransporter;
 }
 
 function getResendClient(): Resend | null {
@@ -68,39 +70,78 @@ export class EmailService {
       return { delivered: true, status: "DUPLICATE" };
     }
 
-    // 3. Provider Check 1: Gmail SMTP (worker-mailer on Cloudflare Workers edge, nodemailer on Node)
-    if (config.smtpUser && config.smtpPass) {
-      const isNode = typeof process !== "undefined" && process.release?.name === "node";
-      const smtpUser = config.smtpUser.trim();
-      const smtpPass = config.smtpPass.replace(/\s+/g, "");
+    // 3. Provider Check 1: Gmail SMTP (Direct Cloudflare Sockets on Worker edge, nodemailer on Node)
+    const smtpUser = (process.env.SMTP_USER || config.smtpUser || "").trim();
+    const smtpPass = (process.env.SMTP_PASS || config.smtpPass || "").replace(/\s+/g, "");
+
+    if (smtpUser && smtpPass) {
       const fromEmail = "support@certify.studio";
       const fromName = "Certify Security";
 
-      if (!isNode) {
-        // Cloudflare Workers Edge Environment: use cloudflare:sockets via worker-mailer
-        try {
-          const { WorkerMailer } = await import("worker-mailer");
-          const mailer = await WorkerMailer.connect({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: true,
-            credentials: {
-              username: smtpUser,
-              password: smtpPass,
+      // 3A. First try native Cloudflare Sockets TLS transport (Cloudflare Workers runtime)
+      try {
+        const cfResult = await sendEmailViaCloudflareSockets({
+          username: smtpUser,
+          password: smtpPass,
+          fromName,
+          fromEmail,
+          to,
+          subject,
+          html,
+        });
+
+        if (cfResult.success) {
+          logger.info("[EmailService] Email successfully dispatched via Cloudflare Sockets SMTP to " + to, {
+            to,
+            template: templateName,
+            messageId: cfResult.messageId,
+          });
+
+          await prisma.emailLog.upsert({
+            where: { idempotencyKey },
+            create: {
+              recipient: to,
+              template: templateName,
+              idempotencyKey,
+              status: "SENT",
+            },
+            update: {
+              status: "SENT",
+              errorDetails: null,
             },
           });
 
-          await mailer.send({
-            from: { name: fromName, email: fromEmail },
+          return { delivered: true, status: "SENT", messageId: cfResult.messageId };
+        } else {
+          logger.warn("[EmailService] Cloudflare Sockets SMTP attempt returned failure:", {
+            error: cfResult.error,
+            to,
+            template: templateName,
+          });
+        }
+      } catch (cfErr: any) {
+        logger.warn("[EmailService] Cloudflare Sockets SMTP threw exception:", {
+          error: cfErr?.message,
+          to,
+          template: templateName,
+        });
+      }
+
+      // 3B. Fallback for Node.js environment (local development or tests)
+      const smtp = getSmtpTransporter();
+      if (smtp) {
+        try {
+          const fromAddress = `"${fromName}" <${fromEmail}>`;
+          const info = await smtp.sendMail({
+            from: fromAddress,
             to,
             subject,
             html,
           });
 
-          await mailer.close().catch(() => {});
-
-          logger.info("[EmailService] Email dispatched via Gmail SMTP (worker-mailer) as " + fromEmail, {
+          logger.info("[EmailService] Email dispatched via Gmail SMTP (Node.js) as " + fromEmail, {
             to,
+            messageId: info.messageId,
             template: templateName,
           });
 
@@ -118,55 +159,13 @@ export class EmailService {
             },
           });
 
-          return { delivered: true, status: "SENT" };
-        } catch (workerMailerErr: any) {
-          logger.warn("[EmailService] worker-mailer Gmail SMTP error, falling back:", {
-            error: workerMailerErr?.message,
+          return { delivered: true, status: "SENT", messageId: info.messageId };
+        } catch (smtpErr: any) {
+          logger.warn("[EmailService] Gmail SMTP (Node.js) dispatch failed:", {
+            error: smtpErr?.message,
             to,
             template: templateName,
           });
-        }
-      } else {
-        // Node.js environment: use standard nodemailer
-        const smtp = getSmtpTransporter();
-        if (smtp) {
-          try {
-            const fromAddress = `"${fromName}" <${fromEmail}>`;
-            const info = await smtp.sendMail({
-              from: fromAddress,
-              to,
-              subject,
-              html,
-            });
-
-            logger.info("[EmailService] Email dispatched via Gmail SMTP (Node.js) as " + fromEmail, {
-              to,
-              messageId: info.messageId,
-              template: templateName,
-            });
-
-            await prisma.emailLog.upsert({
-              where: { idempotencyKey },
-              create: {
-                recipient: to,
-                template: templateName,
-                idempotencyKey,
-                status: "SENT",
-              },
-              update: {
-                status: "SENT",
-                errorDetails: null,
-              },
-            });
-
-            return { delivered: true, status: "SENT", messageId: info.messageId };
-          } catch (smtpErr: any) {
-            logger.warn("[EmailService] Gmail SMTP dispatch failed:", {
-              error: smtpErr?.message,
-              to,
-              template: templateName,
-            });
-          }
         }
       }
     }

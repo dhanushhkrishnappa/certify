@@ -70,14 +70,16 @@ authHonoRouter.post("/register", async (c) => {
       },
     });
 
-    // 5. Dispatch OTP verification email via Gmail SMTP (certify.auth@gmail.com)
-    EmailService.sendOtpVerificationNotice({
+    // 5. Dispatch OTP verification email via Gmail SMTP (support@certify.studio)
+    const emailResult = await EmailService.sendOtpVerificationNotice({
       recipientEmail: cleanEmail,
       recipientName: fullName.trim(),
       otp,
-    }).catch((err) => {
-      console.error("[EmailService] Failed to send OTP verification email:", err);
     });
+
+    if (!emailResult.delivered) {
+      console.error("[EmailService] Failed to send OTP verification email:", emailResult.error);
+    }
 
     return c.json({
       message: "A 6-digit verification code has been dispatched to your email.",
@@ -382,14 +384,16 @@ authHonoRouter.post("/resend-otp", async (c) => {
       },
     });
 
-    // Dispatch fresh OTP via Gmail SMTP (certify.auth@gmail.com)
-    EmailService.sendOtpVerificationNotice({
+    // Dispatch fresh OTP via Gmail SMTP (support@certify.studio)
+    const emailResult = await EmailService.sendOtpVerificationNotice({
       recipientEmail: cleanEmail,
       recipientName: payload.fullName || existingUser?.fullName || "Learner",
       otp,
-    }).catch((err) => {
-      console.error("[EmailService] Failed to resend OTP email:", err);
     });
+
+    if (!emailResult.delivered) {
+      console.error("[EmailService] Failed to resend OTP email:", emailResult.error);
+    }
 
     return c.json({
       message: `A fresh 6-digit verification code has been dispatched to ${cleanEmail}`,
@@ -591,13 +595,15 @@ authHonoRouter.post("/resend-verification", async (c) => {
       },
     });
 
-    const verificationUrl = `http://localhost:5173/verify-email?token=${token}&email=${encodeURIComponent(user.email)}`;
-    EmailService.sendEmailVerificationNotice({
+    const verificationUrl = `https://certify.studio/verify-email?token=${token}&email=${encodeURIComponent(user.email)}`;
+    await EmailService.sendEmailVerificationNotice({
       recipientEmail: user.email,
       recipientName: user.fullName || "Learner",
       token,
       verificationUrl,
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("[EmailService] Failed to send email verification:", err);
+    });
 
     return c.json({
       message: `Verification email dispatched to ${user.email}`,
@@ -707,14 +713,16 @@ authHonoRouter.post("/forgot-password", async (c) => {
       },
     });
 
-    // Dispatch email via EmailService (Gmail SMTP: certify.auth@gmail.com)
-    EmailService.sendPasswordResetOtp({
+    // Dispatch email via EmailService (Gmail SMTP: support@certify.studio)
+    const emailResult = await EmailService.sendPasswordResetOtp({
       recipientEmail: cleanEmail,
       recipientName: user.fullName || user.name || "Learner",
       otp,
-    }).catch((err) => {
-      console.error("[EmailService] Failed to send password reset OTP:", err);
     });
+
+    if (!emailResult.delivered) {
+      console.error("[EmailService] Failed to send password reset OTP:", emailResult.error);
+    }
 
     return c.json({
       message: `A 6-digit password reset code has been dispatched to ${cleanEmail}`,
