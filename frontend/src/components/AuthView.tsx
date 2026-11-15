@@ -3,6 +3,25 @@ import { ArrowLeft, Check, Upload, Calendar, UserCheck, ShieldCheck, Mail, Lock,
 import { api } from "../services/api.js";
 import type { User } from "../types/index.js";
 import Silk from "./landing/Silk.js";
+import CodeSlots from "./common/CodeSlots.js";
+import { authClient } from "../lib/authClient.js";
+
+// Clean Professional Vector Icons
+const EmailIcon = () => (
+  <svg className="size-5 sm:size-6 text-[#FEF5E5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+
+const GoogleIcon = () => (
+  <svg className="size-4 shrink-0" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.9c2.28-2.1 3.6-5.2 3.6-9.15z" />
+    <path fill="#34A853" d="M12 24c3.24 0 5.96-1.08 7.95-2.91l-3.9-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z" />
+    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.99 0 12s.45 3.85 1.24 5.42l4.04-3.15z" />
+    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+  </svg>
+);
 
 interface AuthViewProps {
   onLoginSuccess: (user: User, token: string) => void;
@@ -70,7 +89,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [resendCooldown, setResendCooldown] = useState(30);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Form states - Step 3: Profile & Persona
   const [dob, setDob] = useState("");
@@ -80,16 +98,23 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [selectedAvatarId, setSelectedAvatarId] = useState("wolf");
   const [customAvatarUri, setCustomAvatarUri] = useState<string | null>(null);
 
-  // Forgot Password flow states
+  // Forgot Password flow states:
+  // 1 = Request Reset (Enter Email)
+  // 2 = Verify Code (Enter 6-Digit Code via CodeSlots)
+  // 3 = Create & Confirm New Password
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
-  const [resetOtpDigits, setResetOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [forgotStep, setForgotStep] = useState<1 | 2 | 3>(1);
+  const [resetOtpCode, setResetOtpCode] = useState("");
+  const [verifiedResetCode, setVerifiedResetCode] = useState("");
+  const [resetSlotsStatus, setResetSlotsStatus] = useState<"idle" | "error" | "success">("idle");
   const [resetNewPassword, setResetNewPassword] = useState("");
   const [resetConfirmPassword, setResetConfirmPassword] = useState("");
   const [resetCooldown, setResetCooldown] = useState(30);
   const [resetStatus, setResetStatus] = useState<string | null>(null);
   const [resetSuccessMessage, setResetSuccessMessage] = useState("");
-  const resetOtpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Signup OTP status
+  const [signupSlotsStatus, setSignupSlotsStatus] = useState<"idle" | "error" | "success">("idle");
 
   // App & session state
   const [isLoading, setIsLoading] = useState(false);
@@ -118,24 +143,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
       return () => clearInterval(timer);
     }
   }, [isForgotPassword, forgotStep, resetCooldown]);
-
-  // Auto-focus first OTP input when arriving at Step 2
-  useEffect(() => {
-    if (signUpStep === 2) {
-      setTimeout(() => {
-        otpInputRefs.current[0]?.focus();
-      }, 150);
-    }
-  }, [signUpStep]);
-
-  // Auto-focus first OTP input when arriving at Forgot Step 2
-  useEffect(() => {
-    if (isForgotPassword && forgotStep === 2) {
-      setTimeout(() => {
-        resetOtpInputRefs.current[0]?.focus();
-      }, 150);
-    }
-  }, [isForgotPassword, forgotStep]);
 
   // ─── Sign In Handler ────────────────────────────────────────────────────────
   const handleSignIn = async (e?: React.FormEvent) => {
@@ -171,7 +178,24 @@ export const AuthView: React.FC<AuthViewProps> = ({
     }
   };
 
-  // ─── Forgot Password Handlers ───────────────────────────────────────────────
+  // ─── Social Sign In (Google Only) ──────────────────────────────────────────
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: window.location.origin,
+      });
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Google sign-in is currently unavailable. Please sign in with email.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ─── Forgot Password Handlers (3-Step Flow) ─────────────────────────────────
+  // Step 1: Submit account email to receive 6-digit reset code
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return;
@@ -187,9 +211,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
     setIsLoading(true);
     try {
       const res = await api.forgotPassword(cleanEmail);
-      setResetOtpDigits(["", "", "", "", "", ""]);
+      setResetOtpCode("");
+      setVerifiedResetCode("");
+      setResetSlotsStatus("idle");
       setResetCooldown(30);
-      setResetStatus(res.message || "Reset code dispatched!");
+      setResetStatus(res.message || "A 6-digit reset code has been dispatched to your email.");
       setForgotStep(2);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to send reset code. Please check your email.");
@@ -198,50 +224,32 @@ export const AuthView: React.FC<AuthViewProps> = ({
     }
   };
 
-  const handleResetOtpChange = (index: number, val: string) => {
-    const digit = val.replace(/\D/g, "").slice(-1);
-    const newDigits = [...resetOtpDigits];
-    newDigits[index] = digit;
-    setResetOtpDigits(newDigits);
+  // Step 2: Validate 6-digit code via CodeSlots
+  const handleVerifyResetOtp = async (codeToVerify?: string) => {
+    const code = (codeToVerify || resetOtpCode).trim();
+    if (code.length < 6) {
+      setErrorMessage("Please enter all 6 digits of the reset code.");
+      setResetSlotsStatus("error");
+      return;
+    }
+
+    setIsLoading(true);
     setErrorMessage("");
-
-    if (digit && index < 5) {
-      resetOtpInputRefs.current[index + 1]?.focus();
+    try {
+      await api.verifyResetOtp(email.trim(), code);
+      setResetSlotsStatus("success");
+      setVerifiedResetCode(code);
+      setResetStatus("Verification successful! Now set your new password.");
+      setTimeout(() => {
+        setForgotStep(3);
+        setResetSlotsStatus("idle");
+        setIsLoading(false);
+      }, 500);
+    } catch (err: any) {
+      setResetSlotsStatus("error");
+      setErrorMessage(err.message || "Invalid or expired verification code.");
+      setIsLoading(false);
     }
-  };
-
-  const handleResetOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace") {
-      if (resetOtpDigits[index]) {
-        const newDigits = [...resetOtpDigits];
-        newDigits[index] = "";
-        setResetOtpDigits(newDigits);
-      } else if (index > 0) {
-        const newDigits = [...resetOtpDigits];
-        newDigits[index - 1] = "";
-        setResetOtpDigits(newDigits);
-        resetOtpInputRefs.current[index - 1]?.focus();
-      }
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      resetOtpInputRefs.current[index - 1]?.focus();
-    } else if (e.key === "ArrowRight" && index < 5) {
-      resetOtpInputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleResetOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!pasteData) return;
-
-    const newDigits = [...resetOtpDigits];
-    for (let i = 0; i < 6; i++) {
-      newDigits[i] = pasteData[i] || "";
-    }
-    setResetOtpDigits(newDigits);
-
-    const nextFocusIdx = Math.min(pasteData.length, 5);
-    resetOtpInputRefs.current[nextFocusIdx]?.focus();
   };
 
   const handleResendResetOtp = async () => {
@@ -249,13 +257,13 @@ export const AuthView: React.FC<AuthViewProps> = ({
     setIsLoading(true);
     setErrorMessage("");
     setResetStatus(null);
+    setResetSlotsStatus("idle");
 
     try {
       const res = await api.forgotPassword(email.trim());
       setResetStatus(res.message || "Fresh 6-digit reset code dispatched to your email!");
       setResetCooldown(30);
-      setResetOtpDigits(["", "", "", "", "", ""]);
-      resetOtpInputRefs.current[0]?.focus();
+      setResetOtpCode("");
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to resend reset code.");
     } finally {
@@ -263,17 +271,13 @@ export const AuthView: React.FC<AuthViewProps> = ({
     }
   };
 
+  // Step 3: Set and confirm new password (Only accessible after Step 2 verification)
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return;
     setErrorMessage("");
     setResetStatus(null);
 
-    const code = resetOtpDigits.join("");
-    if (code.length < 6) {
-      setErrorMessage("Please enter all 6 digits of the reset code.");
-      return;
-    }
     if (resetNewPassword.length < 6) {
       setErrorMessage("New password must be at least 6 characters.");
       return;
@@ -285,14 +289,15 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
     setIsLoading(true);
     try {
-      await api.resetPassword(email.trim(), code, resetNewPassword);
+      await api.resetPassword(email.trim(), verifiedResetCode, resetNewPassword);
       setResetSuccessMessage("Password reset successfully! Please sign in with your new password.");
       setIsForgotPassword(false);
       setForgotStep(1);
       setPassword(resetNewPassword);
       setResetNewPassword("");
       setResetConfirmPassword("");
-      setResetOtpDigits(["", "", "", "", "", ""]);
+      setResetOtpCode("");
+      setVerifiedResetCode("");
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to reset password. Please check the code and try again.");
     } finally {
@@ -353,74 +358,12 @@ export const AuthView: React.FC<AuthViewProps> = ({
     }
   };
 
-  // ─── Sign Up Step 2: OTP Handlers ──────────────────────────────────────────
-  const handleOtpChange = (index: number, val: string) => {
-    // Only accept numeric digit
-    const digit = val.replace(/\D/g, "").slice(-1);
-    const newDigits = [...otpDigits];
-    newDigits[index] = digit;
-    setOtpDigits(newDigits);
-    setErrorMessage("");
-
-    if (digit && index < 5) {
-      otpInputRefs.current[index + 1]?.focus();
-    }
-
-    // Auto-trigger verification if all 6 boxes filled
-    if (digit && index === 5 && newDigits.every((d) => d !== "")) {
-      handleVerifyOtp(newDigits.join(""));
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace") {
-      if (otpDigits[index]) {
-        // Clear current cell
-        const newDigits = [...otpDigits];
-        newDigits[index] = "";
-        setOtpDigits(newDigits);
-      } else if (index > 0) {
-        // Clear previous cell and move back
-        const newDigits = [...otpDigits];
-        newDigits[index - 1] = "";
-        setOtpDigits(newDigits);
-        otpInputRefs.current[index - 1]?.focus();
-      }
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
-    } else if (e.key === "ArrowRight" && index < 5) {
-      otpInputRefs.current[index + 1]?.focus();
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      if (otpDigits.join("").length === 6) {
-        handleVerifyOtp(otpDigits.join(""));
-      }
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!pasteData) return;
-
-    const newDigits = [...otpDigits];
-    for (let i = 0; i < 6; i++) {
-      newDigits[i] = pasteData[i] || "";
-    }
-    setOtpDigits(newDigits);
-
-    const nextFocusIdx = Math.min(pasteData.length, 5);
-    otpInputRefs.current[nextFocusIdx]?.focus();
-
-    if (pasteData.length === 6) {
-      handleVerifyOtp(pasteData);
-    }
-  };
-
+  // ─── Sign Up Step 2: Verification Handler (React Bits CodeSlots) ────────────
   const handleVerifyOtp = async (codeToVerify?: string) => {
     const code = codeToVerify || otpDigits.join("");
     if (code.length < 6) {
       setErrorMessage("Please enter all 6 digits of the verification code.");
+      setSignupSlotsStatus("error");
       return;
     }
 
@@ -429,6 +372,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
     try {
       const res = await api.verifyOtp(email.trim(), code);
+      setSignupSlotsStatus("success");
       if (res.user) {
         setRegisteredUser(res.user);
       }
@@ -440,10 +384,12 @@ export const AuthView: React.FC<AuthViewProps> = ({
       // Smooth visual transition to Step 3 (Profile & Persona)
       setTimeout(() => {
         setSignUpStep(3);
+        setSignupSlotsStatus("idle");
         setIsLoading(false);
-      }, 300);
+      }, 400);
     } catch (err: any) {
       setIsLoading(false);
+      setSignupSlotsStatus("error");
       setErrorMessage(err.message || "Invalid or expired verification code. Please check your inbox or click Resend.");
     }
   };
@@ -453,6 +399,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
     setIsLoading(true);
     setErrorMessage("");
     setResendStatus(null);
+    setSignupSlotsStatus("idle");
 
     try {
       const res = await api.resendOtp(email.trim());
@@ -462,7 +409,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
         setOtpDigits(res.otp.split(""));
       } else {
         setOtpDigits(["", "", "", "", "", ""]);
-        otpInputRefs.current[0]?.focus();
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to resend verification code.");
@@ -634,20 +580,21 @@ export const AuthView: React.FC<AuthViewProps> = ({
           />
 
           {/* ════════════════════════════════════════════════════════════════════
-              MODE A: FORGOT PASSWORD / PASSWORD RESET
+              MODE A: FORGOT PASSWORD / PASSWORD RESET (3-STEP FLOW)
              ════════════════════════════════════════════════════════════════════ */}
           {isForgotPassword ? (
             <>
-              {forgotStep === 1 ? (
+              {/* ── STEP 1: Enter Account Email ── */}
+              {forgotStep === 1 && (
                 <>
-                  <div className="grid auto-rows-min gap-1 text-center relative z-10">
-                    <div className="inline-flex items-center justify-center size-10 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-1 mx-auto">
-                      <Lock className="size-5" />
+                  <div className="grid auto-rows-min gap-1.5 text-center relative z-10">
+                    <div className="inline-flex items-center justify-center size-11 rounded-2xl bg-white/[0.04] border border-white/[0.1] text-white shadow-inner mb-1 mx-auto">
+                      <EmailIcon />
                     </div>
                     <h1 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
                       Reset your password
                     </h1>
-                    <p className="text-xs sm:text-[13px] text-[#A1A1AA] leading-snug">
+                    <p className="text-xs text-[#A1A1AA] leading-snug">
                       Enter your account email and we'll dispatch a 6-digit verification code.
                     </p>
                   </div>
@@ -684,7 +631,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                         disabled={isLoading}
                         className="inline-flex w-full items-center justify-center gap-2 rounded-md text-xs font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-4 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50 mt-1"
                       >
-                        {isLoading ? "Dispatching code..." : "Send Reset Code →"}
+                        {isLoading ? "Dispatching code..." : "Send Verification Code →"}
                       </button>
 
                       <div className="text-center pt-1">
@@ -702,50 +649,141 @@ export const AuthView: React.FC<AuthViewProps> = ({
                     </form>
                   </div>
                 </>
-              ) : (
+              )}
+
+              {/* ── STEP 2: Verify 6-Digit Code via React Bits CodeSlots ── */}
+              {forgotStep === 2 && (
                 <>
-                  <div className="grid auto-rows-min gap-1 text-center relative z-10">
-                    <div className="inline-flex items-center justify-center size-10 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-1 mx-auto">
-                      <Lock className="size-5" />
+                  <div className="grid auto-rows-min gap-1.5 text-center relative z-10">
+                    <div className="inline-flex items-center justify-center size-11 rounded-2xl bg-white/[0.04] border border-white/[0.1] text-white shadow-inner mb-1 mx-auto">
+                      <EmailIcon />
                     </div>
                     <h1 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
-                      Enter Reset Code
+                      Enter Verification Code
                     </h1>
-                    <p className="text-xs sm:text-[13px] text-[#A1A1AA] leading-snug">
-                      We sent a 6-digit code to <span className="font-mono text-white font-medium">{email}</span>.
+                    <p className="text-xs text-[#A1A1AA] leading-snug">
+                      We sent a 6-digit code to <span className="font-semibold text-white">{email}</span>.
+                    </p>
+                  </div>
+
+                  <div className="relative z-10 flex flex-col gap-3">
+                    <div className="flex flex-col gap-1 text-center">
+                      <label className="text-xs font-medium text-[#FEF5E5] mb-1">
+                        6-Digit Verification Code
+                      </label>
+                      <div className="flex justify-center py-1">
+                        <CodeSlots
+                          length={6}
+                          value={resetOtpCode}
+                          status={resetSlotsStatus}
+                          onChange={(code) => {
+                            setResetOtpCode(code);
+                            if (resetSlotsStatus === "error") setResetSlotsStatus("idle");
+                          }}
+                          onComplete={async (code) => {
+                            await handleVerifyResetOtp(code);
+                          }}
+                          autoFocus={true}
+                          accentColor="#ffffff"
+                          inkColor="#CEA4F2"
+                          slotColor="#181724"
+                          digitColor="#0c0c10"
+                          dangerColor="#ff3b30"
+                          slotSize={44}
+                          gap={8}
+                          radius={12}
+                          bounce={0.2}
+                          settle={0.3}
+                          rise={8}
+                          cascade={20}
+                        />
+                      </div>
+                    </div>
+
+                    {errorMessage && (
+                      <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-2 px-3 rounded-md text-left">
+                        {errorMessage}
+                      </p>
+                    )}
+
+                    {resetStatus && (
+                      <p className="text-xs text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 py-2 px-3 rounded-md text-left">
+                        {resetStatus}
+                      </p>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => handleVerifyResetOtp()}
+                      disabled={isLoading || resetOtpCode.length < 6}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-md text-xs font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-4 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50 mt-1"
+                    >
+                      {isLoading ? "Verifying..." : "Verify Code →"}
+                    </button>
+
+                    {/* Resend & Change Email Row */}
+                    <div className="flex items-center justify-between gap-3 text-xs text-[#A1A1AA] pt-1">
+                      {resetCooldown > 0 ? (
+                        <span className="text-[#71717A] text-[11px]">
+                          Resend code in {resetCooldown}s
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleResendResetOtp}
+                          disabled={isLoading}
+                          className="text-[#CEA4F2] hover:underline font-semibold cursor-pointer disabled:opacity-50 text-[11px]"
+                        >
+                          Resend Code
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForgotStep(1);
+                          setErrorMessage("");
+                        }}
+                        className="text-[#A1A1AA] hover:text-[#FEF5E5] text-[11px] cursor-pointer"
+                      >
+                        Change Email
+                      </button>
+                    </div>
+
+                    <div className="text-center pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsForgotPassword(false);
+                          setForgotStep(1);
+                          setErrorMessage("");
+                        }}
+                        className="text-xs text-[#A1A1AA] hover:text-[#FEF5E5] inline-flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <ArrowLeft className="size-3" /> Back to Sign In
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── STEP 3: Create & Confirm New Password ── */}
+              {forgotStep === 3 && (
+                <>
+                  <div className="grid auto-rows-min gap-1.5 text-center relative z-10">
+                    <div className="inline-flex items-center justify-center size-11 rounded-2xl bg-white/[0.04] border border-white/[0.1] text-white shadow-inner mb-1 mx-auto">
+                      <Lock className="size-5 text-[#FEF5E5]" />
+                    </div>
+                    <h1 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
+                      Create New Password
+                    </h1>
+                    <p className="text-xs text-[#A1A1AA] leading-snug">
+                      Enter and confirm your new password to regain access to your account.
                     </p>
                   </div>
 
                   <div className="relative z-10">
                     <form onSubmit={handleResetPasswordSubmit} className="flex flex-col gap-3">
-                      {/* 6 OTP boxes */}
-                      <div className="flex flex-col gap-1 text-center">
-                        <label className="text-xs font-medium text-[#FEF5E5]">
-                          6-Digit Verification Code
-                        </label>
-                        <div className="flex items-center justify-center gap-2 sm:gap-2.5 py-1" onPaste={handleResetOtpPaste}>
-                          {resetOtpDigits.map((digit, index) => (
-                            <input
-                              key={index}
-                              ref={(el) => { resetOtpInputRefs.current[index] = el; }}
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => handleResetOtpChange(index, e.target.value)}
-                              onKeyDown={(e) => handleResetOtpKeyDown(index, e)}
-                              autoComplete="one-time-code"
-                              className={`size-10 sm:size-11 rounded-lg text-center text-lg sm:text-xl font-mono font-bold outline-none transition-all duration-200 select-all ${
-                                digit
-                                  ? "bg-[#181525] border-[#CEA4F2] text-white shadow-[0_0_12px_rgba(206,164,242,0.25)] ring-1 ring-[#CEA4F2]/50"
-                                  : "bg-black/50 border-white/10 text-neutral-300 hover:border-white/25 focus:border-[#CEA4F2] focus:ring-2 focus:ring-[#CEA4F2]/30 focus:bg-[#181525]"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
                       {/* New Password */}
                       <div className="flex flex-col gap-1 text-left">
                         <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="reset-new-password">
@@ -760,6 +798,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                             onChange={(e) => setResetNewPassword(e.target.value)}
                             placeholder="At least 6 characters"
                             required
+                            autoFocus
                             className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
                           />
                         </div>
@@ -808,40 +847,12 @@ export const AuthView: React.FC<AuthViewProps> = ({
                         {isLoading ? "Updating password..." : "Reset Password & Return to Sign In"}
                       </button>
 
-                      {/* Resend & Back Row */}
-                      <div className="flex items-center justify-between gap-3 text-xs text-[#A1A1AA] pt-1">
-                        {resetCooldown > 0 ? (
-                          <span className="text-[#71717A] font-mono text-[11px]">
-                            Resend code in {resetCooldown}s
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={handleResendResetOtp}
-                            disabled={isLoading}
-                            className="text-[#CEA4F2] hover:underline font-semibold cursor-pointer disabled:opacity-50 text-[11px]"
-                          >
-                            Resend Code
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setForgotStep(1);
-                            setErrorMessage("");
-                          }}
-                          className="text-[#A1A1AA] hover:text-[#FEF5E5] text-[11px] cursor-pointer"
-                        >
-                          Change Email
-                        </button>
-                      </div>
-
                       <div className="text-center pt-1">
                         <button
                           type="button"
                           onClick={() => {
                             setIsForgotPassword(false);
+                            setForgotStep(1);
                             setErrorMessage("");
                           }}
                           className="text-xs text-[#A1A1AA] hover:text-[#FEF5E5] inline-flex items-center gap-1 cursor-pointer transition-colors"
@@ -869,30 +880,16 @@ export const AuthView: React.FC<AuthViewProps> = ({
               {/* Form Content */}
               <div className="relative z-10">
                 <form onSubmit={handleSignIn} className="flex flex-col gap-3">
-                  {/* Social Buttons */}
-                  <div className="flex w-full gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleSignIn()}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-white/[0.1] bg-black/40 hover:bg-white/[0.06] hover:border-white/[0.18] px-3 py-2 text-xs font-medium text-[#FEF5E5] transition-all cursor-pointer shadow-xs"
-                    >
-                      <svg className="size-3.5 fill-current" viewBox="0 0 24 24">
-                        <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
-                      </svg>
-                      <span>Google</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleSignIn()}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-white/[0.1] bg-black/40 hover:bg-white/[0.06] hover:border-white/[0.18] px-3 py-2 text-xs font-medium text-[#FEF5E5] transition-all cursor-pointer shadow-xs"
-                    >
-                      <svg className="size-3.5 fill-current" viewBox="0 0 24 24">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 7.17c.61-.75 1.04-1.8 1.01-2.81-.96.04-2.14.64-2.82 1.44-.6.69-1.12 1.8-1.01 2.85 1.08.08 2.19-.7 2.82-1.48" />
-                      </svg>
-                      <span>Apple ID</span>
-                    </button>
-                  </div>
+                  {/* Google Login Only (Apple ID Removed) */}
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
+                    className="inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.05] hover:bg-white/[0.1] hover:border-white/[0.22] px-4 py-2.5 text-xs font-semibold text-[#FEF5E5] transition-all cursor-pointer shadow-sm active:scale-[0.99] disabled:opacity-50"
+                  >
+                    <GoogleIcon />
+                    <span>Continue with Google</span>
+                  </button>
 
                   <div className="flex items-center gap-2 my-1">
                     <div className="h-px flex-1 bg-white/[0.08]" />
@@ -1036,174 +1033,200 @@ export const AuthView: React.FC<AuthViewProps> = ({
                     </button>
                   </div>
 
-                  <form onSubmit={handleStep1Submit} className="space-y-3">
-                    {/* Row 1: Full Name & Email in 2 columns */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                      <div className="flex flex-col gap-1">
-                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-name">
-                          Full Name <span className="text-rose-400">*</span>
-                        </label>
-                        <div className="relative">
-                          <UserIcon className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                          <input
-                            type="text"
-                            id="signup-name"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            placeholder="e.g. Alex Chen"
-                            required
-                            className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
-                          />
+                  <div className="space-y-3">
+                    {/* Google Sign Up */}
+                    <button
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      disabled={isLoading}
+                      className="inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.05] hover:bg-white/[0.1] hover:border-white/[0.22] px-4 py-2.5 text-xs font-semibold text-[#FEF5E5] transition-all cursor-pointer shadow-sm active:scale-[0.99] disabled:opacity-50"
+                    >
+                      <GoogleIcon />
+                      <span>Sign up with Google</span>
+                    </button>
+
+                    <div className="flex items-center gap-2 my-1">
+                      <div className="h-px flex-1 bg-white/[0.08]" />
+                      <span className="text-[11px] text-[#71717A] uppercase tracking-wider">or register with email</span>
+                      <div className="h-px flex-1 bg-white/[0.08]" />
+                    </div>
+
+                    <form onSubmit={handleStep1Submit} className="space-y-3">
+                      {/* Row 1: Full Name & Email in 2 columns */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-name">
+                            Full Name <span className="text-rose-400">*</span>
+                          </label>
+                          <div className="relative">
+                            <UserIcon className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                            <input
+                              type="text"
+                              id="signup-name"
+                              value={fullName}
+                              onChange={(e) => setFullName(e.target.value)}
+                              placeholder="e.g. Alex Chen"
+                              required
+                              className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-email">
+                            Email Address <span className="text-rose-400">*</span>
+                          </label>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                            <input
+                              type="email"
+                              id="signup-email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="learner@certify.edu"
+                              required
+                              className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-1">
-                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-email">
-                          Email Address <span className="text-rose-400">*</span>
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                          <input
-                            type="email"
-                            id="signup-email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="learner@certify.edu"
-                            required
-                            className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
-                          />
+                      {/* Row 2: Password & Verify Password in 2 columns */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-password">
+                            Password <span className="text-rose-400">*</span>
+                          </label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                            <input
+                              type="password"
+                              id="signup-password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="At least 6 characters"
+                              required
+                              className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-confirm">
+                            Verify Password <span className="text-rose-400">*</span>
+                          </label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                            <input
+                              type="password"
+                              id="signup-confirm"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              placeholder="Re-enter password"
+                              required
+                              className={`h-9 w-full min-w-0 rounded-md border bg-black/40 pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none text-[#FEF5E5] placeholder-[#71717A] ${
+                                confirmPassword && confirmPassword !== password
+                                  ? "border-rose-500/70 focus:ring-rose-500/30"
+                                  : "border-white/[0.1] hover:border-white/[0.18] focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40"
+                              }`}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Row 2: Password & Verify Password in 2 columns */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                      <div className="flex flex-col gap-1">
-                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-password">
-                          Password <span className="text-rose-400">*</span>
+                      {/* Row 3: Honor Code Agreement */}
+                      <div className="flex items-center gap-2 pt-0.5 text-left">
+                        <input
+                          type="checkbox"
+                          id="honor-code"
+                          checked={agreedToTerms}
+                          onChange={(e) => setAgreedToTerms(e.target.checked)}
+                          className="size-4 rounded border-white/20 bg-black/40 text-[#7C3AED] focus:ring-[#CEA4F2] cursor-pointer shrink-0"
+                        />
+                        <label htmlFor="honor-code" className="text-xs text-[#A1A1AA] cursor-pointer select-none leading-tight">
+                          I commit to the <span className="text-white font-medium">Academic Integrity Honor Code</span> and accept the Certify Terms.
                         </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                          <input
-                            type="password"
-                            id="signup-password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="At least 6 characters"
-                            required
-                            className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
-                          />
-                        </div>
                       </div>
 
-                      <div className="flex flex-col gap-1">
-                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-confirm">
-                          Verify Password <span className="text-rose-400">*</span>
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                          <input
-                            type="password"
-                            id="signup-confirm"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Re-enter password"
-                            required
-                            className={`h-9 w-full min-w-0 rounded-md border bg-black/40 pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none text-[#FEF5E5] placeholder-[#71717A] ${
-                              confirmPassword && confirmPassword !== password
-                                ? "border-rose-500/70 focus:ring-rose-500/30"
-                                : "border-white/[0.1] hover:border-white/[0.18] focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40"
-                            }`}
-                          />
-                        </div>
+                      {errorMessage && (
+                        <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-1.5 px-3 rounded-md text-left">
+                          {errorMessage}
+                        </p>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex items-center justify-between gap-3 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsSignUp(false);
+                            setErrorMessage("");
+                          }}
+                          className="text-xs text-[#A1A1AA] hover:text-white cursor-pointer sm:hidden"
+                        >
+                          Sign In instead
+                        </button>
+
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="ml-auto inline-flex items-center justify-center gap-2 rounded-md text-xs sm:text-sm font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-6 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50"
+                        >
+                          {isLoading ? "Dispatching OTP code..." : "Send Verification Code →"}
+                        </button>
                       </div>
-                    </div>
-
-                    {/* Row 3: Honor Code Agreement */}
-                    <div className="flex items-center gap-2 pt-0.5 text-left">
-                      <input
-                        type="checkbox"
-                        id="honor-code"
-                        checked={agreedToTerms}
-                        onChange={(e) => setAgreedToTerms(e.target.checked)}
-                        className="size-4 rounded border-white/20 bg-black/40 text-[#7C3AED] focus:ring-[#CEA4F2] cursor-pointer shrink-0"
-                      />
-                      <label htmlFor="honor-code" className="text-xs text-[#A1A1AA] cursor-pointer select-none leading-tight">
-                        I commit to the <span className="text-white font-medium">Academic Integrity Honor Code</span> and accept the Certify Terms.
-                      </label>
-                    </div>
-
-                    {errorMessage && (
-                      <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-1.5 px-3 rounded-md text-left">
-                        {errorMessage}
-                      </p>
-                    )}
-
-                    {/* Actions */}
-                    <div className="flex items-center justify-between gap-3 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsSignUp(false);
-                          setErrorMessage("");
-                        }}
-                        className="text-xs text-[#A1A1AA] hover:text-white cursor-pointer sm:hidden"
-                      >
-                        Sign In instead
-                      </button>
-
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="ml-auto inline-flex items-center justify-center gap-2 rounded-md text-xs sm:text-sm font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-6 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50"
-                      >
-                        {isLoading ? "Dispatching OTP code..." : "Send Verification Code →"}
-                      </button>
-                    </div>
-                  </form>
+                    </form>
+                  </div>
                 </div>
               )}
 
               {/* ─────────────────────────────────────────────────────────────
-                  STEP 2: Clean, Smooth 6-Digit Email OTP Verification
+                  STEP 2: Clean, Smooth 6-Digit Email OTP Verification (React Bits CodeSlots)
                  ───────────────────────────────────────────────────────────── */}
               {signUpStep === 2 && (
                 <div className="relative z-10 space-y-4 text-center py-1">
                   <div className="space-y-1">
-                    <div className="inline-flex items-center justify-center size-10 rounded-full bg-purple-500/10 border border-purple-500/20 text-[#CEA4F2] mb-1">
-                      <Mail className="size-5" />
+                    <div className="inline-flex items-center justify-center size-11 rounded-2xl bg-white/[0.04] border border-white/[0.1] text-white shadow-inner mb-1 mx-auto">
+                      <EmailIcon />
                     </div>
                     <h2 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
                       Enter Verification Code
                     </h2>
                     <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
                       We've dispatched a 6-digit verification code to{" "}
-                      <span className="font-semibold text-white font-mono">{email}</span>.
+                      <span className="font-semibold text-white">{email}</span>.
                       Please enter it below to verify your email.
                     </p>
                   </div>
 
-                  {/* 6 Clean, Smooth, Keyboard-Responsive OTP Input Boxes */}
-                  <div className="flex items-center justify-center gap-2 sm:gap-3 py-1" onPaste={handleOtpPaste}>
-                    {otpDigits.map((digit, index) => (
-                      <input
-                        key={index}
-                        ref={(el) => { otpInputRefs.current[index] = el; }}
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        autoComplete="one-time-code"
-                        className={`size-11 sm:size-13 rounded-xl text-center text-xl sm:text-2xl font-mono font-bold outline-none transition-all duration-200 select-all ${
-                          digit
-                            ? "bg-[#181525] border-[#CEA4F2] text-white shadow-[0_0_15px_rgba(206,164,242,0.25)] ring-1 ring-[#CEA4F2]/50"
-                            : "bg-black/50 border-white/10 text-neutral-300 hover:border-white/25 focus:border-[#CEA4F2] focus:ring-2 focus:ring-[#CEA4F2]/30 focus:bg-[#181525]"
-                        }`}
-                      />
-                    ))}
+                  {/* React Bits CodeSlots Component */}
+                  <div className="flex justify-center py-2">
+                    <CodeSlots
+                      length={6}
+                      value={otpDigits.join("")}
+                      status={signupSlotsStatus}
+                      onChange={(code) => {
+                        const arr = Array.from({ length: 6 }, (_, i) => code[i] || "");
+                        setOtpDigits(arr);
+                        if (signupSlotsStatus === "error") setSignupSlotsStatus("idle");
+                      }}
+                      onComplete={async (code) => {
+                        await handleVerifyOtp(code);
+                      }}
+                      autoFocus={true}
+                      accentColor="#ffffff"
+                      inkColor="#CEA4F2"
+                      slotColor="#181724"
+                      digitColor="#0c0c10"
+                      dangerColor="#ff3b30"
+                      slotSize={44}
+                      gap={8}
+                      radius={12}
+                      bounce={0.2}
+                      settle={0.3}
+                      rise={8}
+                      cascade={20}
+                    />
                   </div>
 
                   {errorMessage && (
@@ -1222,7 +1245,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   <div className="flex items-center justify-center gap-4 text-xs text-[#A1A1AA]">
                     <span>Didn't receive the email?</span>
                     {resendCooldown > 0 ? (
-                      <span className="text-[#71717A] font-mono">
+                      <span className="text-[#71717A] text-[11px]">
                         Resend code in {resendCooldown}s
                       </span>
                     ) : (

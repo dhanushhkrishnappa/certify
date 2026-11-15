@@ -734,6 +734,54 @@ authHonoRouter.post("/forgot-password", async (c) => {
   }
 });
 
+// ─── POST /api/v1/auth/verify-reset-otp ───────────────────────────────────────
+// Validates 6-digit reset OTP without changing password yet (Step 2 of Reset Flow).
+authHonoRouter.post("/verify-reset-otp", async (c) => {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const { email, otp } = body;
+
+    if (!email || !otp) {
+      return c.json({ error: "Email and reset code are required" }, 400);
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = otp.toString().trim();
+    const resetIdentifier = `reset:${cleanEmail}`;
+
+    const record = await prisma.verification.findFirst({
+      where: { identifier: resetIdentifier },
+    });
+
+    if (!record) {
+      return c.json({ error: "No active password reset request found. Please request a new code." }, 400);
+    }
+
+    if (new Date() > record.expiresAt) {
+      await prisma.verification.delete({ where: { id: record.id } }).catch(() => {});
+      return c.json({ error: "Reset code has expired. Please request a new one." }, 400);
+    }
+
+    let payload: any;
+    try {
+      payload = JSON.parse(record.value);
+    } catch {
+      payload = { otp: record.value };
+    }
+
+    if (payload.otp !== cleanOtp) {
+      return c.json({ error: "Invalid verification code. Please check your email and try again." }, 400);
+    }
+
+    return c.json({
+      valid: true,
+      message: "Reset code verified successfully.",
+    });
+  } catch (err: any) {
+    return c.json({ error: "Failed to verify reset code", details: err?.message }, 500);
+  }
+});
+
 // ─── POST /api/v1/auth/reset-password ───────────────────────────────────────
 // Verifies the 6-digit reset OTP and updates the user's password.
 authHonoRouter.post("/reset-password", async (c) => {

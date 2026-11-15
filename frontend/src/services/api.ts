@@ -193,6 +193,24 @@ export const api = {
   },
 
   /**
+   * Validate the 6-digit reset OTP before allowing new password entry.
+   */
+  async verifyResetOtp(email: string, otp: string): Promise<{ valid: boolean; message: string }> {
+    const res = await fetch(`${API_BASE}/auth/verify-reset-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Invalid verification code");
+    }
+
+    return data;
+  },
+
+  /**
    * Reset password using the 6-digit OTP code received via email.
    */
   async resetPassword(
