@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { ArrowLeft, Check, Upload, Calendar, UserCheck, ShieldCheck, Mail, Lock, User as UserIcon, Sparkles } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, Mail, Lock, User as UserIcon } from "lucide-react";
 import { api } from "../services/api.js";
 import type { User } from "../types/index.js";
 import Silk from "./landing/Silk.js";
@@ -75,28 +75,19 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [isSignUp, setIsSignUp] = useState(initialMode === "signup");
 
   // Multi-step signup flow:
-  // 1 = Account Credentials, 2 = Email OTP Verification, 3 = Welcome & Persona, 4 = Avatar Selection
-  const [signUpStep, setSignUpStep] = useState<1 | 2 | 3 | 4>(1);
+  // 1 = Account Credentials, 2 = Email OTP Verification
+  const [signUpStep, setSignUpStep] = useState<1 | 2>(1);
 
   // Form states - Step 1: Credentials
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [agreedToTerms, setAgreedToTerms] = useState(true);
 
   // Form states - Step 2: OTP Verification
   const [otpDigits, setOtpDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [resendCooldown, setResendCooldown] = useState(30);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
-
-  // Form states - Step 3: Profile & Persona
-  const [dob, setDob] = useState("");
-  const [selectedPersona, setSelectedPersona] = useState("student");
-
-  // Form states - Step 4: Avatar
-  const [selectedAvatarId, setSelectedAvatarId] = useState("wolf");
-  const [customAvatarUri, setCustomAvatarUri] = useState<string | null>(null);
 
   // Forgot Password flow states:
   // 1 = Request Reset (Enter Email)
@@ -119,10 +110,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
   // App & session state
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [registeredUser, setRegisteredUser] = useState<User | null>(null);
-  const [sessionToken, setSessionToken] = useState<string>("");
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // OTP Resend cooldown timer
   useEffect(() => {
@@ -330,11 +317,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
       setErrorMessage("Passwords do not match. Please verify.");
       return;
     }
-    if (!agreedToTerms) {
-      setErrorMessage("Please accept the Terms of Service and Honor Code to proceed.");
-      return;
-    }
-
     setIsLoading(true);
     try {
       const regRes = await api.register(trimmedEmail, password, trimmedName);
@@ -373,19 +355,22 @@ export const AuthView: React.FC<AuthViewProps> = ({
     try {
       const res = await api.verifyOtp(email.trim(), code);
       setSignupSlotsStatus("success");
-      if (res.user) {
-        setRegisteredUser(res.user);
-      }
+
+      const finalUser: User = res.user || {
+        id: "u-" + Date.now(),
+        email: email.trim(),
+        fullName: fullName.trim(),
+        role: "STUDENT",
+        emailVerified: true,
+      };
+
       if (res.token) {
-        setSessionToken(res.token);
         localStorage.setItem("certify_token", res.token);
       }
+      localStorage.setItem("certify_user", JSON.stringify(finalUser));
 
-      // Smooth visual transition to Step 3 (Profile & Persona)
       setTimeout(() => {
-        setSignUpStep(3);
-        setSignupSlotsStatus("idle");
-        setIsLoading(false);
+        onLoginSuccess(finalUser, res.token || "");
       }, 400);
     } catch (err: any) {
       setIsLoading(false);
@@ -417,107 +402,6 @@ export const AuthView: React.FC<AuthViewProps> = ({
     }
   };
 
-  // ─── Sign Up Step 3: Save Persona & DOB (Only After Verified) ───────────────
-  const handleStep3Submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const personaObj = PERSONA_OPTIONS.find((p) => p.id === selectedPersona);
-      const personaTitle = personaObj ? personaObj.title : "University Student";
-
-      await api.updateProfile({
-        dob: dob || undefined,
-        persona: personaTitle,
-      });
-
-      if (registeredUser) {
-        setRegisteredUser({
-          ...registeredUser,
-          dob,
-          persona: personaTitle,
-        });
-      }
-
-      // Advance to Step 4: Profile Avatar
-      setSignUpStep(4);
-    } catch (err: any) {
-      setErrorMessage(err.message || "Failed to save profile. Continuing to avatar...");
-      setSignUpStep(4);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // ─── Sign Up Step 4: Complete Onboarding & Save Avatar ─────────────────────
-  const handleStep4Submit = async () => {
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      let finalAvatarUri: string;
-
-      if (customAvatarUri) {
-        finalAvatarUri = customAvatarUri;
-      } else {
-        const preset = PRESET_AVATARS.find((p) => p.id === selectedAvatarId) || PRESET_AVATARS[0];
-        finalAvatarUri = preset.src;
-      }
-
-      await api.updateProfile({
-        image: finalAvatarUri,
-        onboardingCompleted: true,
-      });
-
-      const finalUser: User = {
-        ...(registeredUser || {
-          id: "u-" + Date.now(),
-          email,
-          fullName,
-          role: "STUDENT",
-        }),
-        image: finalAvatarUri,
-        onboardingCompleted: true,
-        emailVerified: true,
-      };
-
-      onLoginSuccess(finalUser, sessionToken);
-    } catch (err: any) {
-      setErrorMessage(err.message || "Failed to save avatar.");
-      if (registeredUser) {
-        onLoginSuccess(registeredUser, sessionToken);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // ─── Local Image File Upload ────────────────────────────────────────────────
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setErrorMessage("Please select a valid image file (PNG, JPG, WebP).");
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      setErrorMessage("Image size exceeds 2MB limit. Please choose a smaller photo.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      setCustomAvatarUri(base64);
-      setSelectedAvatarId("custom");
-      setErrorMessage("");
-    };
-    reader.readAsDataURL(file);
-  };
-
   return (
     <main className="min-h-screen w-full relative flex flex-col items-center justify-center px-4 py-4 sm:py-6 bg-black font-['Plus_Jakarta_Sans',sans-serif] text-[#FEF5E5] antialiased selection:bg-[#E6CAA4] selection:text-[#2A170E] overflow-x-hidden">
       {/* Full-Page Silk Background */}
@@ -543,11 +427,9 @@ export const AuthView: React.FC<AuthViewProps> = ({
         </button>
       )}
 
-      {/* Dynamic Card Container: Stretched horizontally (max-w-3xl) for Sign Up, Compact (max-w-sm / max-w-md) for Sign In & Forgot Password */}
+      {/* Unified Compact Card Container */}
       <div
-        className={`relative z-10 flex w-full transition-all duration-300 flex-col items-center justify-center gap-2.5 my-auto ${
-          isSignUp ? "max-w-2xl sm:max-w-3xl lg:max-w-4xl" : isForgotPassword ? "max-w-md" : "max-w-sm"
-        }`}
+        className="relative z-10 flex w-full transition-all duration-300 flex-col items-center justify-center gap-2.5 my-auto max-w-sm sm:max-w-[420px]"
       >
         {/* Brand Logo */}
         <a
@@ -980,569 +862,265 @@ export const AuthView: React.FC<AuthViewProps> = ({
             </>
           ) : (
             /* ════════════════════════════════════════════════════════════════════
-               MODE B: 4-STEP SIGN UP WITH MANDATORY EMAIL OTP VERIFICATION
+               MODE B: MINIMAL SIGN UP (STEP 1: DETAILS | STEP 2: VERIFY OTP)
                ════════════════════════════════════════════════════════════════════ */
             <>
-              {/* Step Progress Pill Indicator (4 steps) */}
-              <div className="relative z-10 flex items-center justify-between pb-2 border-b border-white/[0.08]">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold tracking-wider uppercase text-[#CEA4F2]">
-                    Step {signUpStep} of 4
-                  </span>
-                  <span className="text-xs text-[#71717A]">•</span>
-                  <span className="text-xs text-[#A1A1AA]">
-                    {signUpStep === 1 && "Account Credentials"}
-                    {signUpStep === 2 && "Email OTP Verification"}
-                    {signUpStep === 3 && "Profile & Persona"}
-                    {signUpStep === 4 && "Profile Avatar"}
-                  </span>
-                </div>
-
-                {/* Stepper Dots (4 dots) */}
-                <div className="flex items-center gap-1.5">
-                  <div className={`h-1.5 rounded-full transition-all duration-300 ${signUpStep >= 1 ? "w-5 bg-[#CEA4F2]" : "w-2 bg-white/20"}`} />
-                  <div className={`h-1.5 rounded-full transition-all duration-300 ${signUpStep >= 2 ? "w-5 bg-[#CEA4F2]" : "w-2 bg-white/20"}`} />
-                  <div className={`h-1.5 rounded-full transition-all duration-300 ${signUpStep >= 3 ? "w-5 bg-[#CEA4F2]" : "w-2 bg-white/20"}`} />
-                  <div className={`h-1.5 rounded-full transition-all duration-300 ${signUpStep >= 4 ? "w-5 bg-[#CEA4F2]" : "w-2 bg-white/20"}`} />
-                </div>
-              </div>
-
-              {/* ─────────────────────────────────────────────────────────────
-                  STEP 1: Full Name, Email, Password, Verify Password
-                 ───────────────────────────────────────────────────────────── */}
-              {signUpStep === 1 && (
-                <div className="relative z-10 space-y-3">
-                  <div className="text-left flex items-center justify-between">
-                    <div>
-                      <h1 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
-                        Create your Certify account
-                      </h1>
-                      <p className="text-xs text-[#A1A1AA] mt-0.5">
-                        Begin your Socratic qualification journey with verified credentials.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsSignUp(false);
-                        setErrorMessage("");
-                      }}
-                      className="text-xs text-[#CEA4F2] hover:underline cursor-pointer hidden sm:block"
-                    >
-                      Already have an account? Sign In →
-                    </button>
+              {signUpStep === 1 ? (
+                <>
+                  {/* Header */}
+                  <div className="grid auto-rows-min gap-1 text-center relative z-10">
+                    <h1 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
+                      Create an account
+                    </h1>
+                    <p className="text-xs text-[#A1A1AA] leading-snug">
+                      Enter your details to register your workspace.
+                    </p>
                   </div>
 
-                  <div className="space-y-3">
-                    {/* Google Sign Up */}
-                    <button
-                      type="button"
-                      onClick={handleGoogleSignIn}
-                      disabled={isLoading}
-                      className="inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.05] hover:bg-white/[0.1] hover:border-white/[0.22] px-4 py-2.5 text-xs font-semibold text-[#FEF5E5] transition-all cursor-pointer shadow-sm active:scale-[0.99] disabled:opacity-50"
-                    >
-                      <GoogleIcon />
-                      <span>Sign up with Google</span>
-                    </button>
+                  <div className="relative z-10">
+                    <form onSubmit={handleStep1Submit} className="flex flex-col gap-3">
+                      {/* Google Sign Up Button — exactly fit into middle */}
+                      <button
+                        type="button"
+                        onClick={handleGoogleSignIn}
+                        disabled={isLoading}
+                        className="inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/[0.12] bg-white/[0.05] hover:bg-white/[0.1] hover:border-white/[0.22] px-4 py-2.5 text-xs font-semibold text-[#FEF5E5] transition-all cursor-pointer shadow-sm active:scale-[0.99] disabled:opacity-50"
+                      >
+                        <GoogleIcon />
+                        <span>Sign up with Google</span>
+                      </button>
 
-                    <div className="flex items-center gap-2 my-1">
-                      <div className="h-px flex-1 bg-white/[0.08]" />
-                      <span className="text-[11px] text-[#71717A] uppercase tracking-wider">or register with email</span>
-                      <div className="h-px flex-1 bg-white/[0.08]" />
-                    </div>
-
-                    <form onSubmit={handleStep1Submit} className="space-y-3">
-                      {/* Row 1: Full Name & Email in 2 columns */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-name">
-                            Full Name <span className="text-rose-400">*</span>
-                          </label>
-                          <div className="relative">
-                            <UserIcon className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                            <input
-                              type="text"
-                              id="signup-name"
-                              value={fullName}
-                              onChange={(e) => setFullName(e.target.value)}
-                              placeholder="e.g. Alex Chen"
-                              required
-                              className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-email">
-                            Email Address <span className="text-rose-400">*</span>
-                          </label>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                            <input
-                              type="email"
-                              id="signup-email"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              placeholder="learner@certify.edu"
-                              required
-                              className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
-                            />
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-2 my-0.5">
+                        <div className="h-px flex-1 bg-white/[0.08]" />
+                        <span className="text-[11px] text-[#71717A] uppercase tracking-wider">or register with email</span>
+                        <div className="h-px flex-1 bg-white/[0.08]" />
                       </div>
 
-                      {/* Row 2: Password & Verify Password in 2 columns */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-password">
-                            Password <span className="text-rose-400">*</span>
-                          </label>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                            <input
-                              type="password"
-                              id="signup-password"
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                              placeholder="At least 6 characters"
-                              required
-                              className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                          <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-confirm">
-                            Verify Password <span className="text-rose-400">*</span>
-                          </label>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
-                            <input
-                              type="password"
-                              id="signup-confirm"
-                              value={confirmPassword}
-                              onChange={(e) => setConfirmPassword(e.target.value)}
-                              placeholder="Re-enter password"
-                              required
-                              className={`h-9 w-full min-w-0 rounded-md border bg-black/40 pl-9 pr-3 py-1 text-xs sm:text-sm shadow-xs transition-colors outline-none text-[#FEF5E5] placeholder-[#71717A] ${
-                                confirmPassword && confirmPassword !== password
-                                  ? "border-rose-500/70 focus:ring-rose-500/30"
-                                  : "border-white/[0.1] hover:border-white/[0.18] focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40"
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Row 3: Honor Code Agreement */}
-                      <div className="flex items-center gap-2 pt-0.5 text-left">
-                        <input
-                          type="checkbox"
-                          id="honor-code"
-                          checked={agreedToTerms}
-                          onChange={(e) => setAgreedToTerms(e.target.checked)}
-                          className="size-4 rounded border-white/20 bg-black/40 text-[#7C3AED] focus:ring-[#CEA4F2] cursor-pointer shrink-0"
-                        />
-                        <label htmlFor="honor-code" className="text-xs text-[#A1A1AA] cursor-pointer select-none leading-tight">
-                          I commit to the <span className="text-white font-medium">Academic Integrity Honor Code</span> and accept the Certify Terms.
+                      {/* Full Name */}
+                      <div className="flex flex-col gap-1 text-left">
+                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-name">
+                          Full Name
                         </label>
+                        <div className="relative">
+                          <UserIcon className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                          <input
+                            type="text"
+                            id="signup-name"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            placeholder="Alex Chen"
+                            required
+                            className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Email Address */}
+                      <div className="flex flex-col gap-1 text-left">
+                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-email">
+                          Email address
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                          <input
+                            type="email"
+                            id="signup-email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="learner@certify.edu"
+                            required
+                            className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Password */}
+                      <div className="flex flex-col gap-1 text-left">
+                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-password">
+                          Password
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                          <input
+                            type="password"
+                            id="signup-password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="At least 6 characters"
+                            required
+                            className="h-9 w-full min-w-0 rounded-md border border-white/[0.1] bg-black/40 hover:border-white/[0.18] pl-9 pr-3 py-1 text-xs shadow-xs transition-colors outline-none focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40 text-[#FEF5E5] placeholder-[#71717A]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Confirm Password */}
+                      <div className="flex flex-col gap-1 text-left">
+                        <label className="text-xs font-medium text-[#FEF5E5]" htmlFor="signup-confirm">
+                          Confirm Password
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-2.5 size-3.5 text-[#71717A]" />
+                          <input
+                            type="password"
+                            id="signup-confirm"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Re-enter password"
+                            required
+                            className={`h-9 w-full min-w-0 rounded-md border bg-black/40 pl-9 pr-3 py-1 text-xs shadow-xs transition-colors outline-none text-[#FEF5E5] placeholder-[#71717A] ${
+                              confirmPassword && confirmPassword !== password
+                                ? "border-rose-500/70 focus:ring-rose-500/30"
+                                : "border-white/[0.1] hover:border-white/[0.18] focus:border-[#CEA4F2]/70 focus:ring-1 focus:ring-[#CEA4F2]/40"
+                            }`}
+                          />
+                        </div>
                       </div>
 
                       {errorMessage && (
-                        <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-1.5 px-3 rounded-md text-left">
+                        <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-2 px-3 rounded-md text-left">
                           {errorMessage}
                         </p>
                       )}
 
-                      {/* Actions */}
-                      <div className="flex items-center justify-between gap-3 pt-1">
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-md text-xs font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-4 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50 mt-1"
+                      >
+                        {isLoading ? "Dispatching code..." : "Create Account →"}
+                      </button>
+
+                      <p className="text-xs text-[#A1A1AA] text-center pt-1">
+                        Already have an account?{" "}
                         <button
                           type="button"
                           onClick={() => {
                             setIsSignUp(false);
                             setErrorMessage("");
                           }}
-                          className="text-xs text-[#A1A1AA] hover:text-white cursor-pointer sm:hidden"
+                          className="underline underline-offset-4 hover:text-[#FEF5E5] cursor-pointer text-[#CEA4F2] font-semibold"
                         >
-                          Sign In instead
+                          Sign In
                         </button>
-
-                        <button
-                          type="submit"
-                          disabled={isLoading}
-                          className="ml-auto inline-flex items-center justify-center gap-2 rounded-md text-xs sm:text-sm font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-6 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50"
-                        >
-                          {isLoading ? "Dispatching OTP code..." : "Send Verification Code →"}
-                        </button>
-                      </div>
+                      </p>
                     </form>
                   </div>
-                </div>
-              )}
-
-              {/* ─────────────────────────────────────────────────────────────
-                  STEP 2: Clean, Smooth 6-Digit Email OTP Verification (React Bits CodeSlots)
-                 ───────────────────────────────────────────────────────────── */}
-              {signUpStep === 2 && (
-                <div className="relative z-10 space-y-4 text-center py-1">
-                  <div className="space-y-1">
+                </>
+              ) : (
+                <>
+                  {/* Step 2: Verification Code */}
+                  <div className="grid auto-rows-min gap-1.5 text-center relative z-10">
                     <div className="inline-flex items-center justify-center size-11 rounded-2xl bg-white/[0.04] border border-white/[0.1] text-white shadow-inner mb-1 mx-auto">
                       <EmailIcon />
                     </div>
-                    <h2 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
+                    <h1 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
                       Enter Verification Code
-                    </h2>
-                    <p className="text-xs text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
-                      We've dispatched a 6-digit verification code to{" "}
-                      <span className="font-semibold text-white">{email}</span>.
-                      Please enter it below to verify your email.
+                    </h1>
+                    <p className="text-xs text-[#A1A1AA] leading-snug">
+                      We sent a 6-digit code to <span className="font-semibold text-white">{email}</span>.
                     </p>
                   </div>
 
-                  {/* React Bits CodeSlots Component */}
-                  <div className="flex justify-center py-2">
-                    <CodeSlots
-                      length={6}
-                      value={otpDigits.join("")}
-                      status={signupSlotsStatus}
-                      onChange={(code) => {
-                        const arr = Array.from({ length: 6 }, (_, i) => code[i] || "");
-                        setOtpDigits(arr);
-                        if (signupSlotsStatus === "error") setSignupSlotsStatus("idle");
-                      }}
-                      onComplete={async (code) => {
-                        await handleVerifyOtp(code);
-                      }}
-                      autoFocus={true}
-                      accentColor="#ffffff"
-                      inkColor="#CEA4F2"
-                      slotColor="#181724"
-                      digitColor="#0c0c10"
-                      dangerColor="#ff3b30"
-                      slotSize={44}
-                      gap={8}
-                      radius={12}
-                      bounce={0.2}
-                      settle={0.3}
-                      rise={8}
-                      cascade={20}
-                    />
-                  </div>
+                  <div className="relative z-10 flex flex-col gap-3">
+                    <div className="flex flex-col gap-1 text-center">
+                      <label className="text-xs font-medium text-[#FEF5E5] mb-1">
+                        6-Digit Verification Code
+                      </label>
+                      <div className="flex justify-center py-1">
+                        <CodeSlots
+                          length={6}
+                          value={otpDigits.join("")}
+                          status={signupSlotsStatus}
+                          onChange={(code) => {
+                            const arr = Array.from({ length: 6 }, (_, i) => code[i] || "");
+                            setOtpDigits(arr);
+                            if (signupSlotsStatus === "error") setSignupSlotsStatus("idle");
+                          }}
+                          onComplete={async (code) => {
+                            await handleVerifyOtp(code);
+                          }}
+                          autoFocus={true}
+                          accentColor="#ffffff"
+                          inkColor="#CEA4F2"
+                          slotColor="#181724"
+                          digitColor="#0c0c10"
+                          dangerColor="#ff3b30"
+                          slotSize={44}
+                          gap={8}
+                          radius={12}
+                          bounce={0.2}
+                          settle={0.3}
+                          rise={8}
+                          cascade={20}
+                        />
+                      </div>
+                    </div>
 
-                  {errorMessage && (
-                    <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-1.5 px-3 rounded-md max-w-md mx-auto">
-                      {errorMessage}
-                    </p>
-                  )}
-
-                  {resendStatus && (
-                    <p className="text-xs text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 py-1.5 px-3 rounded-md max-w-md mx-auto">
-                      {resendStatus}
-                    </p>
-                  )}
-
-                  {/* Resend & Change Email Row */}
-                  <div className="flex items-center justify-center gap-4 text-xs text-[#A1A1AA]">
-                    <span>Didn't receive the email?</span>
-                    {resendCooldown > 0 ? (
-                      <span className="text-[#71717A] text-[11px]">
-                        Resend code in {resendCooldown}s
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleResendOtp}
-                        disabled={isLoading}
-                        className="text-[#CEA4F2] hover:underline font-semibold cursor-pointer disabled:opacity-50"
-                      >
-                        Resend Code
-                      </button>
+                    {errorMessage && (
+                      <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-2 px-3 rounded-md text-left">
+                        {errorMessage}
+                      </p>
                     )}
-                    <span>•</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSignUpStep(1);
-                        setErrorMessage("");
-                      }}
-                      className="text-[#A1A1AA] hover:text-white cursor-pointer"
-                    >
-                      Change Email
-                    </button>
-                  </div>
 
-                  {/* Actions Row */}
-                  <div className="flex items-center justify-between gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSignUpStep(1);
-                        setErrorMessage("");
-                      }}
-                      className="px-4 py-1.5 rounded-md text-xs font-medium text-[#A1A1AA] hover:text-white border border-white/[0.1] bg-white/[0.02] transition cursor-pointer"
-                    >
-                      ← Back
-                    </button>
+                    {resendStatus && (
+                      <p className="text-xs text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 py-2 px-3 rounded-md text-left">
+                        {resendStatus}
+                      </p>
+                    )}
 
                     <button
                       type="button"
                       onClick={() => handleVerifyOtp()}
                       disabled={isLoading || otpDigits.join("").length < 6}
-                      className="inline-flex items-center justify-center gap-2 rounded-md text-xs sm:text-sm font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-6 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-md text-xs font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-4 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50 mt-1"
                     >
-                      {isLoading ? (
-                        <>Verifying code...</>
+                      {isLoading ? "Verifying..." : "Verify & Enter Workspace →"}
+                    </button>
+
+                    {/* Resend & Change Email Row */}
+                    <div className="flex items-center justify-between gap-3 text-xs text-[#A1A1AA] pt-1">
+                      {resendCooldown > 0 ? (
+                        <span className="text-[#71717A] text-[11px]">
+                          Resend code in {resendCooldown}s
+                        </span>
                       ) : (
-                        <>
-                          <span>Verify & Proceed</span>
-                          <span className="text-xs">→</span>
-                        </>
+                        <button
+                          type="button"
+                          onClick={handleResendOtp}
+                          disabled={isLoading}
+                          className="text-[#CEA4F2] hover:underline font-semibold cursor-pointer disabled:opacity-50 text-[11px]"
+                        >
+                          Resend Code
+                        </button>
                       )}
-                    </button>
-                  </div>
-                </div>
-              )}
 
-              {/* ─────────────────────────────────────────────────────────────
-                  STEP 3: Profile & Persona (DOB & Role - Only after OTP verified)
-                 ───────────────────────────────────────────────────────────── */}
-              {signUpStep === 3 && (
-                <div className="relative z-10 space-y-3">
-                  {/* Compact 1-line Welcome Header with Verified Badge */}
-                  <div className="px-3.5 py-2 rounded-xl border border-purple-500/20 bg-purple-500/10 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-left">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="size-4 text-[#CEA4F2] shrink-0" />
-                      <h2 className="font-bold text-xs sm:text-sm text-[#FEF5E5]">
-                        Welcome to Certify, {fullName.trim() || "Learner"}!
-                      </h2>
-                    </div>
-                    <span className="text-[11px] text-emerald-400 font-medium inline-flex items-center gap-1">
-                      <Check className="size-3 text-emerald-400 stroke-[3]" />
-                      Email Verified
-                    </span>
-                  </div>
-
-                  <form onSubmit={handleStep3Submit} className="space-y-3 text-left">
-                    {/* Date of Birth Field - Clean Horizontal Strip */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl border border-white/[0.08] bg-white/[0.02]">
-                      <label className="text-xs font-semibold text-[#FEF5E5] flex items-center gap-1.5 shrink-0" htmlFor="signup-dob">
-                        <Calendar className="size-3.5 text-[#CEA4F2]" />
-                        <span>Date of Birth</span>
-                        <span className="text-[10px] text-[#71717A] font-normal">(Credential compliance)</span>
-                      </label>
-                      <input
-                        type="date"
-                        id="signup-dob"
-                        value={dob}
-                        onChange={(e) => setDob(e.target.value)}
-                        className="h-8 max-w-full sm:w-56 rounded-md border border-white/[0.1] bg-black/50 px-3 text-xs text-[#FEF5E5] focus:border-[#CEA4F2]/70 outline-none"
-                      />
-                    </div>
-
-                    {/* Persona Selector (Compact 5-column grid) */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-[#FEF5E5] flex items-center gap-1.5">
-                        <UserCheck className="size-3.5 text-[#CEA4F2]" />
-                        <span>What best describes you?</span>
-                        <span className="text-rose-400">*</span>
-                      </label>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                        {PERSONA_OPTIONS.map((persona) => {
-                          const isSelected = selectedPersona === persona.id;
-                          return (
-                            <button
-                              key={persona.id}
-                              type="button"
-                              onClick={() => setSelectedPersona(persona.id)}
-                              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col items-start gap-1 ${
-                                isSelected
-                                  ? "bg-purple-600/25 border-[#CEA4F2] shadow-[0_0_15px_rgba(206,164,242,0.18)] ring-1 ring-[#CEA4F2]"
-                                  : "bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05] hover:border-white/[0.15]"
-                              }`}
-                            >
-                              <span className="text-lg">
-                                {persona.icon}
-                              </span>
-                              <div className="min-w-0 w-full">
-                                <div className={`text-xs font-bold leading-tight ${isSelected ? "text-white" : "text-[#FEF5E5]"}`}>
-                                  {persona.title}
-                                </div>
-                                <p className="text-[10px] text-[#A1A1AA] mt-0.5 leading-tight truncate">
-                                  {persona.description}
-                                </p>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {errorMessage && (
-                      <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-1.5 px-3 rounded-md">
-                        {errorMessage}
-                      </p>
-                    )}
-
-                    {/* Step 3 Actions */}
-                    <div className="flex items-center justify-between gap-3 pt-1">
                       <button
                         type="button"
-                        onClick={() => setSignUpStep(2)}
-                        className="px-4 py-1.5 rounded-md text-xs font-medium text-[#A1A1AA] hover:text-white border border-white/[0.1] bg-white/[0.02] transition cursor-pointer"
+                        onClick={() => {
+                          setSignUpStep(1);
+                          setErrorMessage("");
+                        }}
+                        className="text-[#A1A1AA] hover:text-[#FEF5E5] text-[11px] cursor-pointer"
                       >
-                        ← Back
-                      </button>
-
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="inline-flex items-center justify-center gap-2 rounded-md text-xs sm:text-sm font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-5 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50"
-                      >
-                        {isLoading ? "Saving..." : "Continue to Avatar →"}
+                        Change Email
                       </button>
                     </div>
-                  </form>
-                </div>
-              )}
 
-              {/* ─────────────────────────────────────────────────────────────
-                  STEP 4: Minimalist Monochrome Profile Avatar Selection
-                 ───────────────────────────────────────────────────────────── */}
-              {signUpStep === 4 && (
-                <div className="relative z-10 space-y-3 text-left">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="font-semibold text-lg sm:text-xl text-[#FEF5E5] tracking-tight">
-                        Choose your profile avatar
-                      </h2>
-                      <p className="text-xs text-[#A1A1AA] mt-0.5">
-                        Select a minimalist monochrome emblem or upload a custom image.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* 8 Curated Minimal Monochrome Emblems Grid */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-semibold text-[#FEF5E5]">
-                        Minimalist Monochrome Emblems
-                      </label>
-                      <span className="text-[11px] text-[#71717A]">High-contrast vector badges</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-                      {PRESET_AVATARS.map((avatar) => {
-                        const isSelected = selectedAvatarId === avatar.id && !customAvatarUri;
-                        return (
-                          <button
-                            key={avatar.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedAvatarId(avatar.id);
-                              setCustomAvatarUri(null);
-                            }}
-                            className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all cursor-pointer group ${
-                              isSelected
-                                ? "bg-purple-600/25 border-[#CEA4F2] shadow-[0_0_16px_rgba(206,164,242,0.25)] ring-2 ring-[#CEA4F2]"
-                                : "bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.2]"
-                            }`}
-                          >
-                            <div className="relative size-12 sm:size-14 rounded-full overflow-hidden bg-[#09090D] border border-white/20 shadow-md flex items-center justify-center p-0.5 group-hover:border-white/40 transition-colors">
-                              <img
-                                src={avatar.src}
-                                alt={avatar.name}
-                                className="w-full h-full object-contain pointer-events-none select-none"
-                                draggable={false}
-                              />
-                              {isSelected && (
-                                <div className="absolute inset-0 bg-[#CEA4F2]/30 backdrop-blur-[1px] flex items-center justify-center rounded-full">
-                                  <Check className="size-4 text-white stroke-[3] drop-shadow-md" />
-                                </div>
-                              )}
-                            </div>
-                            <span className="text-[11px] font-medium text-center text-[#FEF5E5] truncate w-full">
-                              {avatar.name}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Or Custom Upload Section - Compact Horizontal Bar */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl border border-white/[0.08] bg-white/[0.02]">
-                    <div className="flex items-center gap-3">
-                      <div className="relative size-11 rounded-full overflow-hidden border-2 border-white/20 shrink-0 bg-[#09090D] shadow-md flex items-center justify-center">
-                        <img
-                          src={customAvatarUri || PRESET_AVATARS.find((p) => p.id === selectedAvatarId)?.src || PRESET_AVATARS[0].src}
-                          alt="Selected avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold text-[#FEF5E5]">
-                          Or Upload from Local Device
-                        </div>
-                        <div className="text-[10px] text-[#71717A]">
-                          {customAvatarUri ? "✓ Custom photo loaded" : "PNG, JPG, WebP up to 2MB"}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        onChange={handleFileChange}
-                        className="hidden"
-                      />
+                    <div className="text-center pt-1">
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/[0.08] hover:bg-white/[0.15] text-[#FEF5E5] border border-white/10 transition cursor-pointer"
+                        onClick={() => {
+                          setIsSignUp(false);
+                          setSignUpStep(1);
+                          setErrorMessage("");
+                        }}
+                        className="text-xs text-[#A1A1AA] hover:text-[#FEF5E5] inline-flex items-center gap-1 cursor-pointer transition-colors"
                       >
-                        <Upload className="size-3.5 text-[#CEA4F2]" />
-                        <span>{customAvatarUri ? "Change photo..." : "Choose local file..."}</span>
+                        <ArrowLeft className="size-3" /> Back to Sign In
                       </button>
                     </div>
                   </div>
-
-                  {/* Verification Confirmed Badge */}
-                  <div className="p-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-200 text-xs flex items-center gap-2">
-                    <ShieldCheck className="size-4 shrink-0 text-emerald-400" />
-                    <span>
-                      Email <strong className="text-white">{email}</strong> verified. Your cryptographic academic ledger is activated.
-                    </span>
-                  </div>
-
-                  {errorMessage && (
-                    <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 py-1.5 px-3 rounded-md">
-                      {errorMessage}
-                    </p>
-                  )}
-
-                  {/* Step 4 Actions */}
-                  <div className="flex items-center justify-between gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => setSignUpStep(3)}
-                      className="px-4 py-1.5 rounded-md text-xs font-medium text-[#A1A1AA] hover:text-white border border-white/[0.1] bg-white/[0.02] transition cursor-pointer"
-                    >
-                      ← Back
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleStep4Submit}
-                      disabled={isLoading}
-                      className="inline-flex items-center justify-center gap-2 rounded-md text-xs sm:text-sm font-semibold bg-white hover:bg-neutral-100 text-[#0A0A0C] h-9 px-5 cursor-pointer shadow-md active:scale-[0.99] disabled:opacity-50"
-                    >
-                      {isLoading ? "Finalizing profile..." : "Complete Setup & Enter Studio"}
-                    </button>
-                  </div>
-                </div>
+                </>
               )}
             </>
           )}
