@@ -68,52 +68,106 @@ export class EmailService {
       return { delivered: true, status: "DUPLICATE" };
     }
 
-    // 3. Provider Check 1: Gmail SMTP (Dedicated provider for all OTP and auth verifications)
-    const isAuthEmail =
-      templateName === "OTP_VERIFICATION" ||
-      templateName === "PASSWORD_RESET" ||
-      templateName === "EMAIL_VERIFICATION";
+    // 3. Provider Check 1: Gmail SMTP (worker-mailer on Cloudflare Workers edge, nodemailer on Node)
+    if (config.smtpUser && config.smtpPass) {
+      const isNode = typeof process !== "undefined" && process.release?.name === "node";
+      const smtpUser = config.smtpUser.trim();
+      const smtpPass = config.smtpPass.replace(/\s+/g, "");
+      const fromEmail = "support@certify.studio";
+      const fromName = "Certify Security";
 
-    const smtp = getSmtpTransporter();
-    if (smtp) {
-      try {
-        const senderUser = config.smtpUser.trim() || "certify.auth@gmail.com";
-        const fromAddress = `"Certify Security" <${senderUser}>`;
-        const info = await smtp.sendMail({
-          from: fromAddress,
-          to,
-          subject,
-          html,
-        });
+      if (!isNode) {
+        // Cloudflare Workers Edge Environment: use cloudflare:sockets via worker-mailer
+        try {
+          const { WorkerMailer } = await import("worker-mailer");
+          const mailer = await WorkerMailer.connect({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            credentials: {
+              username: smtpUser,
+              password: smtpPass,
+            },
+          });
 
-        logger.info("[EmailService] Email dispatched successfully via Gmail SMTP (certify.auth@gmail.com)", {
-          to,
-          messageId: info.messageId,
-          template: templateName,
-        });
+          await mailer.send({
+            from: { name: fromName, email: fromEmail },
+            to,
+            subject,
+            html,
+          });
 
-        await prisma.emailLog.upsert({
-          where: { idempotencyKey },
-          create: {
-            recipient: to,
+          await mailer.close().catch(() => {});
+
+          logger.info("[EmailService] Email dispatched via Gmail SMTP (worker-mailer) as " + fromEmail, {
+            to,
             template: templateName,
-            idempotencyKey,
-            status: "SENT",
-          },
-          update: {
-            status: "SENT",
-            errorDetails: null,
-          },
-        });
+          });
 
-        return { delivered: true, status: "SENT", messageId: info.messageId };
-      } catch (smtpErr: any) {
-        logger.warn("[EmailService] Gmail SMTP dispatch failed, attempting Resend fallback:", {
-          error: smtpErr?.message,
-          to,
-          template: templateName,
-        });
-        // Fall through to Resend HTTP API
+          await prisma.emailLog.upsert({
+            where: { idempotencyKey },
+            create: {
+              recipient: to,
+              template: templateName,
+              idempotencyKey,
+              status: "SENT",
+            },
+            update: {
+              status: "SENT",
+              errorDetails: null,
+            },
+          });
+
+          return { delivered: true, status: "SENT" };
+        } catch (workerMailerErr: any) {
+          logger.warn("[EmailService] worker-mailer Gmail SMTP error, falling back:", {
+            error: workerMailerErr?.message,
+            to,
+            template: templateName,
+          });
+        }
+      } else {
+        // Node.js environment: use standard nodemailer
+        const smtp = getSmtpTransporter();
+        if (smtp) {
+          try {
+            const fromAddress = `"${fromName}" <${fromEmail}>`;
+            const info = await smtp.sendMail({
+              from: fromAddress,
+              to,
+              subject,
+              html,
+            });
+
+            logger.info("[EmailService] Email dispatched via Gmail SMTP (Node.js) as " + fromEmail, {
+              to,
+              messageId: info.messageId,
+              template: templateName,
+            });
+
+            await prisma.emailLog.upsert({
+              where: { idempotencyKey },
+              create: {
+                recipient: to,
+                template: templateName,
+                idempotencyKey,
+                status: "SENT",
+              },
+              update: {
+                status: "SENT",
+                errorDetails: null,
+              },
+            });
+
+            return { delivered: true, status: "SENT", messageId: info.messageId };
+          } catch (smtpErr: any) {
+            logger.warn("[EmailService] Gmail SMTP dispatch failed:", {
+              error: smtpErr?.message,
+              to,
+              template: templateName,
+            });
+          }
+        }
       }
     }
 
