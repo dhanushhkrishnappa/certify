@@ -96,7 +96,7 @@ export const AnimatedStatsSection: React.FC = () => {
               className="p-7 rounded-2xl bg-gradient-to-b from-[#1C1C20]/90 via-[#141416]/88 to-[#0E0E10]/92 border border-white/12 hover:border-white/25 backdrop-blur-xl shadow-xl flex flex-col justify-between text-[#FEF5E5] hover:shadow-2xl transition-all"
             >
               <div>
-                <div className="font-sans font-bold text-5xl sm:text-6xl text-[#FEF5E5] font-normal leading-none mb-3">
+                <div className="font-['Newsreader',Georgia,serif] text-5xl sm:text-6xl text-[#FEF5E5] font-normal leading-none mb-3">
                   <span ref={(el) => { numberRefs.current[st.id] = el; }}>
                     {st.prefix}0{st.suffix}
                   </span>

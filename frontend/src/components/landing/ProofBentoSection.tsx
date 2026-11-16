@@ -42,7 +42,7 @@ export const ProofBentoSection: React.FC = () => {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
-            <h2 className="font-sans font-bold text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
+            <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
               Six Pillars of Defensible Understanding
             </h2>
           </div>

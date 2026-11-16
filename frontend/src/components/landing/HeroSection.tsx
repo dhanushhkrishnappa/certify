@@ -402,7 +402,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
               </div>
 
               {/* Editorial Headline */}
-              <h3 className="font-sans font-bold text-xl sm:text-2xl md:text-[25px] font-normal leading-[1.2] text-[#FEF5E5] mb-1.5">
+              <h3 className="font-['Newsreader',Georgia,serif] text-xl sm:text-2xl md:text-[25px] font-normal leading-[1.2] text-[#FEF5E5] mb-1.5">
                 {activeSlide === 2 ? (
                   <>
                     Understanding begins{" "}

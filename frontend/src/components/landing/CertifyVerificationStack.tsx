@@ -110,7 +110,7 @@ export const CertifyVerificationStack: React.FC = () => {
               <span className="w-1.5 h-1.5 rounded-full bg-[#CEA4F2]" />
               Continuous Verification Loop
             </div>
-            <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl text-[#FEF5E5] font-normal leading-tight tracking-tight">
+            <h2 className="font-['Newsreader',Georgia,serif] text-2xl sm:text-3xl md:text-4xl text-[#FEF5E5] font-normal leading-tight tracking-tight">
               How CERTIFY turns learning into proof.
             </h2>
             <p className="text-[13px] sm:text-[14px] text-[#CFC2B4] mt-1 max-w-2xl mx-auto leading-relaxed">
@@ -211,7 +211,7 @@ export const CertifyVerificationStack: React.FC = () => {
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-sans font-bold text-2xl sm:text-3xl lg:text-[34px] font-normal leading-[1.2] text-[#FEF5E5]">
+                      <h3 className="font-['Newsreader',Georgia,serif] text-2xl sm:text-3xl lg:text-[34px] font-normal leading-[1.2] text-[#FEF5E5]">
                         {card.title}
                       </h3>
 
@@ -536,7 +536,7 @@ const CredentialVisual: React.FC = () => {
               Verified Credential ✓
             </span>
           </div>
-          <div className="font-sans font-bold text-lg sm:text-xl font-medium text-[#FEF5E5]">
+          <div className="font-['Newsreader',Georgia,serif] text-lg sm:text-xl font-medium text-[#FEF5E5]">
             Python Fundamentals
           </div>
           <div className="font-mono text-[11px] text-[#A1A1AA]">

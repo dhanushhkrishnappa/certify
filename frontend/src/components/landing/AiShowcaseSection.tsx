@@ -104,7 +104,7 @@ export const AiShowcaseSection: React.FC = () => {
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="font-sans font-bold text-3xl sm:text-5xl md:text-6xl text-[#FEF5E5] font-normal leading-tight">
+          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl md:text-6xl text-[#FEF5E5] font-normal leading-tight">
             How the Socratic AI Tutor Probes Your Code
           </h2>
           <p className="text-[15px] sm:text-[17px] text-[#CFC2B4] mt-3">

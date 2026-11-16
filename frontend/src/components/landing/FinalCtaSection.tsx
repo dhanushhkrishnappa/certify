@@ -65,10 +65,10 @@ export const FinalCtaSection: React.FC<FinalCtaSectionProps> = ({
           </div>
 
           {/* Grand Dramatic Headline */}
-          <h2 className="font-sans font-bold text-4xl sm:text-6xl md:text-7xl font-normal text-[#FEF5E5] leading-tight mb-4 max-w-3xl mx-auto">
+          <h2 className="font-['Newsreader',Georgia,serif] text-4xl sm:text-6xl md:text-7xl font-normal text-[#FEF5E5] leading-tight mb-4 max-w-3xl mx-auto">
             Don't just say you know it.
           </h2>
-          <p className="font-sans font-bold text-5xl sm:text-7xl md:text-8xl italic text-[#CEA4F2] font-normal leading-none mb-8">
+          <p className="font-['Newsreader',Georgia,serif] text-5xl sm:text-7xl md:text-8xl italic text-[#CEA4F2] font-normal leading-none mb-8">
             Prove it.
           </p>
 

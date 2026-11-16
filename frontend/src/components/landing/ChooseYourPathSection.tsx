@@ -17,7 +17,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="font-sans font-bold text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
+          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl text-[#FEF5E5] font-normal leading-tight">
             Choose Your Learning Path
           </h2>
           <p className="text-[15px] sm:text-[17px] text-[#CFC2B4] mt-3">
@@ -33,7 +33,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
               <span className="font-mono text-xs uppercase tracking-wider text-[#CEA4F2] font-semibold block mb-2">
                 Phase 01 // Calibration
               </span>
-              <h3 className="font-sans font-bold text-2xl text-[#FEF5E5] mb-3">
+              <h3 className="font-['Newsreader',Georgia,serif] text-2xl text-[#FEF5E5] mb-3">
                 Diagnostic Assessment
               </h3>
               <p className="text-sm text-[#D1D5DB] leading-relaxed mb-6">
@@ -75,7 +75,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
               <span className="font-mono text-xs uppercase tracking-wider text-[#E6CAA4] font-semibold block mb-2 mt-1">
                 Phase 02 // Mastery
               </span>
-              <h3 className="font-sans font-bold text-2xl text-[#FEF5E5] mb-3">
+              <h3 className="font-['Newsreader',Georgia,serif] text-2xl text-[#FEF5E5] mb-3">
                 AI Learning Studio
               </h3>
               <p className="text-sm text-[#D1D5DB] leading-relaxed mb-6">
@@ -110,7 +110,7 @@ export const ChooseYourPathSection: React.FC<ChooseYourPathSectionProps> = ({
               <span className="font-mono text-xs uppercase tracking-wider text-[#CEA4F2] font-semibold block mb-2">
                 Phase 03 // Certification
               </span>
-              <h3 className="font-sans font-bold text-2xl text-[#FEF5E5] mb-3">
+              <h3 className="font-['Newsreader',Georgia,serif] text-2xl text-[#FEF5E5] mb-3">
                 Formal Defense &amp; Credential
               </h3>
               <p className="text-sm text-[#D1D5DB] leading-relaxed mb-6">

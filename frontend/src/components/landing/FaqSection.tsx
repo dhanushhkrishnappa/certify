@@ -149,7 +149,7 @@ export const FaqSection: React.FC = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.08] text-xs font-mono text-purple-300 uppercase tracking-widest mb-4">
             <span>Platform Specification • Protocol FAQ</span>
           </div>
-          <h2 className="font-sans font-bold text-3xl sm:text-5xl lg:text-6xl text-[#FEF5E5] font-normal tracking-tight leading-tight">
+          <h2 className="font-['Newsreader',Georgia,serif] text-3xl sm:text-5xl lg:text-6xl text-[#FEF5E5] font-normal tracking-tight leading-tight">
             Frequently Asked Questions
           </h2>
           <p className="text-base sm:text-lg text-zinc-400 mt-3 max-w-2xl leading-relaxed font-sans">
@@ -169,7 +169,7 @@ export const FaqSection: React.FC = () => {
               />
 
               <div className="relative z-10 space-y-5">
-                <h3 className="font-sans font-bold text-2xl sm:text-3xl text-[#FEF5E5] font-normal leading-snug">
+                <h3 className="font-['Newsreader',Georgia,serif] text-2xl sm:text-3xl text-[#FEF5E5] font-normal leading-snug">
                   Academic & Institutional Inquiries
                 </h3>
                 <p className="text-sm text-zinc-400 leading-relaxed font-sans font-normal">
