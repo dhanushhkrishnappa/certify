@@ -114,7 +114,7 @@ Guidelines:
       { role: "user", parts: [{ text: context.learnerMessage }] },
     ];
 
-    const model = config.geminiTutorModel || "gemini-2.5-flash";
+    const model = config.geminiTutorModel || "gemini-3.5-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${config.geminiApiKey}&alt=sse`;
 
     const res = await fetch(url, {
@@ -126,7 +126,7 @@ Guidelines:
         },
         contents,
         generationConfig: {
-          maxOutputTokens: 400,
+          maxOutputTokens: 600,
           temperature: 0.7,
         },
       }),
@@ -134,21 +134,26 @@ Guidelines:
     });
 
     if (!res.ok) {
-      throw new AIProviderError(`Gemini API error: HTTP ${res.status}`, 502);
+      const errText = await res.text().catch(() => "");
+      throw new AIProviderError(`Gemini API error: HTTP ${res.status} - ${errText}`, 502);
     }
 
     const reader = res.body?.getReader();
     if (!reader) throw new AIProviderError("Gemini stream body unavailable", 502);
     const decoder = new TextDecoder();
     let fullText = "";
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      const textChunk = decoder.decode(value, { stream: true });
-      const lines = textChunk.split("\n").filter((l) => l.startsWith("data: "));
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
       for (const line of lines) {
-        const dataStr = line.slice(6).trim();
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("data: ")) continue;
+        const dataStr = trimmed.slice(6).trim();
         if (dataStr === "[DONE]") break;
         try {
           const eventObj = JSON.parse(dataStr);
@@ -156,7 +161,24 @@ Guidelines:
             eventObj.candidates?.[0]?.content?.parts?.[0]?.text;
           if (candidateText) {
             fullText += candidateText;
-            onChunk(candidateText);
+            await onChunk(candidateText);
+          }
+        } catch {
+          // skip unparseable SSE line
+        }
+      }
+    }
+
+    if (buffer.trim().startsWith("data: ")) {
+      const dataStr = buffer.trim().slice(6).trim();
+      if (dataStr !== "[DONE]") {
+        try {
+          const eventObj = JSON.parse(dataStr);
+          const candidateText =
+            eventObj.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidateText) {
+            fullText += candidateText;
+            await onChunk(candidateText);
           }
         } catch {
           // skip unparseable SSE line
@@ -298,8 +320,20 @@ Guidelines:
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
     this.assertConfiguredOrFallbackAllowed();
 
-    // 0. Primary High-Speed Groq Provider
-    if (Boolean((config as any).groqApiKey)) {
+    // 0. Primary Provider Selection based on config.aiProvider
+    if (config.aiProvider === "gemini" && config.geminiApiKey) {
+      try {
+        return await this.streamGeminiReply(context, onChunk, signal);
+      } catch (geminiErr: any) {
+        if (geminiErr.name === "AbortError") throw geminiErr;
+        console.warn("[AIProvider] Gemini streaming error, trying Groq fallback:", geminiErr?.message || geminiErr);
+        if (Boolean((config as any).groqApiKey)) {
+          return await this.streamGroqReply(context, onChunk, signal);
+        }
+      }
+    }
+
+    if (config.aiProvider === "groq" && Boolean((config as any).groqApiKey)) {
       try {
         return await this.streamGroqReply(context, onChunk, signal);
       } catch (groqErr: any) {
@@ -308,9 +342,21 @@ Guidelines:
       }
     }
 
-    // Direct Gemini provider mode
-    if (config.aiProvider === "gemini" && config.geminiApiKey) {
-      return this.streamGeminiReply(context, onChunk, signal);
+    // Fallback if neither primary matched or succeeded
+    if (config.geminiApiKey) {
+      try {
+        return await this.streamGeminiReply(context, onChunk, signal);
+      } catch (geminiErr: any) {
+        if (geminiErr.name === "AbortError") throw geminiErr;
+      }
+    }
+
+    if (Boolean((config as any).groqApiKey)) {
+      try {
+        return await this.streamGroqReply(context, onChunk, signal);
+      } catch (groqErr: any) {
+        if (groqErr.name === "AbortError") throw groqErr;
+      }
     }
 
     // 1. Live Anthropic API Integration with Auto-Fallback to Gemini
