@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-06",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "modules-imports-and-main-guard",
+      "tier": "MEDIUM",
+      "prompt": "What does `if __name__ == '__main__':` do when your file is imported by a test file vs. run directly?"
+    },
+    {
+      "questionType": "REASON",
+      "conceptSlug": "cli-arguments-pip-and-venv",
+      "tier": "MEDIUM",
+      "prompt": "Why should you use a virtual environment (`venv`) instead of installing packages globally with `pip`?"
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m06-stats-summary",
+    "functionName": "summarize_metrics",
+    "description": "Return mean, median, and rounded ceiling using statistics and math.",
+    "sandboxCompatible": true
+  }
+}

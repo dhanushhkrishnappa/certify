@@ -1,0 +1,29 @@
+{
+  "moduleId": "module-02",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "truthiness-and-short-circuiting",
+      "tier": "MEDIUM",
+      "prompt": "What does `'apple' and '' or 'default'` return and why? Trace it step by step."
+    },
+    {
+      "questionType": "DEBUG",
+      "conceptSlug": "logical-error-prevention",
+      "tier": "EASY",
+      "prompt": "Why does `if status == 'open' or 'pending':` always execute even when `status = 'closed'`? How do you fix it?"
+    },
+    {
+      "questionType": "REASON",
+      "conceptSlug": "truthiness-and-short-circuiting",
+      "tier": "MEDIUM",
+      "prompt": "Why is `user_count or 10` risky when `user_count` can legitimately be `0`?"
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m02-classify-ticket",
+    "functionName": "classify_ticket",
+    "description": "Given `age: int` and `is_student: bool`, return 'child' (<12), 'student' (12-25 and is_student), 'senior' (>=65), or 'adult'.",
+    "sandboxCompatible": true
+  }
+}

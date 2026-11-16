@@ -1,0 +1,67 @@
+{
+  "moduleId": "module-05",
+  "slug": "exceptions-and-debugging",
+  "title": "Module 05 \u2013 Exceptions and Debugging",
+  "sequenceOrder": 5,
+  "estimatedHours": 3.5,
+  "prerequisites": [
+    "module-01",
+    "module-02",
+    "module-03",
+    "module-04"
+  ],
+  "nextModule": "module-06",
+  "concepts": [
+    {
+      "slug": "error-taxonomy-and-tracebacks",
+      "name": "Syntax, Runtime & Logical Errors and Reading Tracebacks",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Distinguishes SyntaxError (parse time), runtime exceptions (ValueError, TypeError, KeyError), and logical errors.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Reads a Python traceback bottom-up to locate the exception type, message, and failing line.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        }
+      ]
+    },
+    {
+      "slug": "try-except-else-finally",
+      "name": "Exception Handling: try, except, else & finally",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Catches specific exception types rather than using bare 'except:' clauses.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Explains when 'else' (no exception) and 'finally' (always runs) execute.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "raising-and-defensive-debugging",
+      "name": "Raising Exceptions, Input Validation & Systematic Debugging",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses 'raise ValueError(...)' to enforce function preconditions.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Applies systematic debugging (reproduce, isolate, inspect state, verify fix).",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    }
+  ]
+}

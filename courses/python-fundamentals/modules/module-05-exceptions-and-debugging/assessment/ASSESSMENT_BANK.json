@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-05",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "try-except-else-finally",
+      "tier": "MEDIUM",
+      "prompt": "When does the `else` block in a `try/except/else/finally` statement run, and why put code there instead of inside `try`?"
+    },
+    {
+      "questionType": "DEBUG",
+      "conceptSlug": "raising-and-defensive-debugging",
+      "tier": "EASY",
+      "prompt": "Why is `except:` without an exception type dangerous in production Python?"
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m05-safe-parse-records",
+    "functionName": "parse_valid_ints",
+    "description": "Given a list of strings, return a tuple (valid_ints, invalid_count) using try/except ValueError.",
+    "sandboxCompatible": true
+  }
+}

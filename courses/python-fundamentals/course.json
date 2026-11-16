@@ -1,0 +1,31 @@
+{
+  "courseSlug": "python-fundamentals",
+  "title": "CERTIFY – Python Fundamentals",
+  "version": "2.0.0",
+  "level": "BEGINNER",
+  "category": "Software Engineering",
+  "estimatedHours": 42,
+  "status": "PUBLISHED",
+  "summary": "An independently authored, first-principles Python course engineered for Socratic AI tutoring, RAG retrieval, Bayesian Knowledge Tracing (BKT), practical code evaluation, and tiered certification.",
+  "teachingPhilosophy": [
+    "Intuition before syntax",
+    "Conceptual understanding before complex examples",
+    "Visualisation before abstraction",
+    "Simple examples before real-world applications",
+    "Guided practice before independent problem solving",
+    "Debugging and reasoning throughout the course",
+    "Assessment of actual understanding, not memorisation"
+  ],
+  "modules": [
+    { "order": 1, "id": "module-01", "slug": "python-foundations", "title": "Module 01 – Python Foundations", "estimatedHours": 4.5 },
+    { "order": 2, "id": "module-02", "slug": "decision-making", "title": "Module 02 – Decision Making", "estimatedHours": 3.5 },
+    { "order": 3, "id": "module-03", "slug": "iteration-and-problem-solving", "title": "Module 03 – Iteration and Problem Solving", "estimatedHours": 4.5 },
+    { "order": 4, "id": "module-04", "slug": "functions-and-modular-programming", "title": "Module 04 – Functions and Modular Programming", "estimatedHours": 4.5 },
+    { "order": 5, "id": "module-05", "slug": "exceptions-and-debugging", "title": "Module 05 – Exceptions and Debugging", "estimatedHours": 3.5 },
+    { "order": 6, "id": "module-06", "slug": "libraries-and-python-ecosystem", "title": "Module 06 – Libraries and Python Ecosystem", "estimatedHours": 4.0 },
+    { "order": 7, "id": "module-07", "slug": "unit-testing-and-code-quality", "title": "Module 07 – Unit Testing and Code Quality", "estimatedHours": 3.5 },
+    { "order": 8, "id": "module-08", "slug": "file-handling-and-data-processing", "title": "Module 08 – File Handling and Data Processing", "estimatedHours": 4.5 },
+    { "order": 9, "id": "module-09", "slug": "regular-expressions", "title": "Module 09 – Regular Expressions", "estimatedHours": 4.0 },
+    { "order": 10, "id": "module-10", "slug": "object-oriented-programming", "title": "Module 10 – Object-Oriented Programming", "estimatedHours": 5.5 }
+  ]
+}

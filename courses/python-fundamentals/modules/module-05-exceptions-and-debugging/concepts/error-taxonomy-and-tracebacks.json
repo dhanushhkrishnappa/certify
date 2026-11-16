@@ -1,0 +1,5 @@
+{
+  "conceptId": "error-taxonomy-and-tracebacks",
+  "name": "Syntax, Runtime & Logical Errors and Tracebacks",
+  "defaultP0": 0.15
+}

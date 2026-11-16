@@ -5,6 +5,7 @@ import { honoAuthMiddleware } from "../../shared/middleware/honoAuth.js";
 import { honoRateLimiter } from "../../shared/middleware/honoRateLimit.js";
 import { BayesianKnowledgeTracer } from "../mastery/bkt.js";
 import { AiProviderService } from "../ai/ai.provider.js";
+import { RAGService } from "../ai/rag.service.js";
 import { config } from "../../config/index.js";
 
 export const sessionsHonoRouter = new Hono();
@@ -76,6 +77,7 @@ sessionsHonoRouter.get("/courses/:slug/session", honoAuthMiddleware, async (c) =
       include: {
         chapter: {
           include: {
+            module: true,
             concepts: {
               include: { rubrics: { include: { criteria: true } } },
             },
@@ -181,6 +183,7 @@ sessionsHonoRouter.post("/courses/:slug/sessions", honoAuthMiddleware, async (c)
       include: {
         chapter: {
           include: {
+            module: true,
             concepts: {
               include: { rubrics: { include: { criteria: true } } },
             },
@@ -235,6 +238,7 @@ sessionsHonoRouter.post(
       include: {
         chapter: {
           include: {
+            module: true,
             concepts: {
               include: { rubrics: { include: { criteria: true } } },
             },
@@ -279,11 +283,30 @@ sessionsHonoRouter.post(
     return streamSSE(c, async (stream) => {
       let fullAssistantReply = "";
 
+      // Hybrid RAG Retrieval (Top-3 chapter/module-scoped chunks without leaking assessment answers)
+      let ragChunks: string[] = [];
+      try {
+        const rawModTitle = (currentChapter as any).module?.title || "";
+        const rawModSlug = rawModTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        const cleanModSlug = rawModSlug.replace(/^module-\d+-/, "");
+
+        const ragResults = await RAGService.retrieveContext({
+          chapterId: currentChapter.id,
+          moduleSlug: cleanModSlug || rawModSlug,
+          query: content,
+          topK: 3,
+        });
+        ragChunks = ragResults.map((r) => r.content);
+      } catch (ragErr) {
+        console.warn("[Sessions] RAG context retrieval error (falling back to teachingContent):", ragErr);
+      }
+
       // Stream chunks from AI Provider with client disconnect check
       await AiProviderService.generateSocraticStream({
         teachingContent: currentChapter.teachingContent,
         conceptName: currentConcept?.name || currentChapter.title,
         history: chatHistory,
+        ragContextChunks: ragChunks,
         onChunk: async (chunk: string) => {
           fullAssistantReply += chunk;
           await stream.writeSSE({
@@ -453,6 +476,7 @@ sessionsHonoRouter.post("/sessions/:sessionId/advance", honoAuthMiddleware, asyn
       include: {
         chapter: {
           include: {
+            module: true,
             concepts: {
               include: { rubrics: { include: { criteria: true } } },
             },

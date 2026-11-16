@@ -43,22 +43,34 @@ describe("Resend Transactional Email Service", () => {
   });
 
   it("fails closed when RESEND_API_KEY is not configured and records the failure", async () => {
-    vi.spyOn(prisma.emailLog, "findUnique").mockResolvedValue(null);
-    const upsertSpy = vi.spyOn(prisma.emailLog, "upsert").mockResolvedValue({} as any);
+    const origSmtpUser = process.env.SMTP_USER;
+    const origSmtpPass = process.env.SMTP_PASS;
+    const origResendKey = process.env.RESEND_API_KEY;
+    delete process.env.SMTP_USER;
+    delete process.env.SMTP_PASS;
+    delete process.env.RESEND_API_KEY;
 
-    const result = await EmailService.sendTransactionalEmail({
-      to: "bob@certify.edu",
-      subject: "Notice",
-      html: "<p>Notice</p>",
-      idempotencyKey: "notice-bob-1",
-      templateName: "NOTICE",
-    });
+    try {
+      vi.spyOn(prisma.emailLog, "findUnique").mockResolvedValue(null);
+      const upsertSpy = vi.spyOn(prisma.emailLog, "upsert").mockResolvedValue({} as any);
 
-    expect(result.delivered).toBe(false);
-    expect(result.status).toBe("BLOCKED");
-    expect(result.error).toContain("Provider credentials not configured");
-    expect(upsertSpy).toHaveBeenCalled();
+      const result = await EmailService.sendTransactionalEmail({
+        to: "bob@certify.edu",
+        subject: "Notice",
+        html: "<p>Notice</p>",
+        idempotencyKey: "notice-bob-1",
+        templateName: "NOTICE",
+      });
 
-    vi.restoreAllMocks();
+      expect(result.delivered).toBe(false);
+      expect(result.status).toBe("BLOCKED");
+      expect(result.error).toContain("Provider credentials not configured");
+      expect(upsertSpy).toHaveBeenCalled();
+    } finally {
+      if (origSmtpUser !== undefined) process.env.SMTP_USER = origSmtpUser;
+      if (origSmtpPass !== undefined) process.env.SMTP_PASS = origSmtpPass;
+      if (origResendKey !== undefined) process.env.RESEND_API_KEY = origResendKey;
+      vi.restoreAllMocks();
+    }
   });
 });

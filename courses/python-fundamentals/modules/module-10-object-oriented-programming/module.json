@@ -1,0 +1,66 @@
+{
+  "moduleId": "module-10",
+  "slug": "object-oriented-programming",
+  "title": "Module 10 \u2013 Object-Oriented Programming",
+  "sequenceOrder": 10,
+  "estimatedHours": 5.5,
+  "prerequisites": [
+    "module-04",
+    "module-05",
+    "module-07"
+  ],
+  "nextModule": null,
+  "concepts": [
+    {
+      "slug": "classes-objects-and-init",
+      "name": "Procedural vs OOP, Classes, Objects, __init__ & Methods",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Explains what 'self' refers to inside __init__ and instance methods.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Distinguishes a class (blueprint) from object instances with independent state.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        }
+      ]
+    },
+    {
+      "slug": "state-properties-and-encapsulation",
+      "name": "Instance vs Class Variables, Properties & Encapsulation",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Distinguishes per-instance attributes from shared class attributes.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Uses @property getters/setters to enforce validation invariants on attribute assignment.",
+          "weight": 0.5,
+          "tierRequired": "HARD"
+        }
+      ]
+    },
+    {
+      "slug": "inheritance-composition-and-dunders",
+      "name": "Inheritance, Method Overriding, Composition & Special Methods",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Applies inheritance with super() and method overriding, and knows when composition ('has-a') is cleaner than inheritance ('is-a').",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Implements special methods (__str__, __repr__, __eq__) appropriately.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    }
+  ]
+}

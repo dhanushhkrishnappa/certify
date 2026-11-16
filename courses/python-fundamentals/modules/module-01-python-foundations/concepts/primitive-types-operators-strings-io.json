@@ -1,0 +1,28 @@
+{
+  "conceptId": "primitive-types-operators-strings-io",
+  "name": "Data Types, Type Conversion, Operators, Strings & I/O",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "int",
+    "float",
+    "str",
+    "bool",
+    "input",
+    "print",
+    "f-string",
+    "floor division",
+    "modulo"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Converts user input() strings safely to int or float before arithmetic.",
+      "weight": 0.5,
+      "tierRequired": "EASY"
+    },
+    {
+      "statement": "Applies floor division (//), modulo (%), and f-string formatting accurately.",
+      "weight": 0.5,
+      "tierRequired": "MEDIUM"
+    }
+  ]
+}

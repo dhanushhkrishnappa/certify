@@ -52,6 +52,7 @@ export const config = {
   get jwtSecret() { return process.env.JWT_SECRET || "certify_super_secure_jwt_secret_dev_key_2026"; },
   get jwtExpiresIn() { return process.env.JWT_EXPIRES_IN || "2h"; },
   get nodeEnv() { return process.env.NODE_ENV || "development"; },
+  set nodeEnv(v: string) { process.env.NODE_ENV = v; },
   get corsOrigin() { return process.env.CORS_ORIGIN || "https://certify.pages.dev"; },
   get aiProvider() { return (process.env.AI_PROVIDER || "anthropic") as "anthropic" | "openai" | "gemini"; },
   set aiProvider(v: "anthropic" | "openai" | "gemini") { process.env.AI_PROVIDER = v; },
@@ -75,7 +76,9 @@ export const config = {
       : process.env.ALLOW_DEV_AI_FALLBACK === "true" || process.env.ALLOW_DEV_AI_FALLBACK !== "false";
   },
   get ed25519PrivateKeyPem() { return process.env.ED25519_PRIVATE_KEY_PEM || ""; },
+  set ed25519PrivateKeyPem(v: string) { process.env.ED25519_PRIVATE_KEY_PEM = v; },
   get ed25519PublicKeyPem() { return process.env.ED25519_PUBLIC_KEY_PEM || ""; },
+  set ed25519PublicKeyPem(v: string) { process.env.ED25519_PUBLIC_KEY_PEM = v; },
   get ed25519KeyId() { return process.env.ED25519_KEY_ID || "certify-2026-key-1"; },
   get resendApiKey() { return process.env.RESEND_API_KEY || ""; },
   get emailFrom() { return process.env.EMAIL_FROM || "security@certify.edu"; },

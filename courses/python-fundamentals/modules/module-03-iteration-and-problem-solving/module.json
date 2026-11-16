@@ -1,0 +1,82 @@
+{
+  "moduleId": "module-03",
+  "slug": "iteration-and-problem-solving",
+  "title": "Module 03 \u2013 Iteration and Problem Solving",
+  "sequenceOrder": 3,
+  "estimatedHours": 4.5,
+  "prerequisites": [
+    "module-01",
+    "module-02"
+  ],
+  "nextModule": "module-04",
+  "concepts": [
+    {
+      "slug": "while-and-sentinel-loops",
+      "name": "while Loops & Sentinel Input Validation",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Ensures loop state progresses toward termination to avoid infinite loops.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Uses while True + break cleanly for sentinel/validation loops.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "for-loops-and-range",
+      "name": "for Loops, range() & Collection Iteration",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses for loops directly over iterables (strings, lists, dicts) without unnecessary index counters.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Applies range(start, stop, step) accurately, accounting for exclusive stop.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        }
+      ]
+    },
+    {
+      "slug": "loop-control-and-nesting",
+      "name": "break, continue, Nested Loops & Accumulation/Search Patterns",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Distinguishes break (exits innermost loop) from continue (skips to next iteration).",
+          "weight": 0.4,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Implements accumulator, filter, and early-exit search patterns.",
+          "weight": 0.6,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "pythonic-iteration-and-comprehensions",
+      "name": "Extension: Unpacking, enumerate(), zip() & Comprehensions",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses enumerate() and zip() with tuple unpacking instead of manual range(len(...)) indexing.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Writes readable list and dictionary comprehensions with optional filter conditions.",
+          "weight": 0.5,
+          "tierRequired": "HARD"
+        }
+      ]
+    }
+  ]
+}

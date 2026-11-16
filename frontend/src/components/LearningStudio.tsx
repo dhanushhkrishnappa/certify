@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AiChat9, type AIModel, type ReasoningEffort } from "./ai/AiChat9.js";
+import { AiChat9, type AIModel, type ReasoningEffort, type ChatMessage } from "./ai/AiChat9.js";
 import { api } from "../services/api.js";
 import { API_BASE } from "../constants/api.js";
 import type { User, LearningSessionContext } from "../types/index.js";
@@ -27,18 +27,52 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
   onNavigate,
 }) => {
   const [sessionContext, setSessionContext] = useState<LearningSessionContext | null>(null);
+  const [initialMessages, setInitialMessages] = useState<ChatMessage[]>([]);
 
-  // Fetch session context from backend if available
+  // Fetch session context and restore conversation history from backend
   useEffect(() => {
     let mounted = true;
     api.getSessionContext(courseSlug)
-      .then((data) => {
-        if (mounted) setSessionContext(data);
+      .then(async (data) => {
+        if (!mounted) return;
+        setSessionContext(data);
+
+        if (data.session?.messages && data.session.messages.length > 0) {
+          const mapped: ChatMessage[] = data.session.messages.map((m: any) => ({
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+            timestamp: m.createdAt,
+          }));
+          setInitialMessages(mapped);
+        } else if (!data.session) {
+          // If learner is enrolled but no active session exists, start one cleanly
+          try {
+            const started = await api.startSession(courseSlug);
+            if (mounted && started?.session) {
+              setSessionContext((prev) =>
+                prev ? { ...prev, session: started.session } : { ...data, session: started.session }
+              );
+              if (started.session.messages && started.session.messages.length > 0) {
+                const mapped: ChatMessage[] = started.session.messages.map((m: any) => ({
+                  id: m.id,
+                  role: m.role as "user" | "assistant",
+                  content: m.content,
+                  timestamp: m.createdAt,
+                }));
+                setInitialMessages(mapped);
+              }
+            }
+          } catch (startErr) {
+            console.info("Using local Socratic session start:", startErr);
+          }
+        }
       })
       .catch((err) => {
         // Fallback silently to local high-fidelity intelligence
         console.info("Using local Socratic session:", err?.message || err);
       });
+
     return () => {
       mounted = false;
     };
@@ -59,12 +93,63 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
     }
   };
 
+  /**
+   * Real-time Socratic Tutor Streaming with Grounded pgvector RAG
+   */
+  const handleStreamMessage = async (
+    message: string,
+    onToken: (chunk: string) => void,
+    signal?: AbortSignal
+  ) => {
+    let activeSessionId = sessionContext?.session?.id;
+
+    if (!activeSessionId) {
+      // Just-in-time session creation if not already established
+      try {
+        const started = await api.startSession(courseSlug);
+        if (started?.session?.id) {
+          activeSessionId = started.session.id;
+          setSessionContext((prev) =>
+            prev
+              ? { ...prev, session: started.session }
+              : {
+                  course: { id: "", slug: courseSlug, title: courseDisplayName },
+                  enrollment: { id: "", currentTier: "FOUNDATIONAL", status: "ACTIVE" },
+                  session: started.session,
+                  conceptMasteries: [],
+                  curriculum: [],
+                }
+          );
+        }
+      } catch (err) {
+        console.warn("[LearningStudio] Could not start backend session:", err);
+      }
+    }
+
+    if (!activeSessionId) {
+      throw new Error("No active backend session available");
+    }
+
+    await api.streamMessage(
+      activeSessionId,
+      message,
+      onToken,
+      (stateUpdate) => {
+        console.info("[LearningStudio] Concept mastery update:", stateUpdate);
+      },
+      (messageId) => {
+        console.info("[LearningStudio] Assistant turn finished:", messageId);
+      },
+      signal
+    );
+  };
+
   const handleSendMessage = async (
     message: string,
     _model: AIModel,
     _effort: ReasoningEffort
   ): Promise<string | void> => {
-    // If real backend session exists, attempt to stream/send to backend
+    // If real backend session exists, attempt to send to backend
     if (sessionContext?.session?.id) {
       try {
         const token = localStorage.getItem("certify_token");
@@ -97,8 +182,10 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
         courseTitle={courseDisplayName}
         courseSlug={courseSlug}
         user={user}
+        initialMessages={initialMessages}
         onExit={handleExit}
         onSendMessage={handleSendMessage}
+        onStreamMessage={handleStreamMessage}
       />
     </div>
   );

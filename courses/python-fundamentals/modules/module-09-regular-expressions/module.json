@@ -1,0 +1,66 @@
+{
+  "moduleId": "module-09",
+  "slug": "regular-expressions",
+  "title": "Module 09 \u2013 Regular Expressions",
+  "sequenceOrder": 9,
+  "estimatedHours": 4.0,
+  "prerequisites": [
+    "module-01",
+    "module-05",
+    "module-08"
+  ],
+  "nextModule": "module-10",
+  "concepts": [
+    {
+      "slug": "regex-syntax-and-raw-strings",
+      "name": "Pattern Thinking, Raw Strings & re.search/fullmatch",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses raw strings (r'...') for regex patterns to prevent Python backslash escaping.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Distinguishes re.search (anywhere), re.match (start), and re.fullmatch (entire string).",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "classes-quantifiers-anchors",
+      "name": "Character Classes, Quantifiers & Anchors",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Applies \\d, \\w, \\s, [...], +, *, ?, {m,n}, ^, and $ accurately.",
+          "weight": 0.6,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Explains greedy vs. non-greedy (*? / +?) matching.",
+          "weight": 0.4,
+          "tierRequired": "HARD"
+        }
+      ]
+    },
+    {
+      "slug": "groups-extraction-and-substitution",
+      "name": "Capturing Groups, Extraction & re.sub",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Extracts structured substrings using numbered or named capturing groups (?P<name>...).",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Knows when to prefer simple str methods or json/csv parsers over regex.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        }
+      ]
+    }
+  ]
+}

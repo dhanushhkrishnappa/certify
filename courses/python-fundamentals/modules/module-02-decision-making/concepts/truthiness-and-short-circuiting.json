@@ -1,0 +1,24 @@
+{
+  "conceptId": "truthiness-and-short-circuiting",
+  "name": "Truthiness, Falsy Values & Short-Circuit Evaluation",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "truthiness",
+    "falsy",
+    "short-circuit",
+    "None",
+    "is None"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Identifies Python's falsy values.",
+      "weight": 0.4,
+      "tierRequired": "EASY"
+    },
+    {
+      "statement": "Explains that 'and'/'or' short-circuit and return the deciding operand.",
+      "weight": 0.6,
+      "tierRequired": "MEDIUM"
+    }
+  ]
+}

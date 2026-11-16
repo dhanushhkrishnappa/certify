@@ -89,13 +89,18 @@ export class AIProvider {
       concepts: Array<{ id: string; slug: string; name: string; description: string }>;
       history: Array<{ role: "user" | "assistant"; content: string }>;
       learnerMessage: string;
+      ragContextChunks?: string[];
     },
     onChunk: (chunk: string) => void,
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
+    const ragNotes = context.ragContextChunks && context.ragContextChunks.length > 0
+      ? `\n\nCurriculum reference context (from lesson and common mistakes):\n${context.ragContextChunks.join("\n---\n")}\nUse this curriculum reference context to inform your Socratic questioning, but NEVER reveal solutions or code answers to assessment questions.`
+      : "";
+
     const systemPrompt = `You are the Socratic AI Tutor for the CERTIFY course "${context.courseTitle}", chapter "${context.chapterTitle}".
 Concepts in this chapter: ${context.concepts.map((c) => c.name).join(", ")}.
-Teaching notes: ${context.teachingContent || "First-principles Python semantics."}
+Teaching notes: ${context.teachingContent || "First-principles Python semantics."}${ragNotes}
 Guidelines:
 - Guide with Socratic questions; probe mental models of memory, identity, and runtime state.
 - Keep responses concise (under 120 words). Never give direct code answers to assessment questions.`;
@@ -174,6 +179,7 @@ Guidelines:
       concepts: Array<{ id: string; slug: string; name: string; description: string }>;
       history: Array<{ role: "user" | "assistant"; content: string }>;
       learnerMessage: string;
+      ragContextChunks?: string[];
     },
     onChunk: (chunk: string) => void,
     signal?: AbortSignal
@@ -188,9 +194,13 @@ Guidelines:
     // 1. Live Anthropic API Integration with Auto-Fallback to Gemini
     if (config.aiProvider === "anthropic" && config.anthropicApiKey) {
       try {
+        const ragNotes = context.ragContextChunks && context.ragContextChunks.length > 0
+          ? `\n\nCurriculum reference context (from lesson and common mistakes):\n${context.ragContextChunks.join("\n---\n")}\nUse this curriculum reference context to inform your Socratic questioning, but NEVER reveal solutions or code answers to assessment questions.`
+          : "";
+
         const systemPrompt = `You are the Socratic AI Tutor for the CERTIFY course "${context.courseTitle}", chapter "${context.chapterTitle}".
 Concepts in this chapter: ${context.concepts.map((c) => c.name).join(", ")}.
-Teaching notes: ${context.teachingContent || "First-principles Python semantics."}
+Teaching notes: ${context.teachingContent || "First-principles Python semantics."}${ragNotes}
 Guidelines:
 - Guide with Socratic questions; probe mental models of memory, identity, and runtime state.
 - Keep responses concise (under 120 words). Never give direct code answers to assessment questions.`;
@@ -473,6 +483,7 @@ Guidelines:
     history: Array<{ role: "user" | "assistant" | "system"; content: string }>;
     onChunk: (chunk: string) => void;
     signal?: AbortSignal;
+    ragContextChunks?: string[];
   }): Promise<{ fullText: string; modelUsed: string }> {
     const lastUserMsg =
       params.history.slice().reverse().find((m) => m.role === "user")?.content || "";
@@ -486,6 +497,7 @@ Guidelines:
         concepts: [{ id: "c1", slug: "c1", name: params.conceptName, description: "" }],
         history: historyWithoutLast as any,
         learnerMessage: lastUserMsg,
+        ragContextChunks: params.ragContextChunks,
       },
       params.onChunk,
       params.signal

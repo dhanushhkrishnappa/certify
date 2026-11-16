@@ -1,0 +1,26 @@
+{
+  "conceptId": "boolean-logic-and-comparisons",
+  "name": "Boolean Expressions, Comparison & Logical Operators",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "bool",
+    "comparison",
+    "and",
+    "or",
+    "not",
+    "chained comparison",
+    "precedence"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Uses comparison operators and chained comparisons accurately.",
+      "weight": 0.5,
+      "tierRequired": "EASY"
+    },
+    {
+      "statement": "Applies operator precedence (not -> and -> or) accurately.",
+      "weight": 0.5,
+      "tierRequired": "MEDIUM"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-07",
+  "questions": [
+    {
+      "questionType": "REASON",
+      "conceptSlug": "assertions-and-unit-testing",
+      "tier": "MEDIUM",
+      "prompt": "Why should you never rely on `assert` statements to validate untrusted user input in production code?"
+    },
+    {
+      "questionType": "APPLY",
+      "conceptSlug": "pytest-and-edge-cases",
+      "tier": "MEDIUM",
+      "prompt": "List 4 distinct test cases (normal, boundary, empty, invalid) for a function `discount_price(price: float, pct: int) -> float`."
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m07-tdd-discount",
+    "functionName": "apply_discount",
+    "description": "Implement apply_discount(price, pct) passing normal, 0%, 100%, and negative-value ValueError tests.",
+    "sandboxCompatible": true
+  }
+}

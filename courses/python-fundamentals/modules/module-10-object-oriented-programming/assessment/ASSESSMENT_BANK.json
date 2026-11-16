@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-10",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "state-properties-and-encapsulation",
+      "tier": "MEDIUM",
+      "prompt": "What bug occurs if you define `tags = []` as a class attribute instead of `self.tags = []` inside `__init__`?"
+    },
+    {
+      "questionType": "COMPARE",
+      "conceptSlug": "inheritance-composition-and-dunders",
+      "tier": "MEDIUM",
+      "prompt": "Compare inheritance ('is-a') and composition ('has-a') with a concrete Python example."
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m10-gradebook-class",
+    "functionName": "GradeBook",
+    "description": "Implement a GradeBook class with add_score(name, score) validation (0-100) and average() method.",
+    "sandboxCompatible": true
+  }
+}

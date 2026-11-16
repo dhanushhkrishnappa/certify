@@ -1,0 +1,25 @@
+{
+  "conceptId": "execution-model-and-syntax",
+  "name": "Python Execution Model, REPL, Scripts & Indentation",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "interpreter",
+    "REPL",
+    "script",
+    "indentation",
+    "SyntaxError",
+    "comments"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Distinguishes interactive REPL mode from executing a .py script file.",
+      "weight": 0.4,
+      "tierRequired": "EASY"
+    },
+    {
+      "statement": "Explains that Python uses indentation (4 spaces) rather than braces to define code blocks.",
+      "weight": 0.6,
+      "tierRequired": "EASY"
+    }
+  ]
+}

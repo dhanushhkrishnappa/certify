@@ -1,0 +1,25 @@
+{
+  "conceptId": "branching-if-elif-else",
+  "name": "Conditional Statements: if, elif, else, Nested & Ternary",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "if",
+    "elif",
+    "else",
+    "ternary",
+    "branching",
+    "guard"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Orders mutually exclusive elif branches from most specific to most general.",
+      "weight": 0.5,
+      "tierRequired": "EASY"
+    },
+    {
+      "statement": "Distinguishes when to use elif vs. independent if statements.",
+      "weight": 0.5,
+      "tierRequired": "MEDIUM"
+    }
+  ]
+}

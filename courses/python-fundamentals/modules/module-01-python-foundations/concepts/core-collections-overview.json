@@ -1,0 +1,26 @@
+{
+  "conceptId": "core-collections-overview",
+  "name": "Core Collections: Lists, Tuples, Dictionaries & Sets",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "list",
+    "tuple",
+    "dict",
+    "set",
+    "hashable",
+    "KeyError",
+    "indexing"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Selects appropriately between list, tuple, dict, and set.",
+      "weight": 0.5,
+      "tierRequired": "MEDIUM"
+    },
+    {
+      "statement": "Explains why mutable lists cannot serve as dictionary keys or set elements.",
+      "weight": 0.5,
+      "tierRequired": "HARD"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "moduleId": "module-08",
+  "slug": "file-handling-and-data-processing",
+  "title": "Module 08 \u2013 File Handling and Data Processing",
+  "sequenceOrder": 8,
+  "estimatedHours": 4.5,
+  "prerequisites": [
+    "module-05",
+    "module-06",
+    "module-07"
+  ],
+  "nextModule": "module-09",
+  "concepts": [
+    {
+      "slug": "file-paths-and-context-managers",
+      "name": "File Paths, open(), Context Managers (with) & File Exceptions",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses 'with open(..., encoding=\"utf-8\")' so file descriptors close automatically even on error.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Handles FileNotFoundError and PermissionError gracefully using pathlib.Path and try/except.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "csv-and-json-processing",
+      "name": "Structured Data Processing: CSV & JSON",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Reads and writes CSV files with csv.DictReader/DictWriter (using newline='').",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Serializes and deserializes Python dicts/lists with json.load/json.dump and handles JSONDecodeError.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "iterators-and-lazy-generators",
+      "name": "Extension: Iterators, Generators & yield for Stream Processing",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Contrasts yield (suspends frame, O(1) memory) with return (terminates frame, eager list).",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Writes a lazy generator pipeline to filter/transform large streams without loading everything into RAM.",
+          "weight": 0.5,
+          "tierRequired": "HARD"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "conceptId": "variables-and-object-references",
+  "name": "Variables, Object References & Mutability",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "reference",
+    "heap",
+    "id()",
+    "mutable",
+    "immutable",
+    "aliasing",
+    "copy",
+    "deepcopy"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Articulates that Python variables are name bindings (references) to heap objects rather than fixed memory boxes.",
+      "weight": 0.4,
+      "tierRequired": "EASY"
+    },
+    {
+      "statement": "Predicts aliasing effects when two names point to the same mutable object vs. shallow/deep copies.",
+      "weight": 0.6,
+      "tierRequired": "MEDIUM"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "moduleId": "module-01",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "variables-and-object-references",
+      "tier": "EASY",
+      "prompt": "Explain what happens in memory when you run `a = [1, 2]; b = a; b.append(3)`. What does `a` contain and why?"
+    },
+    {
+      "questionType": "REASON",
+      "conceptSlug": "core-collections-overview",
+      "tier": "HARD",
+      "prompt": "Why does Python raise a TypeError if you try to use a list as a dictionary key, whereas a tuple of strings works?"
+    },
+    {
+      "questionType": "DEBUG",
+      "conceptSlug": "primitive-types-operators-strings-io",
+      "tier": "EASY",
+      "prompt": "A student wrote `x = input('Enter price: '); print(x * 1.1)` and got a TypeError. Identify the bug and fix it."
+    },
+    {
+      "questionType": "APPLY",
+      "conceptSlug": "core-collections-overview",
+      "tier": "MEDIUM",
+      "prompt": "Write a snippet that removes duplicates from `['a', 'b', 'a', 'c']` while keeping the result as a sorted list."
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m01-normalize-inventory",
+    "functionName": "normalize_inventory",
+    "description": "Given a list of item dicts `[{'name': ' Pen ', 'qty': '3'}, ...]`, return a dict mapping lowercase stripped names to integer quantities, without mutating the input list.",
+    "sandboxCompatible": true
+  }
+}

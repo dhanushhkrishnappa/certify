@@ -1,0 +1,66 @@
+{
+  "moduleId": "module-07",
+  "slug": "unit-testing-and-code-quality",
+  "title": "Module 07 \u2013 Unit Testing and Code Quality",
+  "sequenceOrder": 7,
+  "estimatedHours": 3.5,
+  "prerequisites": [
+    "module-04",
+    "module-05",
+    "module-06"
+  ],
+  "nextModule": "module-08",
+  "concepts": [
+    {
+      "slug": "assertions-and-unit-testing",
+      "name": "Importance of Testing, assert & Unit Testing Fundamentals",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Writes clear assert statements verifying expected return values.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Explains why pure functions (return values) are easier to unit test than print-only functions.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "pytest-and-edge-cases",
+      "name": "pytest Fundamentals, Edge Cases & Exception Testing",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Structures test_ files and test_ functions following pytest discovery conventions.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Tests boundary conditions, empty inputs, and expected exceptions (pytest.raises).",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "tdd-and-code-quality",
+      "name": "TDD Basics, PEP 8 Naming & Documentation",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Describes the Red-Green-Refactor TDD workflow.",
+          "weight": 0.4,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Applies PEP 8 naming (snake_case, PascalCase, UPPER_CASE) and clear docstrings.",
+          "weight": 0.6,
+          "tierRequired": "EASY"
+        }
+      ]
+    }
+  ]
+}

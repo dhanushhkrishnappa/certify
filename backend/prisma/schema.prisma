@@ -177,6 +177,7 @@ model Chapter {
   questions          Question[]
   sessions           LearningSession[]
   currentEnrollments Enrollment[]
+  embeddings         CourseEmbedding[]
 
   @@index([moduleId])
   @@index([moduleId, sequenceOrder])
@@ -197,6 +198,7 @@ model Concept {
   rubrics        Rubric[]
   conceptMastery ConceptMastery[]
   questions      Question[]
+  embeddings     CourseEmbedding[]
 
   @@unique([chapterId, slug])
   @@index([chapterId])
@@ -555,3 +557,30 @@ model EmailLog {
   @@index([idempotencyKey])
   @@map("email_logs")
 }
+
+// ==============================================================================
+// 9. RAG KNOWLEDGE BASE DOMAIN (PGVECTOR)
+// ==============================================================================
+// Dense vector embeddings (1536-dim) + Full-Text Search (tsvector)
+// Scoped to Python Fundamentals curriculum for grounded Socratic AI tutoring.
+
+model CourseEmbedding {
+  id         String   @id @default(uuid())
+  chapterId  String?  @map("chapter_id")
+  chapter    Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  conceptId  String?  @map("concept_id")
+  concept    Concept? @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  moduleSlug String   @map("module_slug")
+  chunkType  String   @map("chunk_type") // LESSON | COMMON_MISTAKE | EXAMPLE
+  content    String
+  embedding  Unsupported("vector(1536)")?
+  fts        Unsupported("tsvector")?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([chapterId])
+  @@index([conceptId])
+  @@index([moduleSlug])
+  @@index([chunkType])
+  @@map("course_embeddings")
+}
+

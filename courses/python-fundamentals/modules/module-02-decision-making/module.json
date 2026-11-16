@@ -1,0 +1,81 @@
+{
+  "moduleId": "module-02",
+  "slug": "decision-making",
+  "title": "Module 02 \u2013 Decision Making",
+  "sequenceOrder": 2,
+  "estimatedHours": 3.5,
+  "prerequisites": [
+    "module-01"
+  ],
+  "nextModule": "module-03",
+  "concepts": [
+    {
+      "slug": "boolean-logic-and-comparisons",
+      "name": "Boolean Expressions, Comparison & Logical Operators",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses comparison operators (==, !=, <, <=, >, >=) and chained comparisons accurately.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Applies operator precedence (not -> and -> or) without mis-grouping conditions.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "branching-if-elif-else",
+      "name": "Conditional Statements: if, elif, else, Nested & Ternary",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Orders mutually exclusive elif branches from most specific to most general.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Distinguishes when to use elif vs. independent if statements.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "truthiness-and-short-circuiting",
+      "name": "Truthiness, Falsy Values & Short-Circuit Evaluation",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Identifies Python's falsy values (False, None, 0, 0.0, '', [], {}, set()).",
+          "weight": 0.4,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Explains that 'and'/'or' short-circuit and return the deciding operand rather than a strict bool.",
+          "weight": 0.6,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "logical-error-prevention",
+      "name": "Identity vs Equality (is vs ==) & Common Logical Errors",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses 'is None' for identity checks and '==' for value equality.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Diagnoses flawed boolean conditions such as `x == 1 or 2`.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    }
+  ]
+}

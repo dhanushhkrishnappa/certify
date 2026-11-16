@@ -15,7 +15,9 @@
     "db:neon:push": "prisma db push",
     "db:neon:migrate": "prisma migrate dev",
     "db:users": "node scripts/manage_users.cjs list",
-    "db:delete-user": "node scripts/manage_users.cjs delete"
+    "db:delete-user": "node scripts/manage_users.cjs delete",
+    "rag:ingest": "tsx scripts/ingest_python_rag.ts",
+    "test:chat": "tsx scripts/verify_chat_e2e.ts"
   },
   "keywords": [
     "ai",

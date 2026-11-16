@@ -3,6 +3,7 @@ import { prisma } from "../../shared/prisma.js";
 import { AuthenticatedRequest } from "../../shared/middleware/auth.js";
 import { BayesianKnowledgeTracer } from "../mastery/bkt.js";
 import { AiProviderService } from "../ai/ai.provider.js";
+import { RAGService } from "../ai/rag.service.js";
 import { config } from "../../config/index.js";
 
 export class SessionsController {
@@ -298,13 +299,26 @@ export class SessionsController {
       const currentChapter = session.chapter;
       const currentConcept = currentChapter.concepts[0];
 
-      // 4. Stream response from real AI Provider
+      // 4. Stream response from real AI Provider (with Hybrid RAG retrieval)
       let fullAssistantReply = "";
+
+      let ragChunks: string[] = [];
+      try {
+        const ragResults = await RAGService.retrieveContext({
+          chapterId: currentChapter.id,
+          query: content.trim(),
+          topK: 3,
+        });
+        ragChunks = ragResults.map((r) => r.content);
+      } catch (ragErr) {
+        console.warn("[SessionsController] RAG context retrieval error:", ragErr);
+      }
 
       await AiProviderService.generateSocraticStream({
         teachingContent: currentChapter.teachingContent,
         conceptName: currentConcept?.name || currentChapter.title,
         history: chatHistory,
+        ragContextChunks: ragChunks,
         onChunk: (chunk: string) => {
           if (clientDisconnected) return;
           fullAssistantReply += chunk;

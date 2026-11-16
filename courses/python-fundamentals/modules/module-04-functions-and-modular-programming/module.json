@@ -1,0 +1,66 @@
+{
+  "moduleId": "module-04",
+  "slug": "functions-and-modular-programming",
+  "title": "Module 04 \u2013 Functions and Modular Programming",
+  "sequenceOrder": 4,
+  "estimatedHours": 4.5,
+  "prerequisites": [
+    "module-01",
+    "module-02",
+    "module-03"
+  ],
+  "nextModule": "module-05",
+  "concepts": [
+    {
+      "slug": "function-definition-and-return",
+      "name": "Defining Functions, Parameters, Arguments & Return Values",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Distinguishes returning a value (return) from printing a side effect (print).",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Uses positional, keyword, default, and *args/**kwargs parameters accurately.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "scope-legb-and-mutable-defaults",
+      "name": "LEGB Scope, Global vs Local & Mutable Default Trap",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Traces variable lookup through Local, Enclosing, Global, and Built-in (LEGB) scopes.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Diagnoses and fixes the mutable default argument trap (def f(x=None)).",
+          "weight": 0.5,
+          "tierRequired": "HARD"
+        }
+      ]
+    },
+    {
+      "slug": "recursion-and-decomposition",
+      "name": "Recursion Fundamentals & Modular Decomposition",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Identifies base case and recursive step to prevent RecursionError.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Decomposes a multi-step problem into small, testable functions with type hints and docstrings.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    }
+  ]
+}

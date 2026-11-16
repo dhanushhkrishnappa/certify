@@ -311,6 +311,20 @@ export const api = {
     return res.json();
   },
 
+  async startSession(slug: string, chapterId?: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/courses/${slug}/sessions`, {
+      method: "POST",
+      headers: getHeaders(),
+      credentials: "include",
+      body: JSON.stringify({ chapterId }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to start learning session");
+    }
+    return res.json();
+  },
+
   async advanceChapter(sessionId: string): Promise<any> {
     const res = await fetch(`${API_BASE}/sessions/${sessionId}/advance`, {
       method: "POST",
@@ -318,7 +332,7 @@ export const api = {
       credentials: "include",
     });
     if (!res.ok) {
-      const err = await res.json();
+      const err = await res.json().catch(() => ({}));
       throw new Error(err.error || "Failed to advance chapter");
     }
     return res.json();
@@ -330,8 +344,9 @@ export const api = {
     sessionId: string,
     content: string,
     onToken: (chunk: string) => void,
-    onStateUpdate: (update: any) => void,
-    onDone: (messageId: string) => void
+    onStateUpdate?: (update: any) => void,
+    onDone?: (messageId: string) => void,
+    signal?: AbortSignal
   ): Promise<void> {
     const token = localStorage.getItem("certify_token");
     const response = await fetch(`${API_BASE}/sessions/${sessionId}/messages`, {
@@ -342,10 +357,12 @@ export const api = {
       },
       credentials: "include",
       body: JSON.stringify({ content }),
+      signal,
     });
 
     if (!response.ok) {
-      throw new Error("Failed to send message to tutor");
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to send message to tutor");
     }
 
     const reader = response.body?.getReader();
@@ -380,9 +397,9 @@ export const api = {
           const parsed = JSON.parse(dataStr);
           if (eventType === "token" && parsed.chunk) {
             onToken(parsed.chunk);
-          } else if (eventType === "state_update") {
+          } else if (eventType === "state_update" && onStateUpdate) {
             onStateUpdate(parsed);
-          } else if (eventType === "done") {
+          } else if (eventType === "done" && onDone) {
             onDone(parsed.messageId);
           }
         } catch {

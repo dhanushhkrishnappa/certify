@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-09",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "regex-syntax-and-raw-strings",
+      "tier": "EASY",
+      "prompt": "Why should you always write regex patterns as raw strings (`r'...'`) in Python?"
+    },
+    {
+      "questionType": "DEBUG",
+      "conceptSlug": "groups-extraction-and-substitution",
+      "tier": "MEDIUM",
+      "prompt": "Why does `re.search(r'(\\d+)', text).group(1)` crash on `'no digits'`, and how do you make it safe?"
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m09-extract-codes",
+    "functionName": "extract_ticket_ids",
+    "description": "Extract all valid 'TKT-1234' codes from text using re.findall.",
+    "sandboxCompatible": true
+  }
+}

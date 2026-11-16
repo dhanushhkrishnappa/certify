@@ -1,0 +1,24 @@
+{
+  "conceptId": "logical-error-prevention",
+  "name": "Identity vs Equality (is vs ==) & Common Logical Errors",
+  "defaultP0": 0.15,
+  "ragKeywords": [
+    "is",
+    "==",
+    "identity",
+    "equality",
+    "logical error"
+  ],
+  "rubricCriteria": [
+    {
+      "statement": "Uses 'is None' for identity checks and '==' for value equality.",
+      "weight": 0.5,
+      "tierRequired": "EASY"
+    },
+    {
+      "statement": "Diagnoses flawed boolean conditions such as x == 1 or 2.",
+      "weight": 0.5,
+      "tierRequired": "MEDIUM"
+    }
+  ]
+}

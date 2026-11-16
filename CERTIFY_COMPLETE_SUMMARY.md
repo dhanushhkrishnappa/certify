@@ -1,7 +1,7 @@
-# CERTIFY — Complete Project Summary, Use Cases, CS50P Python RAG Pipeline & Real-Time Chat Architecture
+# CERTIFY — Complete Project Summary, Use Cases, Python RAG Pipeline & Real-Time Chat Architecture
 
 > **Scope:** Complete Platform Summary & Technical Architecture (Assuming Full Production Completion)  
-> **RAG Knowledge Scope:** Exclusively scoped to the **Python Fundamentals** track, grounded on **Harvard University's CS50's Introduction to Programming with Python (CS50P)**  
+> **RAG Knowledge Scope:** Exclusively scoped to the **Python Fundamentals** track, independently authored in `courses/python-fundamentals/` (with `research/harvard-cs50p/` maintained strictly as internal background research under CC BY-NC-SA 4.0, never ingested)  
 > **Core Thesis:** *"Credentials earned through demonstrated, defensible understanding — never passive video completion."*
 
 ---
@@ -13,7 +13,7 @@
 3. [Project Use Cases](#3-project-use-cases)
 4. [Completed End-to-End Platform Capabilities](#4-completed-end-to-end-platform-capabilities)
 5. [System Architecture & Technology Stack](#5-system-architecture--technology-stack)
-6. [RAG Pipeline for the Python Course (Harvard CS50P Corpus)](#6-rag-pipeline-for-the-python-course-harvard-cs50p-corpus)
+6. [RAG Pipeline for the Python Course (courses/python-fundamentals/ Corpus)](#6-rag-pipeline-for-the-python-course-coursespython-fundamentals-corpus)
 7. [Technical Deep Dive: How Overall Chat Interaction Works](#7-technical-deep-dive-how-overall-chat-interaction-works)
 8. [Mathematical Trust Boundary: Bayesian Knowledge Tracing & Credential Issuance](#8-mathematical-trust-boundary-bayesian-knowledge-tracing--credential-issuance)
 9. [Security, Anti-Gaming & Verification Architecture](#9-security-anti-gaming--verification-architecture)
@@ -31,7 +31,7 @@
 
 In its completed production state, Certify enforces a strict **Architectural Trust Boundary**: Large Language Models (LLMs) operate strictly as Socratic mentors and structured rubric evidence extractors, whereas **deterministic TypeScript application logic** executes **Bayesian Knowledge Tracing (BKT)** probability updates, enforces chapter progression gates, runs sandboxed code tests, and issues tamper-evident **RFC 8032 Ed25519 cryptographically signed credentials** backed by a public verification portal.
 
-To maximize precision and prevent cross-domain hallucination, Certify's **Retrieval-Augmented Generation (RAG)** pipeline is scoped exclusively to the flagship **Python Fundamentals** track using **Harvard University's CS50's Introduction to Programming with Python (CS50P)** curriculum dataset.
+To maximize precision and prevent cross-domain hallucination, Certify's **Retrieval-Augmented Generation (RAG)** pipeline is scoped exclusively to the flagship **Python Fundamentals** track using CERTIFY's independently authored curriculum dataset in `courses/python-fundamentals/` (while internal curriculum research in `research/harvard-cs50p/` is kept strictly isolated and never ingested).
 
 ---
 
@@ -43,7 +43,7 @@ To maximize precision and prevent cross-domain hallucination, Certify's **Retrie
 * **Zero Signal for Employers:** A conventional PDF certificate reveals nothing about whether a candidate actually understands Python heap references, mutability, algorithmic complexity, or exception recovery.
 
 ### How Certify Fixes It
-* **First-Principles Socratic Mentorship:** The AI Tutor refuses to dump assessment answers. When a learner exhibits a misconception, it responds with analogies, diagnostic counter-questions, and grounded CS50P lecture concepts so the learner discovers the insight themselves.
+* **First-Principles Socratic Mentorship:** The AI Tutor refuses to dump assessment answers. When a learner exhibits a misconception, it responds with analogies, diagnostic counter-questions, and grounded curriculum concepts so the learner discovers the insight themselves.
 * **Mathematical Mastery Modeling (BKT):** Rather than counting chat messages or hours logged, Certify computes the Bayesian posterior probability $P(L_t)$ that each atomic concept (e.g., `variable-binding`, `mutability-tradeoffs`, `lazy-evaluation`, `closure-encapsulation`) is mastered.
 * **Tamper-Evident Credentials:** Every certificate embeds a verifiable 5-signal composite score, an earned tier (`FOUNDATION`, `PROFICIENT`, or `ADVANCED`), and an **Ed25519 digital signature** verifiable online at `/verify/:credentialId`.
 
@@ -125,7 +125,7 @@ flowchart TB
 
     subgraph DomainLayer ["Modular Backend Engine"]
         SessionMgr["Session and SSE Stream Orchestrator"]
-        CS50PRAG["CS50P Python RAG Retriever"]
+        PythonRAG["Python Fundamentals RAG Retriever"]
         AIOrch["Multi-Role AI Orchestrator (Tutor + Evaluator + Viva)"]
         BKTMastery["Deterministic BKT Mastery Engine"]
         Sandbox["Isolated Python Execution Sandbox"]
@@ -150,12 +150,12 @@ flowchart TB
     HonoCore --> AuthGuard --> RateLimit
     RateLimit --> SessionMgr
     SessionMgr --> Redis
-    SessionMgr --> CS50PRAG
-    CS50PRAG <--> NeonPG
+    SessionMgr --> PythonRAG
+    PythonRAG <--> NeonPG
     SessionMgr --> AIOrch
     AIOrch <--> Claude
     AIOrch <--> Gemini
-    CS50PRAG --> Embeddings
+    PythonRAG --> Embeddings
     AIOrch -->|Structured Zod JSON| BKTMastery
     BKTMastery --> NeonPG
     Sandbox --> NeonPG
@@ -175,128 +175,117 @@ flowchart TB
 
 ---
 
-## 6. RAG Pipeline for the Python Course (Harvard CS50P Corpus)
+## 6. RAG Pipeline for the Python Course (courses/python-fundamentals/ Corpus)
 
 ### Why RAG Is Dedicated Exclusively to the Python Course
-In Certify, the **RAG Knowledge Vector pipeline** is deliberately implemented **only for the flagship `python-fundamentals` course**, grounded directly on **Harvard University's CS50's Introduction to Programming with Python (CS50P)**.
+In Certify, the **RAG Knowledge Vector pipeline** is deliberately implemented **only for the flagship `python-fundamentals` course**, grounded directly on CERTIFY's independently authored curriculum dataset in **`courses/python-fundamentals/`**.
 
-Scoping RAG strictly to the CS50P Python corpus provides three concrete benefits:
+> **Important Licensing & Integrity Boundary:**  
+> Internal curriculum research and comparative materials residing in `research/harvard-cs50p/` (licensed under CC BY-NC-SA 4.0) are maintained strictly for pedagogical benchmarking. **The `research/` directory is never ingested into the database or RAG pipeline.** All production vectors, lesson notes, and common-mistake guidance derive exclusively from CERTIFY's original 10-module curriculum in `courses/python-fundamentals/`.
+
+Scoping RAG strictly to the `python-fundamentals` corpus provides three concrete benefits:
 1. **Zero Cross-Course Contamination:** Every vector inside `course_embeddings` represents vetted Python material. The tutor never accidentally retrieves JavaScript, SQL, or unrelated syntax when helping a Python learner.
-2. **Alignment with CS50P First-Principles Pedagogy:** CS50P emphasizes clean decomposition, explicit error handling (`try/except`), `pytest` unit testing, context managers (`with`), and clear OOP design before syntactic sugar. Grounding prompts on CS50P lecture explanations prevents the LLM from overwhelming beginners with obscure shortcuts.
-3. **Sub-25ms Single-Database Execution Plan:** Because vector chunks live inside the same Neon PostgreSQL database as chapters and concepts, pre-filtered HNSW cosine queries join metadata (`chapter_id`, `concept_id`, `cs50p_week`) natively in one SQL query without external vector DB network hops.
+2. **Alignment with First-Principles Socratic Pedagogy:** Emphasizes clean decomposition, explicit error handling (`try/except`), unit testing, context managers (`with`), and clear OOP design before syntactic sugar. Grounding prompts on first-principles explanations prevents the LLM from overwhelming beginners with obscure shortcuts.
+3. **Sub-25ms Single-Database Execution Plan:** Because vector chunks live inside the same Neon PostgreSQL database as chapters and concepts, pre-filtered HNSW cosine queries join metadata (`chapter_id`, `concept_id`, `module_slug`) natively in one SQL query without external vector DB network hops.
 
-### Complete CS50P RAG Pipeline Diagram
+### Complete Python Fundamentals RAG Pipeline Diagram
 
 ```mermaid
 flowchart LR
-    subgraph Offline ["Offline Indexing Pipeline (CS50P Ingestion)"]
-        Raw["Harvard CS50P Corpus (Weeks 0-9 Notes, Transcripts, Code)"]
-        Clean["1. Normalization and AST Code Preservation"]
+    subgraph Offline ["Offline Indexing Pipeline (ingest_python_rag.ts)"]
+        Raw["courses/python-fundamentals/ (Lessons & Common Mistakes)"]
+        Clean["1. Normalization and AST Code Block Preservation"]
         Chunk["2. Structure-Aware Semantic Chunking (350-500 tokens)"]
-        Meta["3. Metadata Tagging (cs50p_week, chapter_id, concept_slug)"]
+        Meta["3. Metadata Tagging (module_slug, chapter_id, concept_id)"]
         Embed["4. Vectorization (1536-dim text-embedding-3-small)"]
         Store[("5. Neon PostgreSQL course_embeddings + HNSW")]
 
         Raw --> Clean --> Chunk --> Meta --> Embed --> Store
     end
 
-    subgraph Runtime ["Online Retrieval Pipeline (Sub-25ms per Turn)"]
-        Query["Learner Query + Active Chapter + Concept"]
+    subgraph Runtime ["Online Retrieval Pipeline (rag.service.ts)"]
+        Query["Learner Query + Active Chapter + Module"]
         Rewrite["1. Contextual Query Expansion"]
         QVec["2. Embed Query Vector (1536-dim)"]
-        Hybrid["3. Hybrid Search (Chapter Filter + pgvector Cosine + FTS RRF)"]
+        Hybrid["3. Hybrid Search (Chapter Filter + pgvector Cosine + FTS)"]
         Rerank["4. Top-3 Selection and Non-Leakage Filter"]
-        Prompt["5. Injected into Tier 3 of Tutor Context"]
+        Prompt["5. Injected into Socratic Tutor Context"]
 
         Query --> Rewrite --> QVec --> Hybrid --> Rerank --> Prompt
         Store -.->|HNSW Index Lookup| Hybrid
     end
 ```
 
-### Stage 1: Harvard CS50P Curriculum Mapping
-All official CS50P weeks (Lectures 0 through 9, lecture notes, code demonstrations, and conceptual problem specifications) are curated, deduplicated, and mapped to Certify's 8 Python modules:
+### Stage 1: 10-Module Python Fundamentals Curriculum Mapping
+All 10 modules in `courses/python-fundamentals/` are curated, chunked, and mapped to Certify's curriculum:
 
-| Harvard CS50P Week | CS50P Source Concepts & Examples | Mapped Certify Module & Concepts |
+| Module Number & Slug | Curriculum Scope & Socratic Focus | Practical Task Harness |
 | :--- | :--- | :--- |
-| **Week 0: Functions, Variables** | `print`, `input`, `str`, `int`, `float`, `def`, return values, variable assignment | **Module 1:** Object References & Variable Binding |
-| **Week 1: Conditionals** | `if`/`elif`/`else`, `or`/`and` truthiness, `match`, parity, boolean expressions | **Module 1:** Conditionals, Truthiness & Short-Circuit Logic |
-| **Week 2: Loops** | `while`, `for`, `list`, `dict`, `None`, `len`, iteration demos | **Module 2:** Lists, Dictionaries, Sets & Time/Space Complexity |
-| **Week 3: Exceptions** | `SyntaxError`, `ValueError`, `try`/`except`/`else`, `pass`, `raise` | **Module 6:** Exception Hierarchies & Defensive Input Validation |
-| **Week 4: Libraries** | `import`, `from`, `random`, `statistics`, `sys.argv`, `pip`, `requests`, JSON | **Module 7:** Import Mechanics, `sys.modules` & Packaging |
-| **Week 5: Unit Tests** | `assert`, `AssertionError`, `pytest`, testing edge cases, `__init__.py` | **Module 7 & Sandbox:** Automated Unit Testing & Invariants |
-| **Week 6: File I/O** | `open()`, `with` context managers, `.read()`, `.readlines()`, CSV parsing | **Module 4 & 6:** Stream Processing & Context Management (`__enter__`/`__exit__`) |
-| **Week 7: Regular Expressions** | `re.search`, `re.match`, anchors (`^`, `$`), capture groups, validation | **Module 2 & 3:** Pattern Matching & String Parsing |
-| **Week 8: OOP** | `class`, `__init__`, `@property`, `@classmethod`, inheritance, operator overloading (`__str__`, `__add__`) | **Module 5:** Object Composition, Protocols & Dunder Methods |
-| **Week 9: Et Cetera** | `set`, `global`, constants, type hints, docstrings, `argparse`, `*args`/`**kwargs`, `map`, comprehensions, `filter`, **`yield` generators** | **Module 3, 4 & 8:** Closures (`LEGB`), Lazy Evaluation (`yield`), LRU Cache Capstone |
+| **Module 01: Foundations** | Execution model, REPL, scripts, indentation, variables, object references, mutability, types, collections | `practical-m01-normalize-inventory` |
+| **Module 02: Decision Making** | Boolean expressions, comparison/logical operators, `if`/`elif`/`else`, ternary, truthiness, short-circuiting | `practical-m02-classify-ticket` |
+| **Module 03: Iteration** | `while` loops, `for` loops, `range()`, `break`, `continue`, nested loops, accumulation, searching, comprehensions | `practical-m03-filter-active` |
+| **Module 04: Functions** | Defining functions, parameters, return values, type hints, LEGB scope, mutable default trap, recursion | `practical-m04-moving-average` |
+| **Module 05: Exceptions** | Syntax vs runtime vs logical errors, tracebacks, `try`/`except`/`else`/`finally`, defensive validation | `practical-m05-safe-parse-records` |
+| **Module 06: Libraries** | Modules, `import` mechanics, `if __name__ == '__main__'`, standard library (`random`, `statistics`, `math`), pip, venv | `practical-m06-stats-summary` |
+| **Module 07: Unit Testing** | Assertions, unit testing fundamentals, `pytest`, TDD basics, edge cases, PEP 8 naming, documentation | `practical-m07-tdd-discount` |
+| **Module 08: File Handling** | File paths, `open()`, context managers (`with`), CSV/JSON processing, iterators, generators (`yield`) | `practical-m08-stream-filter` |
+| **Module 09: Regex** | Patterns, raw strings, character classes, quantifiers, anchors, capturing groups, extraction, `re.sub` | `practical-m09-extract-codes` |
+| **Module 10: OOP** | Procedural vs OOP, classes, objects, `__init__`, instance vs class variables, `@property`, encapsulation, inheritance, composition, dunders | `practical-m10-gradebook-class` |
 
-### Stage 2: AST-Aware Chunking & `pgvector` Indexing
+### Stage 2: Structure-Aware Chunking & `pgvector` Indexing
 
 1. **Structure-Aware Chunking Strategy:**
    * Naive fixed-size text splitting breaks Python code blocks in half and strips variable definitions from explanations.
    * Certify parses Markdown headings and fenced Python code blocks cleanly:
-     * **Chunk size:** `350–500 tokens` (~1,400–2,000 characters) with `60 tokens` overlap across narrative paragraphs.
-     * **Atomic Code Guarantee:** Whole Python functions (`def ...:`) and their paired CS50P lecture explanations stay together inside a single chunk.
-     * **Hierarchical Context Prefix:** Every chunk begins with a structured header, e.g., `[Course: Python Fundamentals | CS50P Week 9 | Concept: Lazy Evaluation & yield]`, improving vector embedding recall.
+     * **Chunk size:** `350–500 tokens` (~1,400–2,000 characters) preserving fenced code blocks intact.
+     * **Atomic Code Guarantee:** Whole Python functions (`def ...:`) and their paired explanations stay together inside a single chunk.
+     * **Hierarchical Context Prefix:** Every chunk begins with a structured header, e.g., `[Course: Python Fundamentals | Module: python-foundations | Concept: execution-model-and-syntax]`, improving vector embedding recall.
+     * **Common Mistakes & Tutor Guidance:** Separate chunk type (`COMMON_MISTAKE`) extracted from `COMMON_MISTAKES.md` files for instant conceptual misconception guidance.
 
 2. **Database Schema & HNSW + Full-Text Indexes (`Neon PostgreSQL`):**
    ```sql
-   CREATE EXTENSION IF NOT EXISTS "vector";
+   CREATE EXTENSION IF NOT EXISTS vector;
 
    CREATE TABLE course_embeddings (
-       id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-       chapter_id    UUID NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
-       concept_id    UUID REFERENCES concepts(id) ON DELETE SET NULL,
-       cs50p_week    INT NOT NULL,               -- Harvard CS50P Week (0..9)
-       chunk_type    VARCHAR(32) NOT NULL,       -- 'LECTURE_NOTE' | 'CODE_EXAMPLE' | 'EDGE_CASE'
-       content_chunk TEXT NOT NULL,
-       search_vector tsvector GENERATED ALWAYS AS (to_tsvector('english', content_chunk)) STORED,
-       embedding     vector(1536) NOT NULL,      -- OpenAI text-embedding-3-small
-       created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+       id          TEXT NOT NULL PRIMARY KEY,
+       chapter_id  TEXT REFERENCES chapters(id) ON DELETE SET NULL,
+       concept_id  TEXT REFERENCES concepts(id) ON DELETE SET NULL,
+       module_slug TEXT NOT NULL,
+       chunk_type  TEXT NOT NULL, -- 'LESSON' | 'COMMON_MISTAKE' | 'EXAMPLE'
+       content     TEXT NOT NULL,
+       embedding   vector(1536),  -- OpenAI text-embedding-3-small
+       fts         tsvector GENERATED ALWAYS AS (to_tsvector('english', content)) STORED,
+       created_at  TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
    );
 
    -- HNSW index for fast approximate nearest-neighbor cosine search
-   CREATE INDEX idx_embeddings_vector
-       ON course_embeddings USING hnsw (embedding vector_cosine_ops)
-       WITH (m = 16, ef_construction = 64);
+   CREATE INDEX course_embeddings_embedding_hnsw_idx
+       ON course_embeddings USING hnsw (embedding vector_cosine_ops);
 
-   -- Metadata B-Tree and Lexical GIN indexes
-   CREATE INDEX idx_embeddings_chapter_concept ON course_embeddings(chapter_id, concept_id);
-   CREATE INDEX idx_embeddings_fts ON course_embeddings USING gin(search_vector);
+   -- Lexical GIN full-text index
+   CREATE INDEX course_embeddings_fts_gin_idx
+       ON course_embeddings USING gin (fts);
+
+   CREATE INDEX course_embeddings_module_slug_idx ON course_embeddings(module_slug);
+   CREATE INDEX course_embeddings_chapter_id_idx ON course_embeddings(chapter_id);
    ```
 
-### Stage 3: Runtime Hybrid Retrieval (Dense Vector + Lexical BM25 Fusion)
+### Stage 3: Runtime Hybrid Retrieval (Dense Vector + Lexical FTS Fusion)
 
 When a learner sends a message inside the Python studio:
-1. **Query Contextualization:** Short follow-up queries (e.g., *"Wait why did `b` change too?"* or *"How does `yield` pause?"*) are expanded with the active chapter title, target concept slug, and the previous turn before generating the 1536-dim query vector.
-2. **Hybrid SQL + Reciprocal Rank Fusion (RRF):** Combines **semantic cosine similarity** (`<=>`) with exact **PostgreSQL keyword matching** (`ts_rank_cd` for exact Python identifiers like `AssertionError`, `yield`, `__enter__`, `is`, `==`):
+1. **Hybrid SQL Query (`rag.service.ts`):** Combines **semantic cosine similarity** (`<=>`) with exact **PostgreSQL keyword matching** (`ts_rank_cd` on `fts`):
    ```sql
-   WITH semantic_hits AS (
-       SELECT id, content_chunk, chapter_id, concept_id, cs50p_week,
-              1 - (embedding <=> $1::vector) AS cosine_score,
-              ROW_NUMBER() OVER (ORDER BY embedding <=> $1::vector ASC) AS sem_rank
-       FROM course_embeddings
-       WHERE chapter_id = $2 OR concept_id = $3
-       ORDER BY embedding <=> $1::vector ASC
-       LIMIT 10
-   ),
-   lexical_hits AS (
-       SELECT id,
-              ts_rank_cd(search_vector, plainto_tsquery('english', $4)) AS bm25_score,
-              ROW_NUMBER() OVER (ORDER BY ts_rank_cd(search_vector, plainto_tsquery('english', $4)) DESC) AS lex_rank
-       FROM course_embeddings
-       WHERE (chapter_id = $2 OR concept_id = $3)
-         AND search_vector @@ plainto_tsquery('english', $4)
-       LIMIT 10
-   )
-   SELECT s.id, s.content_chunk, s.cs50p_week,
-          (COALESCE(1.0 / (60 + s.sem_rank), 0) + COALESCE(1.0 / (60 + l.lex_rank), 0)) AS rrf_score
-   FROM semantic_hits s
-   LEFT JOIN lexical_hits l ON s.id = l.id
-   ORDER BY rrf_score DESC
-   LIMIT 3;
+   SELECT
+     id, chapter_id, concept_id, module_slug, chunk_type, content,
+     (COALESCE(1 - (embedding <=> $1::vector), 0.0) * 0.75 +
+      COALESCE(ts_rank_cd(fts, plainto_tsquery('english', $2)), 0.0) * 0.25) as score
+   FROM course_embeddings
+   WHERE ($3::text IS NULL OR chapter_id = $3 OR module_slug = $4)
+   ORDER BY score DESC
+   LIMIT $5;
    ```
-3. **Cross-Chapter Prerequisite Fallback:** If top semantic similarity is below `0.65` in the active chapter (meaning the student asked a foundational question from an earlier CS50P week), retrieval expands across all `python-fundamentals` chapters to pull prerequisite chunks.
-4. **Socratic Anti-Leakage Filter:** Chunks containing direct Chapter Assessment or Practical test solutions are excluded from retrieval prior to LLM prompt injection.
+2. **Cross-Chapter Prerequisite Fallback:** If no chunks match in the active chapter, retrieval expands globally across all `python-fundamentals` modules to pull prerequisite background chunks.
+3. **Socratic Anti-Leakage Filter:** The prompt injection strictly instructs the Socratic tutor: *"Ground your explanations in this curriculum context. NEVER reveal solutions or code answers to assessment questions."*
 
 ---
 

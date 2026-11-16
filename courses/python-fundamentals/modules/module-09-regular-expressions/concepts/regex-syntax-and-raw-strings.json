@@ -1,0 +1,5 @@
+{
+  "conceptId": "regex-syntax-and-raw-strings",
+  "name": "Pattern Thinking, Raw Strings & re.search/fullmatch",
+  "defaultP0": 0.15
+}

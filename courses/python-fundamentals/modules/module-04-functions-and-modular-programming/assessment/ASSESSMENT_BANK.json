@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-04",
+  "questions": [
+    {
+      "questionType": "DEBUG",
+      "conceptSlug": "scope-legb-and-mutable-defaults",
+      "tier": "MEDIUM",
+      "prompt": "Why does `def add_item(item, target=[]): target.append(item); return target` leak items across calls? Fix it."
+    },
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "function-definition-and-return",
+      "tier": "EASY",
+      "prompt": "Why is `return result` preferred over `print(result)` in reusable helper functions?"
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m04-moving-average",
+    "functionName": "moving_average",
+    "description": "Compute moving average over a list of numbers with window size k.",
+    "sandboxCompatible": true
+  }
+}

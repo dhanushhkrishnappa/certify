@@ -125,6 +125,11 @@ export interface AiChat9Props {
   initialMessages?: ChatMessage[];
   onExit?: () => void;
   onSendMessage?: (message: string, model: AIModel, effort: ReasoningEffort) => Promise<string | void>;
+  onStreamMessage?: (
+    message: string,
+    onToken: (chunk: string) => void,
+    signal?: AbortSignal
+  ) => Promise<void>;
 }
 
 export const AiChat9: React.FC<AiChat9Props> = ({
@@ -133,12 +138,21 @@ export const AiChat9: React.FC<AiChat9Props> = ({
   user,
   initialMessages = [],
   onExit,
+  onSendMessage,
+  onStreamMessage,
 }) => {
   const [selectedModel] = useState<AIModel>(CHAT_MODELS[1]); // Atlas
   const [reasoningEffort] = useState<ReasoningEffort>("balanced");
 
   // Initialize with clean empty messages by default so the centered welcome screen appears
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+
+  // Sync messages whenever initialMessages updates (e.g. when session finishes loading from backend)
+  useEffect(() => {
+    if (initialMessages && initialMessages.length > 0) {
+      setMessages(initialMessages);
+    }
+  }, [initialMessages]);
   const [inputText, setInputText] = useState("");
   const [attachment, setAttachment] = useState<ChatAttachment | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -255,35 +269,72 @@ export const AiChat9: React.FC<AiChat9Props> = ({
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
-    const responseText = generateResponseText(text, courseTitle, selectedModel, reasoningEffort, fileAttach);
+    let hasStreamedToken = false;
 
-    const words = responseText.split(" ");
-    let accumulated = "";
-
-    try {
-      for (let i = 0; i < words.length; i++) {
-        if (abortController.signal.aborted) break;
-        accumulated += (i > 0 ? " " : "") + words[i];
-
-        setMessages((prev) =>
-          prev.map((m) => (m.id === assistantMessageId ? { ...m, content: accumulated } : m))
+    // 1. Try real-time streaming from backend Socratic LLM + pgvector RAG
+    if (onStreamMessage) {
+      try {
+        let accumulated = "";
+        await onStreamMessage(
+          text,
+          (chunk: string) => {
+            if (abortController.signal.aborted) return;
+            hasStreamedToken = true;
+            accumulated += chunk;
+            setMessages((prev) =>
+              prev.map((m) => (m.id === assistantMessageId ? { ...m, content: accumulated } : m))
+            );
+          },
+          abortController.signal
         );
-
-        const delay =
-          selectedModel.id === "quill" || selectedModel.id === "wren"
-            ? 12
-            : selectedModel.id === "atlas-long"
-            ? 24
-            : 18;
-        await new Promise((resolve) => setTimeout(resolve, delay));
+      } catch (err: any) {
+        console.warn("[AiChat9] Live streaming error, falling back to local reasoning:", err?.message || err);
       }
-    } catch {
-      // Aborted
-    } finally {
-      setIsGenerating(false);
-      setStreamingMessageId(null);
-      abortControllerRef.current = null;
+    } else if (onSendMessage) {
+      try {
+        const reply = await onSendMessage(text, selectedModel, reasoningEffort);
+        if (reply) {
+          hasStreamedToken = true;
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantMessageId ? { ...m, content: reply } : m))
+          );
+        }
+      } catch (err: any) {
+        console.warn("[AiChat9] onSendMessage error:", err?.message || err);
+      }
     }
+
+    // 2. High-fidelity client-side fallback if backend was unavailable/offline or didn't stream
+    if (!hasStreamedToken && !abortController.signal.aborted) {
+      const responseText = generateResponseText(text, courseTitle, selectedModel, reasoningEffort, fileAttach);
+      const words = responseText.split(" ");
+      let accumulated = "";
+
+      try {
+        for (let i = 0; i < words.length; i++) {
+          if (abortController.signal.aborted) break;
+          accumulated += (i > 0 ? " " : "") + words[i];
+
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantMessageId ? { ...m, content: accumulated } : m))
+          );
+
+          const delay =
+            selectedModel.id === "quill" || selectedModel.id === "wren"
+              ? 12
+              : selectedModel.id === "atlas-long"
+              ? 24
+              : 18;
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      } catch {
+        // Aborted
+      }
+    }
+
+    setIsGenerating(false);
+    setStreamingMessageId(null);
+    abortControllerRef.current = null;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -43,10 +43,353 @@ const FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
 const MAX_OUTPUT_BYTES = 16 * 1024;
 const DEFAULT_TIMEOUT_MS = 2500;
 
+/**
+ * Python test harness suites for CERTIFY Python Fundamentals practical tasks.
+ */
+const HARNESS_SUITES: Record<string, string> = {
+  // Backward compatibility harness
+  "practical-summarize-scores": `
+def _run_suite(results):
+    fn = globals().get("summarize_scores") or globals().get("process_records") or globals().get("moving_average")
+    if fn is None:
+        raise RuntimeError("Expected function 'summarize_scores(records)' to be defined.")
+    if fn.__name__ == "summarize_scores":
+        r1 = fn([
+            {"name": "Alice", "active": True, "scores": [80, 90, 100]},
+            {"name": "Bob", "active": False, "scores": [50, 60]},
+            {"name": "Cara", "active": True, "scores": [70, 75]}
+        ])
+        p1 = (r1 == {"Alice": 90.0, "Cara": 72.5})
+        results.append({"name": "Filters inactive records & computes mean", "passed": bool(p1), "details": f"Got {r1}"})
+
+        r2 = fn([{"name": "Dan", "active": True, "scores": []}])
+        p2 = (r2 == {"Dan": 0.0})
+        results.append({"name": "Handles empty scores list safely (0.0)", "passed": bool(p2), "details": f"Got {r2}"})
+
+        r3 = fn([{"name": "Eve", "active": True, "scores": [10, 10, 11]}])
+        p3 = (r3 == {"Eve": 10.33})
+        results.append({"name": "Rounds floating-point average to 2 decimals", "passed": bool(p3), "details": f"Got {r3}"})
+
+        inp = [{"name": "Finn", "active": True, "scores": [100, 90]}]
+        _ = fn(inp)
+        p4 = (len(inp) == 1 and inp[0]["scores"] == [100, 90])
+        results.append({"name": "Preserves caller input without side-effect mutation", "passed": bool(p4), "details": "Verified non-mutating behavior"})
+    else:
+        results.append({"name": "Function defined and callable", "passed": True, "details": "OK"})
+`,
+
+  // Module 01: normalize_inventory
+  "practical-m01-normalize-inventory": `
+def _run_suite(results):
+    fn = globals().get("normalize_inventory")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'normalize_inventory(items)' to be defined.")
+
+    inp = [{'name': ' Pen ', 'qty': '3'}, {'name': 'Notebook', 'qty': 2}]
+    res = fn(inp)
+    p1 = (res.get('pen') == 3 and res.get('notebook') == 2)
+    results.append({"name": "Normalizes lowercase stripped keys & integer quantities", "passed": bool(p1), "details": f"Got {res}"})
+
+    inp2 = [{'name': ' Ruler ', 'qty': '5'}]
+    _ = fn(inp2)
+    p2 = (len(inp2) == 1 and inp2[0]['name'] == ' Ruler ' and inp2[0]['qty'] == '5')
+    results.append({"name": "Preserves input list and inner dicts without mutation", "passed": bool(p2), "details": "Input verified intact"})
+
+    res3 = fn([])
+    p3 = (res3 == {})
+    results.append({"name": "Handles empty inventory list safely", "passed": bool(p3), "details": f"Got {res3}"})
+
+    inp4 = [{'name': '  Eraser  ', 'qty': '10'}, {'name': 'MARKER', 'qty': '7'}]
+    res4 = fn(inp4)
+    p4 = (res4.get('eraser') == 10 and res4.get('marker') == 7)
+    results.append({"name": "Handles multi-space trimming and uppercase normalization", "passed": bool(p4), "details": f"Got {res4}"})
+`,
+
+  // Module 02: classify_ticket
+  "practical-m02-classify-ticket": `
+def _run_suite(results):
+    fn = globals().get("classify_ticket")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'classify_ticket(age, is_student)' to be defined.")
+
+    p1 = (fn(10, False) == 'child' and fn(5, True) == 'child')
+    results.append({"name": "Classifies age < 12 as 'child'", "passed": bool(p1), "details": f"fn(10, False) -> {fn(10, False)}"})
+
+    p2 = (fn(12, True) == 'student' and fn(20, True) == 'student' and fn(25, True) == 'student')
+    results.append({"name": "Classifies age 12-25 with is_student=True as 'student'", "passed": bool(p2), "details": f"fn(20, True) -> {fn(20, True)}"})
+
+    p3 = (fn(65, False) == 'senior' and fn(80, True) == 'senior')
+    results.append({"name": "Classifies age >= 65 as 'senior'", "passed": bool(p3), "details": f"fn(65, False) -> {fn(65, False)}"})
+
+    p4 = (fn(30, False) == 'adult' and fn(20, False) == 'adult' and fn(26, True) == 'adult')
+    results.append({"name": "Classifies non-students and ages 26-64 as 'adult'", "passed": bool(p4), "details": f"fn(30, False) -> {fn(30, False)}"})
+`,
+
+  // Module 03: summarize_active
+  "practical-m03-filter-active": `
+def _run_suite(results):
+    fn = globals().get("summarize_active")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'summarize_active(records)' to be defined.")
+
+    data = [
+        {"name": "Alice", "active": True, "score": 95},
+        {"name": "Bob", "active": False, "score": 80},
+        {"name": "Cara", "active": True, "score": 88}
+    ]
+    res1 = fn(data)
+    p1 = (res1 == {"Alice": 95, "Cara": 88})
+    results.append({"name": "Extracts active records into name-to-score dict", "passed": bool(p1), "details": f"Got {res1}"})
+
+    res2 = fn([{"name": "Dan", "active": False, "score": 60}])
+    p2 = (res2 == {})
+    results.append({"name": "Returns empty dict when all records are inactive", "passed": bool(p2), "details": f"Got {res2}"})
+
+    res3 = fn([])
+    p3 = (res3 == {})
+    results.append({"name": "Handles empty input list safely", "passed": bool(p3), "details": f"Got {res3}"})
+
+    orig = [{"name": "Eve", "active": True, "score": 100}]
+    _ = fn(orig)
+    p4 = (len(orig) == 1 and orig[0]["score"] == 100)
+    results.append({"name": "Preserves original input records without mutation", "passed": bool(p4), "details": "Verified immutability"})
+`,
+
+  // Module 04: moving_average
+  "practical-m04-moving-average": `
+def _run_suite(results):
+    fn = globals().get("moving_average")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'moving_average(numbers, k)' to be defined.")
+
+    res1 = fn([1, 2, 3, 4, 5], 3)
+    exp1 = [2.0, 3.0, 4.0]
+    p1 = (len(res1) == 3 and all(abs(a - b) < 1e-4 for a, b in zip(res1, exp1)))
+    results.append({"name": "Computes correct sliding window averages", "passed": bool(p1), "details": f"Got {res1}"})
+
+    res2 = fn([10, 20, 30], 3)
+    p2 = (len(res2) == 1 and abs(res2[0] - 20.0) < 1e-4)
+    results.append({"name": "Handles window size equal to list length", "passed": bool(p2), "details": f"Got {res2}"})
+
+    res3 = fn([5, 10], 4)
+    p3 = (res3 == [] or res3 == ())
+    results.append({"name": "Returns empty collection when window exceeds length", "passed": bool(p3), "details": f"Got {res3}"})
+
+    res4 = fn([4, 9], 1)
+    p4 = (len(res4) == 2 and abs(res4[0] - 4.0) < 1e-4 and abs(res4[1] - 9.0) < 1e-4)
+    results.append({"name": "Handles window size k=1 identity scaling", "passed": bool(p4), "details": f"Got {res4}"})
+`,
+
+  // Module 05: parse_valid_ints
+  "practical-m05-safe-parse-records": `
+def _run_suite(results):
+    fn = globals().get("parse_valid_ints")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'parse_valid_ints(items)' to be defined.")
+
+    valid, invalid_count = fn(["10", "bad", "25", "3.14", "-5", "42"])
+    p1 = (valid == [10, 25, -5, 42] and invalid_count == 2)
+    results.append({"name": "Parses valid integers and counts invalid entries", "passed": bool(p1), "details": f"Got ({valid}, {invalid_count})"})
+
+    valid2, count2 = fn(["1", "2", "3"])
+    p2 = (valid2 == [1, 2, 3] and count2 == 0)
+    results.append({"name": "Handles list where all items are valid integers", "passed": bool(p2), "details": f"Got ({valid2}, {count2})"})
+
+    valid3, count3 = fn(["foo", "bar", "baz"])
+    p3 = (valid3 == [] and count3 == 3)
+    results.append({"name": "Handles list where all items are invalid", "passed": bool(p3), "details": f"Got ({valid3}, {count3})"})
+
+    valid4, count4 = fn([])
+    p4 = (valid4 == [] and count4 == 0)
+    results.append({"name": "Handles empty string list safely", "passed": bool(p4), "details": f"Got ({valid4}, {count4})"})
+`,
+
+  // Module 06: summarize_metrics
+  "practical-m06-stats-summary": `
+def _run_suite(results):
+    fn = globals().get("summarize_metrics")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'summarize_metrics(numbers)' to be defined.")
+
+    res1 = fn([1, 2, 3, 4, 5])
+    if isinstance(res1, dict):
+        mean = res1.get("mean")
+        med = res1.get("median")
+        ceil_val = res1.get("ceil") if "ceil" in res1 else res1.get("ceil_mean", res1.get("ceiling"))
+    elif isinstance(res1, (tuple, list)):
+        mean, med, ceil_val = res1[0], res1[1], res1[2]
+    else:
+        mean, med, ceil_val = None, None, None
+
+    p1 = (mean is not None and abs(mean - 3.0) < 1e-4 and abs(med - 3.0) < 1e-4 and ceil_val == 3)
+    results.append({"name": "Computes mean, median, and ceiling on odd-length dataset", "passed": bool(p1), "details": f"Got {res1}"})
+
+    res2 = fn([1, 2, 4, 7])
+    if isinstance(res2, dict):
+        m2 = res2.get("mean")
+        med2 = res2.get("median")
+        c2 = res2.get("ceil") if "ceil" in res2 else res2.get("ceil_mean", res2.get("ceiling"))
+    elif isinstance(res2, (tuple, list)):
+        m2, med2, c2 = res2[0], res2[1], res2[2]
+    else:
+        m2, med2, c2 = None, None, None
+
+    p2 = (m2 is not None and abs(m2 - 3.5) < 1e-4 and abs(med2 - 3.0) < 1e-4 and c2 == 4)
+    results.append({"name": "Computes fractional mean and even-length median with math.ceil", "passed": bool(p2), "details": f"Got {res2}"})
+
+    res3 = fn([2.5, 3.5, 6.0])
+    if isinstance(res3, dict):
+        m3 = res3.get("mean")
+        c3 = res3.get("ceil") if "ceil" in res3 else res3.get("ceil_mean", res3.get("ceiling"))
+    elif isinstance(res3, (tuple, list)):
+        m3, _, c3 = res3[0], res3[1], res3[2]
+    else:
+        m3, c3 = None, None
+    p3 = (m3 is not None and abs(m3 - 4.0) < 1e-4 and c3 == 4)
+    results.append({"name": "Handles float values accurately with statistics and math", "passed": bool(p3), "details": f"Got {res3}"})
+`,
+
+  // Module 07: apply_discount
+  "practical-m07-tdd-discount": `
+def _run_suite(results):
+    fn = globals().get("apply_discount")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'apply_discount(price, pct)' to be defined.")
+
+    res1 = fn(100.0, 20.0)
+    p1 = abs(res1 - 80.0) < 1e-4
+    results.append({"name": "Applies standard percentage discount (e.g. 20% off 100 -> 80)", "passed": bool(p1), "details": f"Got {res1}"})
+
+    p2 = (abs(fn(50.0, 0.0) - 50.0) < 1e-4 and abs(fn(75.0, 100.0) - 0.0) < 1e-4)
+    results.append({"name": "Handles 0% (no-op) and 100% (free) boundaries", "passed": bool(p2), "details": "Boundary checks verified"})
+
+    p3 = False
+    try:
+        fn(-10.0, 15.0)
+    except ValueError:
+        p3 = True
+    except Exception:
+        p3 = False
+    results.append({"name": "Raises ValueError when price is negative", "passed": bool(p3), "details": "ValueError raised on price < 0"})
+
+    p4 = False
+    try:
+        fn(100.0, -5.0)
+    except ValueError:
+        try:
+            fn(100.0, 105.0)
+            p4 = False
+        except ValueError:
+            p4 = True
+    results.append({"name": "Raises ValueError when discount percentage is out of range (<0 or >100)", "passed": bool(p4), "details": "ValueError raised on pct < 0 or > 100"})
+`,
+
+  // Module 08: stream_high_scores
+  "practical-m08-stream-filter": `
+def _run_suite(results):
+    fn = globals().get("stream_high_scores")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'stream_high_scores(records, threshold)' to be defined.")
+
+    data = [
+        {"name": "Alice", "score": 92},
+        {"name": "Bob", "score": 75},
+        {"name": "Cara", "score": 88},
+        {"name": "Dan", "score": 60}
+    ]
+    gen = fn(data, 80)
+    has_iter = hasattr(gen, "__iter__") and hasattr(gen, "__next__")
+    output = list(gen)
+    p1 = has_iter and output == ["Alice", "Cara"]
+    results.append({"name": "Yields names of records matching or exceeding threshold", "passed": bool(p1), "details": f"Got {output}"})
+
+    gen2 = fn([{"name": "First", "score": 100}], 50)
+    is_gen = hasattr(gen2, "__iter__") and hasattr(gen2, "__next__")
+    results.append({"name": "Returns an iterator/generator implementing lazy evaluation", "passed": bool(is_gen), "details": f"Type: {type(gen2)}"})
+
+    res3 = list(fn(data, 99))
+    p3 = (res3 == [])
+    results.append({"name": "Yields empty sequence when threshold exceeds all scores", "passed": bool(p3), "details": f"Got {res3}"})
+
+    res4 = list(fn([], 50))
+    p4 = (res4 == [])
+    results.append({"name": "Handles empty records list safely", "passed": bool(p4), "details": f"Got {res4}"})
+`,
+
+  // Module 09: extract_ticket_ids
+  "practical-m09-extract-codes": `
+def _run_suite(results):
+    fn = globals().get("extract_ticket_ids")
+    if not fn or not callable(fn):
+        raise RuntimeError("Expected function 'extract_ticket_ids(text)' to be defined.")
+
+    text1 = "Resolved TKT-1024 and confirmed TKT-9999 in production."
+    res1 = fn(text1)
+    p1 = (res1 == ["TKT-1024", "TKT-9999"])
+    results.append({"name": "Extracts standard TKT-#### ticket codes from text", "passed": bool(p1), "details": f"Got {res1}"})
+
+    text2 = "Ignore TKT-12 and TKT-12345 and ABC-1234, but keep TKT-5678."
+    res2 = fn(text2)
+    p2 = (res2 == ["TKT-5678"])
+    results.append({"name": "Rejects malformed codes with wrong digit count or prefix", "passed": bool(p2), "details": f"Got {res2}"})
+
+    res3 = fn("No tickets mentioned in this deployment log.")
+    p3 = (res3 == [])
+    results.append({"name": "Returns empty list when no ticket codes exist", "passed": bool(p3), "details": f"Got {res3}"})
+
+    text4 = "tkt-1234 is lowercase, TKT-4321 is valid uppercase."
+    res4 = fn(text4)
+    p4 = ("TKT-4321" in res4 and "tkt-1234" not in res4)
+    results.append({"name": "Enforces strict uppercase TKT- prefix formatting", "passed": bool(p4), "details": f"Got {res4}"})
+`,
+
+  // Module 10: GradeBook
+  "practical-m10-gradebook-class": `
+def _run_suite(results):
+    cls = globals().get("GradeBook")
+    if not cls or not isinstance(cls, type):
+        raise RuntimeError("Expected class 'GradeBook' to be defined.")
+
+    gb = cls()
+
+    gb.add_score("Alice", 90)
+    gb.add_score("Bob", 80)
+    avg1 = gb.average()
+    p1 = abs(avg1 - 85.0) < 1e-4
+    results.append({"name": "Adds valid scores and calculates arithmetic mean average", "passed": bool(p1), "details": f"Average: {avg1}"})
+
+    p2 = False
+    try:
+        gb.add_score("Eve", 105)
+    except ValueError:
+        p2 = True
+    except Exception:
+        p2 = False
+    results.append({"name": "Raises ValueError when score > 100", "passed": bool(p2), "details": "ValueError raised on score > 100"})
+
+    p3 = False
+    try:
+        gb.add_score("Eve", -10)
+    except ValueError:
+        p3 = True
+    except Exception:
+        p3 = False
+    results.append({"name": "Raises ValueError when score < 0", "passed": bool(p3), "details": "ValueError raised on score < 0"})
+
+    gb_empty = cls()
+    try:
+        avg_empty = gb_empty.average()
+        p4 = (avg_empty == 0.0 or avg_empty == 0)
+    except Exception as e:
+        p4 = False
+        avg_empty = str(e)
+    results.append({"name": "Handles empty GradeBook gracefully returning 0.0 without ZeroDivisionError", "passed": bool(p4), "details": f"Got {avg_empty}"})
+`,
+};
+
 export class SandboxService {
   /**
-   * Static inspection checks. Note: Static regex is a secondary heuristic,
-   * not a primary security execution boundary.
+   * Static inspection checks. Static regex is a secondary defense-in-depth heuristic.
    */
   public static inspectStaticSecurity(code: string): string | null {
     for (const rule of FORBIDDEN_PATTERNS) {
@@ -59,10 +402,11 @@ export class SandboxService {
 
   /**
    * Evaluates practical code submissions specifically bound to authorized course tasks.
+   * Dynamically selects the corresponding test harness by taskId.
    */
   public static async evaluatePracticalSubmission(
     learnerCode: string,
-    _taskId = "practical-summarize-scores"
+    taskId: string = "practical-summarize-scores"
   ): Promise<PracticalEvaluationResult> {
     const violation = this.inspectStaticSecurity(learnerCode);
     if (violation) {
@@ -81,39 +425,18 @@ export class SandboxService {
       };
     }
 
+    const suiteCode = HARMISSION_SUITES_LOOKUP(taskId);
+
     const testHarness = `${learnerCode}
 
 import json
 
+${suiteCode}
+
 def _run_certify_tests():
     results = []
     try:
-        fn = globals().get("summarize_scores") or globals().get("process_records") or globals().get("moving_average")
-        if fn is None:
-            raise RuntimeError("Expected function 'summarize_scores(records)' to be defined.")
-        if fn.__name__ == "summarize_scores":
-            r1 = fn([
-                {"name": "Alice", "active": True, "scores": [80, 90, 100]},
-                {"name": "Bob", "active": False, "scores": [50, 60]},
-                {"name": "Cara", "active": True, "scores": [70, 75]}
-            ])
-            p1 = (r1 == {"Alice": 90.0, "Cara": 72.5})
-            results.append({"name": "Filters inactive records & computes mean", "passed": bool(p1), "details": f"Got {r1}"})
-
-            r2 = fn([{"name": "Dan", "active": True, "scores": []}])
-            p2 = (r2 == {"Dan": 0.0})
-            results.append({"name": "Handles empty scores list safely (0.0)", "passed": bool(p2), "details": f"Got {r2}"})
-
-            r3 = fn([{"name": "Eve", "active": True, "scores": [10, 10, 11]}])
-            p3 = (r3 == {"Eve": 10.33})
-            results.append({"name": "Rounds floating-point average to 2 decimals", "passed": bool(p3), "details": f"Got {r3}"})
-
-            inp = [{"name": "Finn", "active": True, "scores": [100, 90]}]
-            _ = fn(inp)
-            p4 = (len(inp) == 1 and inp[0]["scores"] == [100, 90])
-            results.append({"name": "Preserves caller input without side-effect mutation", "passed": bool(p4), "details": "Verified non-mutating behavior"})
-        else:
-            results.append({"name": "Function defined and callable", "passed": True, "details": "OK"})
+        _run_suite(results)
     except Exception as e:
         results.append({"name": "Runtime execution check", "passed": False, "details": str(e)})
     print("__CERTIFY_RESULTS__:" + json.dumps(results))
@@ -165,74 +488,107 @@ _run_certify_tests()
     };
   }
 
+  /**
+   * Executes Python code inside an isolated subprocess boundary:
+   * - `python -I -B` (Isolated mode: ignores PYTHONPATH, site-packages, user dir)
+   * - Completely empty environment variables (`env: {}`)
+   * - 2.5s execution timeout (`DEFAULT_TIMEOUT_MS`)
+   * - 16KB stdout/stderr buffer cap (`MAX_OUTPUT_BYTES`)
+   */
   public static async executePython(
     code: string,
     timeoutMs: number = DEFAULT_TIMEOUT_MS
   ): Promise<SandboxExecutionResult> {
-    const startTime = Date.now();
-    const runId = crypto.randomBytes(8).toString("hex");
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `certify-sbx-${runId}-`));
-    const runnerPath = path.join(tmpDir, "runner.py");
+    const tmpDir = os.tmpdir();
+    const scriptId = crypto.randomBytes(8).toString("hex");
+    const scriptPath = path.join(tmpDir, `certify_sandbox_${scriptId}.py`);
 
-    const wrappedSource = `import sys
-# Stripped environment
-${code}
-`;
+    try {
+      await fs.promises.writeFile(scriptPath, code, "utf8");
 
-    fs.writeFileSync(runnerPath, wrappedSource, { encoding: "utf8", mode: 0o600 });
+      const startTime = Date.now();
+      const pythonProcess = spawn("python", ["-I", "-B", scriptPath], {
+        env: {}, // Completely empty environment variables
+        stdio: ["ignore", "pipe", "pipe"],
+      });
 
-    return new Promise<SandboxExecutionResult>((resolve) => {
       let stdout = "";
       let stderr = "";
       let timedOut = false;
 
-      const pythonBinary = process.platform === "win32" ? "python" : "python3";
-      const child = spawn(pythonBinary, ["-I", "-B", runnerPath], {
-        cwd: tmpDir,
-        env: {
-          PATH: process.env.PATH || "",
-          PYTHONIOENCODING: "utf-8",
-          PYTHONDONTWRITEBYTECODE: "1",
-        },
-        stdio: ["ignore", "pipe", "pipe"],
-      });
-
-      const timer = setTimeout(() => {
+      const timeoutTimer = setTimeout(() => {
         timedOut = true;
-        child.kill("SIGKILL");
+        try {
+          pythonProcess.kill("SIGKILL");
+        } catch {
+          // ignore if already closed
+        }
       }, timeoutMs);
 
-      child.stdout.on("data", (chunk: Buffer) => {
+      pythonProcess.stdout?.on("data", (chunk: Buffer) => {
         if (stdout.length < MAX_OUTPUT_BYTES) {
-          stdout += chunk.toString("utf8").slice(0, MAX_OUTPUT_BYTES - stdout.length);
+          stdout += chunk.toString("utf8");
         }
       });
 
-      child.stderr.on("data", (chunk: Buffer) => {
+      pythonProcess.stderr?.on("data", (chunk: Buffer) => {
         if (stderr.length < MAX_OUTPUT_BYTES) {
-          stderr += chunk.toString("utf8").slice(0, MAX_OUTPUT_BYTES - stderr.length);
+          stderr += chunk.toString("utf8");
         }
       });
 
-      child.on("close", (exitCode) => {
-        clearTimeout(timer);
-        try {
-          fs.rmSync(tmpDir, { recursive: true, force: true });
-        } catch {
-          // ignore
-        }
-        const durationMs = Date.now() - startTime;
-        const combined = [stdout, stderr].filter(Boolean).join("\n").trim();
-        resolve({
-          status: timedOut ? "TIMEOUT" : exitCode === 0 ? "SUCCESS" : "ERROR",
-          stdout,
-          stderr: timedOut ? `${stderr}\nExecution timed out after ${timeoutMs}ms.`.trim() : stderr,
-          output: timedOut ? `Execution timed out after ${timeoutMs}ms.` : combined,
-          exitCode: exitCode ?? (timedOut ? 124 : 1),
-          timedOut,
-          durationMs,
+      const exitCode = await new Promise<number>((resolve) => {
+        pythonProcess.on("close", (code) => {
+          clearTimeout(timeoutTimer);
+          resolve(code ?? -1);
+        });
+        pythonProcess.on("error", () => {
+          clearTimeout(timeoutTimer);
+          resolve(-1);
         });
       });
-    });
+
+      const durationMs = Date.now() - startTime;
+
+      if (timedOut) {
+        return {
+          status: "TIMEOUT",
+          stdout,
+          stderr: "Execution timed out (exceeded limit)",
+          output: "Execution timed out",
+          exitCode: -1,
+          timedOut: true,
+          durationMs,
+        };
+      }
+
+      const status = exitCode === 0 ? "SUCCESS" : "ERROR";
+      const output = stdout || stderr;
+
+      return {
+        status,
+        stdout,
+        stderr,
+        output,
+        exitCode,
+        timedOut: false,
+        durationMs,
+      };
+    } finally {
+      // Always cleanup temp script
+      try {
+        await fs.promises.unlink(scriptPath);
+      } catch {
+        // ignore unlink errors
+      }
+    }
   }
+}
+
+function HARMISSION_SUITES_LOOKUP(taskId: string): string {
+  if (HARNESS_SUITES[taskId]) {
+    return HARNESS_SUITES[taskId];
+  }
+  // Fallback to summarize-scores for backward compatibility
+  return HARNESS_SUITES["practical-summarize-scores"];
 }

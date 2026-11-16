@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-03",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "loop-control-and-nesting",
+      "tier": "EASY",
+      "prompt": "Explain the difference between `break` and `continue` inside a `for` loop."
+    },
+    {
+      "questionType": "APPLY",
+      "conceptSlug": "pythonic-iteration-and-comprehensions",
+      "tier": "MEDIUM",
+      "prompt": "Rewrite `out = []; for i in range(len(names)): out.append((i+1, names[i]))` using `enumerate()` and a list comprehension."
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m03-filter-active",
+    "functionName": "summarize_active",
+    "description": "Given a list of dicts `[{'name': str, 'active': bool, 'score': int}]`, return a dict of active names to scores.",
+    "sandboxCompatible": true
+  }
+}

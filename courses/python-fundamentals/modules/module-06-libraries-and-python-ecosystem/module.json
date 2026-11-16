@@ -1,0 +1,66 @@
+{
+  "moduleId": "module-06",
+  "slug": "libraries-and-python-ecosystem",
+  "title": "Module 06 \u2013 Libraries and Python Ecosystem",
+  "sequenceOrder": 6,
+  "estimatedHours": 4.0,
+  "prerequisites": [
+    "module-01",
+    "module-04",
+    "module-05"
+  ],
+  "nextModule": "module-07",
+  "concepts": [
+    {
+      "slug": "modules-imports-and-main-guard",
+      "name": "Modules, import Mechanics & __name__ == '__main__'",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Uses import, from ... import, and aliases cleanly without namespace pollution.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Explains why `if __name__ == '__main__':` prevents side effects when a module is imported.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "standard-library-essentials",
+      "name": "Standard Library: random, statistics, math & datetime",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Selects appropriate standard library tools (random, statistics, math, datetime) before reinventing utilities.",
+          "weight": 0.6,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Reads official Python documentation signatures and return types accurately.",
+          "weight": 0.4,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "cli-arguments-pip-and-venv",
+      "name": "Extension: sys.argv, argparse, pip & Virtual Environments",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Parses CLI inputs safely with sys.argv or argparse.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Explains why virtual environments (venv) isolate project dependencies.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    }
+  ]
+}

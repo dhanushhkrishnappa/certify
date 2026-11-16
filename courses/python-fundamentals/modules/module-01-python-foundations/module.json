@@ -1,0 +1,79 @@
+{
+  "moduleId": "module-01",
+  "slug": "python-foundations",
+  "title": "Module 01 \u2013 Python Foundations",
+  "sequenceOrder": 1,
+  "estimatedHours": 4.5,
+  "prerequisites": [],
+  "nextModule": "module-02",
+  "concepts": [
+    {
+      "slug": "execution-model-and-syntax",
+      "name": "Python Execution Model, REPL, Scripts & Indentation",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Distinguishes interactive REPL mode from executing a .py script file.",
+          "weight": 0.4,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Explains that Python uses indentation (4 spaces) rather than braces to define code blocks.",
+          "weight": 0.6,
+          "tierRequired": "EASY"
+        }
+      ]
+    },
+    {
+      "slug": "variables-and-object-references",
+      "name": "Variables, Object References & Mutability",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Articulates that Python variables are name bindings (references) to heap objects rather than fixed memory boxes.",
+          "weight": 0.4,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Predicts aliasing effects when two names point to the same mutable object vs. shallow/deep copies.",
+          "weight": 0.6,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "primitive-types-operators-strings-io",
+      "name": "Data Types, Type Conversion, Operators, Strings & I/O",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Converts user input() strings safely to int or float before arithmetic.",
+          "weight": 0.5,
+          "tierRequired": "EASY"
+        },
+        {
+          "statement": "Applies floor division (//), modulo (%), and f-string formatting accurately.",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        }
+      ]
+    },
+    {
+      "slug": "core-collections-overview",
+      "name": "Core Collections: Lists, Tuples, Dictionaries & Sets",
+      "defaultP0": 0.15,
+      "criteria": [
+        {
+          "statement": "Selects appropriately between list (ordered, mutable), tuple (ordered, immutable), dict (key-value), and set (unique, unordered).",
+          "weight": 0.5,
+          "tierRequired": "MEDIUM"
+        },
+        {
+          "statement": "Explains why mutable lists cannot serve as dictionary keys or set elements.",
+          "weight": 0.5,
+          "tierRequired": "HARD"
+        }
+      ]
+    }
+  ]
+}

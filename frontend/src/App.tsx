@@ -200,6 +200,7 @@ const AppContent: React.FC = () => {
       localStorage.setItem("certify_enrolled_courses", JSON.stringify(updated));
       return updated;
     });
+    api.enrollCourse(slug).catch((err) => console.info("Backend enrollment status:", err?.message || err));
     navigateWithTransition("studio");
   };
 

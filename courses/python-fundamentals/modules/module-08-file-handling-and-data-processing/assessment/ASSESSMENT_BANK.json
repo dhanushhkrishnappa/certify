@@ -1,0 +1,23 @@
+{
+  "moduleId": "module-08",
+  "questions": [
+    {
+      "questionType": "EXPLAIN",
+      "conceptSlug": "iterators-and-lazy-generators",
+      "tier": "MEDIUM",
+      "prompt": "Contrast `return` and `yield` in terms of function stack frames and memory usage."
+    },
+    {
+      "questionType": "REASON",
+      "conceptSlug": "file-paths-and-context-managers",
+      "tier": "EASY",
+      "prompt": "Why is `with open(...) as f:` safer than calling `f = open(...); ...; f.close()`?"
+    }
+  ],
+  "practicalTask": {
+    "taskId": "practical-m08-stream-filter",
+    "functionName": "stream_high_scores",
+    "description": "Write a generator yielding names from records where score >= threshold.",
+    "sandboxCompatible": true
+  }
+}
