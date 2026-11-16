@@ -47,12 +47,14 @@ export function validateModelIdentifier(modelId: string, role: "tutor" | "evalua
 const rawTutorModel = process.env.ANTHROPIC_TUTOR_MODEL || "claude-sonnet-4-6";
 const rawEvaluatorModel = process.env.ANTHROPIC_EVALUATOR_MODEL || "claude-haiku-4-5-20251001";
 
+let customNodeEnv: string | null = null;
+
 export const config = {
   get port() { return parseInt(process.env.PORT || "5000", 10); },
   get jwtSecret() { return process.env.JWT_SECRET || "certify_super_secure_jwt_secret_dev_key_2026"; },
   get jwtExpiresIn() { return process.env.JWT_EXPIRES_IN || "2h"; },
-  get nodeEnv() { return process.env.NODE_ENV || "development"; },
-  set nodeEnv(v: string) { process.env.NODE_ENV = v; },
+  get nodeEnv() { return customNodeEnv || process.env.NODE_ENV || "development"; },
+  set nodeEnv(v: string) { customNodeEnv = v; },
   get corsOrigin() { return process.env.CORS_ORIGIN || "https://certify.pages.dev"; },
   get aiProvider() { return (process.env.AI_PROVIDER || "anthropic") as "anthropic" | "openai" | "gemini"; },
   set aiProvider(v: "anthropic" | "openai" | "gemini") { process.env.AI_PROVIDER = v; },
