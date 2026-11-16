@@ -63,7 +63,8 @@ export function isKeywordStuffing(text: string): boolean {
 
 export class AIProvider {
   public static isRealProviderConfigured(): boolean {
-    if (config.aiProvider === "anthropic" && Boolean(config.anthropicApiKey)) return true;
+    if (Boolean((config as any).groqApiKey)) return true;
+    if (config.aiProvider === "anthropic" && Boolean(config.anthropicApiKey) && config.anthropicApiKey !== "mock-or-dev-key") return true;
     if (config.aiProvider === "openai" && Boolean(config.openaiApiKey)) return true;
     if (config.aiProvider === "gemini" && Boolean(config.geminiApiKey)) return true;
     if (config.geminiAutoFallback && Boolean(config.geminiApiKey)) return true;
@@ -171,6 +172,92 @@ Guidelines:
     };
   }
 
+  public static async streamGroqReply(
+    context: {
+      courseTitle: string;
+      chapterTitle: string;
+      teachingContent?: string;
+      concepts: Array<{ id: string; slug: string; name: string; description: string }>;
+      history: Array<{ role: "user" | "assistant"; content: string }>;
+      learnerMessage: string;
+      ragContextChunks?: string[];
+    },
+    onChunk: (chunk: string) => void,
+    signal?: AbortSignal
+  ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
+    const ragNotes = context.ragContextChunks && context.ragContextChunks.length > 0
+      ? `\n\nCurriculum reference context (from lesson and common mistakes):\n${context.ragContextChunks.join("\n---\n")}\nUse this curriculum reference context to inform your Socratic questioning, but NEVER reveal direct solutions or complete code answers to assessment questions.`
+      : "";
+
+    const systemPrompt = `You are the expert Socratic AI Tutor for the CERTIFY course "${context.courseTitle}", chapter "${context.chapterTitle}".
+Concepts in this chapter: ${context.concepts.map((c) => c.name).join(", ")}.
+Teaching notes: ${context.teachingContent || "First-principles Python semantics."}${ragNotes}
+Guidelines:
+- Guide with concise, thought-provoking Socratic questions; probe mental models of memory, object identity, and runtime state.
+- Keep responses concise, warm, and pedagogically rigorous (under 120 words). Never give direct code answers to assessment questions.`;
+
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...context.history.slice(-8).map((m) => ({ role: m.role, content: m.content })),
+      { role: "user", content: context.learnerMessage },
+    ];
+
+    const model = (config as any).groqTutorModel || "openai/gpt-oss-120b";
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${(config as any).groqApiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.7,
+        max_tokens: 450,
+        stream: true,
+      }),
+      signal,
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      throw new AIProviderError(`Groq API error: HTTP ${res.status} - ${errText}`, 502);
+    }
+
+    const reader = res.body?.getReader();
+    if (!reader) throw new AIProviderError("Groq stream body unavailable", 502);
+    const decoder = new TextDecoder();
+    let fullText = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const textChunk = decoder.decode(value, { stream: true });
+      const lines = textChunk.split("\n").filter((l) => l.startsWith("data: "));
+      for (const line of lines) {
+        const dataStr = line.slice(6).trim();
+        if (dataStr === "[DONE]") break;
+        try {
+          const eventObj = JSON.parse(dataStr);
+          const delta = eventObj.choices?.[0]?.delta?.content;
+          if (delta) {
+            fullText += delta;
+            onChunk(delta);
+          }
+        } catch {
+          // skip
+        }
+      }
+    }
+
+    return {
+      fullText,
+      modelUsed: model,
+      promptVersion: config.promptVersion,
+      provider: "groq",
+    };
+  }
+
   public static async streamTutorReply(
     context: {
       courseTitle: string;
@@ -185,6 +272,16 @@ Guidelines:
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
     this.assertConfiguredOrFallbackAllowed();
+
+    // 0. Primary High-Speed Groq Provider
+    if (Boolean((config as any).groqApiKey)) {
+      try {
+        return await this.streamGroqReply(context, onChunk, signal);
+      } catch (groqErr: any) {
+        if (groqErr.name === "AbortError") throw groqErr;
+        console.warn("[AIProvider] Groq streaming error, trying fallbacks:", groqErr?.message || groqErr);
+      }
+    }
 
     // Direct Gemini provider mode
     if (config.aiProvider === "gemini" && config.geminiApiKey) {
