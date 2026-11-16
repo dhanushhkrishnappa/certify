@@ -227,7 +227,7 @@ sessionsHonoRouter.post(
     const sessionId = c.req.param("sessionId");
     const user = c.get("user");
     const body = await c.req.json().catch(() => ({}));
-    const content = (body.content || "").trim();
+    const content = (body.content || body.message || "").trim();
 
     if (!content) {
       return c.json({ error: "Content is required" }, 400);
@@ -397,6 +397,90 @@ sessionsHonoRouter.post(
       await stream.writeSSE({
         event: "done",
         data: JSON.stringify({ messageId: savedAssistantMsg.id }),
+      });
+    });
+  }
+);
+
+// Public / Guest-Friendly Socratic Stream (No authentication required to explore course Socratic tutor)
+sessionsHonoRouter.post(
+  "/courses/:slug/chat",
+  honoRateLimiter({ maxRequests: 30, windowSeconds: 60, keyPrefix: "public-chat" }),
+  async (c) => {
+    const slug = c.req.param("slug") || "";
+    const body = await c.req.json().catch(() => ({}));
+    const content = (body.content || body.message || "").trim();
+    const history = Array.isArray(body.history) ? body.history : [];
+
+    if (!content) {
+      return c.json({ error: "Content is required" }, 400);
+    }
+
+    const course = await prisma.course.findUnique({
+      where: { slug },
+      include: {
+        versions: {
+          where: { isActive: true },
+          include: {
+            modules: {
+              take: 1,
+              orderBy: { sequenceOrder: "asc" },
+              include: {
+                chapters: {
+                  take: 1,
+                  orderBy: { sequenceOrder: "asc" },
+                  include: { concepts: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const activeVersion = course?.versions[0];
+    const firstChapter = activeVersion?.modules[0]?.chapters[0];
+    const firstConcept = firstChapter?.concepts[0];
+
+    return streamSSE(c, async (stream) => {
+      // 1. Hybrid RAG retrieval from course_embeddings
+      let ragChunks: string[] = [];
+      try {
+        const ragResults = await RAGService.retrieveContext({
+          chapterId: firstChapter?.id,
+          moduleSlug: slug.replace(/^module-\d+-/, ""),
+          query: content,
+          topK: 3,
+        });
+        ragChunks = ragResults.map((r) => r.content);
+      } catch (ragErr) {
+        console.warn("[PublicChat] RAG retrieval error:", ragErr);
+      }
+
+      // 2. Stream real LLM response via AIProviderService (Groq)
+      const chatHistory = history.map((h: any) => ({
+        role: h.role as "user" | "assistant" | "system",
+        content: h.content,
+      }));
+      chatHistory.push({ role: "user", content });
+
+      await AiProviderService.generateSocraticStream({
+        teachingContent: firstChapter?.teachingContent || "First-principles Python semantics.",
+        conceptName: firstConcept?.name || course?.title || "Python Fundamentals",
+        history: chatHistory,
+        ragContextChunks: ragChunks,
+        onChunk: async (chunk: string) => {
+          await stream.writeSSE({
+            event: "token",
+            data: JSON.stringify({ chunk }),
+          });
+        },
+        signal: c.req.raw.signal,
+      });
+
+      await stream.writeSSE({
+        event: "done",
+        data: JSON.stringify({ messageId: "public-" + Date.now() }),
       });
     });
   }

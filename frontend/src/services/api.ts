@@ -409,6 +409,70 @@ export const api = {
     }
   },
 
+  /**
+   * Public / Guest Socratic stream for course exploration without requiring login
+   */
+  async streamCourseChat(
+    slug: string,
+    content: string,
+    history: Array<{ role: string; content: string }>,
+    onToken: (chunk: string) => void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const response = await fetch(`${API_BASE}/courses/${slug}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content, history }),
+      signal,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to stream course dialogue");
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("Streaming not supported");
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split("\n\n");
+      buffer = events.pop() || "";
+
+      for (const eventBlock of events) {
+        if (!eventBlock.trim()) continue;
+        const lines = eventBlock.split("\n");
+        let eventType = "message";
+        let dataStr = "";
+
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            eventType = line.replace("event: ", "").trim();
+          } else if (line.startsWith("data: ")) {
+            dataStr = line.replace("data: ", "").trim();
+          }
+        }
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          if (eventType === "token" && parsed.chunk) {
+            onToken(parsed.chunk);
+          }
+        } catch {
+          // ignore parse errors
+        }
+      }
+    }
+  },
+
   // ─── Assessments ──────────────────────────────────────────────────────────
 
   async getChapterQuestions(chapterId: string): Promise<{ questions: Question[] }> {

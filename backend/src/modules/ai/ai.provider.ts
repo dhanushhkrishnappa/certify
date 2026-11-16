@@ -92,7 +92,7 @@ export class AIProvider {
       learnerMessage: string;
       ragContextChunks?: string[];
     },
-    onChunk: (chunk: string) => void,
+    onChunk: (chunk: string) => Promise<any> | any,
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
     const ragNotes = context.ragContextChunks && context.ragContextChunks.length > 0
@@ -182,7 +182,7 @@ Guidelines:
       learnerMessage: string;
       ragContextChunks?: string[];
     },
-    onChunk: (chunk: string) => void,
+    onChunk: (chunk: string) => Promise<any> | any,
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
     const ragNotes = context.ragContextChunks && context.ragContextChunks.length > 0
@@ -203,17 +203,22 @@ Guidelines:
     ];
 
     const model = (config as any).groqTutorModel || "openai/gpt-oss-120b";
+    const apiKey = (config as any).groqApiKey;
+    if (!apiKey) {
+      throw new AIProviderError("GROQ_API_KEY is not configured", 503);
+    }
+
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${(config as any).groqApiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model,
         messages,
         temperature: 0.7,
-        max_tokens: 450,
+        max_tokens: 600,
         stream: true,
       }),
       signal,
@@ -228,21 +233,41 @@ Guidelines:
     if (!reader) throw new AIProviderError("Groq stream body unavailable", 502);
     const decoder = new TextDecoder();
     let fullText = "";
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      const textChunk = decoder.decode(value, { stream: true });
-      const lines = textChunk.split("\n").filter((l) => l.startsWith("data: "));
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
       for (const line of lines) {
-        const dataStr = line.slice(6).trim();
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("data: ")) continue;
+        const dataStr = trimmed.slice(6).trim();
         if (dataStr === "[DONE]") break;
         try {
           const eventObj = JSON.parse(dataStr);
           const delta = eventObj.choices?.[0]?.delta?.content;
           if (delta) {
             fullText += delta;
-            onChunk(delta);
+            await onChunk(delta);
+          }
+        } catch {
+          // skip
+        }
+      }
+    }
+
+    if (buffer.trim().startsWith("data: ")) {
+      const dataStr = buffer.trim().slice(6).trim();
+      if (dataStr !== "[DONE]") {
+        try {
+          const eventObj = JSON.parse(dataStr);
+          const delta = eventObj.choices?.[0]?.delta?.content;
+          if (delta) {
+            fullText += delta;
+            await onChunk(delta);
           }
         } catch {
           // skip
@@ -268,7 +293,7 @@ Guidelines:
       learnerMessage: string;
       ragContextChunks?: string[];
     },
-    onChunk: (chunk: string) => void,
+    onChunk: (chunk: string) => Promise<any> | any,
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
     this.assertConfiguredOrFallbackAllowed();
@@ -412,7 +437,7 @@ Guidelines:
     for (const tok of tokens) {
       if (signal?.aborted) break;
       fullText += tok;
-      onChunk(tok);
+      await onChunk(tok);
     }
 
     return {
@@ -578,7 +603,7 @@ Guidelines:
     teachingContent?: string;
     conceptName: string;
     history: Array<{ role: "user" | "assistant" | "system"; content: string }>;
-    onChunk: (chunk: string) => void;
+    onChunk: (chunk: string) => Promise<any> | any;
     signal?: AbortSignal;
     ragContextChunks?: string[];
   }): Promise<{ fullText: string; modelUsed: string }> {

@@ -98,6 +98,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
    */
   const handleStreamMessage = async (
     message: string,
+    history: Array<{ role: "user" | "assistant"; content: string }>,
     onToken: (chunk: string) => void,
     signal?: AbortSignal
   ) => {
@@ -122,26 +123,33 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
           );
         }
       } catch (err) {
-        console.warn("[LearningStudio] Could not start backend session:", err);
+        console.warn("[LearningStudio] Could not start backend session, falling back to course chat:", err);
       }
     }
 
-    if (!activeSessionId) {
-      throw new Error("No active backend session available");
+    if (activeSessionId) {
+      await api.streamMessage(
+        activeSessionId,
+        message,
+        onToken,
+        (stateUpdate) => {
+          console.info("[LearningStudio] Concept mastery update:", stateUpdate);
+        },
+        (messageId) => {
+          console.info("[LearningStudio] Assistant turn finished:", messageId);
+        },
+        signal
+      );
+    } else {
+      // Guest / unauthenticated fallback: directly stream from public Socratic course chat!
+      await api.streamCourseChat(
+        courseSlug,
+        message,
+        history,
+        onToken,
+        signal
+      );
     }
-
-    await api.streamMessage(
-      activeSessionId,
-      message,
-      onToken,
-      (stateUpdate) => {
-        console.info("[LearningStudio] Concept mastery update:", stateUpdate);
-      },
-      (messageId) => {
-        console.info("[LearningStudio] Assistant turn finished:", messageId);
-      },
-      signal
-    );
   };
 
   const handleSendMessage = async (

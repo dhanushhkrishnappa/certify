@@ -127,6 +127,7 @@ export interface AiChat9Props {
   onSendMessage?: (message: string, model: AIModel, effort: ReasoningEffort) => Promise<string | void>;
   onStreamMessage?: (
     message: string,
+    history: Array<{ role: "user" | "assistant"; content: string }>,
     onToken: (chunk: string) => void,
     signal?: AbortSignal
   ) => Promise<void>;
@@ -275,8 +276,10 @@ export const AiChat9: React.FC<AiChat9Props> = ({
     if (onStreamMessage) {
       try {
         let accumulated = "";
+        const historyForStream = messages.map((m) => ({ role: m.role, content: m.content }));
         await onStreamMessage(
           text,
+          historyForStream,
           (chunk: string) => {
             if (abortController.signal.aborted) return;
             hasStreamedToken = true;
@@ -288,7 +291,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
           abortController.signal
         );
       } catch (err: any) {
-        console.warn("[AiChat9] Live streaming error, falling back to local reasoning:", err?.message || err);
+        console.warn("[AiChat9] Live streaming error:", err?.message || err);
       }
     } else if (onSendMessage) {
       try {
@@ -304,32 +307,19 @@ export const AiChat9: React.FC<AiChat9Props> = ({
       }
     }
 
-    // 2. High-fidelity client-side fallback if backend was unavailable/offline or didn't stream
+    // 2. If stream was unreachable or failed:
     if (!hasStreamedToken && !abortController.signal.aborted) {
-      const responseText = generateResponseText(text, courseTitle, selectedModel, reasoningEffort, fileAttach);
-      const words = responseText.split(" ");
-      let accumulated = "";
-
-      try {
-        for (let i = 0; i < words.length; i++) {
-          if (abortController.signal.aborted) break;
-          accumulated += (i > 0 ? " " : "") + words[i];
-
-          setMessages((prev) =>
-            prev.map((m) => (m.id === assistantMessageId ? { ...m, content: accumulated } : m))
-          );
-
-          const delay =
-            selectedModel.id === "quill" || selectedModel.id === "wren"
-              ? 12
-              : selectedModel.id === "atlas-long"
-              ? 24
-              : 18;
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        }
-      } catch {
-        // Aborted
-      }
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMessageId
+            ? {
+                ...m,
+                content:
+                  "⚠️ Unable to reach the Socratic AI tutor. Please verify your connection or refresh the page.",
+              }
+            : m
+        )
+      );
     }
 
     setIsGenerating(false);
@@ -665,114 +655,4 @@ function renderFormattedText(text: string): React.ReactNode {
     }
     return token;
   });
-}
-
-/**
- * Intelligent Socratic response generator tailored to course, model & reasoning effort
- */
-function generateResponseText(
-  query: string,
-  courseTitle: string,
-  _model: AIModel,
-  effort: ReasoningEffort,
-  attachment?: ChatAttachment | null
-): string {
-  const q = query.toLowerCase();
-
-  // Python mutability / memory / CPython
-  if (q.includes("mutab") || q.includes("memory") || q.includes("identity") || q.includes("id(")) {
-    if (effort === "brief") {
-      return `In CPython, \`==\` checks logical value equivalence via \`__eq__\`, whereas \`is\` checks memory identity (\`id(a) == id(b)\`). Mutable objects (lists, dicts) always allocate distinct heap objects unless aliased.`;
-    }
-    if (effort === "detailed") {
-      return `### Socratic Investigation: CPython Heap Allocations & Identity (${courseTitle})
-
-When examining Python object representations:
-
-\`\`\`python
-# Immutable Integer Interning (Small integer cache: -5 to 256)
-a = 256
-b = 256
-print(a is b)  # True (Cached singleton PyLongObject pointer)
-
-# Mutable List Allocations
-list_1 = [1, 2, 3]
-list_2 = [1, 2, 3]
-print(list_1 == list_2)  # True: Logical value equality (__eq__)
-print(list_1 is list_2)  # False: Distinct PyListObject pointers on the heap
-\`\`\`
-
-**Architectural Takeaways:**
-1. **PyObject Structure:** Every Python object has an explicit \`ob_refcnt\` and \`ob_type\` header.
-2. **Hash Invariance:** A container can only be hashed if all its elements are strictly immutable. A tuple containing a mutable list raises \`TypeError: unhashable type: 'list'\`.
-
-> 💡 **Socratic Probe:** If you append to \`list_1\`, what happens to its internal memory buffer according to CPython's over-allocation growth strategy?`;
-    }
-    return `In Python, **value equality** (\`==\`) calls the \`__eq__\` method to compare contents, while **object identity** (\`is\`) tests whether two pointers refer to the exact same memory address (\`id(a) == id(b)\`). Mutable collections like lists always allocate fresh heap objects upon creation, preventing accidental mutation aliasing.`;
-  }
-
-  // Bytecode & VM
-  if (q.includes("bytecode") || q.includes("cpython") || q.includes("eval loop") || q.includes("dis")) {
-    if (effort === "brief") {
-      return `CPython compiles source code into an Abstract Syntax Tree (AST), then emits stack-based bytecode opcodes evaluated sequentially in C by \`_PyEval_EvalFrameDefault\`.`;
-    }
-    return `CPython compiles source code (.py) into an Abstract Syntax Tree (AST), then emits stack-oriented bytecode opcodes. The evaluation loop (\`_PyEval_EvalFrameDefault\`) reads opcodes, pops arguments from the frame value stack, and pushes computed results.
-
-\`\`\`python
-import dis
-
-def calculate(a, b):
-    return a + b * 2
-
-dis.dis(calculate)
-\`\`\`
-
-Notice how \`LOAD_FAST\` pushes values onto the evaluation stack, followed by \`BINARY_OP\` and \`RETURN_VALUE\`.`;
-  }
-
-  // Web dev
-  if (q.includes("rendering path") || q.includes("event loop") || q.includes("grid") || q.includes("flexbox") || q.includes("vdom")) {
-    if (effort === "brief") {
-      return `The Critical Rendering Path processes HTML -> DOM and CSS -> CSSOM, constructs the Render Tree, performs Layout (reflow), and Paints pixels to the screen composited by the GPU.`;
-    }
-    return `### Critical Rendering Path & Runtime Optimization (${courseTitle})
-
-1. **DOM & CSSOM Construction:** HTML parses incrementally; external CSS blocks rendering until the CSSOM tree is fully assembled.
-2. **Layout & Reflow:** Calculates exact geometric coordinates for every visible node.
-3. **Paint & Compositing:** Rasterizes vectors into bitmaps across composited GPU layers.
-
-> 🔍 **Socratic Question:** Why does mutating \`transform\` or \`opacity\` skip both Layout and Paint, whereas mutating \`width\` or \`top\` triggers full recalculation?`;
-  }
-
-  // SQL & Databases
-  if (q.includes("b+ tree") || q.includes("acid") || q.includes("explain") || q.includes("index") || q.includes("wal")) {
-    if (effort === "brief") {
-      return `B+ Trees keep all key-data pairs at the leaf level linked sequentially, delivering $O(\\log N)$ point lookups with high cache locality for sequential range scans.`;
-    }
-    return `### Database Indexing & ACID Guarantees (${courseTitle})
-
-- **B+ Tree Invariants:** Internal nodes only store routing keys; leaf nodes store actual tuples/pointers and form a doubly-linked list for sequential scans.
-- **Write-Ahead Logging (WAL):** Modifications are logged sequentially to disk before dirty pages are flushed to table files, upholding Durability and Atomicity.
-
-> 🔍 **Socratic Probe:** Under PostgreSQL Read Committed isolation, how does a transaction handle concurrent updates to rows that match its WHERE clause?`;
-  }
-
-  // Attachment review
-  if (attachment) {
-    return `I reviewed \`${attachment.name}\` (${attachment.size}) in the context of **${courseTitle}**. The structure follows idiomatic principles. Would you like me to analyze failure boundaries or invariant assertions for this code?`;
-  }
-
-  // General Socratic fallback
-  if (effort === "brief") {
-    return `In **${courseTitle}**, always verify the underlying invariant, trace runtime allocations, and formulate an assertion before committing changes.`;
-  }
-
-  return `### Socratic Exploration: ${courseTitle}
-
-When investigating this in **${courseTitle}**, we evaluate three core criteria:
-1. **Core Invariants:** What state guarantees must remain unchanged across the boundary of this operation?
-2. **Edge Conditions:** How does the runtime handle null states, concurrent access, or memory pressure?
-3. **Verification Criterion:** How would you write an automated test to empirically prove your hypothesis?
-
-What specific scenario would you like to inspect first?`;
 }
