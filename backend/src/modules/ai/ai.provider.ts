@@ -114,7 +114,7 @@ Guidelines:
       { role: "user", parts: [{ text: context.learnerMessage }] },
     ];
 
-    const model = config.geminiTutorModel || "gemini-3.5-flash";
+    const model = config.geminiTutorModel || "gemini-3.5-flash-lite";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${config.geminiApiKey}&alt=sse`;
 
     const res = await fetch(url, {
