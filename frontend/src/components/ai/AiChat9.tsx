@@ -361,20 +361,20 @@ export const AiChat9: React.FC<AiChat9Props> = ({
   };
 
   /**
-   * Minimal, rich obsidian-plum composer pinned cleanly inside the chatbox
+   * Minimal, rich matte-black composer pinned cleanly inside the chatbox
    */
   const renderComposer = () => (
     <div className="w-full relative">
-      <div className="w-full rounded-2xl bg-[#161224] border border-violet-300/[0.14] focus-within:border-violet-400/55 focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.12)] transition-all duration-200 px-3.5 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+      <div className="w-full rounded-2xl bg-[#111113] border border-white/[0.11] focus-within:border-white/30 focus-within:shadow-[0_0_0_3px_rgba(255,255,255,0.05)] transition-all duration-200 px-4 py-3 shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
         {/* Active Attachment Badge */}
         {attachment && (
-          <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-lg bg-[#1e1831] border border-violet-300/20 w-fit text-xs text-violet-100">
-            <FileCode className="w-3.5 h-3.5 text-violet-300" />
+          <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-lg bg-[#19191c] border border-white/[0.12] w-fit text-xs text-zinc-200">
+            <FileCode className="w-3.5 h-3.5 text-zinc-400" />
             <span className="font-mono">{attachment.name}</span>
-            <span className="text-violet-300/60 text-[10px]">({attachment.size})</span>
+            <span className="text-zinc-500 text-[10px]">({attachment.size})</span>
             <button
               onClick={() => setAttachment(null)}
-              className="ml-1 text-violet-300/60 hover:text-white transition-colors cursor-pointer"
+              className="ml-1 text-zinc-500 hover:text-white transition-colors cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -389,15 +389,15 @@ export const AiChat9: React.FC<AiChat9Props> = ({
           onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
           placeholder={`Ask your Socratic tutor about ${courseTitle}...`}
-          className="w-full bg-transparent text-sm text-[#f6f3ec] placeholder:text-[#8c84a8] resize-none outline-none leading-relaxed max-h-[160px]"
+          className="font-chat w-full bg-transparent text-[15px] text-[#f4f4f5] placeholder:text-zinc-500 resize-none outline-none leading-relaxed tracking-[-0.008em] max-h-[160px]"
         />
 
-        <div className="flex items-center justify-between pt-2 mt-1 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between pt-2.5 mt-1.5 border-t border-white/[0.06]">
           <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-1.5 text-[#9d95ba] hover:text-[#f6f3ec] rounded-lg hover:bg-violet-400/10 transition-colors cursor-pointer flex items-center justify-center"
+              className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer flex items-center justify-center"
               title="Attach code or files"
             >
               <Plus className="w-4 h-4" />
@@ -415,7 +415,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
               <button
                 type="button"
                 onClick={handleStopGeneration}
-                className="w-8 h-8 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-200 flex items-center justify-center transition-all cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer"
                 title="Stop generating"
               >
                 <Square className="w-3.5 h-3.5 fill-current" />
@@ -425,10 +425,10 @@ export const AiChat9: React.FC<AiChat9Props> = ({
                 type="button"
                 onClick={() => handleSendPrompt(inputText)}
                 disabled={!inputText.trim() && !attachment}
-                className="w-8 h-8 rounded-xl bg-violet-500 hover:bg-violet-400 text-white disabled:bg-[#231d36] disabled:text-[#665e82] disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center transition-all cursor-pointer shadow-[0_4px_16px_rgba(139,92,246,0.38)]"
+                className="w-8 h-8 rounded-xl bg-white hover:bg-zinc-200 text-black disabled:bg-[#1c1c1f] disabled:text-zinc-600 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center transition-all cursor-pointer shadow-[0_2px_12px_rgba(255,255,255,0.16)]"
                 title="Send message"
               >
-                <ArrowUp className="w-4 h-4" />
+                <ArrowUp className="w-4 h-4 stroke-[2.2]" />
               </button>
             )}
           </div>
@@ -438,26 +438,26 @@ export const AiChat9: React.FC<AiChat9Props> = ({
   );
 
   return (
-    <div className="w-full h-full min-h-0 overflow-hidden bg-[#08060f] text-[#f4f2f8] flex flex-col items-center justify-center p-3 sm:p-5 md:p-6 font-sans selection:bg-violet-500/30 selection:text-white relative">
-      {/* Subtle Rich Obsidian-Plum Ambient Backdrop */}
+    <div className="w-full h-full min-h-0 overflow-hidden bg-[#030304] text-[#f4f4f5] flex flex-col items-center justify-center p-3 sm:p-5 md:p-6 font-chat selection:bg-white/20 selection:text-white relative">
+      {/* Subtle Neutral Metallic Sheen on Rich Pitch-Black Canvas */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(124, 58, 237, 0.14), transparent 65%), radial-gradient(ellipse 55% 45% at 88% 100%, rgba(76, 29, 149, 0.12), transparent 60%)",
+            "radial-gradient(ellipse 65% 40% at 50% 0%, rgba(255, 255, 255, 0.035), transparent 65%)",
         }}
         aria-hidden="true"
       />
 
-      {/* Bounded Professional Minimal Chat Box */}
-      <div className="relative z-10 w-full max-w-4xl h-full min-h-0 flex flex-col rounded-[22px] border border-violet-300/[0.13] bg-[#100d1a]/95 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
+      {/* Expanded Bounded Rich-Black Chat Box */}
+      <div className="relative z-10 w-full max-w-[1080px] h-full min-h-0 flex flex-col rounded-[22px] border border-white/[0.09] bg-[#09090b] shadow-[0_28px_90px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
         {/* Pinned Top Bar inside Box */}
-        <header className="w-full px-4 sm:px-6 py-3.5 border-b border-white/[0.07] bg-white/[0.015] flex items-center justify-between shrink-0">
+        <header className="w-full px-5 sm:px-7 py-3.5 border-b border-white/[0.07] bg-[#0c0c0e] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {onExit && (
               <button
                 onClick={onExit}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#cfc8e6] hover:text-white hover:bg-violet-400/10 border border-white/[0.09] transition-colors cursor-pointer group shrink-0"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/[0.06] border border-white/[0.09] transition-colors cursor-pointer group shrink-0"
                 title="Back to Course Overview"
               >
                 <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
@@ -466,9 +466,9 @@ export const AiChat9: React.FC<AiChat9Props> = ({
             )}
 
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="text-violet-300/30 font-light select-none">/</span>
-              <span className="w-2 h-2 rounded-full bg-violet-400 shadow-[0_0_10px_rgba(167,139,250,0.8)] shrink-0" />
-              <h2 className="text-sm font-semibold text-[#f6f3ec] tracking-tight truncate">
+              <span className="text-zinc-600 font-light select-none">/</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)] shrink-0" />
+              <h2 className="font-chat text-[13.5px] font-medium text-[#f4f4f5] tracking-[-0.012em] truncate">
                 {courseTitle}
               </h2>
             </div>
@@ -480,7 +480,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
                 setMessages([]);
                 if (onNewChat) onNewChat();
               }}
-              className="text-xs text-[#9c94b8] hover:text-[#f6f3ec] flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-violet-400/10 transition-colors cursor-pointer shrink-0"
+              className="text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer shrink-0"
               title="Start new thread"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -492,17 +492,17 @@ export const AiChat9: React.FC<AiChat9Props> = ({
         {/* Scrollable Message Stream Area (Previous chats scroll up cleanly inside this box) */}
         <main
           ref={scrollContainerRef}
-          className="flex-1 min-h-0 w-full overflow-y-auto px-4 sm:px-7 py-6 space-y-6 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-violet-300/20 hover:[&::-webkit-scrollbar-thumb]:bg-violet-300/35"
+          className="flex-1 min-h-0 w-full overflow-y-auto px-5 sm:px-9 py-7 space-y-7 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/[0.12] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.24]"
         >
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center px-4">
               <div
                 onClick={cycleNextPrompt}
-                className="cursor-pointer select-none max-w-xl"
+                className="cursor-pointer select-none max-w-2xl"
                 title="Click to cycle prompt"
               >
                 <h1
-                  className={`text-2xl sm:text-3xl md:text-[34px] font-sans font-bold text-[#f6f3ec] tracking-tight transition-all duration-300 leading-snug ${
+                  className={`font-editorial text-3xl sm:text-4xl md:text-[42px] font-normal text-[#f5f5f5] tracking-[-0.02em] transition-all duration-300 leading-[1.2] ${
                     fadeState === "visible" ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
                   }`}
                 >
@@ -520,12 +520,12 @@ export const AiChat9: React.FC<AiChat9Props> = ({
                     className={`flex w-full group ${isUser ? "justify-end" : "justify-start"}`}
                   >
                     {isUser ? (
-                      <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-br-md px-4 py-3 bg-gradient-to-br from-[#2a1d4a] to-[#1e1538] border border-violet-400/25 text-[#f6f3ec] text-sm leading-relaxed shadow-[0_6px_22px_rgba(76,29,149,0.22)]">
+                      <div className="font-chat max-w-[82%] sm:max-w-[70%] rounded-2xl rounded-br-md px-4.5 py-3 bg-[#17171a] border border-white/[0.1] text-[#f5f5f7] text-[14.5px] leading-[1.6] tracking-[-0.008em] shadow-[0_6px_22px_rgba(0,0,0,0.4)]">
                         {message.attachment && (
-                          <div className="flex items-center gap-2 px-2.5 py-1.5 mb-2 rounded-lg bg-[#140e26]/80 border border-violet-300/20 text-xs text-violet-100">
-                            <FileCode className="w-3.5 h-3.5 text-violet-300" />
+                          <div className="flex items-center gap-2 px-2.5 py-1.5 mb-2 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-zinc-300">
+                            <FileCode className="w-3.5 h-3.5 text-zinc-400" />
                             <span className="truncate font-mono">{message.attachment.name}</span>
-                            <span className="text-violet-300/60 text-[10px] ml-auto shrink-0">
+                            <span className="text-zinc-500 text-[10px] ml-auto shrink-0">
                               {message.attachment.size}
                             </span>
                           </div>
@@ -533,16 +533,16 @@ export const AiChat9: React.FC<AiChat9Props> = ({
                         <div className="whitespace-pre-wrap">{message.content}</div>
                       </div>
                     ) : (
-                      <div className="w-full text-sm text-[#e8e4f2] leading-relaxed relative pr-8">
+                      <div className="font-chat w-full text-[15px] text-[#e4e4e7] leading-[1.75] tracking-[-0.009em] relative pr-9">
                         <MarkdownRenderer content={message.content} />
                         {streamingMessageId === message.id && (
-                          <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-violet-400 rounded-xs animate-pulse" />
+                          <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-zinc-200 rounded-xs animate-pulse" />
                         )}
 
                         {message.content && (
                           <button
                             onClick={() => handleCopy(message.id, message.content)}
-                            className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-violet-400/10 text-[#8b83a8] hover:text-[#f6f3ec] transition-all cursor-pointer"
+                            className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-white/[0.07] text-zinc-500 hover:text-white transition-all cursor-pointer"
                             title="Copy text"
                           >
                             {copiedId === message.id ? (
@@ -562,8 +562,8 @@ export const AiChat9: React.FC<AiChat9Props> = ({
           )}
         </main>
 
-        {/* Pinned Bottom Composer Bar (Always visible & anchored inside the box) */}
-        <footer className="w-full px-4 sm:px-6 pb-4 pt-3 border-t border-white/[0.06] bg-[#0d0a16]/90 shrink-0">
+        {/* Pinned Bottom Composer Bar (Always visible & anchored inside the rich black box) */}
+        <footer className="w-full px-5 sm:px-7 pb-4 pt-3 border-t border-white/[0.07] bg-[#0b0b0d] shrink-0">
           {renderComposer()}
         </footer>
       </div>
@@ -572,7 +572,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
 };
 
 /**
- * Intelligent Markdown & Code block renderer
+ * Refined Editorial Markdown & Code Renderer
  */
 const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
   const [copiedCodeIdx, setCopiedCodeIdx] = useState<number | null>(null);
@@ -586,7 +586,7 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
   const parts = content.split(/(```[\s\S]*?```)/g);
 
   return (
-    <div className="space-y-3 font-normal">
+    <div className="space-y-3.5 font-chat font-normal">
       {parts.map((part, idx) => {
         if (part.startsWith("```") && part.endsWith("```")) {
           const lines = part.slice(3, -3).trim().split("\n");
@@ -601,13 +601,13 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
           return (
             <div
               key={idx}
-              className="my-3 rounded-xl overflow-hidden border border-violet-300/[0.14] bg-[#0b0913] shadow-sm"
+              className="my-3.5 rounded-xl overflow-hidden border border-white/[0.09] bg-[#050506] shadow-[0_6px_24px_rgba(0,0,0,0.45)]"
             >
-              <div className="flex items-center justify-between px-3.5 py-1.5 border-b border-violet-300/[0.1] bg-[#141022] text-[11px] text-[#a79fc4] font-mono">
-                <span>{language}</span>
+              <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.07] bg-[#0d0d0f] text-[11px] text-zinc-400 font-mono">
+                <span className="uppercase tracking-wider text-[10px] text-zinc-400">{language}</span>
                 <button
                   onClick={() => handleCopyCode(idx, codeBody)}
-                  className="flex items-center gap-1 hover:text-[#f6f3ec] transition-colors cursor-pointer"
+                  className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
                 >
                   {copiedCodeIdx === idx ? (
                     <>
@@ -622,16 +622,87 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
                   )}
                 </button>
               </div>
-              <pre className="p-3.5 text-xs text-[#ece8f6] font-mono overflow-x-auto leading-relaxed">
+              <pre className="p-4 text-[13px] text-[#e4e4e7] font-mono overflow-x-auto leading-[1.65]">
                 <code>{codeBody}</code>
               </pre>
             </div>
           );
         }
 
+        // Parse structured markdown blocks (headings, bullet lists, numbered lists, paragraphs)
+        const lines = part.split("\n");
         return (
-          <div key={idx} className="whitespace-pre-wrap leading-relaxed">
-            {renderFormattedText(part)}
+          <div key={idx} className="space-y-2">
+            {lines.map((line, lIdx) => {
+              const trimmed = line.trim();
+              if (!trimmed) return <div key={lIdx} className="h-1" />;
+
+              // Headings (#, ##, ###)
+              const h3Match = trimmed.match(/^###\s+(.+)$/);
+              if (h3Match) {
+                return (
+                  <h3
+                    key={lIdx}
+                    className="font-editorial text-[19px] font-medium text-white tracking-[-0.015em] pt-2 pb-0.5 leading-snug"
+                  >
+                    {renderFormattedText(h3Match[1])}
+                  </h3>
+                );
+              }
+              const h2Match = trimmed.match(/^##\s+(.+)$/);
+              if (h2Match) {
+                return (
+                  <h2
+                    key={lIdx}
+                    className="font-editorial text-[21px] font-medium text-white tracking-[-0.02em] pt-2 pb-0.5 leading-snug"
+                  >
+                    {renderFormattedText(h2Match[1])}
+                  </h2>
+                );
+              }
+              const h1Match = trimmed.match(/^#\s+(.+)$/);
+              if (h1Match) {
+                return (
+                  <h1
+                    key={lIdx}
+                    className="font-editorial text-[24px] font-medium text-white tracking-[-0.02em] pt-2 pb-1 leading-snug"
+                  >
+                    {renderFormattedText(h1Match[1])}
+                  </h1>
+                );
+              }
+
+              // Numbered list item
+              const numMatch = trimmed.match(/^(\d+)\.\s+(.+)$/);
+              if (numMatch) {
+                return (
+                  <div key={lIdx} className="flex items-start gap-2.5 pl-1">
+                    <span className="font-mono text-[12px] text-zinc-400 font-medium mt-[3px] shrink-0 min-w-[18px]">
+                      {numMatch[1]}.
+                    </span>
+                    <p className="flex-1 leading-[1.72]">{renderFormattedText(numMatch[2])}</p>
+                  </div>
+                );
+              }
+
+              // Bullet list item
+              const bulletMatch = trimmed.match(/^[-*•]\s+(.+)$/);
+              if (bulletMatch) {
+                return (
+                  <div key={lIdx} className="flex items-start gap-2.5 pl-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 mt-[10px] shrink-0" />
+                    <p className="flex-1 leading-[1.72]">{renderFormattedText(bulletMatch[1])}</p>
+                  </div>
+                );
+              }
+
+              // Standard editorial paragraph
+              return (
+                <p key={lIdx} className="leading-[1.75] text-[#e4e4e7]">
+                  {renderFormattedText(line)}
+                </p>
+              );
+            })}
           </div>
         );
       })}
@@ -640,21 +711,28 @@ const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
 };
 
 function renderFormattedText(text: string): React.ReactNode {
-  const tokens = text.split(/(\*\*.*?\*\*|`.*?`)/g);
+  const tokens = text.split(/(\*\*.*?\*\*|\*[^*]+?\*|`.*?`)/g);
 
   return tokens.map((token, i) => {
     if (token.startsWith("**") && token.endsWith("**")) {
       return (
-        <strong key={i} className="font-semibold text-[#ffffff]">
+        <strong key={i} className="font-semibold text-white tracking-[-0.01em]">
           {token.slice(2, -2)}
         </strong>
+      );
+    }
+    if (token.startsWith("*") && token.endsWith("*") && token.length > 2) {
+      return (
+        <em key={i} className="italic text-zinc-200">
+          {token.slice(1, -1)}
+        </em>
       );
     }
     if (token.startsWith("`") && token.endsWith("`")) {
       return (
         <code
           key={i}
-          className="px-1.5 py-0.5 rounded-md bg-violet-500/15 text-violet-200 text-xs font-mono border border-violet-400/25"
+          className="px-1.5 py-0.5 rounded-md bg-[#18181b] text-[#f4f4f5] text-[13px] font-mono border border-white/[0.1]"
         >
           {token.slice(1, -1)}
         </code>

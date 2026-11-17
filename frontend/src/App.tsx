@@ -383,7 +383,7 @@ const AppContent: React.FC = () => {
     <div
       className={`flex transition-colors duration-400 relative ${
         currentView === "studio"
-          ? "h-screen overflow-hidden bg-[#08060f] text-[#f4f2f8]"
+          ? "h-screen overflow-hidden bg-[#030304] text-[#f5f5f7]"
           : theme === "light"
           ? "min-h-screen overflow-x-hidden bg-[#C5B8D6] text-slate-900"
           : "min-h-screen overflow-x-hidden bg-[#15062B] text-slate-100"
@@ -428,7 +428,7 @@ const AppContent: React.FC = () => {
         <main
           className={
             currentView === "studio"
-              ? "p-0 w-full h-full min-h-0 flex flex-col overflow-hidden bg-[#08060f]"
+              ? "p-0 w-full h-full min-h-0 flex flex-col overflow-hidden bg-[#030304]"
               : currentView === "settings" || currentView === "profile"
               ? "p-6 md:p-8 w-full min-h-screen"
               : "p-6 md:p-8 max-w-[1600px] mx-auto min-h-screen"
