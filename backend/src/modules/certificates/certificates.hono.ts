@@ -31,6 +31,51 @@ function maskRecipientName(fullName: string): string {
   return `${maskedFirst} ${maskedLast}`;
 }
 
+// Authenticated Learner Certificates Listing (Strictly Scoped to Logged-In User)
+certificatesHonoRouter.get("/mine", honoAuthMiddleware, async (c) => {
+  try {
+    const user = c.get("user");
+
+    const certificates = await prisma.certificate.findMany({
+      where: {
+        enrollment: { userId: user.id },
+      },
+      orderBy: { issuedAt: "desc" },
+      include: {
+        enrollment: {
+          include: {
+            user: { select: { fullName: true, email: true } },
+            courseVersion: {
+              include: {
+                course: { select: { id: true, slug: true, title: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return c.json({
+      certificates: certificates.map((cert) => ({
+        id: cert.id,
+        credentialId: cert.credentialId,
+        tier: cert.tier,
+        compositeScore: cert.compositeScore,
+        status: cert.status,
+        issuedAt: cert.issuedAt,
+        evidenceSummary: cert.evidenceSummary,
+        signatureHash: cert.signatureHash,
+        recipientName: cert.enrollment.user.fullName,
+        courseSlug: cert.enrollment.courseVersion.course.slug,
+        courseTitle: cert.enrollment.courseVersion.course.title,
+        courseVersion: cert.enrollment.courseVersion.versionNumber,
+      })),
+    });
+  } catch (err: any) {
+    return c.json({ error: "Failed to fetch learner certificates", details: err?.message }, 500);
+  }
+});
+
 // Public Key Registry Endpoint
 certificatesHonoRouter.get("/keys", async (c) => {
   try {

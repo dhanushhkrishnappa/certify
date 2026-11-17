@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { User } from "../types/index.js";
 import { useTheme } from "../context/ThemeContext.js";
+import { api } from "../services/api.js";
 
 interface CredentialDetailsViewProps {
   user?: User | null;
@@ -8,33 +9,149 @@ interface CredentialDetailsViewProps {
   onBack?: () => void;
 }
 
+interface VerifiedCertRecord {
+  credentialId: string;
+  recipientName: string;
+  courseTitle: string;
+  tier: string;
+  compositeScore: number;
+  status: string;
+  issuedAt: string;
+  signatureHash?: string;
+}
+
 export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
   user,
-  credentialId = "CERT-PY-2026-001842",
+  credentialId,
   onBack,
 }) => {
   const { isLight } = useTheme();
+  const [cert, setCert] = useState<VerifiedCertRecord | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
 
-  const recipientName = user?.fullName || user?.name || "Dhanush K";
+  useEffect(() => {
+    let mounted = true;
+    setIsLoading(true);
+    setCert(null);
 
-  const issueDate = "23 September 2026";
-  const verificationUrl = `https://certify.edu/verify/${credentialId}`;
+    const load = async () => {
+      try {
+        // First look in authenticated learner's earned certificates
+        const mine = await api.getMyCertificates().catch(() => ({ certificates: [] }));
+        const found = credentialId
+          ? mine.certificates.find((c) => c.credentialId === credentialId)
+          : mine.certificates[0];
+
+        if (found) {
+          if (mounted) {
+            setCert({
+              credentialId: found.credentialId,
+              recipientName: found.recipientName || user?.fullName || user?.name || "Learner",
+              courseTitle: found.courseTitle,
+              tier: found.tier,
+              compositeScore: found.compositeScore,
+              status: found.status,
+              issuedAt: found.issuedAt,
+              signatureHash: found.signatureHash,
+            });
+          }
+          return;
+        }
+
+        // Fallback to public verification registry only if a specific credentialId was supplied
+        if (credentialId) {
+          const pub = await api.verifyPublicCredential(credentialId).catch(() => null);
+          if (mounted && pub && pub.isValid) {
+            setCert({
+              credentialId: pub.credentialId || credentialId,
+              recipientName: pub.recipientName || "Verified Learner",
+              courseTitle: pub.courseTitle || "Python Fundamentals",
+              tier: pub.tier || "FOUNDATIONAL",
+              compositeScore: pub.compositeScore ?? 0,
+              status: pub.status || "VALID",
+              issuedAt: pub.issuedAt || "",
+            });
+          }
+        }
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [credentialId, user?.id, user?.fullName, user?.name]);
+
+  if (isLoading) {
+    return (
+      <div className="py-16 text-center text-xs text-neutral-400">
+        Verifying cryptographic credential record...
+      </div>
+    );
+  }
+
+  if (!cert) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center space-y-4">
+        <div
+          className={`p-8 rounded-2xl border space-y-4 ${
+            isLight
+              ? "bg-white border-purple-900/10 text-slate-900 shadow-sm"
+              : "bg-[#111111] border-white/[0.08] text-white"
+          }`}
+        >
+          <h2 className="text-xl font-bold">Credential Not Issued</h2>
+          <p className={`text-xs leading-relaxed ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+            No verified certificate exists for this ID yet. Complete all course modules,
+            checkpoints, practical coding tasks, and the final evaluation to earn your official
+            CERTIFY credential.
+          </p>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="px-5 py-2 rounded-lg bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white text-xs font-semibold cursor-pointer"
+            >
+              ← Back to My Credentials
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const formattedDate = (() => {
+    try {
+      return new Date(cert.issuedAt).toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    } catch {
+      return cert.issuedAt;
+    }
+  })();
+
+  const verificationUrl = `https://certify.studio/verify/${cert.credentialId}`;
 
   const handleCopyId = () => {
-    navigator.clipboard.writeText(credentialId);
+    navigator.clipboard.writeText(cert.credentialId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: "CERTIFY Credential - Python Fundamentals",
-        text: `Check out my verified Python Fundamentals credential earned on CERTIFY!`,
-        url: verificationUrl,
-      }).catch(() => {});
+      navigator
+        .share({
+          title: `CERTIFY Credential - ${cert.courseTitle}`,
+          text: `Check out my verified ${cert.courseTitle} credential earned on CERTIFY!`,
+          url: verificationUrl,
+        })
+        .catch(() => {});
     } else {
       navigator.clipboard.writeText(verificationUrl);
       setShareSuccess(true);
@@ -44,12 +161,15 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Title & Actions Header */}
+      {/* Header */}
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <nav aria-label="Breadcrumbs" className={`flex items-center gap-1.5 text-xs font-medium mb-2 transition-colors duration-300 ${
-            isLight ? "text-purple-900/70" : "text-purple-200/70"
-          }`}>
+          <nav
+            aria-label="Breadcrumbs"
+            className={`flex items-center gap-1.5 text-xs font-medium mb-2 ${
+              isLight ? "text-purple-900/70" : "text-purple-200/70"
+            }`}
+          >
             <button
               onClick={onBack}
               className={`transition flex items-center gap-1 cursor-pointer ${
@@ -60,100 +180,65 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
               <span>My Credentials</span>
             </button>
             <span className={isLight ? "text-purple-400" : "text-purple-300/40"}>/</span>
-            <span className={`font-semibold ${isLight ? "text-purple-950" : "text-white"}`}>Python Fundamentals</span>
+            <span className={`font-semibold ${isLight ? "text-purple-950" : "text-white"}`}>
+              {cert.courseTitle}
+            </span>
           </nav>
-          <h1 className={`text-3xl font-sans font-bold tracking-tight transition-colors duration-300 ${
-            isLight ? "text-slate-900" : "text-white"
-          }`}>
+          <h1 className={`text-3xl font-sans font-bold tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
             Credential Details
           </h1>
-          <p className={`text-sm mt-1 transition-colors duration-300 ${
-            isLight ? "text-slate-700" : "text-purple-200/80"
-          }`}>
-            Your verified achievement with real skills and proven understanding.
+          <p className={`text-sm mt-1 ${isLight ? "text-slate-700" : "text-purple-200/80"}`}>
+            Verified achievement backed by deterministic backend evidence and Ed25519 cryptography.
           </p>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center gap-2.5">
           <button
             onClick={handleShare}
-            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition active:scale-95 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition cursor-pointer ${
               isLight
                 ? "bg-white text-slate-800 border border-purple-900/10 hover:bg-purple-50"
                 : "bg-[#111111] text-white border border-white/[0.08] hover:bg-white/[0.05]"
             }`}
           >
-            <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="18" cy="5" r="3" />
-              <circle cx="6" cy="12" r="3" />
-              <circle cx="18" cy="19" r="3" />
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-            </svg>
             <span>{shareSuccess ? "Link Copied!" : "Share"}</span>
           </button>
 
           <button
             onClick={() => window.print()}
-            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition active:scale-95 cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition cursor-pointer ${
               isLight
                 ? "bg-white text-slate-800 border border-purple-900/10 hover:bg-purple-50"
                 : "bg-[#111111] text-white border border-white/[0.08] hover:bg-white/[0.05]"
             }`}
           >
-            <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
             <span>Download PDF</span>
           </button>
 
           <button
-            onClick={() => handleCopyId()}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#5B4DF0] hover:bg-[#4C3DE0] rounded-lg shadow-sm transition active:scale-95 cursor-pointer"
+            onClick={handleCopyId}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#5B4DF0] hover:bg-[#4C3DE0] rounded-lg shadow-sm transition cursor-pointer"
           >
             <span>{copied ? "Credential Copied!" : "Copy Credential ID"}</span>
-            <svg className="w-3.5 h-3.5 text-purple-200" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
           </button>
         </div>
       </section>
 
-      {/* Main Grid: Certificate Left + Details Right */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 items-start">
-        {/* Left Column (8 cols): Certificate Canvas + Evidence Card */}
         <div className="xl:col-span-8 space-y-6">
-          {/* Certificate Canvas */}
           <div
-            className="relative bg-[#FAF7F2] rounded-2xl p-6 border-[3px] border-double border-[#B89758] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.08),0_0_0_1px_rgba(184,151,88,0.25)] overflow-hidden"
+            className="relative bg-[#FAF7F2] rounded-2xl p-6 border-[3px] border-double border-[#B89758] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.08)] overflow-hidden"
             data-purpose="certificate-canvas"
           >
-            <div className="relative border border-[#C9AA6D] p-8 md:p-12 bg-[#FDFBF7] rounded-xl min-h-[580px] flex flex-col justify-between overflow-hidden outline outline-1 outline-dashed outline-[#D8BE87] -outline-offset-8">
-              {/* Corner Ornaments */}
-              <div className="absolute top-3 left-3 w-8 h-8 border-t-2 border-l-2 border-[#B89758]" />
-              <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-[#B89758]" />
-              <div className="absolute bottom-3 left-3 w-8 h-8 border-b-2 border-l-2 border-[#B89758]" />
-              <div className="absolute bottom-3 right-3 w-8 h-8 border-b-2 border-r-2 border-[#B89758]" />
-
-              {/* Top Certificate Header Row */}
+            <div className="relative border border-[#C9AA6D] p-8 md:p-12 bg-[#FDFBF7] rounded-xl min-h-[540px] flex flex-col justify-between overflow-hidden outline outline-1 outline-dashed outline-[#D8BE87] -outline-offset-8">
               <div className="flex items-start justify-between relative z-10">
-                {/* Certify Ribbon Banner Badge */}
-                <div className="w-20 bg-[#161C28] text-white pt-3 pb-4 px-2 text-center rounded-b-md shadow-md border-b-2 border-amber-500/80 -mt-12 md:-mt-14 relative">
-                  <div className="w-6 h-6 mx-auto mb-1.5 border border-amber-400/70 rounded flex items-center justify-center">
-                    <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                    </svg>
-                  </div>
+                <div className="w-20 bg-[#161C28] text-white pt-3 pb-4 px-2 text-center rounded-b-md shadow-md border-b-2 border-amber-500/80 -mt-12 md:-mt-14">
                   <span className="block text-[10px] font-extrabold tracking-wider text-white">CERTIFY</span>
                   <span className="block text-[6px] tracking-widest text-slate-300 uppercase mt-0.5 leading-tight">
                     LEARN<br />DEMONSTRATE<br />EARN
                   </span>
                 </div>
 
-                {/* Main Certificate Headings */}
                 <div className="text-center flex-1 px-4">
                   <h2 className="font-sans text-3xl md:text-4xl font-extrabold tracking-[0.2em] text-slate-900 uppercase">
                     Certificate
@@ -161,18 +246,12 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                   <p className="font-sans text-sm md:text-base tracking-[0.3em] text-slate-700 uppercase mt-1">
                     of Completion
                   </p>
-                  <div className="flex items-center justify-center gap-3 my-2 text-amber-600/70">
-                    <div className="h-[1px] w-12 bg-amber-600/50" />
-                    <span className="text-[10px] text-amber-700">❖</span>
-                    <div className="h-[1px] w-12 bg-amber-600/50" />
-                  </div>
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-slate-600 font-semibold font-sans">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-slate-600 font-semibold mt-4">
                     This is to certify that
                   </p>
                 </div>
 
-                {/* Right Corner Pillar Text */}
-                <div className="text-right text-[8px] tracking-widest text-slate-400 font-bold space-y-0.5 uppercase pt-1 font-sans">
+                <div className="text-right text-[8px] tracking-widest text-slate-400 font-bold space-y-0.5 uppercase pt-1">
                   <div>SKILLS</div>
                   <div>KNOWLEDGE</div>
                   <div>PRACTICE</div>
@@ -180,124 +259,46 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
                 </div>
               </div>
 
-              {/* Recipient & Course Details */}
               <div className="text-center my-auto py-8 relative z-10 font-sans">
-                {/* Recipient Name in Distinguished Crisp Typography */}
-                <div className="font-sans text-4xl sm:text-5xl md:text-6xl text-slate-950 my-2 font-bold tracking-tight">
-                  {recipientName}
+                <div className="font-sans text-4xl sm:text-5xl text-slate-950 my-2 font-bold tracking-tight">
+                  {cert.recipientName}
                 </div>
-                <div className="flex items-center justify-center gap-3 my-3 text-slate-400 max-w-sm mx-auto">
-                  <div className="h-[1px] flex-1 bg-amber-600/30" />
-                  <span className="text-xs text-amber-700">✦</span>
-                  <div className="h-[1px] flex-1 bg-amber-600/30" />
-                </div>
-                <p className="text-xs text-slate-600 font-medium font-sans">
+                <p className="text-xs text-slate-600 font-medium mt-3">
                   has successfully completed the course
                 </p>
-                <h3 className="font-sans text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-950 mt-1 tracking-tight">
-                  Python Fundamentals
+                <h3 className="font-sans text-2xl sm:text-3xl font-extrabold text-slate-950 mt-1 tracking-tight">
+                  {cert.courseTitle}
                 </h3>
-                <p className="text-xs text-slate-600 max-w-xl mx-auto mt-2 leading-relaxed font-normal font-sans">
-                  and demonstrated understanding through structured learning, assessments, practical implementation, and an AI oral viva, earning the
-                </p>
-
-                {/* Laurel Intermediate Certification Level Badge */}
-                <div className="inline-flex items-center justify-center gap-3 mt-4 px-4 py-1.5 bg-amber-50/60 rounded-full border border-amber-200/50">
-                  <svg className="w-6 h-6 text-amber-600/80 transform scale-x-[-1]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2a10 10 0 0 0-4.5 1.1A8 8 0 0 1 8 8a8 8 0 0 1-5 2.1 10 10 0 0 0 3 4.2A8 8 0 0 1 9 16a8 8 0 0 1-2 5.3 10 10 0 0 0 5 .7c0-2 .8-3.9 2.2-5.3A8 8 0 0 1 12 11c0-2 .8-3.9 2.2-5.3A8 8 0 0 0 12 2z" />
-                  </svg>
-                  <div className="text-center font-sans">
-                    <div className="font-sans text-sm font-bold tracking-[0.18em] text-[#9B681F] uppercase">
-                      Intermediate
-                    </div>
-                    <div className="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-bold font-sans">
-                      Certification Level
-                    </div>
-                  </div>
-                  <svg className="w-6 h-6 text-amber-600/80" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2a10 10 0 0 0-4.5 1.1A8 8 0 0 1 8 8a8 8 0 0 1-5 2.1 10 10 0 0 0 3 4.2A8 8 0 0 1 9 16a8 8 0 0 1-2 5.3 10 10 0 0 0 5 .7c0-2 .8-3.9 2.2-5.3A8 8 0 0 1 12 11c0-2 .8-3.9 2.2-5.3A8 8 0 0 0 12 2z" />
-                  </svg>
+                <div className="inline-flex items-center justify-center gap-2 mt-4 px-4 py-1.5 bg-amber-50/80 rounded-full border border-amber-200/70">
+                  <span className="font-sans text-xs font-bold tracking-[0.18em] text-[#9B681F] uppercase">
+                    {cert.tier} Tier • {Math.round(cert.compositeScore * 100)}% Composite Score
+                  </span>
                 </div>
               </div>
 
-              {/* Certificate Footer Details */}
               <div className="grid grid-cols-1 sm:grid-cols-3 items-end gap-4 pt-6 border-t border-amber-900/10 text-slate-700 relative z-10">
-                {/* Metadata Left */}
-                <div className="space-y-1.5 text-left text-[11px] leading-tight font-sans">
+                <div className="space-y-1.5 text-left text-[11px] leading-tight">
                   <div>
                     <span className="text-slate-400 block text-[9.5px] uppercase font-semibold">Issue Date</span>
-                    <span className="font-medium text-slate-900">{issueDate}</span>
+                    <span className="font-medium text-slate-900">{formattedDate}</span>
                   </div>
                   <div className="pt-1">
                     <span className="text-slate-400 block text-[9.5px] uppercase font-semibold">Credential ID</span>
-                    <span className="font-mono text-slate-900 text-[10px] font-semibold">{credentialId}</span>
-                  </div>
-                  <div className="pt-1">
-                    <span className="text-slate-400 block text-[9.5px] uppercase font-semibold">Verify at</span>
-                    <span className="text-indigo-600 text-[10px] font-mono truncate block">
-                      {verificationUrl}
-                    </span>
+                    <span className="font-mono text-slate-900 text-[10px] font-semibold">{cert.credentialId}</span>
                   </div>
                 </div>
 
-                {/* Director Signature Center */}
-                <div className="text-center px-2 font-sans">
-                  <div className="font-sans italic text-2xl md:text-3xl text-slate-900 leading-none mb-1 font-semibold">
-                    Hlashefja
-                  </div>
+                <div className="text-center px-2">
                   <div className="h-[1px] bg-slate-300 w-36 mx-auto mb-1" />
-                  <div className="text-[10px] font-bold text-slate-900 font-sans">Academic Director</div>
-                  <div className="text-[8px] uppercase tracking-widest text-slate-400 font-semibold font-sans">CERTIFY ACADEMIC BOARD</div>
+                  <div className="text-[10px] font-bold text-slate-900">CERTIFY Academic Board</div>
+                  <div className="text-[8px] uppercase tracking-widest text-slate-400 font-semibold">
+                    Ed25519 Signed Registry
+                  </div>
                 </div>
 
-                {/* Embossed Metallic Gold Python Seal Right */}
                 <div className="flex justify-end">
-                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-tr from-[#7E5C18] via-[#DFB76C] to-[#FFF1C5] p-1 text-center shadow-lg border-2 border-dashed border-[#7A5A1E] flex flex-col items-center justify-center">
-                    <div className="absolute inset-0 flex flex-col justify-between py-1.5 text-[7px] font-extrabold text-[#573E10] uppercase tracking-widest">
-                      <span>• PYTHON •</span>
-                      <span>INTERMEDIATE</span>
-                    </div>
-                    <div className="w-10 h-10 bg-amber-900/10 rounded-full flex items-center justify-center border border-amber-800/20">
-                      <span className="text-xs font-mono font-bold text-[#5E410E]">PY</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* What This Credential Demonstrates Card */}
-          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm" data-purpose="credential-evidence-card">
-            <div className="flex items-start gap-4">
-              <div className="w-11 h-11 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 text-amber-400">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <circle cx="12" cy="8" r="6" />
-                  <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-white text-sm">What This Credential Demonstrates</h4>
-                <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
-                  This credential validates your ability to use Python to solve real-world problems, build practical applications, and apply core programming concepts with clarity and confidence.
-                </p>
-
-                {/* 4 Badges Row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 mt-4">
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
-                    <span className="text-indigo-400">✓</span>
-                    <span>8 Modules Completed</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
-                    <span className="text-indigo-400">✓</span>
-                    <span>3 Assessments Passed</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
-                    <span className="text-indigo-400">✓</span>
-                    <span>1 Project Completed</span>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.04] text-neutral-200 text-xs font-medium">
-                    <span className="text-emerald-400">✓</span>
-                    <span>AI Viva Cleared</span>
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#7E5C18] via-[#DFB76C] to-[#FFF1C5] p-1 text-center shadow-lg border-2 border-dashed border-[#7A5A1E] flex flex-col items-center justify-center">
+                    <span className="text-xs font-mono font-bold text-[#5E410E]">VALID</span>
                   </div>
                 </div>
               </div>
@@ -305,135 +306,42 @@ export const CredentialDetailsView: React.FC<CredentialDetailsViewProps> = ({
           </div>
         </div>
 
-        {/* Right Column (4 cols): Meta Sidebar */}
-        <div className="xl:col-span-4 space-y-4" data-purpose="credential-meta-sidebar">
-          {/* Verified Green Banner */}
+        <div className="xl:col-span-4 space-y-4">
           <div className="bg-[#111111] border border-emerald-500/30 rounded-xl p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-sm">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+            <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              ✓
             </div>
             <div>
               <h5 className="text-sm font-bold text-white leading-tight">Verified Credential</h5>
               <p className="text-[11.5px] text-neutral-300 leading-tight mt-0.5">
-                This credential is officially issued by CERTIFY and can be verified publicly.
+                Officially issued by CERTIFY and backed by cryptographic signature.
               </p>
             </div>
           </div>
 
-          {/* Credential Overview Card */}
-          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-4">
-            <h4 className="font-bold text-white text-sm">Credential Overview</h4>
-            <div className="space-y-3.5">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-sm font-bold">
-                  PY
-                </div>
-                <div>
-                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Course</div>
-                  <div className="text-xs font-semibold text-white leading-snug mt-1">Python Fundamentals</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-amber-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-bold">
-                  LVL
-                </div>
-                <div>
-                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Credential Level</div>
-                  <div className="text-xs font-semibold text-white leading-snug mt-1">Intermediate</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-purple-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-bold">
-                  CAL
-                </div>
-                <div>
-                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Issue Date</div>
-                  <div className="text-xs font-semibold text-white leading-snug mt-1">{issueDate}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-violet-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-mono font-bold">
-                  #
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Credential ID</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-mono font-semibold text-white truncate">{credentialId}</span>
-                    <button
-                      onClick={handleCopyId}
-                      className="text-neutral-300 hover:text-white text-[10px] font-sans px-1.5 py-0.5 rounded border border-white/[0.08] hover:bg-white/[0.05] cursor-pointer"
-                    >
-                      {copied ? "Copied" : "Copy"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white/[0.06] text-indigo-400 border border-white/[0.06] flex items-center justify-center shrink-0 text-xs font-bold">
-                  🔗
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[11px] text-neutral-400 font-medium leading-none">Verification URL</div>
-                  <div
-                    onClick={() => handleCopyId()}
-                    className="text-xs font-mono font-semibold text-indigo-400 truncate leading-snug mt-1 hover:underline cursor-pointer"
-                    title="Click to copy credential ID"
-                  >
-                    {credentialId}
-                  </div>
-                </div>
-              </div>
+          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-3 text-xs">
+            <h4 className="font-bold text-white text-sm">Credential Metadata</h4>
+            <div className="flex justify-between">
+              <span className="text-neutral-400">Course</span>
+              <span className="text-white font-semibold">{cert.courseTitle}</span>
             </div>
-          </div>
-
-          {/* Skills Demonstrated Card */}
-          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-3">
-            <h4 className="font-bold text-white text-sm">Skills Demonstrated</h4>
-            <div className="flex flex-wrap gap-2 pt-1">
-              {[
-                "Python Programming",
-                "Problem Solving",
-                "Data Structures",
-                "File Handling",
-                "OOP",
-                "Debugging",
-                "Code Organization",
-                "Project Development",
-              ].map((skill) => (
-                <span
-                  key={skill}
-                  className="px-2.5 py-1 text-xs rounded-full bg-white/[0.06] text-indigo-300 border border-white/[0.06] font-medium"
-                >
-                  {skill}
-                </span>
-              ))}
+            <div className="flex justify-between">
+              <span className="text-neutral-400">Tier</span>
+              <span className="text-white font-semibold">{cert.tier}</span>
             </div>
-          </div>
-
-          {/* Assessment Evidence Checklist */}
-          <div className="bg-[#111111] rounded-xl p-5 border border-white/[0.08] shadow-sm space-y-3">
-            <h4 className="font-bold text-white text-sm">Assessment Evidence</h4>
-            <div className="space-y-2.5 text-xs text-neutral-300 pt-1">
-              {[
-                "Completed all 8 curriculum modules",
-                "Passed chapter baseline & milestone evaluations",
-                "Completed hands-on practical project demo",
-                "Cleared deterministic final code assessment",
-                "Completed oral AI viva defense session",
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2.5">
-                  <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span>{item}</span>
-                </div>
-              ))}
+            <div className="flex justify-between">
+              <span className="text-neutral-400">Composite Score</span>
+              <span className="text-emerald-400 font-mono font-semibold">
+                {Math.round(cert.compositeScore * 100)}%
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-neutral-400">Issued</span>
+              <span className="text-white font-semibold">{formattedDate}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-neutral-400">Credential ID</span>
+              <span className="text-white font-mono">{cert.credentialId}</span>
             </div>
           </div>
         </div>

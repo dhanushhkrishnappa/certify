@@ -585,6 +585,30 @@ export const api = {
 
   // ─── Certificates ─────────────────────────────────────────────────────────
 
+  async getMyCertificates(): Promise<{
+    certificates: Array<{
+      id: string;
+      credentialId: string;
+      tier: string;
+      compositeScore: number;
+      status: string;
+      issuedAt: string;
+      evidenceSummary?: string;
+      signatureHash?: string;
+      recipientName: string;
+      courseSlug: string;
+      courseTitle: string;
+      courseVersion?: string;
+    }>;
+  }> {
+    const res = await fetch(`${API_BASE}/certificates/mine`, {
+      headers: getHeaders(),
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to load learner certificates");
+    return res.json();
+  },
+
   async issueCertificate(
     enrollmentId: string
   ): Promise<{ certificate: Certificate; verificationUrl: string }> {
