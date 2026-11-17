@@ -223,7 +223,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#09090b] text-[#f4f4f5] flex flex-col">
+    <div className="w-full h-full min-h-0 overflow-hidden bg-[#08060f] text-[#f4f2f8] flex flex-col">
       <AiChat9
         initialTitle={currentChapterTitle}
         courseTitle={courseDisplayName}

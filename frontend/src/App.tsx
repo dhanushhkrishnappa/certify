@@ -381,12 +381,12 @@ const AppContent: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen flex overflow-x-hidden transition-colors duration-400 relative ${
+      className={`flex transition-colors duration-400 relative ${
         currentView === "studio"
-          ? "bg-[#09090b] text-[#f4f4f5]"
+          ? "h-screen overflow-hidden bg-[#08060f] text-[#f4f2f8]"
           : theme === "light"
-          ? "bg-[#C5B8D6] text-slate-900"
-          : "bg-[#15062B] text-slate-100"
+          ? "min-h-screen overflow-x-hidden bg-[#C5B8D6] text-slate-900"
+          : "min-h-screen overflow-x-hidden bg-[#15062B] text-slate-100"
       }`}
     >
       {/* Background Doodle Art Overlay (Hidden on AI Tutor studio view for strict minimalism) */}
@@ -417,14 +417,18 @@ const AppContent: React.FC = () => {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 transition-all duration-300 min-h-screen relative z-10 ${
+        className={`flex-1 transition-all duration-300 relative z-10 ${
+          currentView === "studio"
+            ? "h-screen overflow-hidden flex flex-col"
+            : "min-h-screen"
+        } ${
           sidebarPinned ? "ml-[256px]" : "ml-[84px] md:ml-[92px]"
         }`}
       >
         <main
           className={
             currentView === "studio"
-              ? "p-0 w-full min-h-screen flex flex-col bg-[#09090b]"
+              ? "p-0 w-full h-full min-h-0 flex flex-col overflow-hidden bg-[#08060f]"
               : currentView === "settings" || currentView === "profile"
               ? "p-6 md:p-8 w-full min-h-screen"
               : "p-6 md:p-8 max-w-[1600px] mx-auto min-h-screen"
@@ -446,7 +450,7 @@ const AppContent: React.FC = () => {
           )}
 
           {/* Active View Container */}
-          <div className={currentView === "studio" ? "flex-1 flex flex-col" : isFullscreenWorkflow ? "pt-0" : "pt-2"}>
+          <div className={currentView === "studio" ? "flex-1 min-h-0 h-full flex flex-col overflow-hidden" : isFullscreenWorkflow ? "pt-0" : "pt-2"}>
             {/* Screen 1: Dashboard */}
             {currentView === "dashboard" && (
               <DashboardView
