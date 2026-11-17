@@ -124,6 +124,7 @@ export interface AiChat9Props {
   user?: User | null;
   initialMessages?: ChatMessage[];
   onExit?: () => void;
+  onNewChat?: () => void;
   onSendMessage?: (message: string, model: AIModel, effort: ReasoningEffort) => Promise<string | void>;
   onStreamMessage?: (
     message: string,
@@ -139,6 +140,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
   user,
   initialMessages = [],
   onExit,
+  onNewChat,
   onSendMessage,
   onStreamMessage,
 }) => {
@@ -148,11 +150,9 @@ export const AiChat9: React.FC<AiChat9Props> = ({
   // Initialize with clean empty messages by default so the centered welcome screen appears
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
 
-  // Sync messages whenever initialMessages updates (e.g. when session finishes loading from backend)
+  // Sync messages whenever initialMessages updates (e.g. when session finishes loading or user switches)
   useEffect(() => {
-    if (initialMessages && initialMessages.length > 0) {
-      setMessages(initialMessages);
-    }
+    setMessages(initialMessages || []);
   }, [initialMessages]);
   const [inputText, setInputText] = useState("");
   const [attachment, setAttachment] = useState<ChatAttachment | null>(null);
@@ -181,7 +181,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
         if (n) return n.trim().split(" ")[0];
       } catch {}
     }
-    return "Dhanush";
+    return "Learner";
   }, [user]);
 
   // Rotate greeting sentence every 4s
@@ -468,7 +468,10 @@ export const AiChat9: React.FC<AiChat9Props> = ({
         {/* Top Right: Clean reset action */}
         {messages.length > 0 && (
           <button
-            onClick={() => setMessages([])}
+            onClick={() => {
+              setMessages([]);
+              if (onNewChat) onNewChat();
+            }}
             className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-zinc-900 transition-colors cursor-pointer"
             title="Start new thread"
           >

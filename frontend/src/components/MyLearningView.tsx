@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../services/api.js";
-import type { User, CourseCatalogItem, LearningSessionContext } from "../types/index.js";
+import type { User, CourseCatalogItem, LearningSessionContext, ProgressionTree } from "../types/index.js";
 import { useTheme } from "../context/ThemeContext.js";
 
 interface MyLearningViewProps {
@@ -11,7 +11,7 @@ interface MyLearningViewProps {
 }
 
 export const MyLearningView: React.FC<MyLearningViewProps> = ({
-  user: _user,
+  user,
   onContinueCourse,
   onViewCourseDetails,
   onNavigate,
@@ -20,6 +20,7 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
   const isLight = theme === "light";
   const [activeTab, setActiveTab] = useState<"in-progress" | "completed" | "skills" | "certificates">("in-progress");
   const [sessionContext, setSessionContext] = useState<LearningSessionContext | null>(null);
+  const [progression, setProgression] = useState<ProgressionTree | null>(null);
   const [_courses, setCourses] = useState<CourseCatalogItem[]>([]);
   const [calendarMonth] = useState("September 2026");
 
@@ -27,20 +28,24 @@ export const MyLearningView: React.FC<MyLearningViewProps> = ({
 
   useEffect(() => {
     let mounted = true;
+    setSessionContext(null);
+    setProgression(null);
     Promise.all([
       api.getSessionContext(activeSlug).catch(() => null),
       api.listCourses().catch(() => ({ courses: [] })),
-    ]).then(([sess, courseRes]) => {
+      api.getProgression(activeSlug).catch(() => null),
+    ]).then(([sess, courseRes, progRes]) => {
       if (mounted) {
         if (sess) setSessionContext(sess);
         if (courseRes?.courses) setCourses(courseRes.courses);
+        if (progRes?.progression) setProgression(progRes.progression);
       }
     });
     return () => { mounted = false; };
-  }, [activeSlug]);
+  }, [activeSlug, user?.id]);
 
   const activeTitle = sessionContext?.course?.title || "Python Fundamentals";
-  const progressPercent = 42;
+  const progressPercent = progression ? Math.round(progression.summary.percentComplete) : 0;
 
   return (
     <div className="space-y-6 max-w-[1600px] w-full mx-auto" data-purpose="my-learning-page">

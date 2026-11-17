@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { api } from "../services/api.js";
-import type { CourseCatalogItem, CourseDetail, Module, Chapter } from "../types/index.js";
+import type { CourseCatalogItem, CourseDetail, Module, Chapter, User, ProgressionTree } from "../types/index.js";
 import { SpotlightCard } from "./common/SpotlightCard.js";
 import { useTheme } from "../context/ThemeContext.js";
 
 interface CatalogViewProps {
+  user?: User | null;
   onSelectCourse: (slug: string) => void;
   onViewCourseDetails?: (slug: string) => void;
 }
@@ -36,8 +37,7 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
     estimatedHours: "42 hours",
     isFeatured: true,
     isAvailable: true,
-    status: "in-progress",
-    progress: 42,
+    status: "not-started",
     manifesto: ["Think", "Build", "Solve", "Grow"],
     artType: "python",
   },
@@ -109,12 +109,14 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
 ];
 
 export const CatalogView: React.FC<CatalogViewProps> = ({
+  user,
   onSelectCourse,
   onViewCourseDetails,
 }) => {
   const { theme } = useTheme();
   const isLight = theme === "light";
   const [backendCourses, setBackendCourses] = useState<CourseCatalogItem[]>([]);
+  const [pythonProgression, setPythonProgression] = useState<ProgressionTree | null>(null);
   const [activeFilter, setActiveFilter] = useState<"all" | "in-progress" | "completed">("all");
   const [selectedCourseDetail, setSelectedCourseDetail] = useState<CourseDetail | null>(null);
   const [activeModalCourse, setActiveModalCourse] = useState<CuratedCourseMeta | null>(null);
@@ -167,10 +169,20 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   }, [showFilterDropdown, showSortDropdown, activeModalCourse]);
 
   useEffect(() => {
-    api.listCourses()
-      .then((data) => setBackendCourses(data.courses || []))
-      .catch((err) => console.error("Error loading courses:", err));
-  }, []);
+    let mounted = true;
+    setPythonProgression(null);
+    Promise.all([
+      api.listCourses().catch(() => ({ courses: [] })),
+      api.getProgression("python-fundamentals").catch(() => null),
+    ]).then(([courseRes, progRes]) => {
+      if (!mounted) return;
+      setBackendCourses(courseRes.courses || []);
+      setPythonProgression(progRes?.progression || null);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id]);
 
   const handleViewDetails = async (course: CuratedCourseMeta) => {
     if (!course.isAvailable) return;
@@ -189,16 +201,23 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     setSelectedCourseDetail(null);
   };
 
-  // Sync real backend course counts if available
+  // Sync real backend course counts & isolated per-user progression
   const catalogWithBackendData = CURATED_CATALOG.map((item) => {
     const match = backendCourses.find((b) => b.slug === item.slug);
-    if (match) {
-      return {
-        ...item,
-        modulesCount: match.moduleCount || item.modulesCount,
+    let updated: CuratedCourseMeta = {
+      ...item,
+      modulesCount: match?.moduleCount || item.modulesCount,
+    };
+
+    if (item.slug === "python-fundamentals" && pythonProgression) {
+      const pct = Math.round(pythonProgression.summary.percentComplete);
+      updated = {
+        ...updated,
+        status: pct >= 100 ? "completed" : "in-progress",
+        progress: pct,
       };
     }
-    return item;
+    return updated;
   });
 
   // Filter and sort items
@@ -213,8 +232,8 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     return 0; // "relevant" preserves canonical order
   });
 
-  const inProgressCount = CURATED_CATALOG.filter((c) => c.status === "in-progress").length;
-  const completedCount = CURATED_CATALOG.filter((c) => c.status === "completed").length;
+  const inProgressCount = catalogWithBackendData.filter((c) => c.status === "in-progress").length;
+  const completedCount = catalogWithBackendData.filter((c) => c.status === "completed").length;
 
   return (
     <div className="space-y-6" data-purpose="course-explorer-page">

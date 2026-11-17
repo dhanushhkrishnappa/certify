@@ -91,19 +91,12 @@ const AppContent: React.FC = () => {
   const { theme } = useTheme();
   const [currentView, setCurrentView] = useState<CertifyView>(getViewFromPath);
   const [selectedCourseSlug, setSelectedCourseSlug] = useState("python-fundamentals");
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [selectedCredentialId, setSelectedCredentialId] = useState("CERT-PY-2026-001842");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<"signin" | "signup">("signin");
-  const [enrolledCourseSlugs, setEnrolledCourseSlugs] = useState<string[]>(() => {
-    const saved = localStorage.getItem("certify_enrolled_courses");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
-    }
-    return [];
-  });
+  const [enrolledCourseSlugs, setEnrolledCourseSlugs] = useState<string[]>([]);
 
   /**
    * Navigation with View Transition API and instant fallback
@@ -193,24 +186,49 @@ const AppContent: React.FC = () => {
       });
   }, []);
 
+  // Sync enrolled courses strictly from backend per authenticated user (zero cross-user localStorage bleed)
+  useEffect(() => {
+    let mounted = true;
+    setEnrolledCourseSlugs([]);
+    setSelectedChapterId(null);
+    if (!currentUser?.id) return;
+
+    api
+      .getProgression("python-fundamentals")
+      .then((res) => {
+        if (mounted && res?.progression) {
+          setEnrolledCourseSlugs(["python-fundamentals"]);
+        }
+      })
+      .catch(() => {
+        if (mounted) setEnrolledCourseSlugs([]);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [currentUser?.id]);
+
   // Only Python Fundamentals is live; all other tracks are locked as Coming Soon
   const AVAILABLE_COURSE_SLUGS = new Set(["python-fundamentals"]);
 
-  const handleEnrollAndLaunchStudio = (slug: string) => {
+  const handleEnrollAndLaunchStudio = async (slug: string, chapterId?: string) => {
     if (!AVAILABLE_COURSE_SLUGS.has(slug)) return;
     setSelectedCourseSlug(slug);
-    setEnrolledCourseSlugs((prev) => {
-      const updated = Array.from(new Set([...prev, slug]));
-      localStorage.setItem("certify_enrolled_courses", JSON.stringify(updated));
-      return updated;
-    });
-    api.enrollCourse(slug).catch((err) => console.info("Backend enrollment status:", err?.message || err));
+    setSelectedChapterId(chapterId || null);
+    setEnrolledCourseSlugs((prev) => Array.from(new Set([...prev, slug])));
+    try {
+      await api.enrollCourse(slug);
+    } catch (err: any) {
+      console.info("Backend enrollment status:", err?.message || err);
+    }
     navigateWithTransition("studio");
   };
 
   const handleSelectCourse = (slug: string) => {
     if (!AVAILABLE_COURSE_SLUGS.has(slug)) return;
     setSelectedCourseSlug(slug);
+    setSelectedChapterId(null);
     // Strict enrollment barrier: If enrolled, go to studio; otherwise explore curriculum in course-details
     if (enrolledCourseSlugs.includes(slug)) {
       navigateWithTransition("studio");
@@ -222,6 +240,7 @@ const AppContent: React.FC = () => {
   const handleViewCourseDetails = (slug: string) => {
     if (!AVAILABLE_COURSE_SLUGS.has(slug)) return;
     setSelectedCourseSlug(slug);
+    setSelectedChapterId(null);
     navigateWithTransition("course-details");
   };
 
@@ -238,14 +257,20 @@ const AppContent: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem("certify_token");
     localStorage.removeItem("certify_user");
+    localStorage.removeItem("certify_enrolled_courses");
     setCurrentUser(null);
+    setEnrolledCourseSlugs([]);
+    setSelectedChapterId(null);
     api.logout().catch(() => {});
     navigateWithTransition("landing");
   };
 
   const handleLoginSuccess = (user: User, token: string) => {
+    localStorage.removeItem("certify_enrolled_courses");
     localStorage.setItem("certify_token", token);
     localStorage.setItem("certify_user", JSON.stringify(user));
+    setEnrolledCourseSlugs([]);
+    setSelectedChapterId(null);
     setCurrentUser(user);
     navigateWithTransition("dashboard");
   };
@@ -435,6 +460,7 @@ const AppContent: React.FC = () => {
             {/* Screen 2: Catalog */}
             {currentView === "catalog" && (
               <CatalogView
+                user={currentUser}
                 onSelectCourse={handleViewCourseDetails}
                 onViewCourseDetails={handleViewCourseDetails}
               />
@@ -469,6 +495,7 @@ const AppContent: React.FC = () => {
             {currentView === "studio" && (
               <LearningStudio
                 courseSlug={selectedCourseSlug}
+                initialChapterId={selectedChapterId}
                 user={currentUser}
                 onNavigateVerify={handleNavigateVerify}
                 onNavigate={(v) => setCurrentView(v as CertifyView)}

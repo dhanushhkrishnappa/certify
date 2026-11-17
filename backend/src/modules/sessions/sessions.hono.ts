@@ -346,6 +346,7 @@ sessionsHonoRouter.post("/courses/:slug/sessions", honoAuthMiddleware, async (c)
       },
     });
 
+    const cleanChapterTitle = session.chapter.title.replace(/^\*+\s*/, "").trim();
     const sectionIntro = activeSection
       ? `\n\n**Active Section:** ${activeSection.title}\n**Objective:** ${activeSection.objective}`
       : "";
@@ -356,8 +357,8 @@ sessionsHonoRouter.post("/courses/:slug/sessions", honoAuthMiddleware, async (c)
         sender: "AI_TUTOR",
         role: "assistant",
         content:
-          `Welcome to **${session.chapter.module.title} → ${session.chapter.title}**!${sectionIntro}\n\n` +
-          `Let's build your intuition step by step. In your own words, what do you already know about **${session.chapter.concepts[0]?.name || session.chapter.title}**?`,
+          `Welcome to **${session.chapter.module.title} → ${cleanChapterTitle}**!${sectionIntro}\n\n` +
+          `Let's build your intuition step by step. In your own words, what do you already know about **${session.chapter.concepts[0]?.name || cleanChapterTitle}**?`,
       },
     });
 
@@ -728,7 +729,9 @@ sessionsHonoRouter.post(
           }
         }
 
-        if (activeSection) {
+        const isSubstantiveTurn = content.trim().length >= 12;
+        let autoAdvanced = false;
+        if (activeSection && isSubstantiveTurn) {
           const sectionTurnState = await ProgressionService.recordSectionTurn({
             enrollmentId: session.enrollmentId,
             chapterId: currentChapter.id,
@@ -737,6 +740,7 @@ sessionsHonoRouter.post(
             sessionId: session.id,
             rubricPassRatio: bestRubricPassRatio,
           });
+          autoAdvanced = Boolean(sectionTurnState.autoAdvanced);
 
           await stream.writeSSE({
             event: "section_status",
@@ -748,7 +752,7 @@ sessionsHonoRouter.post(
           });
         }
 
-        if (anyCriteriaUpdated) {
+        if (anyCriteriaUpdated || autoAdvanced) {
           await AnalyticsService.recomputeSkillProfile(session.enrollmentId).catch((e) =>
             console.warn("[Analytics] Recompute warning:", e?.message || e)
           );

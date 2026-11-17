@@ -403,6 +403,9 @@ export class ProgressionService {
   /**
    * Records a learner's substantive dialogue turn within the active section.
    * Pure deterministic state update (never trusted to LLM).
+   * Automatically completes interactive sections (S1..S3) once minTurns is met and
+   * unlocks S_{k+1} so learners progress naturally inside the minimal AI Studio chat
+   * while S4 (Checkpoint) and S5 (Practical) remain strictly gated.
    */
   public static async recordSectionTurn(params: {
     enrollmentId: string;
@@ -416,6 +419,13 @@ export class ProgressionService {
     minTurns: number;
     readyToAdvanceSection: boolean;
     sectionStatus: string;
+    autoAdvanced?: boolean;
+    nextSection?: {
+      id: string;
+      title: string;
+      sectionType: string;
+      sequenceOrder: number;
+    } | null;
   }> {
     const section = await prisma.lessonSection.findUnique({
       where: { id: params.sectionId },
@@ -436,7 +446,149 @@ export class ProgressionService {
 
     const nextTurns = (existing?.turnsCompleted || 0) + 1;
     const nextRatio = Math.max(existing?.rubricPassRatio || 0, params.rubricPassRatio || 0);
-    const nextStatus = existing?.status === "COMPLETED" ? "COMPLETED" : "IN_PROGRESS";
+    const isInteractiveSection =
+      section.sectionType === "CONCEPT_INTUITION" ||
+      section.sectionType === "TECHNICAL_MECHANICS" ||
+      section.sectionType === "PITFALLS_AND_DEBUGGING";
+
+    const shouldAutoAdvance =
+      isInteractiveSection &&
+      nextTurns >= section.minTurns &&
+      existing?.status !== "COMPLETED";
+
+    const nextStatus =
+      existing?.status === "COMPLETED" || shouldAutoAdvance ? "COMPLETED" : "IN_PROGRESS";
+
+    let nextSectionObj: {
+      id: string;
+      title: string;
+      sectionType: string;
+      sequenceOrder: number;
+    } | null = null;
+
+    if (shouldAutoAdvance) {
+      const chapterSections = await prisma.lessonSection.findMany({
+        where: { chapterId: params.chapterId },
+        orderBy: { sequenceOrder: "asc" },
+      });
+      const currentIdx = chapterSections.findIndex((s) => s.id === section.id);
+      const upcoming = currentIdx >= 0 ? chapterSections[currentIdx + 1] || null : null;
+
+      if (upcoming) {
+        nextSectionObj = {
+          id: upcoming.id,
+          title: upcoming.title,
+          sectionType: upcoming.sectionType,
+          sequenceOrder: upcoming.sequenceOrder,
+        };
+      }
+
+      const nextChapterStatus =
+        upcoming?.sectionType === "CHAPTER_CHECKPOINT" ? "AWAITING_CHECKPOINT" : "IN_PROGRESS";
+
+      await prisma.$transaction(async (tx) => {
+        await tx.sectionProgress.upsert({
+          where: {
+            enrollmentId_sectionId: {
+              enrollmentId: params.enrollmentId,
+              sectionId: params.sectionId,
+            },
+          },
+          update: {
+            turnsCompleted: nextTurns,
+            rubricPassRatio: nextRatio,
+            status: "COMPLETED",
+            startedAt: existing?.startedAt || now,
+            completedAt: existing?.completedAt || now,
+          },
+          create: {
+            enrollmentId: params.enrollmentId,
+            sectionId: params.sectionId,
+            turnsCompleted: nextTurns,
+            rubricPassRatio: nextRatio,
+            status: "COMPLETED",
+            startedAt: now,
+            completedAt: now,
+          },
+        });
+
+        if (upcoming) {
+          const upcomingExisting = await tx.sectionProgress.findUnique({
+            where: {
+              enrollmentId_sectionId: {
+                enrollmentId: params.enrollmentId,
+                sectionId: upcoming.id,
+              },
+            },
+          });
+          await tx.sectionProgress.upsert({
+            where: {
+              enrollmentId_sectionId: {
+                enrollmentId: params.enrollmentId,
+                sectionId: upcoming.id,
+              },
+            },
+            update: {
+              status: upcomingExisting?.status === "COMPLETED" ? "COMPLETED" : "UNLOCKED",
+            },
+            create: {
+              enrollmentId: params.enrollmentId,
+              sectionId: upcoming.id,
+              status: "UNLOCKED",
+            },
+          });
+
+          await tx.chapterProgress.updateMany({
+            where: {
+              enrollmentId: params.enrollmentId,
+              chapterId: params.chapterId,
+              status: { not: "COMPLETED" },
+            },
+            data: {
+              currentSectionOrder: upcoming.sequenceOrder,
+              status: nextChapterStatus,
+            },
+          });
+
+          await tx.learningSession.update({
+            where: { id: params.sessionId },
+            data: {
+              turnCount: { increment: 1 },
+              currentSectionId: upcoming.id,
+              phase:
+                upcoming.sectionType === "CHAPTER_CHECKPOINT"
+                  ? "CHECKING"
+                  : upcoming.sectionType === "MODULE_PRACTICAL"
+                  ? "ASSESSING"
+                  : "TEACHING",
+            },
+          });
+        } else {
+          await tx.learningSession.update({
+            where: { id: params.sessionId },
+            data: { turnCount: { increment: 1 } },
+          });
+        }
+
+        await tx.moduleProgress.updateMany({
+          where: {
+            enrollmentId: params.enrollmentId,
+            moduleId: params.moduleId,
+            status: "UNLOCKED",
+          },
+          data: { status: "IN_PROGRESS" },
+        });
+      });
+
+      return {
+        turnsCompleted: nextTurns,
+        minTurns: section.minTurns,
+        readyToAdvanceSection: true,
+        sectionStatus: "COMPLETED",
+        autoAdvanced: true,
+        nextSection: nextSectionObj,
+      };
+    }
 
     await prisma.$transaction([
       prisma.sectionProgress.upsert({
@@ -483,11 +635,6 @@ export class ProgressionService {
       }),
     ]);
 
-    const isInteractiveSection =
-      section.sectionType === "CONCEPT_INTUITION" ||
-      section.sectionType === "TECHNICAL_MECHANICS" ||
-      section.sectionType === "PITFALLS_AND_DEBUGGING";
-
     const readyToAdvanceSection = isInteractiveSection && nextTurns >= section.minTurns;
 
     return {
@@ -495,6 +642,8 @@ export class ProgressionService {
       minTurns: section.minTurns,
       readyToAdvanceSection,
       sectionStatus: nextStatus,
+      autoAdvanced: false,
+      nextSection: null,
     };
   }
 
