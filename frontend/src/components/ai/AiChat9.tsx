@@ -365,7 +365,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
    */
   const renderComposer = () => (
     <div className="w-full relative">
-      <div className="w-full rounded-2xl bg-[#111113] border border-white/[0.11] focus-within:border-white/30 focus-within:shadow-[0_0_0_3px_rgba(255,255,255,0.05)] transition-all duration-200 px-4 py-3 shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
+      <div className="w-full rounded-2xl bg-[#111113] border border-white/[0.11] focus-within:border-white/30 focus-within:shadow-[0_0_0_3px_rgba(255,255,255,0.05)] transition-all duration-200 px-5 py-3.5 shadow-[0_10px_32px_rgba(0,0,0,0.5)]">
         {/* Active Attachment Badge */}
         {attachment && (
           <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-lg bg-[#19191c] border border-white/[0.12] w-fit text-xs text-zinc-200">
@@ -452,7 +452,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
       {/* Expanded Bounded Rich-Black Chat Box */}
       <div className="relative z-10 w-full max-w-[1080px] h-full min-h-0 flex flex-col rounded-[22px] border border-white/[0.09] bg-[#09090b] shadow-[0_28px_90px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
         {/* Pinned Top Bar inside Box */}
-        <header className="w-full px-5 sm:px-7 py-3.5 border-b border-white/[0.07] bg-[#0c0c0e] flex items-center justify-between shrink-0">
+        <header className="w-full px-6 sm:px-8 py-4 border-b border-white/[0.07] bg-[#0c0c0e] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {onExit && (
               <button
@@ -492,7 +492,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
         {/* Scrollable Message Stream Area (Previous chats scroll up cleanly inside this box) */}
         <main
           ref={scrollContainerRef}
-          className="flex-1 min-h-0 w-full overflow-y-auto px-5 sm:px-9 py-7 space-y-7 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/[0.12] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.24]"
+          className="flex-1 min-h-0 w-full overflow-y-auto px-6 sm:px-10 py-8 space-y-7 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/[0.12] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.24]"
         >
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center px-4">
@@ -520,9 +520,9 @@ export const AiChat9: React.FC<AiChat9Props> = ({
                     className={`flex w-full group ${isUser ? "justify-end" : "justify-start"}`}
                   >
                     {isUser ? (
-                      <div className="font-chat max-w-[82%] sm:max-w-[70%] rounded-2xl rounded-br-md px-4.5 py-3 bg-[#17171a] border border-white/[0.1] text-[#f5f5f7] text-[14.5px] leading-[1.6] tracking-[-0.008em] shadow-[0_6px_22px_rgba(0,0,0,0.4)]">
+                      <div className="font-chat max-w-[82%] sm:max-w-[70%] rounded-2xl rounded-br-md px-5 py-3 bg-[#17171a] border border-white/[0.1] text-[#f5f5f7] text-[14.5px] leading-[1.6] tracking-[-0.008em] shadow-[0_6px_22px_rgba(0,0,0,0.4)]">
                         {message.attachment && (
-                          <div className="flex items-center gap-2 px-2.5 py-1.5 mb-2 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-zinc-300">
+                          <div className="flex items-center gap-2 px-3 py-1.5 mb-2 rounded-lg bg-[#0e0e10] border border-white/[0.08] text-xs text-zinc-300">
                             <FileCode className="w-3.5 h-3.5 text-zinc-400" />
                             <span className="truncate font-mono">{message.attachment.name}</span>
                             <span className="text-zinc-500 text-[10px] ml-auto shrink-0">
@@ -533,10 +533,10 @@ export const AiChat9: React.FC<AiChat9Props> = ({
                         <div className="whitespace-pre-wrap">{message.content}</div>
                       </div>
                     ) : (
-                      <div className="font-chat w-full text-[15px] text-[#e4e4e7] leading-[1.75] tracking-[-0.009em] relative pr-9">
+                      <div className="font-chat w-full px-1 pr-10 text-[15px] text-[#e4e4e7] leading-[1.75] tracking-[-0.009em] relative">
                         <MarkdownRenderer content={message.content} />
                         {streamingMessageId === message.id && (
-                          <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-zinc-200 rounded-xs animate-pulse" />
+                          <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-zinc-200 rounded-sm animate-pulse" />
                         )}
 
                         {message.content && (
@@ -563,7 +563,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
         </main>
 
         {/* Pinned Bottom Composer Bar (Always visible & anchored inside the rich black box) */}
-        <footer className="w-full px-5 sm:px-7 pb-4 pt-3 border-t border-white/[0.07] bg-[#0b0b0d] shrink-0">
+        <footer className="w-full px-6 sm:px-8 py-4 border-t border-white/[0.07] bg-[#0b0b0d] shrink-0">
           {renderComposer()}
         </footer>
       </div>
