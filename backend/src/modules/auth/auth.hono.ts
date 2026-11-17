@@ -84,7 +84,6 @@ authHonoRouter.post("/register", async (c) => {
     return c.json({
       message: "A 6-digit verification code has been dispatched to your email.",
       email: cleanEmail,
-      otp,
     });
   } catch (err: any) {
     return c.json({ error: "Registration failed", details: err?.message }, 500);
@@ -397,7 +396,6 @@ authHonoRouter.post("/resend-otp", async (c) => {
 
     return c.json({
       message: `A fresh 6-digit verification code has been dispatched to ${cleanEmail}`,
-      otp,
     });
   } catch (err: any) {
     return c.json({ error: "Failed to resend OTP", details: err?.message }, 500);
@@ -727,7 +725,6 @@ authHonoRouter.post("/forgot-password", async (c) => {
     return c.json({
       message: `A 6-digit password reset code has been dispatched to ${cleanEmail}`,
       email: cleanEmail,
-      otp: process.env.NODE_ENV !== "production" ? otp : undefined,
     });
   } catch (err: any) {
     return c.json({ error: "Failed to process forgot password request", details: err?.message }, 500);

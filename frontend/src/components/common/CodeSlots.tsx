@@ -415,7 +415,7 @@ export default function CodeSlots({
           className="code-slots__input"
           type="text"
           inputMode="numeric"
-          autoComplete="one-time-code"
+          autoComplete="off"
           pattern="[0-9]*"
           value=""
           maxLength={length}

@@ -72,7 +72,7 @@ export const api = {
       primaryGoal?: string;
       image?: string;
     }
-  ): Promise<{ message: string; email: string; otp?: string; user?: User; token?: string }> {
+  ): Promise<{ message: string; email: string; user?: User; token?: string }> {
     const res = await fetch(`${API_BASE}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -159,7 +159,7 @@ export const api = {
   /**
    * Request resending a fresh 6-digit OTP verification code.
    */
-  async resendOtp(email: string): Promise<{ message: string; otp?: string }> {
+  async resendOtp(email: string): Promise<{ message: string }> {
     const res = await fetch(`${API_BASE}/auth/resend-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -177,7 +177,7 @@ export const api = {
   /**
    * Request a 6-digit password reset code sent to email.
    */
-  async forgotPassword(email: string): Promise<{ message: string; otp?: string }> {
+  async forgotPassword(email: string): Promise<{ message: string }> {
     const res = await fetch(`${API_BASE}/auth/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -319,17 +319,13 @@ export const AuthView: React.FC<AuthViewProps> = ({
     }
     setIsLoading(true);
     try {
-      const regRes = await api.register(trimmedEmail, password, trimmedName);
+      await api.register(trimmedEmail, password, trimmedName);
 
-      // Reset OTP states and start 30s cooldown
+      // Reset OTP states and start 30s cooldown — user must enter the 6-digit code from their email
       setOtpDigits(["", "", "", "", "", ""]);
+      setSignupSlotsStatus("idle");
       setResendCooldown(30);
       setResendStatus(null);
-
-      // Pre-fill OTP if available to provide a seamless verification experience
-      if (regRes?.otp && regRes.otp.length === 6) {
-        setOtpDigits(regRes.otp.split(""));
-      }
 
       // Advance directly to Step 2: Email OTP Verification
       setSignUpStep(2);
@@ -390,11 +386,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
       const res = await api.resendOtp(email.trim());
       setResendStatus(res.message || "Fresh 6-digit code dispatched to your email!");
       setResendCooldown(30);
-      if (res?.otp && res.otp.length === 6) {
-        setOtpDigits(res.otp.split(""));
-      } else {
-        setOtpDigits(["", "", "", "", "", ""]);
-      }
+      setOtpDigits(["", "", "", "", "", ""]);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to resend verification code.");
     } finally {
