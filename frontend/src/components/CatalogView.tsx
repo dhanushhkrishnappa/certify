@@ -18,6 +18,7 @@ interface CuratedCourseMeta {
   modulesCount: number;
   estimatedHours: string;
   isFeatured?: boolean;
+  isAvailable: boolean;
   status: "in-progress" | "not-started" | "completed";
   progress?: number;
   manifesto: string[];
@@ -31,9 +32,10 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
     title: "Python Fundamentals",
     summary: "Master Python from first principles. Build real projects, solve problems, and get certified.",
     level: "Beginner",
-    modulesCount: 8,
-    estimatedHours: "36.5 hours",
+    modulesCount: 10,
+    estimatedHours: "42 hours",
     isFeatured: true,
+    isAvailable: true,
     status: "in-progress",
     progress: 42,
     manifesto: ["Think", "Build", "Solve", "Grow"],
@@ -47,8 +49,8 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
     level: "Beginner",
     modulesCount: 12,
     estimatedHours: "48 hours",
-    status: "in-progress",
-    progress: 15,
+    isAvailable: false,
+    status: "not-started",
     manifesto: ["Design", "Build", "Deploy"],
     artType: "webdev",
   },
@@ -60,6 +62,7 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
     level: "Intermediate",
     modulesCount: 14,
     estimatedHours: "52 hours",
+    isAvailable: false,
     status: "not-started",
     manifesto: ["Think", "Analyse", "Solve", "Excel"],
     artType: "dsa",
@@ -72,6 +75,7 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
     level: "Intermediate",
     modulesCount: 10,
     estimatedHours: "40 hours",
+    isAvailable: false,
     status: "not-started",
     manifesto: ["Prompt", "Build", "Create", "Innovate"],
     artType: "genai",
@@ -84,6 +88,7 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
     level: "Beginner",
     modulesCount: 8,
     estimatedHours: "32 hours",
+    isAvailable: false,
     status: "not-started",
     manifesto: ["Store", "Query", "Analyze", "Scale"],
     artType: "sql",
@@ -96,6 +101,7 @@ const CURATED_CATALOG: CuratedCourseMeta[] = [
     level: "Intermediate",
     modulesCount: 10,
     estimatedHours: "45 hours",
+    isAvailable: false,
     status: "not-started",
     manifesto: ["Deploy", "Monitor", "Scale", "Succeed"],
     artType: "devops",
@@ -167,6 +173,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   }, []);
 
   const handleViewDetails = async (course: CuratedCourseMeta) => {
+    if (!course.isAvailable) return;
     setActiveModalCourse(course);
     try {
       const data = await api.getCourseBySlug(course.slug);
@@ -446,9 +453,13 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             data-purpose="course-card"
             data-course-slug={course.slug}
             className={`rounded-[14px] border shadow-sm overflow-hidden flex flex-col justify-between transition-all duration-300 ${
+              !course.isAvailable ? "opacity-80 select-none" : ""
+            } ${
               isLight
                 ? "bg-white border-purple-900/10 shadow-[0_8px_30px_rgba(76,29,149,0.06)]"
-                : "bg-[#111111] border-white/[0.08]"
+                : course.isAvailable
+                ? "bg-[#111111] border-white/[0.12]"
+                : "bg-[#0e0e11] border-white/[0.06]"
             }`}
           >
             <div>
@@ -579,20 +590,34 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                 )}
 
                 {/* Top Badges */}
-                {course.isFeatured && (
+                {course.isFeatured && course.isAvailable && (
                   <div className="absolute top-3 left-3 z-10">
                     <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-[6px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-xs">
-                      FEATURED
+                      AVAILABLE NOW
                     </span>
                   </div>
                 )}
 
-                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-amber-300 text-[10px] font-bold tracking-wider">
-                  <svg className="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.477.859h4z" />
-                  </svg>
-                  <span>CERTIFY CURATED</span>
-                </div>
+                {course.isAvailable ? (
+                  <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-amber-300 text-[10px] font-bold tracking-wider">
+                    <svg className="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.477.859h4z" />
+                    </svg>
+                    <span>CERTIFY CURATED</span>
+                  </div>
+                ) : (
+                  <>
+                    {/* Frosted Coming Soon Veil */}
+                    <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-[2px] flex flex-col items-center justify-center gap-1.5">
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/15 text-zinc-100 text-[11px] font-semibold tracking-wider uppercase shadow-lg">
+                        <svg className="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <span>Coming Soon</span>
+                      </span>
+                    </div>
+                  </>
+                )}
 
                 {/* Left Manifesto Words */}
                 <div className="absolute left-4 bottom-4 z-10 text-left font-sans font-medium text-slate-300 text-xs tracking-wide leading-tight select-none opacity-90">
@@ -659,49 +684,69 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
             {/* Action Bottom Bar */}
             <div className="px-5 pb-5 pt-1 flex items-center justify-between gap-3 mt-2">
-              {course.status === "in-progress" ? (
+              {!course.isAvailable ? (
                 <button
-                  onClick={() => onSelectCourse(course.slug)}
-                  className={`flex-1 flex items-center justify-center gap-2 rounded-[8px] py-2 px-3 text-xs font-semibold shadow-xs transition-colors cursor-pointer ${
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-[8px] py-2 px-3 text-xs font-semibold border cursor-not-allowed ${
                     isLight
-                      ? "bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
-                      : "bg-white hover:bg-neutral-200 text-neutral-950"
+                      ? "bg-slate-100 text-slate-400 border-slate-200"
+                      : "bg-white/[0.04] text-zinc-500 border-white/[0.07]"
                   }`}
                 >
-                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                    <polygon points="5 3 19 12 5 21 5 3" />
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Continue Learning</span>
+                  <span>Coming Soon</span>
                 </button>
               ) : (
-                <button
-                  onClick={() => onSelectCourse(course.slug)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 rounded-[8px] py-2 px-3 text-xs font-semibold transition-colors border cursor-pointer ${
-                    isLight
-                      ? "bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
-                      : "bg-white/10 hover:bg-white/15 text-white border-white/10"
-                  }`}
-                >
-                  <span>Start Learning</span>
-                  <span aria-hidden="true">&gt;</span>
-                </button>
-              )}
+                <>
+                  {course.status === "in-progress" ? (
+                    <button
+                      onClick={() => onSelectCourse(course.slug)}
+                      className={`flex-1 flex items-center justify-center gap-2 rounded-[8px] py-2 px-3 text-xs font-semibold shadow-xs transition-colors cursor-pointer ${
+                        isLight
+                          ? "bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
+                          : "bg-white hover:bg-neutral-200 text-neutral-950"
+                      }`}
+                    >
+                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                      </svg>
+                      <span>Continue Learning</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onSelectCourse(course.slug)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 rounded-[8px] py-2 px-3 text-xs font-semibold transition-colors border cursor-pointer ${
+                        isLight
+                          ? "bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+                          : "bg-white/10 hover:bg-white/15 text-white border-white/10"
+                      }`}
+                    >
+                      <span>Start Learning</span>
+                      <span aria-hidden="true">&gt;</span>
+                    </button>
+                  )}
 
-              <button
-                onClick={() => {
-                  if (onViewCourseDetails) {
-                    onViewCourseDetails(course.slug);
-                  } else {
-                    handleViewDetails(course);
-                  }
-                }}
-                className={`text-xs font-semibold flex items-center gap-1 transition-colors px-1 cursor-pointer ${
-                  isLight ? "text-purple-700 hover:text-purple-900" : "text-neutral-300 hover:text-white"
-                }`}
-              >
-                <span>View Details</span>
-                <span aria-hidden="true">→</span>
-              </button>
+                  <button
+                    onClick={() => {
+                      if (onViewCourseDetails) {
+                        onViewCourseDetails(course.slug);
+                      } else {
+                        handleViewDetails(course);
+                      }
+                    }}
+                    className={`text-xs font-semibold flex items-center gap-1 transition-colors px-1 cursor-pointer ${
+                      isLight ? "text-purple-700 hover:text-purple-900" : "text-neutral-300 hover:text-white"
+                    }`}
+                  >
+                    <span>View Details</span>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                </>
+              )}
             </div>
           </SpotlightCard>
         ))}

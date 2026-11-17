@@ -15,7 +15,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
   courseSlug,
   onStartCourse,
   onNavigate,
-  onSelectRelatedCourse,
+  onSelectRelatedCourse: _onSelectRelatedCourse,
   user: _user,
 }) => {
   const { theme } = useTheme();
@@ -806,25 +806,34 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
                   text: "text-emerald-500",
                 },
               ].map((rel) => (
-                <button
+                <div
                   key={rel.slug}
-                  onClick={() => onSelectRelatedCourse ? onSelectRelatedCourse(rel.slug) : onNavigate("catalog")}
-                  className="w-full flex items-center space-x-3 group text-left cursor-pointer"
+                  aria-disabled="true"
+                  className="w-full flex items-center justify-between space-x-3 text-left opacity-60 cursor-not-allowed select-none"
                 >
-                  <div className={`w-9 h-9 rounded-[8px] ${rel.bg} ${rel.text} flex items-center justify-center shrink-0`}>
-                    <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <div className={`w-9 h-9 rounded-[8px] ${rel.bg} ${rel.text} flex items-center justify-center shrink-0`}>
+                      <svg className="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className={`text-xs font-semibold truncate ${
+                        isLight ? "text-slate-800" : "text-zinc-200"
+                      }`}>
+                        {rel.title}
+                      </h4>
+                      <p className={`text-[10px] ${isLight ? "text-slate-500" : "text-neutral-500"}`}>{rel.level}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className={`text-xs font-semibold transition-colors ${
-                      isLight ? "text-slate-900 group-hover:text-purple-700" : "text-white group-hover:text-neutral-300"
-                    }`}>
-                      {rel.title}
-                    </h4>
-                    <p className={`text-[10px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>{rel.level}</p>
-                  </div>
-                </button>
+                  <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider border ${
+                    isLight
+                      ? "bg-slate-100 text-slate-500 border-slate-200"
+                      : "bg-white/[0.05] text-zinc-400 border-white/10"
+                  }`}>
+                    Coming Soon
+                  </span>
+                </div>
               ))}
             </div>
           </div>

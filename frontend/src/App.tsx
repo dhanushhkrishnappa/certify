@@ -193,7 +193,11 @@ const AppContent: React.FC = () => {
       });
   }, []);
 
+  // Only Python Fundamentals is live; all other tracks are locked as Coming Soon
+  const AVAILABLE_COURSE_SLUGS = new Set(["python-fundamentals"]);
+
   const handleEnrollAndLaunchStudio = (slug: string) => {
+    if (!AVAILABLE_COURSE_SLUGS.has(slug)) return;
     setSelectedCourseSlug(slug);
     setEnrolledCourseSlugs((prev) => {
       const updated = Array.from(new Set([...prev, slug]));
@@ -205,6 +209,7 @@ const AppContent: React.FC = () => {
   };
 
   const handleSelectCourse = (slug: string) => {
+    if (!AVAILABLE_COURSE_SLUGS.has(slug)) return;
     setSelectedCourseSlug(slug);
     // Strict enrollment barrier: If enrolled, go to studio; otherwise explore curriculum in course-details
     if (enrolledCourseSlugs.includes(slug)) {
@@ -215,6 +220,7 @@ const AppContent: React.FC = () => {
   };
 
   const handleViewCourseDetails = (slug: string) => {
+    if (!AVAILABLE_COURSE_SLUGS.has(slug)) return;
     setSelectedCourseSlug(slug);
     navigateWithTransition("course-details");
   };
