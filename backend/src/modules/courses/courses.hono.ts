@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { prisma } from "../../shared/prisma.js";
 import { honoAuthMiddleware } from "../../shared/middleware/honoAuth.js";
+import { ProgressionService } from "../progression/progression.service.js";
 
 export const coursesHonoRouter = new Hono();
 
@@ -147,6 +148,7 @@ coursesHonoRouter.post("/:slug/enroll", honoAuthMiddleware, async (c) => {
     });
 
     if (existingEnrollment) {
+      await ProgressionService.ensureInitialized(existingEnrollment.id);
       return c.json({
         message: "Already enrolled",
         enrollmentId: existingEnrollment.id,
@@ -154,9 +156,16 @@ coursesHonoRouter.post("/:slug/enroll", honoAuthMiddleware, async (c) => {
       });
     }
 
-    // Atomic transaction initializing enrollment, concept masteries, and first chapter session
+    // Atomic transaction initializing enrollment and first chapter session
+    const firstChapter = activeVersion.modules[0]?.chapters[0];
+    const firstSection = firstChapter
+      ? await prisma.lessonSection.findFirst({
+          where: { chapterId: firstChapter.id },
+          orderBy: { sequenceOrder: "asc" },
+        })
+      : null;
+
     const newEnrollment = await prisma.$transaction(async (tx) => {
-      const firstChapter = activeVersion.modules[0]?.chapters[0];
       const enrollment = await tx.enrollment.create({
         data: {
           userId: user.id,
@@ -167,27 +176,12 @@ coursesHonoRouter.post("/:slug/enroll", honoAuthMiddleware, async (c) => {
         },
       });
 
-      const allConcepts = activeVersion.modules.flatMap((m) =>
-        m.chapters.flatMap((ch) => ch.concepts)
-      );
-
-      for (const concept of allConcepts) {
-        await tx.conceptMastery.create({
-          data: {
-            enrollmentId: enrollment.id,
-            conceptId: concept.id,
-            pMastery: 0.15,
-            confidence: 0.20,
-            state: "UNENCOUNTERED",
-          },
-        });
-      }
-
       if (firstChapter) {
         await tx.learningSession.create({
           data: {
             enrollmentId: enrollment.id,
             chapterId: firstChapter.id,
+            currentSectionId: firstSection?.id || null,
             phase: "TEACHING",
             isActive: true,
           },
@@ -196,6 +190,12 @@ coursesHonoRouter.post("/:slug/enroll", honoAuthMiddleware, async (c) => {
 
       return enrollment;
     });
+
+    // Initialize full deterministic progression lock tree + rubric criteria + skill profiles
+    await ProgressionService.initializeEnrollmentProgression(
+      newEnrollment.id,
+      activeVersion.id
+    );
 
     return c.json(
       {

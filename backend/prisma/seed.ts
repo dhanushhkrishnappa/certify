@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { prisma } from "../src/shared/prisma.js";
 import { auth } from "../src/lib/auth.js";
+import { runEnrichmentAndBackfill } from "../scripts/enrich_curriculum_and_progression.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -423,6 +424,9 @@ async function main() {
       }
     }
   }
+
+  // Enrich with structured LessonSections, SkillDimensions, cognitive taxonomy & progression metadata
+  await runEnrichmentAndBackfill();
 
   console.log(`\n============================================================`);
   console.log(`SEEDING COMPLETED SUCCESSFULLY:`);

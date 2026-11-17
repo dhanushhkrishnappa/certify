@@ -325,17 +325,54 @@ export const api = {
     return res.json();
   },
 
+  async getProgression(slug: string): Promise<{ progression: import("../types/index.js").ProgressionTree }> {
+    const res = await fetch(`${API_BASE}/courses/${slug}/progression`, {
+      headers: getHeaders(),
+      credentials: "include",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to load course progression");
+    }
+    return res.json();
+  },
+
+  async getSkillsReport(slug: string): Promise<{ report: import("../types/index.js").SkillsReport }> {
+    const res = await fetch(`${API_BASE}/courses/${slug}/skills-report`, {
+      headers: getHeaders(),
+      credentials: "include",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to load skills report");
+    }
+    return res.json();
+  },
+
+  async advanceSection(sessionId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/sessions/${sessionId}/sections/advance`, {
+      method: "POST",
+      headers: getHeaders(),
+      credentials: "include",
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || data.error || "Section requirements not yet satisfied");
+    }
+    return data;
+  },
+
   async advanceChapter(sessionId: string): Promise<any> {
     const res = await fetch(`${API_BASE}/sessions/${sessionId}/advance`, {
       method: "POST",
       headers: getHeaders(),
       credentials: "include",
     });
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "Failed to advance chapter");
+      throw new Error(data.message || data.error || "Failed to advance chapter");
     }
-    return res.json();
+    return data;
   },
 
   // ─── SSE Streaming Tutor ─────────────────────────────────────────────────
@@ -346,7 +383,12 @@ export const api = {
     onToken: (chunk: string) => void,
     onStateUpdate?: (update: any) => void,
     onDone?: (messageId: string) => void,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    extraCallbacks?: {
+      onRubricUpdate?: (update: any) => void;
+      onSectionStatus?: (status: any) => void;
+      onDriftRedirect?: (drift: any) => void;
+    }
   ): Promise<void> {
     const token = localStorage.getItem("certify_token");
     const response = await fetch(`${API_BASE}/sessions/${sessionId}/messages`, {
@@ -362,7 +404,7 @@ export const api = {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || "Failed to send message to tutor");
+      throw new Error(err.message || err.error || "Failed to send message to tutor");
     }
 
     const reader = response.body?.getReader();
@@ -399,6 +441,12 @@ export const api = {
             onToken(parsed.chunk);
           } else if (eventType === "state_update" && onStateUpdate) {
             onStateUpdate(parsed);
+          } else if (eventType === "rubric_update" && extraCallbacks?.onRubricUpdate) {
+            extraCallbacks.onRubricUpdate(parsed);
+          } else if (eventType === "section_status" && extraCallbacks?.onSectionStatus) {
+            extraCallbacks.onSectionStatus(parsed);
+          } else if (eventType === "drift_redirect" && extraCallbacks?.onDriftRedirect) {
+            extraCallbacks.onDriftRedirect(parsed);
           } else if (eventType === "done" && onDone) {
             onDone(parsed.messageId);
           }
@@ -475,13 +523,15 @@ export const api = {
 
   // ─── Assessments ──────────────────────────────────────────────────────────
 
-  async getChapterQuestions(chapterId: string): Promise<{ questions: Question[] }> {
-    const res = await fetch(`${API_BASE}/assessments/chapters/${chapterId}`, {
+  async getChapterQuestions(chapterId: string, enrollmentId?: string): Promise<{ questions: Question[]; chapter?: any }> {
+    const qs = enrollmentId ? `?enrollmentId=${encodeURIComponent(enrollmentId)}` : "";
+    const res = await fetch(`${API_BASE}/assessments/chapters/${chapterId}${qs}`, {
       headers: getHeaders(),
       credentials: "include",
     });
-    if (!res.ok) throw new Error("Failed to load questions");
-    return res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || "Failed to load questions");
+    return data;
   },
 
   async submitChapterAssessment(
@@ -495,8 +545,26 @@ export const api = {
       credentials: "include",
       body: JSON.stringify({ enrollmentId, answers }),
     });
-    if (!res.ok) throw new Error("Failed to submit chapter assessment");
-    return res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || "Failed to submit chapter assessment");
+    return data;
+  },
+
+  async submitPractical(
+    enrollmentId: string,
+    taskId: string,
+    code: string,
+    moduleId?: string
+  ): Promise<any> {
+    const res = await fetch(`${API_BASE}/assessments/practical/submit`, {
+      method: "POST",
+      headers: getHeaders(),
+      credentials: "include",
+      body: JSON.stringify({ enrollmentId, taskId, code, moduleId }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || "Failed to submit practical task");
+    return data;
   },
 
   async conductVivaTurn(

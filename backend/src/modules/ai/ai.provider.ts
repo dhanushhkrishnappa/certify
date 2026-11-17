@@ -61,6 +61,61 @@ export function isKeywordStuffing(text: string): boolean {
   return uniqueRatio < 0.42;
 }
 
+export interface TutorStreamContext {
+  courseTitle: string;
+  moduleTitle?: string;
+  chapterTitle: string;
+  sectionTitle?: string;
+  sectionObjective?: string;
+  teachingContent?: string;
+  concepts: Array<{ id: string; slug: string; name: string; description: string }>;
+  unmetCriteria?: string[];
+  knownMisconceptions?: string[];
+  guardrailDirective?: string;
+  history: Array<{ role: "user" | "assistant"; content: string }>;
+  learnerMessage: string;
+  ragContextChunks?: string[];
+}
+
+function buildSocraticSystemPrompt(context: TutorStreamContext): string {
+  const ragNotes =
+    context.ragContextChunks && context.ragContextChunks.length > 0
+      ? `\n\nGrounded Curriculum Reference Context (strictly fenced to active section/chapter):\n${context.ragContextChunks.join("\n---\n")}`
+      : "";
+
+  const sectionBlock = context.sectionTitle
+    ? `\nActive Section: ${context.sectionTitle}\nSection Objective: ${context.sectionObjective || "Guide learner through this section's core mental model."}`
+    : "";
+
+  const criteriaBlock =
+    context.unmetCriteria && context.unmetCriteria.length > 0
+      ? `\nUnmet Rubric Criteria to Probe:\n${context.unmetCriteria.map((c, i) => `${i + 1}. ${c}`).join("\n")}`
+      : "";
+
+  const misconceptionBlock =
+    context.knownMisconceptions && context.knownMisconceptions.length > 0
+      ? `\nKnown Learner Misconceptions to Address Gently: ${context.knownMisconceptions.join(", ")}`
+      : "";
+
+  const guardrailBlock = context.guardrailDirective
+    ? `\n\nCRITICAL GUARDRAIL OVERRIDE:\n${context.guardrailDirective}`
+    : "";
+
+  return `You are the expert Socratic AI Tutor for CERTIFY.
+Course: "${context.courseTitle}"${context.moduleTitle ? ` | Module: "${context.moduleTitle}"` : ""}
+Chapter: "${context.chapterTitle}"${sectionBlock}
+Concepts: ${context.concepts.map((c) => c.name).join(", ")}.${criteriaBlock}${misconceptionBlock}
+Section Teaching Notes:
+${(context.teachingContent || "First-principles Python semantics.").slice(0, 2200)}${ragNotes}${guardrailBlock}
+
+Strict Pedagogical Rules:
+1. Stay STRICTLY within the active section and chapter scope above. NEVER teach concepts from locked future modules.
+2. Guide with concise, warm, thought-provoking Socratic questions (under 130 words).
+3. Probe the unmet rubric criteria above rather than lecturing passively.
+4. NEVER claim the learner has passed, completed, or unlocked the next section/chapter/module—the backend evaluates mastery and updates the UI deterministically.
+5. NEVER reveal direct solutions to checkpoint or practical assessment questions.`;
+}
+
 export class AIProvider {
   public static isRealProviderConfigured(): boolean {
     if (Boolean((config as any).groqApiKey)) return true;
@@ -83,28 +138,11 @@ export class AIProvider {
   }
 
   public static async streamGeminiReply(
-    context: {
-      courseTitle: string;
-      chapterTitle: string;
-      teachingContent?: string;
-      concepts: Array<{ id: string; slug: string; name: string; description: string }>;
-      history: Array<{ role: "user" | "assistant"; content: string }>;
-      learnerMessage: string;
-      ragContextChunks?: string[];
-    },
+    context: TutorStreamContext,
     onChunk: (chunk: string) => Promise<any> | any,
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
-    const ragNotes = context.ragContextChunks && context.ragContextChunks.length > 0
-      ? `\n\nCurriculum reference context (from lesson and common mistakes):\n${context.ragContextChunks.join("\n---\n")}\nUse this curriculum reference context to inform your Socratic questioning, but NEVER reveal solutions or code answers to assessment questions.`
-      : "";
-
-    const systemPrompt = `You are the Socratic AI Tutor for the CERTIFY course "${context.courseTitle}", chapter "${context.chapterTitle}".
-Concepts in this chapter: ${context.concepts.map((c) => c.name).join(", ")}.
-Teaching notes: ${context.teachingContent || "First-principles Python semantics."}${ragNotes}
-Guidelines:
-- Guide with Socratic questions; probe mental models of memory, identity, and runtime state.
-- Keep responses concise (under 120 words). Never give direct code answers to assessment questions.`;
+    const systemPrompt = buildSocraticSystemPrompt(context);
 
     const contents = [
       ...context.history.slice(-8).map((m) => ({
@@ -195,28 +233,11 @@ Guidelines:
   }
 
   public static async streamGroqReply(
-    context: {
-      courseTitle: string;
-      chapterTitle: string;
-      teachingContent?: string;
-      concepts: Array<{ id: string; slug: string; name: string; description: string }>;
-      history: Array<{ role: "user" | "assistant"; content: string }>;
-      learnerMessage: string;
-      ragContextChunks?: string[];
-    },
+    context: TutorStreamContext,
     onChunk: (chunk: string) => Promise<any> | any,
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
-    const ragNotes = context.ragContextChunks && context.ragContextChunks.length > 0
-      ? `\n\nCurriculum reference context (from lesson and common mistakes):\n${context.ragContextChunks.join("\n---\n")}\nUse this curriculum reference context to inform your Socratic questioning, but NEVER reveal direct solutions or complete code answers to assessment questions.`
-      : "";
-
-    const systemPrompt = `You are the expert Socratic AI Tutor for the CERTIFY course "${context.courseTitle}", chapter "${context.chapterTitle}".
-Concepts in this chapter: ${context.concepts.map((c) => c.name).join(", ")}.
-Teaching notes: ${context.teachingContent || "First-principles Python semantics."}${ragNotes}
-Guidelines:
-- Guide with concise, thought-provoking Socratic questions; probe mental models of memory, object identity, and runtime state.
-- Keep responses concise, warm, and pedagogically rigorous (under 120 words). Never give direct code answers to assessment questions.`;
+    const systemPrompt = buildSocraticSystemPrompt(context);
 
     const messages = [
       { role: "system", content: systemPrompt },
@@ -306,15 +327,7 @@ Guidelines:
   }
 
   public static async streamTutorReply(
-    context: {
-      courseTitle: string;
-      chapterTitle: string;
-      teachingContent?: string;
-      concepts: Array<{ id: string; slug: string; name: string; description: string }>;
-      history: Array<{ role: "user" | "assistant"; content: string }>;
-      learnerMessage: string;
-      ragContextChunks?: string[];
-    },
+    context: TutorStreamContext,
     onChunk: (chunk: string) => Promise<any> | any,
     signal?: AbortSignal
   ): Promise<{ fullText: string; modelUsed: string; promptVersion: string; provider: string }> {
@@ -646,8 +659,16 @@ Guidelines:
   }
 
   public static async generateSocraticStream(params: {
+    courseTitle?: string;
+    moduleTitle?: string;
+    chapterTitle?: string;
+    sectionTitle?: string;
+    sectionObjective?: string;
     teachingContent?: string;
     conceptName: string;
+    unmetCriteria?: string[];
+    knownMisconceptions?: string[];
+    guardrailDirective?: string;
     history: Array<{ role: "user" | "assistant" | "system"; content: string }>;
     onChunk: (chunk: string) => Promise<any> | any;
     signal?: AbortSignal;
@@ -659,10 +680,16 @@ Guidelines:
 
     return this.streamTutorReply(
       {
-        courseTitle: "Python Fundamentals",
-        chapterTitle: params.conceptName,
+        courseTitle: params.courseTitle || "Python Fundamentals",
+        moduleTitle: params.moduleTitle,
+        chapterTitle: params.chapterTitle || params.conceptName,
+        sectionTitle: params.sectionTitle,
+        sectionObjective: params.sectionObjective,
         teachingContent: params.teachingContent,
         concepts: [{ id: "c1", slug: "c1", name: params.conceptName, description: "" }],
+        unmetCriteria: params.unmetCriteria,
+        knownMisconceptions: params.knownMisconceptions,
+        guardrailDirective: params.guardrailDirective,
         history: historyWithoutLast as any,
         learnerMessage: lastUserMsg,
         ragContextChunks: params.ragContextChunks,

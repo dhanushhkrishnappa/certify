@@ -148,18 +148,24 @@ model CourseVersion {
 }
 
 model Module {
-  id              String        @id @default(uuid())
-  courseVersionId String
-  courseVersion   CourseVersion @relation(fields: [courseVersionId], references: [id], onDelete: Cascade)
-  title           String
-  description     String?
-  sequenceOrder   Int
-  createdAt       DateTime      @default(now())
+  id                   String           @id @default(uuid())
+  courseVersionId      String
+  courseVersion        CourseVersion    @relation(fields: [courseVersionId], references: [id], onDelete: Cascade)
+  slug                 String           @default("")
+  title                String
+  description          String?
+  sequenceOrder        Int
+  prerequisiteModuleId String?
+  practicalTaskId      String?
+  minMasteryThreshold  Float            @default(0.70)
+  createdAt            DateTime         @default(now())
 
-  chapters        Chapter[]
+  chapters             Chapter[]
+  moduleProgresses     ModuleProgress[]
 
   @@index([courseVersionId])
   @@index([courseVersionId, sequenceOrder])
+  @@index([courseVersionId, slug])
   @@map("modules")
 }
 
@@ -173,15 +179,38 @@ model Chapter {
   estimatedMins      Int               @default(45)
   createdAt          DateTime          @default(now())
 
+  sections           LessonSection[]
   concepts           Concept[]
   questions          Question[]
   sessions           LearningSession[]
   currentEnrollments Enrollment[]
+  chapterProgresses  ChapterProgress[]
   embeddings         CourseEmbedding[]
 
   @@index([moduleId])
   @@index([moduleId, sequenceOrder])
   @@map("chapters")
+}
+
+model LessonSection {
+  id                 String            @id @default(uuid())
+  chapterId          String
+  chapter            Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  sectionType        String            // CONCEPT_INTUITION | TECHNICAL_MECHANICS | PITFALLS_AND_DEBUGGING | CHAPTER_CHECKPOINT | MODULE_PRACTICAL
+  title              String
+  objective          String            // Explicit learning objective injected into Socratic tutor
+  sequenceOrder      Int               // 1, 2, 3, 4, (5)
+  content            String            // Structured markdown slice scoped to this section
+  minTurns           Int               @default(1)
+  requiredForAdvance Boolean           @default(true)
+  createdAt          DateTime          @default(now())
+
+  sectionProgresses  SectionProgress[]
+  embeddings         CourseEmbedding[]
+
+  @@unique([chapterId, sequenceOrder])
+  @@index([chapterId])
+  @@map("lesson_sections")
 }
 
 model Concept {
@@ -219,18 +248,26 @@ model Rubric {
 }
 
 model RubricCriterion {
-  id                 String             @id @default(uuid())
-  rubricId           String
-  rubric             Rubric             @relation(fields: [rubricId], references: [id], onDelete: Cascade)
-  criterionStatement String             // Concrete requirement (e.g. "Distinguishes object reference from value")
-  weight             Float              @default(1.0)
-  tierRequired       String             @default("EASY") // EASY | MEDIUM | HARD
-  createdAt          DateTime           @default(now())
+  id                   String                    @id @default(uuid())
+  rubricId             String
+  rubric               Rubric                    @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+  criterionCode        String?                   // e.g. "M01-C01-R01"
+  criterionStatement   String                    // Concrete requirement (e.g. "Distinguishes object reference from value")
+  weight               Float                     @default(1.0)
+  tierRequired         String                    @default("EASY")    // EASY | MEDIUM | HARD
+  cognitiveLevel       String                    @default("EXPLAIN") // RECALL | EXPLAIN | APPLY | DEBUG | REASON
+  passingThreshold     Float                     @default(0.70)
+  expectedConceptsJson String?                   // JSON array of key semantic signals
+  misconceptionsJson   String?                   // JSON array of { tag, pattern, explanation }
+  createdAt            DateTime                  @default(now())
 
-  masteryEvidences   MasteryEvidence[]
-  rubricEvaluations  RubricEvaluation[]
+  masteryEvidences     MasteryEvidence[]
+  rubricEvaluations    RubricEvaluation[]
+  criterionMasteries   RubricCriterionMastery[]
+  skillMappings        RubricCriterionSkillMap[]
 
   @@index([rubricId])
+  @@index([cognitiveLevel])
   @@map("rubric_criteria")
 }
 
@@ -260,23 +297,29 @@ model Question {
 // ==============================================================================
 
 model Enrollment {
-  id               String            @id @default(uuid())
-  userId           String
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseVersionId  String
-  courseVersion    CourseVersion     @relation(fields: [courseVersionId], references: [id], onDelete: Restrict)
-  currentChapterId String?
-  currentChapter   Chapter?          @relation(fields: [currentChapterId], references: [id], onDelete: SetNull)
-  status           String            @default("ACTIVE") // ACTIVE | COMPLETED | DROPPED | REMEDIATING
-  currentTier      String            @default("EASY")   // EASY (Foundation) | MEDIUM (Proficient) | HARD (Advanced)
-  enrolledAt       DateTime          @default(now())
-  completedAt      DateTime?
+  id                       String                   @id @default(uuid())
+  userId                   String
+  user                     User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseVersionId          String
+  courseVersion            CourseVersion            @relation(fields: [courseVersionId], references: [id], onDelete: Restrict)
+  currentChapterId         String?
+  currentChapter           Chapter?                 @relation(fields: [currentChapterId], references: [id], onDelete: SetNull)
+  status                   String                   @default("ACTIVE") // ACTIVE | COMPLETED | DROPPED | REMEDIATING
+  currentTier              String                   @default("EASY")   // EASY (Foundation) | MEDIUM (Proficient) | HARD (Advanced)
+  enrolledAt               DateTime                 @default(now())
+  completedAt              DateTime?
 
-  sessions         LearningSession[]
-  conceptMasteries ConceptMastery[]
-  assessments      AssessmentAttempt[]
-  storageArtifacts StorageArtifact[]
-  certificate      Certificate?
+  sessions                 LearningSession[]
+  conceptMasteries         ConceptMastery[]
+  moduleProgresses         ModuleProgress[]
+  chapterProgresses        ChapterProgress[]
+  sectionProgresses        SectionProgress[]
+  rubricCriterionMasteries RubricCriterionMastery[]
+  skillProfiles            LearnerSkillProfile[]
+  driftEvents              TopicDriftEvent[]
+  assessments              AssessmentAttempt[]
+  storageArtifacts         StorageArtifact[]
+  certificate              Certificate?
 
   @@unique([userId, courseVersionId])
   @@index([userId])
@@ -307,17 +350,21 @@ model DailyActivity {
 // ==============================================================================
 
 model LearningSession {
-  id           String        @id @default(uuid())
-  enrollmentId String
-  enrollment   Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  chapterId    String
-  chapter      Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  phase        String        @default("TEACHING") // DIAGNOSTIC | TEACHING | CHECKING | REMEDIATING | ASSESSING | COMPLETED
-  isActive     Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id               String            @id @default(uuid())
+  enrollmentId     String
+  enrollment       Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  chapterId        String
+  chapter          Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  currentSectionId String?
+  activeConceptId  String?
+  turnCount        Int               @default(0)
+  phase            String            @default("TEACHING") // DIAGNOSTIC | TEACHING | CHECKING | REMEDIATING | ASSESSING | COMPLETED
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  messages     ChatMessage[]
+  messages         ChatMessage[]
+  driftEvents      TopicDriftEvent[]
 
   @@index([enrollmentId])
   @@index([chapterId])
@@ -374,8 +421,12 @@ model MasteryEvidence {
   conceptMastery     ConceptMastery   @relation(fields: [conceptMasteryId], references: [id], onDelete: Cascade)
   rubricCriterionId  String?
   rubricCriterion    RubricCriterion? @relation(fields: [rubricCriterionId], references: [id], onDelete: SetNull)
+  sectionId          String?
   evidenceType       String           // DIALOGUE_PROBE | CHAPTER_ASSESSMENT | PRACTICAL_TASK | VIVA | DIAGNOSTIC
   isDemonstrated     Boolean
+  score              Float?
+  confidence         Float?
+  misconceptionTag   String?
   evidenceQuote      String?          // Exact student response quote proving comprehension
   evaluatorReasoning String?          // Structured evaluator reasoning
   observedAt         DateTime         @default(now())
@@ -565,22 +616,184 @@ model EmailLog {
 // Scoped to Python Fundamentals curriculum for grounded Socratic AI tutoring.
 
 model CourseEmbedding {
-  id         String   @id @default(uuid())
-  chapterId  String?  @map("chapter_id")
-  chapter    Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
-  conceptId  String?  @map("concept_id")
-  concept    Concept? @relation(fields: [conceptId], references: [id], onDelete: SetNull)
-  moduleSlug String   @map("module_slug")
-  chunkType  String   @map("chunk_type") // LESSON | COMMON_MISTAKE | EXAMPLE
-  content    String
-  embedding  Unsupported("vector(1536)")?
-  fts        Unsupported("tsvector")?
-  createdAt  DateTime @default(now()) @map("created_at")
+  id             String         @id @default(uuid())
+  chapterId      String?        @map("chapter_id")
+  chapter        Chapter?       @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  sectionId      String?        @map("section_id")
+  section        LessonSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  conceptId      String?        @map("concept_id")
+  concept        Concept?       @relation(fields: [conceptId], references: [id], onDelete: SetNull)
+  moduleSlug     String         @map("module_slug")
+  moduleOrder    Int            @default(1) @map("module_order")
+  chunkType      String         @map("chunk_type") // LESSON | COMMON_MISTAKE | EXAMPLE
+  embeddingModel String         @default("gemini-embedding-001") @map("embedding_model")
+  content        String
+  embedding      Unsupported("vector(1536)")?
+  fts            Unsupported("tsvector")? @default(dbgenerated())
+  createdAt      DateTime       @default(now()) @map("created_at")
 
   @@index([chapterId])
+  @@index([sectionId])
   @@index([conceptId])
   @@index([moduleSlug])
+  @@index([moduleSlug, moduleOrder])
   @@index([chunkType])
   @@map("course_embeddings")
+}
+
+// ==============================================================================
+// 10. BACKEND-AUTHORITATIVE PROGRESSION STATE MACHINE & SKILL ANALYTICS
+// ==============================================================================
+
+model ModuleProgress {
+  id                String     @id @default(uuid())
+  enrollmentId      String
+  enrollment        Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  moduleId          String
+  module            Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  status            String     @default("LOCKED") // LOCKED | UNLOCKED | IN_PROGRESS | COMPLETED
+  chaptersCompleted Int        @default(0)
+  totalChapters     Int        @default(0)
+  practicalPassed   Boolean    @default(false)
+  practicalScore    Float?
+  moduleRubricScore Float?
+  unlockedAt        DateTime?
+  completedAt       DateTime?
+  updatedAt         DateTime   @updatedAt
+
+  @@unique([enrollmentId, moduleId])
+  @@index([enrollmentId, status])
+  @@map("module_progress")
+}
+
+model ChapterProgress {
+  id                  String     @id @default(uuid())
+  enrollmentId        String
+  enrollment          Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  chapterId           String
+  chapter             Chapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  status              String     @default("LOCKED") // LOCKED | UNLOCKED | IN_PROGRESS | AWAITING_CHECKPOINT | REMEDIATING | COMPLETED
+  currentSectionOrder Int        @default(1)
+  checkpointScore     Float?
+  checkpointAttempts  Int        @default(0)
+  remediationCycles   Int        @default(0)
+  unlockedAt          DateTime?
+  completedAt         DateTime?
+  updatedAt           DateTime   @updatedAt
+
+  @@unique([enrollmentId, chapterId])
+  @@index([enrollmentId, status])
+  @@map("chapter_progress")
+}
+
+model SectionProgress {
+  id              String        @id @default(uuid())
+  enrollmentId    String
+  enrollment      Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  sectionId       String
+  section         LessonSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  status          String        @default("LOCKED") // LOCKED | UNLOCKED | IN_PROGRESS | COMPLETED
+  turnsCompleted  Int           @default(0)
+  rubricPassRatio Float         @default(0.0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([enrollmentId, sectionId])
+  @@index([enrollmentId, status])
+  @@map("section_progress")
+}
+
+model RubricCriterionMastery {
+  id                 String          @id @default(uuid())
+  enrollmentId       String
+  enrollment         Enrollment      @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  rubricCriterionId  String
+  rubricCriterion    RubricCriterion @relation(fields: [rubricCriterionId], references: [id], onDelete: Cascade)
+  status             String          @default("NOT_STARTED") // NOT_STARTED | ATTEMPTED | PARTIAL | DEMONSTRATED | MASTERED
+  pCriterion         Float           @default(0.1500)
+  bestScore          Float           @default(0.0)
+  latestScore        Float           @default(0.0)
+  demonstratedCount  Int             @default(0)
+  failedCount        Int             @default(0)
+  misconceptionCount Int             @default(0)
+  lastMisconception  String?
+  lastEvidenceQuote  String?
+  lastEvaluatedAt    DateTime?
+  updatedAt          DateTime        @updatedAt
+
+  @@unique([enrollmentId, rubricCriterionId])
+  @@index([enrollmentId, status])
+  @@index([rubricCriterionId])
+  @@map("rubric_criterion_masteries")
+}
+
+model SkillDimension {
+  id           String                    @id @default(uuid())
+  courseSlug   String
+  slug         String
+  name         String
+  description  String
+  displayOrder Int                       @default(1)
+
+  criterionMappings RubricCriterionSkillMap[]
+  learnerProfiles   LearnerSkillProfile[]
+
+  @@unique([courseSlug, slug])
+  @@map("skill_dimensions")
+}
+
+model RubricCriterionSkillMap {
+  id                 String          @id @default(uuid())
+  rubricCriterionId  String
+  rubricCriterion    RubricCriterion @relation(fields: [rubricCriterionId], references: [id], onDelete: Cascade)
+  skillDimensionId   String
+  skillDimension     SkillDimension  @relation(fields: [skillDimensionId], references: [id], onDelete: Cascade)
+  contributionWeight Float           @default(1.0)
+
+  @@unique([rubricCriterionId, skillDimensionId])
+  @@index([skillDimensionId])
+  @@map("rubric_criterion_skill_map")
+}
+
+model LearnerSkillProfile {
+  id                  String         @id @default(uuid())
+  enrollmentId        String
+  enrollment          Enrollment     @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  skillDimensionId    String
+  skillDimension      SkillDimension @relation(fields: [skillDimensionId], references: [id], onDelete: Cascade)
+  compositeScore      Float          @default(0.0)
+  rubricPassRate      Float          @default(0.0)
+  bktMeanMastery      Float          @default(0.15)
+  practicalScore      Float?
+  criteriaEvaluated   Int            @default(0)
+  criteriaTotal       Int            @default(0)
+  misconceptionCount  Int            @default(0)
+  classification      String         @default("UNASSESSED") // UNASSESSED | WEAKPOINT | DEVELOPING | STRENGTH
+  weakestCriteriaJson String?
+  computedAt          DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@unique([enrollmentId, skillDimensionId])
+  @@index([enrollmentId, classification])
+  @@map("learner_skill_profiles")
+}
+
+model TopicDriftEvent {
+  id                 String          @id @default(uuid())
+  sessionId          String
+  session            LearningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  enrollmentId       String
+  enrollment         Enrollment      @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  activeChapterId    String
+  activeSectionId    String?
+  driftType          String          // FUTURE_TOPIC | SKIP_ATTEMPT | OFF_TOPIC
+  detectedTargetSlug String?
+  learnerMessage     String
+  createdAt          DateTime        @default(now())
+
+  @@index([enrollmentId])
+  @@index([sessionId])
+  @@map("topic_drift_events")
 }
 

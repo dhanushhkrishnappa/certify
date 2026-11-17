@@ -150,3 +150,161 @@ export interface PublicVerification {
   signatureHash?: string;
   trustNotice?: string;
 }
+
+export interface RubricCriterionNode {
+  id: string;
+  criterionCode: string | null;
+  statement: string;
+  weight: number;
+  tierRequired: string;
+  cognitiveLevel: string;
+  status: "NOT_STARTED" | "ATTEMPTED" | "PARTIAL" | "DEMONSTRATED" | "MASTERED";
+  pCriterion: number;
+  latestScore: number;
+  bestScore: number;
+  demonstratedCount: number;
+  failedCount: number;
+  misconceptionCount: number;
+  lastMisconception: string | null;
+}
+
+export interface SectionProgressionNode {
+  id: string;
+  sectionType:
+    | "CONCEPT_INTUITION"
+    | "TECHNICAL_MECHANICS"
+    | "PITFALLS_AND_DEBUGGING"
+    | "CHAPTER_CHECKPOINT"
+    | "MODULE_PRACTICAL";
+  title: string;
+  objective: string;
+  sequenceOrder: number;
+  minTurns: number;
+  status: "LOCKED" | "UNLOCKED" | "IN_PROGRESS" | "COMPLETED";
+  turnsCompleted: number;
+  rubricPassRatio: number;
+  readyToAdvance: boolean;
+}
+
+export interface ChapterProgressionNode {
+  id: string;
+  title: string;
+  sequenceOrder: number;
+  estimatedMins: number;
+  status: "LOCKED" | "UNLOCKED" | "IN_PROGRESS" | "AWAITING_CHECKPOINT" | "REMEDIATING" | "COMPLETED";
+  currentSectionOrder: number;
+  checkpointScore: number | null;
+  checkpointAttempts: number;
+  remediationCycles: number;
+  sections: SectionProgressionNode[];
+  concepts: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    pMastery: number;
+    state: string;
+    criteria: RubricCriterionNode[];
+  }>;
+}
+
+export interface ModuleProgressionNode {
+  id: string;
+  slug: string;
+  title: string;
+  sequenceOrder: number;
+  practicalTaskId: string | null;
+  status: "LOCKED" | "UNLOCKED" | "IN_PROGRESS" | "COMPLETED";
+  chaptersCompleted: number;
+  totalChapters: number;
+  practicalPassed: boolean;
+  practicalScore: number | null;
+  moduleRubricScore: number | null;
+  chapters: ChapterProgressionNode[];
+}
+
+export interface ProgressionTree {
+  enrollmentId: string;
+  course: { id: string; slug: string; title: string };
+  status: string;
+  currentTier: string;
+  currentChapterId: string | null;
+  summary: {
+    modulesCompleted: number;
+    modulesTotal: number;
+    chaptersCompleted: number;
+    chaptersTotal: number;
+    sectionsCompleted: number;
+    sectionsTotal: number;
+    percentComplete: number;
+  };
+  modules: ModuleProgressionNode[];
+}
+
+export interface SkillReportEntry {
+  skillDimensionId: string;
+  skillSlug: string;
+  skillName: string;
+  description: string;
+  compositeScore: number;
+  rubricPassRate: number;
+  bktMeanMastery: number;
+  practicalScore: number | null;
+  criteriaEvaluated: number;
+  criteriaTotal: number;
+  misconceptionCount: number;
+  classification: "UNASSESSED" | "WEAKPOINT" | "DEVELOPING" | "STRENGTH";
+  evidenceSummary: string;
+  weakestCriteria: Array<{
+    criterionId: string;
+    criterionCode: string | null;
+    statement: string;
+    cognitiveLevel: string;
+    latestScore: number;
+    pCriterion: number;
+    lastMisconception: string | null;
+    chapterId: string;
+    chapterTitle: string;
+    moduleTitle: string;
+  }>;
+}
+
+export interface SkillsReport {
+  enrollmentId: string;
+  course: { id: string; slug: string; title: string };
+  overallProgress: {
+    modulesCompleted: number;
+    modulesTotal: number;
+    chaptersCompleted: number;
+    chaptersTotal: number;
+    sectionsCompleted: number;
+    sectionsTotal: number;
+    percentComplete: number;
+    currentTier: string;
+    overallSkillScore: number;
+  };
+  strengths: SkillReportEntry[];
+  developing: SkillReportEntry[];
+  weakpoints: SkillReportEntry[];
+  unassessed: SkillReportEntry[];
+  cognitiveBreakdown: Record<string, { score: number | null; evaluatedCount: number }>;
+  remediationQueue: Array<{
+    priority: number;
+    criterionId: string;
+    criterionCode: string | null;
+    statement: string;
+    cognitiveLevel: string;
+    status: string;
+    latestScore: number;
+    misconceptionCount: number;
+    lastMisconception: string | null;
+    chapterId: string;
+    chapterTitle: string;
+    moduleTitle: string;
+  }>;
+  driftSummary: {
+    totalDriftEvents: number;
+    futureTopicRedirects: number;
+    skipAttemptsBlocked: number;
+    offTopicRedirects: number;
+  };
+}
