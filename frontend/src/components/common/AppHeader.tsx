@@ -31,7 +31,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   showThemeToggle = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [unreadNotifications, setUnreadNotifications] = useState(3);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const [isProfileHovered, setIsProfileHovered] = useState(false);
@@ -233,19 +233,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 <span className={`text-xs font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Notifications</span>
                 <span className={`text-[10px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>All caught up</span>
               </div>
-              <div className="space-y-2 pt-2 text-xs">
-                <div className={`p-2.5 rounded-xl border ${
-                  isLight ? "bg-purple-50/70 border-purple-100 text-slate-800" : "bg-white/[0.04] border-white/[0.06]"
-                }`}>
-                  <p className={`font-semibold text-[11px] ${isLight ? "text-purple-700 font-bold" : "text-purple-300"}`}>Chapter 3 In Progress</p>
-                  <p className={`text-[10px] ${isLight ? "text-slate-600" : "text-neutral-300"}`}>Continue with Functions & Modular Code.</p>
-                </div>
-                <div className={`p-2.5 rounded-xl border ${
-                  isLight ? "bg-purple-50/50 border-purple-100 text-slate-800" : "bg-white/[0.02] border-white/[0.06]"
-                }`}>
-                  <p className={`font-semibold text-[11px] ${isLight ? "text-slate-900 font-bold" : "text-white"}`}>Streak: 12 Days Active</p>
-                  <p className={`text-[10px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>Keep up the daily practice rhythm!</p>
-                </div>
+              <div className="space-y-2 pt-3 pb-2 text-xs text-center">
+                <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                  No new notifications. Progress updates and unlocked checkpoints appear on your course details page.
+                </p>
               </div>
             </div>
           )}

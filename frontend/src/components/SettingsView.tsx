@@ -16,20 +16,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ user, onLogout }) =>
   // Active tab state matching reference tabs
   const [activeTab, setActiveTab] = useState<TabType>("account");
 
-  // Form states
-  const [fullName, setFullName] = useState(user?.fullName || user?.name || "Dhanush K");
-  const [email, setEmail] = useState(user?.email || "dhanushk2204@gmail.com");
+  // Form states (strictly synced to authenticated user — zero hardcoded personal defaults)
+  const [fullName, setFullName] = useState(user?.fullName || user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [timezone, setTimezone] = useState("Kolkata");
   const [language, setLanguage] = useState("English");
-  const [profileImage, setProfileImage] = useState<string>("/user-avatar.jpg");
+  const [profileImage, setProfileImage] = useState<string>(user?.image || "/user-avatar.jpg");
   const [soundEffects, setSoundEffects] = useState(true);
   const [twoFactorAuth, setTwoFactorAuth] = useState(false);
-  const [reportEmail, setReportEmail] = useState(user?.email || "dhanushk2204@gmail.com");
+  const [reportEmail, setReportEmail] = useState(user?.email || "");
 
   // Linked accounts state
-  const [linkedGoogle, setLinkedGoogle] = useState(true);
+  const [linkedGoogle, setLinkedGoogle] = useState(false);
   const [linkedFacebook, setLinkedFacebook] = useState(false);
   const [linkedApple, setLinkedApple] = useState(false);
+
+  useEffect(() => {
+    setFullName(user?.fullName || user?.name || "");
+    setEmail(user?.email || "");
+    setReportEmail(user?.email || "");
+    setProfileImage(user?.image || "/user-avatar.jpg");
+  }, [user?.id, user?.fullName, user?.name, user?.email, user?.image]);
 
   // Status & feedback notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);

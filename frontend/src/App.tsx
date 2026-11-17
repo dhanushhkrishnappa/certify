@@ -92,7 +92,7 @@ const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<CertifyView>(getViewFromPath);
   const [selectedCourseSlug, setSelectedCourseSlug] = useState("python-fundamentals");
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
-  const [selectedCredentialId, setSelectedCredentialId] = useState("CERT-PY-2026-001842");
+  const [selectedCredentialId, setSelectedCredentialId] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<"signin" | "signup">("signin");
@@ -166,23 +166,12 @@ const AppContent: React.FC = () => {
       })
       .catch(() => {
         if (!token) return; // Unauthenticated guest, remain on landing/auth
-
-        // Fallback to cached or demo user session in dev/offline mode
         const savedUserStr = localStorage.getItem("certify_user");
-        let fallbackUser: User | null = null;
         if (savedUserStr) {
-          try { fallbackUser = JSON.parse(savedUserStr); } catch {}
+          try {
+            setCurrentUser(JSON.parse(savedUserStr));
+          } catch {}
         }
-        if (!fallbackUser) {
-          fallbackUser = {
-            id: "u-learner-demo",
-            email: "learner@certify.edu",
-            fullName: "Dhanush K",
-            name: "Dhanush K",
-            role: "STUDENT",
-          };
-        }
-        setCurrentUser(fallbackUser);
       });
   }, []);
 

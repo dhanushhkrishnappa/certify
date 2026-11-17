@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { User } from "../../types/index.js";
 import { SpotlightCard } from "./SpotlightCard.js";
+import { api } from "../../services/api.js";
 
 export interface UserProfileCardProps {
   user: User | null;
@@ -16,6 +17,33 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
   className = "",
 }) => {
   const displayName = user?.fullName || (user?.email ? user.email.split("@")[0] : "Learner");
+  const [modulesCompleted, setModulesCompleted] = useState(0);
+  const [credentialsCount, setCredentialsCount] = useState(0);
+  const [progressPct, setProgressPct] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+    setModulesCompleted(0);
+    setCredentialsCount(0);
+    setProgressPct(0);
+    if (!user?.id) return;
+
+    Promise.all([
+      api.getProgression("python-fundamentals").catch(() => null),
+      api.getMyCertificates().catch(() => ({ certificates: [] })),
+    ]).then(([progRes, certRes]) => {
+      if (!mounted) return;
+      if (progRes?.progression) {
+        setModulesCompleted(progRes.progression.summary.modulesCompleted);
+        setProgressPct(Math.round(progRes.progression.summary.percentComplete));
+      }
+      setCredentialsCount((certRes.certificates || []).length);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id]);
 
   return (
     <SpotlightCard
@@ -62,7 +90,7 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
           {displayName}
         </h3>
         <p className="text-[11px] text-neutral-400 mt-0.5 font-normal truncate font-sans">
-          {user?.persona || (user?.role === "ADMIN" ? "Platform Administrator" : "Software Engineer & AI Scholar")}
+          {user?.persona || user?.email || "Certify Learner"}
         </p>
       </div>
 
@@ -77,30 +105,27 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
             ⏳ Unverified
           </span>
         )}
-        <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-[10px] font-medium text-white/90 border border-white/[0.06] font-sans">
-          AI Scholar
-        </span>
       </div>
 
-      {/* Stats Row */}
+      {/* Real Backend Stats Row */}
       <div className="grid grid-cols-3 gap-1.5 py-2 px-2 rounded-xl bg-white/[0.03] border border-white/[0.06] mb-3 font-sans">
         <div className="text-left font-sans">
-          <div className="text-xs font-bold text-white flex items-center gap-0.5 font-sans">
-            <span className="text-amber-400 text-[10px]">★</span> 4.9
+          <div className="text-xs font-bold text-white font-mono">
+            {modulesCompleted}/10
           </div>
-          <div className="text-[9px] text-neutral-400 mt-0.5 font-sans">Rating</div>
+          <div className="text-[9px] text-neutral-400 mt-0.5 font-sans">Modules</div>
         </div>
         <div className="text-left font-sans">
-          <div className="text-xs font-bold text-white font-sans">
-            12
+          <div className="text-xs font-bold text-white font-mono">
+            {credentialsCount}
           </div>
           <div className="text-[9px] text-neutral-400 mt-0.5 font-sans">Credentials</div>
         </div>
         <div className="text-left font-sans">
-          <div className="text-xs font-bold text-white font-sans">
-            98%
+          <div className="text-xs font-bold text-white font-mono">
+            {progressPct}%
           </div>
-          <div className="text-[9px] text-neutral-400 mt-0.5 font-sans">Mastery</div>
+          <div className="text-[9px] text-neutral-400 mt-0.5 font-sans">Progress</div>
         </div>
       </div>
 
