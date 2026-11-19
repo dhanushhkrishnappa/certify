@@ -8,12 +8,39 @@ import type {
 } from "../types/index.js";
 import { api } from "../services/api.js";
 import { useTheme } from "../context/ThemeContext.js";
+import {
+  Award,
+  ShieldCheck,
+  CheckCircle2,
+  Terminal,
+  ArrowRight,
+  BookOpen,
+  ExternalLink,
+  Check,
+  TrendingUp,
+  Cpu,
+  Copy,
+  CheckCheck,
+  Sparkles,
+} from "lucide-react";
 
 interface DashboardViewProps {
   user?: User | null;
   onContinueCourse: (slug: string) => void;
   onViewCourseDetails: (slug: string) => void;
   onNavigate: (view: string) => void;
+}
+
+interface IssuedCertificate {
+  id: string;
+  credentialId: string;
+  tier: string;
+  compositeScore: number;
+  status: string;
+  issuedAt: string;
+  evidenceSummary?: string;
+  signatureHash?: string;
+  recipientName: string;
 }
 
 const cleanTitle = (t?: string | null) => (t ? t.replace(/^\*+\s*/, "").trim() : "");
@@ -29,7 +56,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [sessionContext, setSessionContext] = useState<LearningSessionContext | null>(null);
   const [progression, setProgression] = useState<ProgressionTree | null>(null);
   const [skillsReport, setSkillsReport] = useState<SkillsReport | null>(null);
-  const [certificatesCount, setCertificatesCount] = useState(0);
+  const [certificates, setCertificates] = useState<IssuedCertificate[]>([]);
+  const [copiedCertId, setCopiedCertId] = useState(false);
 
   const activeSlug = "python-fundamentals";
 
@@ -38,7 +66,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     setSessionContext(null);
     setProgression(null);
     setSkillsReport(null);
-    setCertificatesCount(0);
+    setCertificates([]);
 
     Promise.all([
       api.listCourses().catch(() => ({ courses: [] })),
@@ -52,7 +80,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       setSessionContext(sessionData);
       setProgression(progData?.progression || null);
       setSkillsReport(skillsData?.report || null);
-      setCertificatesCount((certData.certificates || []).length);
+      setCertificates((certData.certificates as IssuedCertificate[]) || []);
     });
 
     return () => {
@@ -61,8 +89,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }, [user?.id]);
 
   const activeCourse = courses.find((c) => c.slug === activeSlug) || courses[0];
+  const primaryCertificate = certificates[0] || null;
+  const hasCertificate = certificates.length > 0;
 
-  // Resolve real active chapter from progression tree (never hardcoded Chapter 3)
+  // Resolve active chapter from progression tree
   const activeLesson = useMemo(() => {
     if (!progression) return null;
     for (const mod of progression.modules) {
@@ -90,6 +120,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return null;
   }, [progression]);
 
+  // Telemetry computations
   const totalModules = progression?.summary.modulesTotal ?? activeCourse?.moduleCount ?? 10;
   const completedModules = progression?.summary.modulesCompleted ?? 0;
   const totalChapters = progression?.summary.chaptersTotal ?? activeCourse?.chapterCount ?? 29;
@@ -114,7 +145,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const allChaptersCompleted = totalChapters > 0 && completedChapters >= totalChapters;
   const allPracticalsCompleted = totalModules > 0 && practicalsPassed >= totalModules;
-  const hasCertificate = certificatesCount > 0;
+  const isFullyCertified = hasCertificate || (allChaptersCompleted && allPracticalsCompleted);
 
   const topStrength = skillsReport?.strengths[0] || null;
   const topWeakpoint = skillsReport?.weakpoints[0] || null;
@@ -124,167 +155,312 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     ...(skillsReport?.weakpoints || []),
   ];
 
+  const handleCopyCredentialId = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(id);
+    setCopiedCertId(true);
+    setTimeout(() => setCopiedCertId(false), 2000);
+  };
+
+  const learnerDisplayName = user?.fullName || user?.name || "Learner";
+
   return (
-    <div className="space-y-6" data-purpose="main-dashboard-body">
+    <div className="space-y-6 pb-12" data-purpose="main-dashboard-body">
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        {/* LEFT 8-COLUMN CONTENT AREA */}
+        {/* ========================================================= */}
+        {/* LEFT 8-COLUMN CONTENT AREA                                */}
+        {/* ========================================================= */}
         <div className="xl:col-span-8 space-y-6">
-          {/* HeroCard (Current Course) */}
-          <div
-            className={`rounded-2xl p-7 relative overflow-hidden border shadow-sm transition-all duration-300 ${
+          {/* HERO TRACK CARD */}
+          <section
+            aria-label="Active Track Overview"
+            className={`rounded-2xl p-7 md:p-8 relative overflow-hidden border transition-all duration-300 ${
               isLight
-                ? "bg-white text-slate-900 border-purple-900/10 shadow-sm"
-                : "bg-[#111111] text-white border-white/[0.08] shadow-sm"
+                ? "bg-white text-slate-900 border-slate-200/90 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)]"
+                : "bg-gradient-to-b from-[#111116] to-[#0c0c10] text-white border-white/[0.08] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.6)]"
             }`}
-            data-purpose="hero-current-course"
           >
-            <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none select-none flex items-center justify-end overflow-hidden opacity-90 pr-6">
-              <div
-                className={`absolute w-96 h-96 rounded-full border -right-16 top-6 ${
-                  isLight ? "border-amber-500/15" : "border-amber-500/20"
-                }`}
-              />
-              <div className="relative z-10 flex flex-col items-center">
-                <svg className="w-32 h-32 opacity-90" fill="none" viewBox="0 0 110 110">
-                  <path
-                    d="M54.5 12C36.8 12 37.8 19.7 37.8 19.7L37.9 27.6H55v2.4H30.5C21.4 30 15 36.3 15 48.3c0 12.1 7.8 18.2 17 18.2h5.5v-8.5c0-4.8 4.2-9 9-9h17.1c3.8 0 7-3.2 7-7V27.6c0-4.4-4-15.6-16.1-15.6zm-8.8 6.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5z"
-                    fill="url(#pythonBlue)"
-                  />
-                  <path
-                    d="M55.5 98c17.7 0 16.7-7.7 16.7-7.7l-.1-7.9H55v-2.4h24.5c9.1 0 15.5-6.3 15.5-18.3 0-12.1-7.8-18.2-17-18.2h-5.5v8.5c0 4.8-4.2 9-9 9H46.4c-3.8 0-7 3.2-7 7v14.4c0 4.4 4 15.6 16.1 15.6zm8.8-6.5a2.5 2.5 0 110-5 2.5 2.5 0 010-5z"
-                    fill="url(#pythonYellow)"
-                  />
-                  <defs>
-                    <linearGradient id="pythonBlue" x1="15" y1="12" x2="65" y2="60" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#38BDF8" />
-                      <stop offset="1" stopColor="#1D4ED8" />
-                    </linearGradient>
-                    <linearGradient id="pythonYellow" x1="45" y1="45" x2="95" y2="98" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#FCD34D" />
-                      <stop offset="1" stopColor="#D97706" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
+            {/* Subtle Architectural Geometry Background (No noisy blobs) */}
+            <div
+              className={`absolute top-0 right-0 w-80 h-full pointer-events-none select-none opacity-[0.035] ${
+                isLight ? "invert" : ""
+              }`}
+            >
+              <svg className="w-full h-full" viewBox="0 0 200 200" fill="none">
+                <circle cx="160" cy="40" r="120" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+                <circle cx="160" cy="40" r="80" stroke="currentColor" strokeWidth="1" />
+                <circle cx="160" cy="40" r="40" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
+                <path d="M40 40 L160 40 L160 160" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6" />
+              </svg>
             </div>
 
-            <div className="relative z-10 max-w-lg">
-              <div
-                className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-semibold mb-4 ${
-                  isLight
-                    ? "bg-purple-100/80 text-purple-900 border border-purple-200"
-                    : "bg-white/10 backdrop-blur-md text-slate-300 border border-white/10"
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="tracking-wider uppercase">
-                  {progression ? "Active Track" : "Flagship Track"}
-                </span>
-              </div>
-
-              <h2 className={`text-3xl font-extrabold tracking-tight mb-2 font-sans ${isLight ? "text-slate-900" : "text-white"}`}>
-                {activeCourse ? activeCourse.title : "Python Fundamentals"}
-              </h2>
-              <p className={`text-xs font-medium mb-6 ${isLight ? "text-slate-600" : "text-neutral-300"}`}>
-                Build real skills{user?.fullName ? `, ${user.fullName.split(" ")[0]}` : ""}. Think deeper. Get certified.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-3 text-xs font-semibold mb-6">
-                <div className={`px-2.5 py-1 rounded-lg border ${isLight ? "bg-purple-50/80 text-slate-700 border-purple-200/60" : "text-neutral-300 border-white/10"}`}>
-                  {completedModules}/{totalModules} Modules
-                </div>
-                <div className={`px-2.5 py-1 rounded-lg border ${isLight ? "bg-purple-50/80 text-slate-700 border-purple-200/60" : "text-neutral-300 border-white/10"}`}>
-                  {completedChapters}/{totalChapters} Chapters
-                </div>
-                <div className={`px-2.5 py-1 rounded-lg border ${isLight ? "bg-purple-50/80 text-slate-700 border-purple-200/60" : "text-neutral-300 border-white/10"}`}>
-                  {completedSections}/{totalSections} Sections
-                </div>
-              </div>
-
-              {/* Real Progress Bar */}
-              <div className="space-y-1.5 mb-7 max-w-sm">
-                <div className="flex justify-between items-center text-xs font-semibold">
-                  <div
-                    className={`w-full rounded-full h-2 overflow-hidden mr-3 ${
-                      isLight ? "bg-slate-200/80 border border-slate-300/60" : "bg-slate-800/80 border border-slate-700/60"
+            <div className="relative z-10">
+              {/* Header Meta Strip */}
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div
+                  className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-mono tracking-wider uppercase font-semibold ${
+                    isFullyCertified
+                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25"
+                      : isLight
+                      ? "bg-indigo-50 text-indigo-700 border border-indigo-200/80"
+                      : "bg-white/[0.06] text-slate-300 border border-white/[0.1]"
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      isFullyCertified ? "bg-emerald-400" : "bg-emerald-400 animate-pulse"
                     }`}
-                  >
-                    <div
-                      className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${percentComplete}%` }}
-                    />
-                  </div>
-                  <span className={`text-[11px] font-bold shrink-0 ${isLight ? "text-slate-800" : "text-slate-300"}`}>
-                    {percentComplete}% <span className={`font-normal ${isLight ? "text-slate-500" : "text-slate-400"}`}>complete</span>
+                  />
+                  <span>
+                    {isFullyCertified
+                      ? "Accreditation Conferred • Advanced Tier"
+                      : progression
+                      ? "Active Qualification Track"
+                      : "Flagship Curriculum"}
                   </span>
                 </div>
+
+                <div className="flex items-center space-x-2 text-[11px] font-mono opacity-60">
+                  <span className={isLight ? "text-slate-600" : "text-neutral-400"}>STANDARD: RFC 8032</span>
+                  <span>•</span>
+                  <span className={isLight ? "text-slate-600" : "text-neutral-400"}>ED25519</span>
+                </div>
               </div>
 
+              {/* Title & Editorial Description */}
+              <h1 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight mb-2.5 leading-tight">
+                {activeCourse?.title || "Python Fundamentals & Runtime Architecture"}
+              </h1>
+              <p
+                className={`text-xs sm:text-sm max-w-2xl font-sans leading-relaxed mb-6 ${
+                  isLight ? "text-slate-600" : "text-neutral-300/90"
+                }`}
+              >
+                Comprehensive evaluation covering runtime memory topologies, object references, mutable
+                data structures, and rigorous algorithmic problem solving under Socratic assessment.
+              </p>
+
+              {/* Curriculum Telemetry Badges */}
+              <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono mb-6">
+                <div
+                  className={`px-3 py-1.5 rounded-lg border ${
+                    isLight
+                      ? "bg-slate-50 text-slate-700 border-slate-200"
+                      : "bg-white/[0.03] text-neutral-300 border-white/[0.08]"
+                  }`}
+                >
+                  <span className="font-semibold">{completedModules}</span>
+                  <span className="opacity-50">/{totalModules}</span> Modules
+                </div>
+                <div
+                  className={`px-3 py-1.5 rounded-lg border ${
+                    isLight
+                      ? "bg-slate-50 text-slate-700 border-slate-200"
+                      : "bg-white/[0.03] text-neutral-300 border-white/[0.08]"
+                  }`}
+                >
+                  <span className="font-semibold">{completedChapters}</span>
+                  <span className="opacity-50">/{totalChapters}</span> Chapters
+                </div>
+                <div
+                  className={`px-3 py-1.5 rounded-lg border ${
+                    isLight
+                      ? "bg-slate-50 text-slate-700 border-slate-200"
+                      : "bg-white/[0.03] text-neutral-300 border-white/[0.08]"
+                  }`}
+                >
+                  <span className="font-semibold">{completedSections}</span>
+                  <span className="opacity-50">/{totalSections}</span> Sections
+                </div>
+                <div
+                  className={`px-3 py-1.5 rounded-lg border ${
+                    isLight
+                      ? "bg-slate-50 text-slate-700 border-slate-200"
+                      : "bg-white/[0.03] text-neutral-300 border-white/[0.08]"
+                  }`}
+                >
+                  <span className="font-semibold">{practicalsPassed}</span>
+                  <span className="opacity-50">/{totalModules}</span> Practicals
+                </div>
+              </div>
+
+              {/* Precision Progress Rail */}
+              <div className="space-y-2 mb-7 max-w-xl">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className={`text-[11px] tracking-wider uppercase font-semibold ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                    Curriculum Progression
+                  </span>
+                  <span className="font-bold text-emerald-400">
+                    {percentComplete}%{" "}
+                    <span className={`font-normal text-[11px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                      {percentComplete === 100 ? "Fulfilled" : "Completed"}
+                    </span>
+                  </span>
+                </div>
+                <div
+                  className={`w-full rounded-full h-2 overflow-hidden border ${
+                    isLight
+                      ? "bg-slate-100 border-slate-200"
+                      : "bg-black/40 border-white/[0.06]"
+                  }`}
+                >
+                  <div
+                    className="bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 h-full rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${percentComplete}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => (progression ? onContinueCourse(activeSlug) : onViewCourseDetails(activeSlug))}
-                  className={`px-5 py-2.5 rounded-[8px] font-bold text-xs flex items-center space-x-2 transition-all shadow-sm active:scale-95 cursor-pointer ${
+                  onClick={() => onContinueCourse(activeSlug)}
+                  className={`px-5 py-2.5 rounded-lg font-semibold text-xs flex items-center space-x-2 transition-all shadow-sm active:scale-98 cursor-pointer ${
                     isLight
-                      ? "bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white"
+                      ? "bg-slate-950 hover:bg-slate-800 text-white"
                       : "bg-white hover:bg-neutral-100 text-slate-950"
                   }`}
                 >
-                  <span>{progression ? "Continue with AI" : "Enroll & Start Learning"}</span>
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span>
+                    {isFullyCertified
+                      ? "Launch Socratic AI Sandbox"
+                      : progression
+                      ? "Continue Socratic Learning"
+                      : "Enroll & Start Track"}
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 opacity-70" />
                 </button>
 
                 <button
                   onClick={() => onViewCourseDetails(activeSlug)}
-                  className={`px-4 py-2.5 rounded-[8px] font-semibold text-xs flex items-center space-x-2 transition-all active:scale-95 cursor-pointer ${
+                  className={`px-4 py-2.5 rounded-lg font-medium text-xs flex items-center space-x-2 transition-all active:scale-98 cursor-pointer border ${
                     isLight
-                      ? "bg-purple-100/70 hover:bg-purple-100 text-purple-950 border border-purple-200"
-                      : "bg-white/10 hover:bg-white/15 text-white border border-white/15"
+                      ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-200"
+                      : "bg-white/[0.05] hover:bg-white/[0.09] text-neutral-200 border-white/[0.12]"
                   }`}
                 >
-                  <span>View Course Details</span>
+                  <BookOpen className="w-3.5 h-3.5 opacity-70" />
+                  <span>Syllabus & Rubrics</span>
                 </button>
+
+                {hasCertificate && (
+                  <button
+                    onClick={() => onNavigate("credentials")}
+                    className={`px-4 py-2.5 rounded-lg font-medium text-xs flex items-center space-x-2 transition-all active:scale-98 cursor-pointer border ${
+                      isLight
+                        ? "bg-amber-50/80 hover:bg-amber-100/80 text-amber-900 border-amber-300"
+                        : "bg-amber-500/10 hover:bg-amber-500/15 text-amber-300 border-amber-500/25"
+                    }`}
+                  >
+                    <Award className="w-3.5 h-3.5" />
+                    <span>View Issued Certificate</span>
+                  </button>
+                )}
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Current Lesson Card (Strictly Real Active Chapter) */}
-          <div
-            className={`rounded-2xl p-6 shadow-sm border transition-all duration-300 ${
-              isLight ? "bg-white border-purple-900/10 text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+          {/* ACTIVE MISSION CONTROL / FOCUS STATION */}
+          <section
+            aria-label="Current Mission Station"
+            className={`rounded-2xl p-6 sm:p-7 border transition-all duration-300 ${
+              isLight
+                ? "bg-white border-slate-200/90 text-slate-900 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)]"
+                : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] text-white shadow-[0_4px_24px_-4px_rgba(0,0,0,0.6)]"
             }`}
-            data-purpose="continue-learning-card"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold">Current Lesson</h3>
-              <span className={`text-xs font-semibold ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
-                {progression ? "Sequential lock-verified step" : "Not enrolled yet"}
-              </span>
-            </div>
+            {isFullyCertified ? (
+              /* State 1: Fully Cleared & Certified */
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="flex items-start space-x-4">
+                  <div
+                    className={`p-3 rounded-xl border shrink-0 ${
+                      isLight
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
+                    }`}
+                  >
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[11px] font-mono uppercase tracking-wider font-semibold text-emerald-400">
+                        Qualification Complete • Mastered
+                      </span>
+                      <span className="text-neutral-500">•</span>
+                      <span className="text-[11px] font-mono text-neutral-400">126/126 Sections</span>
+                    </div>
+                    <h3 className="font-serif text-xl font-normal tracking-tight">
+                      Python Fundamentals Accreditation Earned
+                    </h3>
+                    <p
+                      className={`text-xs max-w-xl leading-relaxed ${
+                        isLight ? "text-slate-600" : "text-neutral-400"
+                      }`}
+                    >
+                      All 10 modules, 29 chapters, and practical engineering tasks have been verified.
+                      Your credential is cryptographically anchored. You can continue practicing in the AI
+                      sandbox or inspect your verified docket.
+                    </p>
+                  </div>
+                </div>
 
-            {activeLesson ? (
-              <div
-                className={`flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-[10px] border ${
-                  isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.04] border-white/[0.06]"
-                }`}
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-center space-x-2 flex-wrap">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+                <div className="flex items-center space-x-3 shrink-0">
+                  <button
+                    onClick={() => onContinueCourse(activeSlug)}
+                    className={`font-semibold text-xs px-4 py-2.5 rounded-lg flex items-center space-x-2 transition-all active:scale-98 cursor-pointer ${
+                      isLight
+                        ? "bg-slate-950 hover:bg-slate-800 text-white"
+                        : "bg-white hover:bg-neutral-100 text-slate-950"
+                    }`}
+                  >
+                    <span>Practice Session</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => onNavigate("credentials")}
+                    className={`font-medium text-xs px-4 py-2.5 rounded-lg flex items-center space-x-1.5 transition-all active:scale-98 cursor-pointer border ${
+                      isLight
+                        ? "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                        : "bg-white/[0.05] hover:bg-white/[0.09] text-neutral-300 border-white/[0.1]"
+                    }`}
+                  >
+                    <span>Inspect</span>
+                    <ExternalLink className="w-3 h-3 opacity-70" />
+                  </button>
+                </div>
+              </div>
+            ) : activeLesson ? (
+              /* State 2: Active Chapter In-Progress */
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center space-x-2.5 flex-wrap">
+                    <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-neutral-400">
                       {activeLesson.moduleTitle}
                     </span>
-                    <span className="text-[10px] text-neutral-500">•</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                    <span className="text-neutral-500">•</span>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full">
                       {activeLesson.status.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold">{activeLesson.chapterTitle}</h4>
-                  <div className="flex items-center space-x-2 pt-1 max-w-xs">
-                    <div className={`w-36 rounded-full h-1.5 overflow-hidden ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
+
+                  <h3 className="font-serif text-xl font-normal tracking-tight">
+                    {activeLesson.chapterTitle}
+                  </h3>
+
+                  <div className="flex items-center space-x-3 pt-1 max-w-sm">
+                    <div
+                      className={`w-40 rounded-full h-1.5 overflow-hidden ${
+                        isLight ? "bg-slate-200" : "bg-white/10"
+                      }`}
+                    >
                       <div
-                        className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                        className="bg-emerald-400 h-full rounded-full transition-all duration-500"
                         style={{ width: `${activeLesson.chapterPct}%` }}
                       />
                     </div>
-                    <span className={`text-[10px] font-bold ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+                    <span className="text-[11px] font-mono text-neutral-400">
                       {activeLesson.sectionsDone}/{activeLesson.sectionsTotal} sections ({activeLesson.chapterPct}%)
                     </span>
                   </div>
@@ -292,333 +468,588 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 <button
                   onClick={() => onContinueCourse(activeSlug)}
-                  className={`font-bold text-xs px-4 py-2.5 rounded-[8px] flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer shrink-0 ${
+                  className={`font-semibold text-xs px-5 py-2.5 rounded-lg flex items-center space-x-2 transition-all active:scale-98 cursor-pointer shrink-0 ${
                     isLight
-                      ? "bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white"
-                      : "bg-white hover:bg-neutral-200 text-neutral-950"
+                      ? "bg-slate-950 hover:bg-slate-800 text-white"
+                      : "bg-white hover:bg-neutral-100 text-slate-950"
                   }`}
                 >
-                  <span>Continue</span>
-                  <span>→</span>
+                  <span>Resume Lesson</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
-              <div
-                className={`p-5 rounded-[10px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                  isLight ? "bg-purple-50/40 border-purple-100" : "bg-white/[0.03] border-white/[0.06]"
-                }`}
-              >
+              /* State 3: Not Enrolled */
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h4 className="text-sm font-bold">Ready to start Python Fundamentals?</h4>
-                  <p className={`text-xs mt-0.5 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
-                    Enroll to unlock Module 01, Lesson 1 and begin building verified progress.
+                  <h3 className="font-serif text-lg font-normal tracking-tight">
+                    Ready to begin Python Fundamentals?
+                  </h3>
+                  <p className={`text-xs mt-1 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+                    Enroll to unlock Module 01, Lesson 1 and begin building verified Socratic mastery.
                   </p>
                 </div>
                 <button
                   onClick={() => onViewCourseDetails(activeSlug)}
-                  className="bg-[#5B4DF0] hover:bg-[#4C3DE0] text-white font-bold text-xs px-4 py-2 rounded-[8px] cursor-pointer shrink-0"
+                  className={`font-semibold text-xs px-4 py-2.5 rounded-lg flex items-center space-x-2 transition-all active:scale-98 cursor-pointer shrink-0 ${
+                    isLight
+                      ? "bg-slate-950 hover:bg-slate-800 text-white"
+                      : "bg-white hover:bg-neutral-100 text-slate-950"
+                  }`}
                 >
-                  Open Course Details →
+                  <span>Open Syllabus</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}
-          </div>
+          </section>
 
-          {/* Real Backend Progression & Skill Metrics Row (Replaces Fake Streak & Fake Activity) */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-            {/* Progression Milestones (7 cols) */}
+          {/* TELEMETRY & MASTERY GRID (4 STAT TILES) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {/* Tile 1: Sections */}
             <div
-              className={`md:col-span-7 rounded-2xl p-6 shadow-sm border space-y-4 ${
-                isLight ? "bg-white border-purple-900/10 text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+              className={`p-5 rounded-2xl border transition-all duration-200 ${
+                isLight
+                  ? "bg-white border-slate-200/90 shadow-sm"
+                  : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] shadow-sm"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <h4 className={`text-xs font-bold tracking-wide uppercase ${isLight ? "text-slate-700" : "text-neutral-200"}`}>
-                  Live Progression Metrics
-                </h4>
-                <button
-                  onClick={() => onViewCourseDetails(activeSlug)}
-                  className={`text-xs font-semibold cursor-pointer ${isLight ? "text-purple-700" : "text-neutral-400 hover:text-white"}`}
-                >
-                  Full Syllabus →
-                </button>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                  Curriculum
+                </span>
+                <BookOpen className="w-4 h-4 text-neutral-400" />
               </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className={`p-3 rounded-xl border ${isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.03] border-white/[0.07]"}`}>
-                  <div className="text-xl font-black font-mono">{completedSections}</div>
-                  <div className={`text-[10px] mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
-                    Sections Done
-                  </div>
-                </div>
-                <div className={`p-3 rounded-xl border ${isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.03] border-white/[0.07]"}`}>
-                  <div className="text-xl font-black font-mono">{completedChapters}</div>
-                  <div className={`text-[10px] mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
-                    Chapters Clear
-                  </div>
-                </div>
-                <div className={`p-3 rounded-xl border ${isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.03] border-white/[0.07]"}`}>
-                  <div className="text-xl font-black font-mono">{practicalsPassed}</div>
-                  <div className={`text-[10px] mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
-                    Practicals Passed
-                  </div>
-                </div>
-                <div className={`p-3 rounded-xl border ${isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.03] border-white/[0.07]"}`}>
-                  <div className="text-xl font-black font-mono">{certificatesCount}</div>
-                  <div className={`text-[10px] mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
-                    Credentials
-                  </div>
-                </div>
+              <div className="text-2xl font-mono font-bold tracking-tight mb-1">
+                {completedSections}
+                <span className="text-xs font-normal opacity-50 ml-1">/{totalSections}</span>
               </div>
+              <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                Sections Cleared ({percentComplete}%)
+              </p>
             </div>
 
-            {/* Evaluated Skill Profile Summary (5 cols) */}
+            {/* Tile 2: Demonstrated Mastery */}
             <div
-              className={`md:col-span-5 rounded-2xl p-6 shadow-sm border flex flex-col justify-between space-y-3 ${
-                isLight ? "bg-white border-purple-900/10 text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+              className={`p-5 rounded-2xl border transition-all duration-200 ${
+                isLight
+                  ? "bg-white border-slate-200/90 shadow-sm"
+                  : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] shadow-sm"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <h4 className={`text-xs font-bold tracking-wide uppercase ${isLight ? "text-slate-700" : "text-neutral-200"}`}>
-                  Rubric Skills Evaluated
-                </h4>
-                <span className="text-xs font-mono font-bold text-emerald-500">{skillScorePct}%</span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                  Mastery
+                </span>
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
               </div>
-
-              {assessedEntries.length > 0 ? (
-                <div className="space-y-2">
-                  {assessedEntries.slice(0, 3).map((entry) => (
-                    <div
-                      key={entry.skillDimensionId}
-                      className={`px-3 py-2 rounded-lg border flex items-center justify-between text-xs ${
-                        isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/[0.07]"
-                      }`}
-                    >
-                      <span className="font-medium truncate pr-2">{entry.skillName}</span>
-                      <span
-                        className={`font-mono font-bold shrink-0 ${
-                          entry.classification === "STRENGTH"
-                            ? "text-emerald-400"
-                            : entry.classification === "WEAKPOINT"
-                            ? "text-amber-400"
-                            : "text-sky-400"
-                        }`}
-                      >
-                        {Math.round(entry.compositeScore * 100)}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className={`text-xs leading-relaxed ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
-                  No rubric criteria evaluated yet. Study Lesson 1 in the AI Studio to record live
-                  mastery and skill dimensions.
-                </p>
-              )}
+              <div className="text-2xl font-mono font-bold tracking-tight text-emerald-400 mb-1">
+                {skillScorePct}%
+              </div>
+              <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                BKT Composite Score
+              </p>
             </div>
-          </div>
-        </div>
 
-        {/* RIGHT 4-COLUMN WIDGETS */}
-        <div className="xl:col-span-4 space-y-6">
-          {/* Certification Progress Card (Strictly Backend-Driven) */}
-          <div
-            className={`rounded-2xl p-6 shadow-sm border flex flex-col gap-5 ${
-              isLight ? "bg-white border-purple-900/10 text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
-            }`}
-            data-purpose="certification-progress-container"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold">Certification Progress</h3>
-              <button
-                onClick={() => onNavigate("credentials")}
-                className={`text-xs font-semibold cursor-pointer ${
-                  isLight ? "text-slate-500 hover:text-purple-700" : "text-neutral-400 hover:text-white"
+            {/* Tile 3: Practicals Passed */}
+            <div
+              className={`p-5 rounded-2xl border transition-all duration-200 ${
+                isLight
+                  ? "bg-white border-slate-200/90 shadow-sm"
+                  : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] shadow-sm"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                  Practicals
+                </span>
+                <Cpu className="w-4 h-4 text-neutral-400" />
+              </div>
+              <div className="text-2xl font-mono font-bold tracking-tight mb-1">
+                {practicalsPassed}
+                <span className="text-xs font-normal opacity-50 ml-1">/{totalModules}</span>
+              </div>
+              <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                Zero-Defect Benchmarks
+              </p>
+            </div>
+
+            {/* Tile 4: Credentials */}
+            <div
+              className={`p-5 rounded-2xl border transition-all duration-200 ${
+                isLight
+                  ? "bg-white border-slate-200/90 shadow-sm"
+                  : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] shadow-sm"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                  Credentials
+                </span>
+                <Award className={`w-4 h-4 ${hasCertificate ? (isLight ? "text-amber-600" : "text-amber-400") : "text-neutral-400"}`} />
+              </div>
+              <div
+                className={`text-2xl font-mono font-bold tracking-tight mb-1 ${
+                  hasCertificate ? (isLight ? "text-amber-700" : "text-amber-400") : ""
                 }`}
               >
-                Credentials →
-              </button>
+                {certificates.length}
+                <span className="text-xs font-normal opacity-60 ml-1">
+                  {hasCertificate ? "Issued" : "Pending"}
+                </span>
+              </div>
+              <p className={`text-[11px] ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                {hasCertificate ? "RFC 8032 Ed25519" : "Requires 100% Progress"}
+              </p>
+            </div>
+          </div>
+
+          {/* EVALUATED RUBRIC COMPETENCIES BREAKDOWN */}
+          <section
+            aria-label="Rubric Competencies"
+            className={`rounded-2xl p-6 sm:p-7 border transition-all duration-300 ${
+              isLight
+                ? "bg-white border-slate-200/90 text-slate-900 shadow-sm"
+                : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] text-white shadow-sm"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="font-serif text-lg font-normal tracking-tight">
+                  Evaluated Cognitive Competencies
+                </h3>
+                <p className={`text-xs ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                  Socratic rubric assessments across Python core engineering dimensions
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-mono font-bold text-emerald-400">
+                  {skillScorePct}%
+                </span>
+                <span className="text-[10px] font-mono uppercase opacity-50">Overall</span>
+              </div>
             </div>
 
-            <div
-              className={`flex items-center space-x-3.5 p-3 rounded-[10px] border ${
-                isLight ? "bg-purple-50/50 border-purple-100" : "bg-white/[0.04] border-white/[0.06]"
-              }`}
-            >
-              <div className="flex-1">
+            {assessedEntries.length > 0 ? (
+              <div className="space-y-3.5">
+                {assessedEntries.slice(0, 4).map((entry) => {
+                  const scorePct = Math.round(entry.compositeScore * 100);
+                  const isStrength = entry.classification === "STRENGTH";
+                  const isDeveloping = entry.classification === "DEVELOPING";
+
+                  return (
+                    <div
+                      key={entry.skillDimensionId}
+                      className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+                        isLight
+                          ? "bg-slate-50/70 border-slate-200/80"
+                          : "bg-white/[0.025] border-white/[0.06]"
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0 pr-4">
+                        <div className="flex items-center space-x-2.5 mb-1.5">
+                          <span className={`font-medium truncate ${isLight ? "text-slate-800" : "text-neutral-200"}`}>
+                            {entry.skillName}
+                          </span>
+                          <span
+                            className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded-full border ${
+                              isStrength
+                                ? isLight
+                                  ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                                  : "bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
+                                : isDeveloping
+                                ? isLight
+                                  ? "bg-sky-100 text-sky-800 border-sky-300"
+                                  : "bg-sky-500/10 text-sky-400 border-sky-500/25"
+                                : isLight
+                                ? "bg-amber-100 text-amber-800 border-amber-300"
+                                : "bg-amber-500/10 text-amber-400 border-amber-500/25"
+                            }`}
+                          >
+                            {entry.classification}
+                          </span>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div
+                          className={`w-full rounded-full h-1.5 overflow-hidden ${
+                            isLight ? "bg-slate-200" : "bg-white/10"
+                          }`}
+                        >
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              isStrength
+                                ? isLight ? "bg-emerald-600" : "bg-emerald-400"
+                                : isDeveloping
+                                ? isLight ? "bg-sky-600" : "bg-sky-400"
+                                : isLight ? "bg-amber-600" : "bg-amber-400"
+                            }`}
+                            style={{ width: `${scorePct}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span className={`font-mono font-bold text-xs ${isLight ? "text-slate-900" : "text-white"}`}>
+                          {scorePct}%
+                        </span>
+                        <div className="text-[10px] text-neutral-400">Demonstrated</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div
+                className={`p-6 rounded-xl border text-center text-xs ${
+                  isLight
+                    ? "bg-slate-50 border-slate-200 text-slate-600"
+                    : "bg-white/[0.02] border-white/[0.06] text-neutral-400"
+                }`}
+              >
+                <Sparkles className="w-5 h-5 mx-auto mb-2 opacity-50" />
+                <p className="font-medium">Continuous Rubric Assessment Active</p>
+                <p className="text-[11px] mt-1 max-w-md mx-auto opacity-75">
+                  As you interact with the Socratic AI Tutor in Module 01, your responses are evaluated
+                  across eight core cognitive dimensions.
+                </p>
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* ========================================================= */}
+        {/* RIGHT 4-COLUMN WIDGETS                                    */}
+        {/* ========================================================= */}
+        <div className="xl:col-span-4 space-y-6">
+          {/* CREDENTIAL DOCKET OR CERTIFICATION LADDER */}
+          <section
+            aria-label="Certification Status"
+            className={`rounded-2xl p-6 sm:p-7 border transition-all duration-300 ${
+              hasCertificate
+                ? isLight
+                  ? "bg-gradient-to-b from-amber-50/40 to-white border-amber-300/80 shadow-sm text-slate-900"
+                  : "bg-gradient-to-b from-[#161411] to-[#0d0c0a] border-amber-500/25 shadow-sm text-white"
+                : isLight
+                ? "bg-white border-slate-200/90 shadow-sm text-slate-900"
+                : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] shadow-sm text-white"
+            }`}
+          >
+            {hasCertificate && primaryCertificate ? (
+              /* State A: Verifiable Credential Showcase */
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-extrabold">Python Fundamentals</h4>
-                  <span className="text-[10px] font-semibold text-emerald-500">
-                    {hasCertificate ? "Certified" : progression ? "In Progress" : "Not Started"}
+                  <div
+                    className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold ${
+                      isLight
+                        ? "bg-amber-100 text-amber-900 border border-amber-300"
+                        : "bg-amber-500/10 text-amber-300 border border-amber-500/30"
+                    }`}
+                  >
+                    <Award className="w-3 h-3" />
+                    <span>Conferred Credential</span>
+                  </div>
+                  <span
+                    className={`text-[10px] font-mono font-semibold flex items-center space-x-1 ${
+                      isLight ? "text-emerald-700" : "text-emerald-400"
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>VERIFIED</span>
                   </span>
                 </div>
-                <div className="flex items-center space-x-2 mt-2">
-                  <div className={`w-full rounded-full h-1.5 overflow-hidden ${isLight ? "bg-slate-200" : "bg-white/10"}`}>
+
+                <div>
+                  <h3 className="font-serif text-lg font-normal tracking-tight">
+                    Python Fundamentals & Runtime Architecture
+                  </h3>
+                  <p className={`text-xs mt-0.5 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+                    Awarded to <span className={`font-semibold ${isLight ? "text-slate-900" : "text-neutral-200"}`}>{primaryCertificate.recipientName || learnerDisplayName}</span>
+                  </p>
+                </div>
+
+                {/* Credential Data Badge */}
+                <div
+                  className={`p-3.5 rounded-xl border text-xs font-mono space-y-2 ${
+                    isLight
+                      ? "bg-white border-amber-200"
+                      : "bg-black/30 border-amber-500/20"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={isLight ? "text-slate-500 text-[11px]" : "text-neutral-400 text-[11px]"}>CREDENTIAL ID</span>
+                    <button
+                      onClick={(e) => handleCopyCredentialId(e, primaryCertificate.credentialId)}
+                      className={`text-[11px] font-bold flex items-center space-x-1 cursor-pointer ${
+                        isLight ? "text-amber-800 hover:text-amber-900" : "text-amber-300 hover:text-amber-200"
+                      }`}
+                      title="Copy Credential ID"
+                    >
+                      <span>{primaryCertificate.credentialId}</span>
+                      {copiedCertId ? (
+                        <CheckCheck className={`w-3 h-3 ${isLight ? "text-emerald-600" : "text-emerald-400"}`} />
+                      ) : (
+                        <Copy className="w-3 h-3 opacity-60" />
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className={isLight ? "text-slate-500" : "text-neutral-400"}>TIER / GRADE</span>
+                    <span className={`font-bold ${isLight ? "text-emerald-700" : "text-emerald-400"}`}>
+                      {primaryCertificate.tier} (
+                      {Math.round(primaryCertificate.compositeScore * 100)}%)
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className={isLight ? "text-slate-500" : "text-neutral-400"}>SIGNATURE</span>
+                    <span className={isLight ? "text-slate-700" : "text-neutral-300"} title={primaryCertificate.signatureHash}>
+                      RFC 8032 Ed25519
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => onNavigate("credentials")}
+                  className={`w-full py-2.5 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all active:scale-98 cursor-pointer ${
+                    isLight
+                      ? "bg-slate-950 hover:bg-slate-800 text-white"
+                      : "bg-white hover:bg-neutral-100 text-slate-950"
+                  }`}
+                >
+                  <span>Inspect Official Certificate</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              /* State B: Qualification Milestone Ladder */
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-serif text-base font-normal tracking-tight">
+                    Certification Progress
+                  </h3>
+                  <button
+                    onClick={() => onNavigate("credentials")}
+                    className={`text-xs font-mono font-semibold cursor-pointer ${
+                      isLight ? "text-indigo-600 hover:underline" : "text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    View All →
+                  </button>
+                </div>
+
+                {/* Progress bar */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-neutral-400 text-[11px]">Overall Requirements</span>
+                    <span className="font-bold text-emerald-400">{percentComplete}%</span>
+                  </div>
+                  <div
+                    className={`w-full rounded-full h-1.5 overflow-hidden ${
+                      isLight ? "bg-slate-200" : "bg-white/10"
+                    }`}
+                  >
                     <div
-                      className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                      className="bg-emerald-400 h-full rounded-full transition-all duration-500"
                       style={{ width: `${percentComplete}%` }}
                     />
                   </div>
-                  <span className="text-[10px] font-bold font-mono">{percentComplete}%</span>
                 </div>
-              </div>
-            </div>
 
-            <div className="space-y-3 pt-1 text-xs">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2.5">
-                  <div
-                    className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
-                      allChaptersCompleted
-                        ? "bg-emerald-500 text-white"
-                        : isLight
-                        ? "border border-slate-300"
-                        : "border border-white/20"
-                    }`}
-                  >
-                    {allChaptersCompleted && "✓"}
+                {/* Milestones Checklist */}
+                <div className="space-y-3 pt-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <div
+                        className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
+                          allChaptersCompleted
+                            ? "bg-emerald-500 text-white"
+                            : isLight
+                            ? "border border-slate-300"
+                            : "border border-white/20"
+                        }`}
+                      >
+                        {allChaptersCompleted && <Check className="w-2.5 h-2.5" />}
+                      </div>
+                      <span className="font-medium">Complete 29 Chapters</span>
+                    </div>
+                    <span className="font-mono text-[11px] text-neutral-400">
+                      {completedChapters}/{totalChapters}
+                    </span>
                   </div>
-                  <span className="font-semibold">Complete all chapters</span>
-                </div>
-                <span className="text-[11px] font-mono font-bold text-neutral-400">
-                  {completedChapters} / {totalChapters}
-                </span>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2.5">
-                  <div
-                    className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
-                      allPracticalsCompleted
-                        ? "bg-emerald-500 text-white"
-                        : isLight
-                        ? "border border-slate-300"
-                        : "border border-white/20"
-                    }`}
-                  >
-                    {allPracticalsCompleted && "✓"}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <div
+                        className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
+                          allPracticalsCompleted
+                            ? "bg-emerald-500 text-white"
+                            : isLight
+                            ? "border border-slate-300"
+                            : "border border-white/20"
+                        }`}
+                      >
+                        {allPracticalsCompleted && <Check className="w-2.5 h-2.5" />}
+                      </div>
+                      <span className="font-medium">Pass 10 Practicals</span>
+                    </div>
+                    <span className="font-mono text-[11px] text-neutral-400">
+                      {practicalsPassed}/{totalModules}
+                    </span>
                   </div>
-                  <span className="font-medium">Pass module practicals</span>
-                </div>
-                <span className="text-[11px] font-mono font-bold text-neutral-400">
-                  {practicalsPassed} / {totalModules}
-                </span>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2.5">
-                  <div
-                    className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
-                      hasCertificate
-                        ? "bg-emerald-500 text-white"
-                        : isLight
-                        ? "border border-slate-300"
-                        : "border border-white/20"
-                    }`}
-                  >
-                    {hasCertificate && "✓"}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <div
+                        className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
+                          hasCertificate
+                            ? "bg-emerald-500 text-white"
+                            : isLight
+                            ? "border border-slate-300"
+                            : "border border-white/20"
+                        }`}
+                      >
+                        {hasCertificate && <Check className="w-2.5 h-2.5" />}
+                      </div>
+                      <span className="font-medium">Cryptographic Seal</span>
+                    </div>
+                    <span className="font-mono text-[11px] text-neutral-400">
+                      {hasCertificate ? "Issued ✓" : "Pending"}
+                    </span>
                   </div>
-                  <span className="font-medium">Earn verified certificate</span>
                 </div>
-                <span className="text-[11px] font-medium text-neutral-500">
-                  {hasCertificate ? "Issued ✓" : "Locked"}
-                </span>
               </div>
-            </div>
-          </div>
+            )}
+          </section>
 
-          {/* Real AI Rubric Insights */}
-          <div
-            className={`rounded-2xl p-6 shadow-sm border ${
-              isLight ? "bg-white border-purple-900/10 text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
+          {/* MASTERY OVERVIEW (3 REFINED SVG RING METERS) */}
+          <section
+            aria-label="Mastery Overview Meters"
+            className={`rounded-2xl p-6 sm:p-7 border transition-all duration-300 ${
+              isLight
+                ? "bg-white border-slate-200/90 text-slate-900 shadow-sm"
+                : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] text-white shadow-sm"
             }`}
-            data-purpose="ai-insights-widget"
           >
-            <div className="flex items-center space-x-2 mb-3">
-              <h3 className="text-sm font-bold">Rubric Insights</h3>
-            </div>
-            <div
-              className={`p-3.5 rounded-[10px] border text-xs space-y-1.5 ${
-                isLight ? "bg-purple-50/60 border-purple-100" : "bg-white/[0.04] border-white/[0.06]"
-              }`}
-            >
-              {topStrength || topWeakpoint ? (
-                <>
-                  {topStrength && (
-                    <p>
-                      <strong className="text-emerald-400">Top Strength:</strong>{" "}
-                      {topStrength.skillName} ({Math.round(topStrength.compositeScore * 100)}%)
-                    </p>
-                  )}
-                  {topWeakpoint && (
-                    <p>
-                      <strong className="text-amber-400">Focus Area:</strong>{" "}
-                      {topWeakpoint.skillName} ({Math.round(topWeakpoint.compositeScore * 100)}%)
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className={isLight ? "text-slate-600" : "text-neutral-300"}>
-                  Complete your first Socratic turns and checkpoint in Module 01 to generate
-                  personalized rubric insights.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Mastery Overview (3 Real Backend Meters — ZERO Demo Data) */}
-          <div
-            className={`rounded-2xl p-6 shadow-sm border flex flex-col gap-5 ${
-              isLight ? "bg-white border-purple-900/10 text-slate-900" : "bg-[#111111] border-white/[0.08] text-white"
-            }`}
-            data-purpose="mastery-overview-widget"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-extrabold">Mastery Overview</h3>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-serif text-base font-normal tracking-tight">
+                Mastery Diagnostics
+              </h3>
               <button
                 onClick={() => onNavigate("progress")}
-                className={`text-xs font-semibold cursor-pointer ${
-                  isLight ? "text-slate-500 hover:text-purple-700" : "text-neutral-400 hover:text-white"
+                className={`text-xs font-mono font-semibold cursor-pointer ${
+                  isLight ? "text-indigo-600 hover:underline" : "text-neutral-400 hover:text-white"
                 }`}
               >
-                Details →
+                Telemetry →
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center pt-1">
+            <div className="grid grid-cols-3 gap-3 text-center">
               {[
-                { label: "Completion", value: percentComplete, sub: `${completedSections}/${totalSections} sec` },
-                { label: "Skill Score", value: skillScorePct, sub: "Rubric + BKT" },
-                { label: "Concepts", value: conceptsPct, sub: `${masteredConcepts}/${totalConcepts} mastered` },
+                {
+                  label: "Completion",
+                  value: percentComplete,
+                  sub: `${completedSections}/${totalSections} sec`,
+                  color: "#10B981",
+                },
+                {
+                  label: "Skill Score",
+                  value: skillScorePct,
+                  sub: "Rubric + BKT",
+                  color: "#10B981",
+                },
+                {
+                  label: "Concepts",
+                  value: conceptsPct,
+                  sub: `${masteredConcepts}/${totalConcepts}`,
+                  color: "#10B981",
+                },
               ].map((g) => (
                 <div key={g.label} className="flex flex-col items-center">
                   <div className="relative w-16 h-16 flex items-center justify-center mb-2">
-                    <svg className="w-16 h-16 meter-circle" viewBox="0 0 36 36">
+                    <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
                       <path
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         fill="none"
                         stroke={isLight ? "rgba(100, 116, 139, 0.15)" : "rgba(255, 255, 255, 0.08)"}
-                        strokeWidth="3"
+                        strokeWidth="2.5"
                       />
                       <path
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         fill="none"
-                        stroke="#10B981"
+                        stroke={g.color}
                         strokeDasharray={`${g.value}, 100`}
                         strokeLinecap="round"
-                        strokeWidth="3.2"
+                        strokeWidth="2.6"
                       />
                     </svg>
-                    <span className="absolute text-xs font-extrabold">{g.value}%</span>
+                    <span className="absolute text-xs font-mono font-bold">{g.value}%</span>
                   </div>
-                  <h5 className="text-xs font-bold">{g.label}</h5>
-                  <p className={`text-[9px] mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
+                  <h4 className="text-xs font-semibold">{g.label}</h4>
+                  <p className={`text-[10px] font-mono mt-0.5 ${isLight ? "text-slate-500" : "text-neutral-400"}`}>
                     {g.sub}
                   </p>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
+
+          {/* QUALITATIVE RUBRIC DIAGNOSTICS */}
+          <section
+            aria-label="Cognitive Diagnostics"
+            className={`rounded-2xl p-6 sm:p-7 border transition-all duration-300 ${
+              isLight
+                ? "bg-white border-slate-200/90 text-slate-900 shadow-sm"
+                : "bg-gradient-to-b from-[#111116] to-[#0c0c10] border-white/[0.08] text-white shadow-sm"
+            }`}
+          >
+            <h3 className="font-serif text-base font-normal tracking-tight mb-3">
+              Cognitive Insights
+            </h3>
+
+            <div
+              className={`p-4 rounded-xl border text-xs space-y-3 ${
+                isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.03] border-white/[0.06]"
+              }`}
+            >
+              {topStrength ? (
+                <div>
+                  <div className={`flex items-center space-x-2 font-mono text-[11px] font-semibold mb-1 ${isLight ? "text-emerald-700" : "text-emerald-400"}`}>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>TOP STRENGTH</span>
+                  </div>
+                  <p className={`font-medium ${isLight ? "text-slate-900" : "text-neutral-200"}`}>{topStrength.skillName}</p>
+                  <p className={`text-[11px] mt-0.5 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+                    Demonstrated {Math.round(topStrength.compositeScore * 100)}% mastery across interactive traces
+                    and conceptual checkpoints.
+                  </p>
+                </div>
+              ) : null}
+
+              {topWeakpoint ? (
+                <div className={`pt-2 border-t ${isLight ? "border-slate-200" : "border-white/[0.06]"}`}>
+                  <div className={`flex items-center space-x-2 font-mono text-[11px] font-semibold mb-1 ${isLight ? "text-amber-700" : "text-amber-400"}`}>
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span>RECOMMENDED FOCUS</span>
+                  </div>
+                  <p className={`font-medium ${isLight ? "text-slate-900" : "text-neutral-200"}`}>{topWeakpoint.skillName}</p>
+                  <p className={`text-[11px] mt-0.5 ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+                    Composite score at {Math.round(topWeakpoint.compositeScore * 100)}%. Revisit with the Socratic
+                    tutor to solidify mental models.
+                  </p>
+                </div>
+              ) : null}
+
+              {!topStrength && !topWeakpoint && (
+                <p className={`leading-relaxed ${isLight ? "text-slate-600" : "text-neutral-400"}`}>
+                  Dialogue with the Socratic tutor in the AI Studio to generate real-time cognitive rubric
+                  telemetry and strength diagnostics.
+                </p>
+              )}
+            </div>
+          </section>
         </div>
       </div>
     </div>
