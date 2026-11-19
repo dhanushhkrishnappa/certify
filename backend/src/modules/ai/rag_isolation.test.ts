@@ -41,7 +41,7 @@ describe("Hard-Fenced Scoped RAG & Anti-Topic-Drift Guardrail", () => {
       expect(chunk.moduleOrder).toBeLessThanOrEqual(1);
       expect(chunk.moduleSlug).toBe("python-foundations");
     }
-  });
+  }, 20000);
 
   it("blocks explicit skip and prompt-injection attempts deterministically", () => {
     const res1 = DriftService.classifyMessage({

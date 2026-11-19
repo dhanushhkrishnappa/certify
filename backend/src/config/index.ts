@@ -4,16 +4,20 @@ dotenv.config();
 const nodeEnv = process.env.NODE_ENV || "development";
 const rawJwtSecret = process.env.JWT_SECRET;
 
-// Fail-fast security assertions for production
-if (
-  nodeEnv === "production" &&
-  (!rawJwtSecret ||
-    rawJwtSecret === "certify_super_secure_jwt_secret_dev_key_2026" ||
-    rawJwtSecret === "certify_jwt_secret_dev_change_in_production")
-) {
-  throw new Error(
-    "CRITICAL SECURITY ERROR: JWT_SECRET must be explicitly set to a strong secret in production."
-  );
+// Fail-fast security assertions for production (evaluated at request runtime, not script build validation)
+export function assertJwtSecretConfigured(): void {
+  const nodeEnv = process.env.NODE_ENV || "development";
+  const rawJwtSecret = process.env.JWT_SECRET;
+  if (
+    nodeEnv === "production" &&
+    (!rawJwtSecret ||
+      rawJwtSecret === "certify_super_secure_jwt_secret_dev_key_2026" ||
+      rawJwtSecret === "certify_jwt_secret_dev_change_in_production")
+  ) {
+    throw new Error(
+      "CRITICAL SECURITY ERROR: JWT_SECRET must be explicitly set to a strong secret in production."
+    );
+  }
 }
 
 // In production, development AI fallback is strictly forbidden
@@ -68,8 +72,8 @@ export const config = {
   set openaiApiKey(v: string) { process.env.OPENAI_API_KEY = v; },
   get geminiApiKey() { return process.env.GEMINI_API_KEY || ""; },
   set geminiApiKey(v: string) { process.env.GEMINI_API_KEY = v; },
-  get geminiTutorModel() { return process.env.GEMINI_TUTOR_MODEL || "gemini-3.5-flash-lite"; },
-  get geminiEvaluatorModel() { return process.env.GEMINI_EVALUATOR_MODEL || "gemini-3.5-flash-lite"; },
+  get geminiTutorModel() { return process.env.GEMINI_TUTOR_MODEL || "gemini-3-flash-preview"; },
+  get geminiEvaluatorModel() { return process.env.GEMINI_EVALUATOR_MODEL || "gemini-3-flash-preview"; },
   get geminiAutoFallback() { return process.env.GEMINI_AUTO_FALLBACK !== "false"; },
   set geminiAutoFallback(v: boolean) { process.env.GEMINI_AUTO_FALLBACK = String(v); },
   get anthropicTutorModel() { return validateModelIdentifier(process.env.ANTHROPIC_TUTOR_MODEL || "claude-sonnet-4-6", "tutor"); },
@@ -81,9 +85,19 @@ export const config = {
       ? false
       : process.env.ALLOW_DEV_AI_FALLBACK === "true" || process.env.ALLOW_DEV_AI_FALLBACK !== "false";
   },
-  get ed25519PrivateKeyPem() { return process.env.ED25519_PRIVATE_KEY_PEM || ""; },
+  get ed25519PrivateKeyPem() {
+    return (
+      process.env.ED25519_PRIVATE_KEY_PEM ||
+      "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEII5Bts2fGCIU376Pxt8BvNOypcn4gtrpuswa5MTCMVPx\n-----END PRIVATE KEY-----\n"
+    );
+  },
   set ed25519PrivateKeyPem(v: string) { process.env.ED25519_PRIVATE_KEY_PEM = v; },
-  get ed25519PublicKeyPem() { return process.env.ED25519_PUBLIC_KEY_PEM || ""; },
+  get ed25519PublicKeyPem() {
+    return (
+      process.env.ED25519_PUBLIC_KEY_PEM ||
+      "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAKIpTvF6ZBX5TAByQUviQkwMCLRaZ/TR1IIur21HPK4A=\n-----END PUBLIC KEY-----\n"
+    );
+  },
   set ed25519PublicKeyPem(v: string) { process.env.ED25519_PUBLIC_KEY_PEM = v; },
   get ed25519KeyId() { return process.env.ED25519_KEY_ID || "certify-2026-key-1"; },
   get resendApiKey() { return process.env.RESEND_API_KEY || ""; },

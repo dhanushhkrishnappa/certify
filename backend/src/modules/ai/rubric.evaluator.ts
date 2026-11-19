@@ -205,11 +205,11 @@ ${params.learnerText.slice(0, 2500)}
 Rubric Criteria to Evaluate:
 ${criteriaSpec}`;
 
-  // 1. Primary: Gemini fast evaluator (`gemini-3.5-flash-lite`) with JSON MIME mode
+  // 1. Primary: Gemini fast evaluator (`gemini-3-flash-preview`) with JSON MIME mode
   const geminiKey = process.env.GEMINI_API_KEY || config.geminiApiKey;
   if (geminiKey) {
     try {
-      const model = config.geminiEvaluatorModel || "gemini-3.5-flash-lite";
+      const model = config.geminiEvaluatorModel || "gemini-3-flash-preview";
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
         {

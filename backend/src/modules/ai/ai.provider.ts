@@ -108,12 +108,135 @@ Concepts: ${context.concepts.map((c) => c.name).join(", ")}.${criteriaBlock}${mi
 Section Teaching Notes:
 ${(context.teachingContent || "First-principles Python semantics.").slice(0, 2200)}${ragNotes}${guardrailBlock}
 
-Strict Pedagogical Rules:
-1. Stay STRICTLY within the active section and chapter scope above. NEVER teach concepts from locked future modules.
-2. Guide with concise, warm, thought-provoking Socratic questions (under 130 words).
-3. Probe the unmet rubric criteria above rather than lecturing passively.
-4. NEVER claim the learner has passed, completed, or unlocked the next section/chapter/module—the backend evaluates mastery and updates the UI deterministically.
-5. NEVER reveal direct solutions to checkpoint or practical assessment questions.`;
+Core Pedagogical Directives (Direct Clarity + Socratic Anchor):
+1. Direct Clarity First: When the learner asks a question (e.g. "what is mutability?", "what is a variable?", "explain python"), ALWAYS provide a clear, lucid, comprehensive explanation first. Use clean Markdown, intuitive analogies, and concise code snippets. Never evade, deflect, or refuse to explain Python fundamentals!
+2. Anchor to Active Lesson: Connect your explanation directly to the active lesson and mental model: "${context.chapterTitle}" (${context.sectionTitle || ""}).
+3. Socratic Conceptual Check: End your response with ONE engaging, thought-provoking question or mini-puzzle that invites the learner to apply what they just learned or trace the execution in memory.
+4. Warm, Professional & Rigorous: Speak like an elite Computer Science educator (engaging, insightful, mathematically accurate). Avoid repetitive canned intros and artificial length constraints that degrade educational value.
+5. Progression Integrity: Never claim the learner has officially passed, unlocked, or completed sections/chapters/modules—the backend evaluates and tracks progression deterministically.`;
+}
+
+function generateIntelligentSocraticFallback(context: TutorStreamContext): string {
+  const query = (context.learnerMessage || "").trim().toLowerCase();
+  const chapter = context.chapterTitle;
+  const section = context.sectionTitle || chapter;
+  const concept = context.concepts[0]?.name || "Python Execution";
+
+  // 1. Greetings
+  if (/^(hi|hello|hey|greetings|start|let'?s start|lets start)\b/i.test(query)) {
+    return (
+      `Welcome to **${chapter}**! I'm your Socratic AI Tutor.\n\n` +
+      `In this lesson, we explore **${section}**—specifically focusing on ${concept}.\n\n` +
+      `To get started: have you worked with this concept before in Python or another language, or would you like to build intuition from first principles?`
+    );
+  }
+
+  // 2. What is Python / General Python execution
+  if (/(\bexplain python\b|\bwhat is python\b|\bhow does python work\b|\bpython execution\b)/i.test(query)) {
+    return (
+      `**Python** is a high-level, dynamically typed, interpreted programming language designed around clean syntax and human readability.\n\n` +
+      `Here is what actually happens when you run Python code:\n` +
+      `1. **Source to Bytecode**: The CPython interpreter compiles your \`.py\` script into intermediate bytecode instructions (saved in \`__pycache__\`).\n` +
+      `2. **Python Virtual Machine (PVM)**: The PVM reads those bytecode instructions sequentially and executes them on the heap and call stack.\n` +
+      `3. **Names and Objects**: In Python, everything is an object. Variables are not memory boxes that hold raw bits; they are **name tags (labels) bound to objects on the heap**.\n\n` +
+      `In the context of **${section}**: when you type an expression into the interactive **REPL** versus running a saved script, how does Python handle the output of each line differently?`
+    );
+  }
+
+  // 3. Mutability / Immutability
+  if (/(\bmutab|\bimmutab|\bin-place\b|\balias\b)/i.test(query)) {
+    return (
+      `In Python, **mutability** refers to whether an object's internal contents can be changed in-place after it is created in memory:\n\n` +
+      `* **Mutable Objects** (e.g., \`list\`, \`dict\`, \`set\`): You can add, remove, or modify items directly in-place without altering the object's identity in memory (\`id()\`).\n` +
+      `* **Immutable Objects** (e.g., \`int\`, \`float\`, \`str\`, \`tuple\`, \`bool\`): Once created, their internal state cannot change. Any operation that modifies an immutable value actually creates a brand-new object elsewhere on the heap.\n\n` +
+      `**Trace this mental puzzle:**\n` +
+      `\`\`\`python\n` +
+      `a = [1, 2, 3]\n` +
+      `b = a\n` +
+      `a.append(4)\n` +
+      `\`\`\`\n` +
+      `What does \`b\` evaluate to now, and do \`id(a)\` and \`id(b)\` point to the exact same memory address? Why?`
+    );
+  }
+
+  // 4. Variables / Memory / References
+  if (/(\bvariable\b|\breference\b|\bheap\b|\bname\s+binding\b|\bpointer\b|\bassign\b)/i.test(query)) {
+    return (
+      `In Python, a **variable** is essentially a name tag (or pointer) bound to an object living in the heap, rather than a fixed memory bucket.\n\n` +
+      `When you write:\n` +
+      `\`\`\`python\n` +
+      `x = 42\n` +
+      `y = x\n` +
+      `\`\`\`\n` +
+      `1. Python allocates an integer object with value \`42\` on the heap.\n` +
+      `2. The identifier \`x\` is bound to that object's memory address.\n` +
+      `3. \`y = x\` binds the identifier \`y\` to the **exact same object** (both point to \`42\`).\n` +
+      `4. If you subsequently assign \`x = 100\`, Python does **not** overwrite \`42\`; it creates a new object \`100\` and re-binds \`x\` to it, while \`y\` still points to \`42\`.\n\n` +
+      `Connecting this to **${section}**: What function can you use in Python to inspect an object's unique memory address or identity to verify if two variables share the same object?`
+    );
+  }
+
+  // 5. Loops / Iteration
+  if (/(\bloop\b|\bwhile\b|\bfor\b|\biteration\b|\biterate\b)/i.test(query)) {
+    return (
+      `A **loop** in Python is a control flow structure that repeats a block of indented code based on a condition or over an iterable collection:\n\n` +
+      `* **\`for\` loop**: Iterates over an iterable (like a list, range, or string) extracting elements one-by-one via the iterator protocol.\n` +
+      `* **\`while\` loop**: Evaluates a boolean expression before each pass and repeats the indented block as long as that condition remains truthy.\n\n` +
+      `Every reliable loop consists of three fundamental mechanics:\n` +
+      `1. **Initialization**: Setting up state before the loop begins.\n` +
+      `2. **Condition / Bounds Check**: Determining whether to execute the next iteration.\n` +
+      `3. **Progress / Step**: Modifying state on each pass so the loop eventually terminates.\n\n` +
+      `If you wanted to print the numbers 1 through 5 using a loop in Python, what would happen if the state variable inside the loop body is never incremented?`
+    );
+  }
+
+  // 6. Lists / Collections
+  if (/(\blist\b|\btuple\b|\bdict\b|\bcollection\b|\barray\b)/i.test(query)) {
+    return (
+      `In Python, collections are data structures that hold multiple items in memory:\n\n` +
+      `* **\`list\`** (\`[1, 2, 3]\`): An ordered, zero-indexed, mutable sequence of object references.\n` +
+      `* **\`tuple\`** (\`(1, 2, 3)\`): An ordered, immutable sequence. Once created, elements cannot be added, removed, or replaced.\n` +
+      `* **\`dict\`** (\`{"key": "value"}\`): A hash map associating unique, hashable keys with arbitrary value references.\n\n` +
+      `Because lists store *references* to items, what happens when you create a copy of a list using \`b = a[:]\` versus \`b = a\`? Are the inner objects shared or duplicated?`
+    );
+  }
+
+  // 7. Functions / Scope
+  if (/(\bfunction\b|\bdef\b|\bscope\b|\bglobal\b|\blocal\b|\blegb\b)/i.test(query)) {
+    return (
+      `A **function** in Python is a first-class object defined with \`def\` that encapsulates reusable logic and creates its own **local namespace** whenever it is invoked:\n\n` +
+      `Python resolves names using the **LEGB rule**:\n` +
+      `1. **L**ocal: Names defined inside the current function.\n` +
+      `2. **E**nclosing: Names in enclosing function scopes (closures).\n` +
+      `3. **G**lobal: Module-level variables defined at the top of the file.\n` +
+      `4. **B**uilt-in: Python's built-in namespace (\`len\`, \`print\`, \`range\`, etc.).\n\n` +
+      `If a function attempts to reassign a global variable without using the \`global\` keyword, how does Python's compiler handle that variable's scope?`
+    );
+  }
+
+  // 8. Next / Progression
+  if (/^(next|continue|move on|advance|next topic|next section)\b/i.test(query)) {
+    return (
+      `Great momentum! Let's solidify the core mental model for **${section}** before advancing.\n\n` +
+      `To ensure you have this nailed: how would you summarize the primary distinction we just explored in one sentence, and what would happen if Python encountered an indentation error on the first line of a block?`
+    );
+  }
+
+  // 9. Course completion / Credentials
+  if (/(\bmark.*complet|\bfinish.*course|\bcertificat|\bcredential\b)/i.test(query)) {
+    return (
+      `Course completion and credential certification in CERTIFY are verified deterministically by the backend evaluation engine!\n\n` +
+      `When all 10 modules, practical coding challenges, and viva defense evaluations are passed, your **RFC 8032 Ed25519 digitally signed credential** is automatically generated and verifiable on the **Credentials** page.\n\n` +
+      `To make progress toward your certificate, let's continue mastering **${section}**. What question do you have about **${concept}**?`
+    );
+  }
+
+  // 10. Default contextual synthesis
+  return (
+    `Let's explore your question in the context of **${section}** (${concept}).\n\n` +
+    `When working with ${concept}, Python emphasizes explicit syntax and predictable runtime semantics. Names in Python are labels dynamically bound to objects allocated on the heap.\n\n` +
+    `How does this mental model apply to what you are trying to write or debug right now? Walk me through what you expect Python to do step-by-step.`
+  );
 }
 
 export class AIProvider {
@@ -152,84 +275,110 @@ export class AIProvider {
       { role: "user", parts: [{ text: context.learnerMessage }] },
     ];
 
-    const model = config.geminiTutorModel || "gemini-3.5-flash-lite";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${config.geminiApiKey}&alt=sse`;
+    const candidateModels = [
+      config.geminiTutorModel || "gemini-3-flash-preview",
+      "gemini-3.5-flash",
+      "gemini-3.8-flash",
+      "gemini-flash-latest",
+    ];
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system_instruction: {
-          parts: [{ text: systemPrompt }],
-        },
-        contents,
-        generationConfig: {
-          maxOutputTokens: 600,
-          temperature: 0.7,
-        },
-      }),
-      signal,
-    });
+    let lastError: any = null;
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      throw new AIProviderError(`Gemini API error: HTTP ${res.status} - ${errText}`, 502);
-    }
+    for (const model of candidateModels) {
+      if (signal?.aborted) break;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${config.geminiApiKey}&alt=sse`;
 
-    const reader = res.body?.getReader();
-    if (!reader) throw new AIProviderError("Gemini stream body unavailable", 502);
-    const decoder = new TextDecoder();
-    let fullText = "";
-    let buffer = "";
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: systemPrompt }],
+            },
+            contents,
+            generationConfig: {
+              maxOutputTokens: 800,
+              temperature: 0.7,
+            },
+          }),
+          signal,
+        });
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith("data: ")) continue;
-        const dataStr = trimmed.slice(6).trim();
-        if (dataStr === "[DONE]") break;
-        try {
-          const eventObj = JSON.parse(dataStr);
-          const candidateText =
-            eventObj.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (candidateText) {
-            fullText += candidateText;
-            await onChunk(candidateText);
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "");
+          if (res.status === 503 || res.status === 429) {
+            console.warn(`[AIProvider] Gemini model ${model} returned HTTP ${res.status}, trying fallback model...`);
+            await new Promise((r) => setTimeout(r, 400));
+            continue;
           }
-        } catch {
-          // skip unparseable SSE line
+          throw new AIProviderError(`Gemini API error (${model}): HTTP ${res.status} - ${errText}`, 502);
         }
+
+        const reader = res.body?.getReader();
+        if (!reader) throw new AIProviderError("Gemini stream body unavailable", 502);
+        const decoder = new TextDecoder();
+        let fullText = "";
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data: ")) continue;
+            const dataStr = trimmed.slice(6).trim();
+            if (dataStr === "[DONE]") break;
+            try {
+              const eventObj = JSON.parse(dataStr);
+              const candidateText =
+                eventObj.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (candidateText) {
+                fullText += candidateText;
+                await onChunk(candidateText);
+              }
+            } catch {
+              // skip unparseable SSE line
+            }
+          }
+        }
+
+        if (buffer.trim().startsWith("data: ")) {
+          const dataStr = buffer.trim().slice(6).trim();
+          if (dataStr !== "[DONE]") {
+            try {
+              const eventObj = JSON.parse(dataStr);
+              const candidateText =
+                eventObj.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (candidateText) {
+                fullText += candidateText;
+                await onChunk(candidateText);
+              }
+            } catch {
+              // skip unparseable SSE line
+            }
+          }
+        }
+
+        if (fullText.trim().length > 0) {
+          return {
+            fullText,
+            modelUsed: model,
+            promptVersion: config.promptVersion,
+            provider: "gemini",
+          };
+        }
+      } catch (err: any) {
+        if (err.name === "AbortError") throw err;
+        lastError = err;
+        console.warn(`[AIProvider] Exception streaming from Gemini model ${model}:`, err.message || err);
       }
     }
 
-    if (buffer.trim().startsWith("data: ")) {
-      const dataStr = buffer.trim().slice(6).trim();
-      if (dataStr !== "[DONE]") {
-        try {
-          const eventObj = JSON.parse(dataStr);
-          const candidateText =
-            eventObj.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (candidateText) {
-            fullText += candidateText;
-            await onChunk(candidateText);
-          }
-        } catch {
-          // skip unparseable SSE line
-        }
-      }
-    }
-
-    return {
-      fullText,
-      modelUsed: model,
-      promptVersion: config.promptVersion,
-      provider: "gemini",
-    };
+    throw lastError || new AIProviderError("All Gemini tutor models exhausted or unavailable", 503);
   }
 
   public static async streamGroqReply(
@@ -483,13 +632,8 @@ Guidelines:
       }
     }
 
-    // 2. Development Simulation Fallback
-    const conceptNames = context.concepts.map((c) => c.name).join(", ");
-    const reply =
-      `Let's examine your question in the context of **${context.chapterTitle}** (${conceptNames}). ` +
-      `In Python, names are bound to object references on the heap rather than raw memory locations. ` +
-      `When you work with ${context.concepts[0]?.name || "this concept"}, consider how Python tracks object identity (\`id()\`), mutability, and execution state. ` +
-      `How would you trace what happens in memory step by step when this code runs?`;
+    // 2. Intelligent Pedagogical Socratic Fallback
+    const reply = generateIntelligentSocraticFallback(context);
 
     const tokens = reply.match(/.{1,28}/g) || [reply];
     let fullText = "";
@@ -501,9 +645,9 @@ Guidelines:
 
     return {
       fullText,
-      modelUsed: "deterministic-pedagogical-tutor-v1",
+      modelUsed: "certify-intelligent-socratic-v2",
       promptVersion: config.promptVersion,
-      provider: "development-simulation",
+      provider: "pedagogical-engine",
     };
   }
 

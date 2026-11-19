@@ -17,6 +17,9 @@ EMAIL_FROM = "certify.auth@gmail.com"
 RULE_VERSION = "2026.1"
 PROMPT_VERSION = "2026-10-v1"
 ED25519_KEY_ID = "ed25519-2026-v1"
+AI_PROVIDER = "gemini"
+GEMINI_TUTOR_MODEL = "gemini-3-flash-preview"
+GEMINI_EVALUATOR_MODEL = "gemini-3-flash-preview"
 
 # Production bindings to be bound in Cloudflare dashboard
 # [[r2_buckets]]
