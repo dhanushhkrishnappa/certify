@@ -609,6 +609,21 @@ export const api = {
     return res.json();
   },
 
+  async getUserActivity(): Promise<{
+    currentStreak: number;
+    longestStreak: number;
+    totalActiveDays: number;
+    totalContributions: number;
+    matrix: Array<Array<{ date: string; dateStr: string; count: number; level: number }>>;
+  }> {
+    const res = await fetch(`${API_BASE}/auth/activity`, {
+      headers: getHeaders(),
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to load user activity");
+    return res.json();
+  },
+
   async issueCertificate(
     enrollmentId: string
   ): Promise<{ certificate: Certificate; verificationUrl: string }> {
