@@ -52,7 +52,7 @@ export const auth = betterAuth({
     "http://localhost:5175",
     "http://localhost:3000",
     "http://127.0.0.1:5173",
-    process.env.CORS_ORIGIN || "",
+    ...(process.env.CORS_ORIGIN || "").split(",").map((s) => s.trim()).filter(Boolean),
   ].filter(Boolean),
 
   // Session configuration (7-day rolling expiry, matches existing behaviour)

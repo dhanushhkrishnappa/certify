@@ -20,10 +20,10 @@ export interface DriftCheckResult {
 }
 
 const SKIP_INTENT_PATTERNS = [
-  /\b(skip|jump|fast[\s-]?forward|bypass|move\s+directly|go\s+straight|advance\s+me)\b.*\b(module|chapter|lesson|section|next|oop|regex|test|file|class|function|loop)\b/i,
-  /\b(unlock|open)\s+(module|chapter|lesson|next)\b/i,
+  /\b(skip|jump|fast[\s-]?forward|bypass|move\s+directly|go\s+straight|advance\s+me)\b.*\b(module|chapter|lesson|section|next|topic|last|end|course|oop|regex|test|file|class|function|loop)\b/i,
+  /\b(unlock|open)\s+(module|chapter|lesson|topic|course|next)\b/i,
   /\bignore\s+(all\s+)?previous\s+instructions\b/i,
-  /\bmark\s+(this\s+)?(module|chapter|section|lesson|me)\s+(as\s+)?(complete|completed|passed|mastered)\b/i,
+  /\bmark\s+(this\s+|my\s+)?(module|chapter|section|lesson|course|me)\s+(as\s+)?(complete|completed|passed|mastered)\b/i,
   /\bgive\s+me\s+(100%|full\s+marks|mastery|the\s+certificate)\b/i,
 ];
 
@@ -41,12 +41,33 @@ const FUTURE_MODULE_STRONG_MARKERS: Record<number, { title: string; slug: string
   3: {
     title: "Module 03 – Iteration and Problem Solving",
     slug: "iteration-and-problem-solving",
-    markers: [/\bwhile\s+loop\b/i, /\bfor\s+loop\b/i, /\blist\s+comprehension/i, /\benumerate\s*\(/i, /\bloop\s+invariant/i],
+    markers: [
+      /\bwhile\s+loop\b/i,
+      /\bfor\s+loop\b/i,
+      /\blist\s+comprehension/i,
+      /\benumerate\s*\(/i,
+      /\bloop\s+invariant/i,
+      /\bwhat\s+(is|are)\s+(a\s+)?loops?\b/i,
+      /\bbreak\s+and\s+continue\b/i,
+      /\b(break|continue)\s+statements?\b/i,
+      /\binfinite\s+loops?\b/i,
+    ],
   },
   4: {
     title: "Module 04 – Functions and Modular Programming",
     slug: "functions-and-modular-programming",
-    markers: [/\blegb\b/i, /\bclosure\b/i, /\b\*args\b/i, /\b\*\*kwargs\b/i, /\blambda\b/i, /\bmutable\s+default/i, /\brecursion\b/i],
+    markers: [
+      /\blegb\b/i,
+      /\bclosure\b/i,
+      /\b\*args\b/i,
+      /\b\*\*kwargs\b/i,
+      /\blambda\b/i,
+      /\bmutable\s+default/i,
+      /\brecursion\b/i,
+      /\bglobal\s+variables?\b/i,
+      /\blocal\s+variables?\b/i,
+      /\bglobal\s+keyword\b/i,
+    ],
   },
   5: {
     title: "Module 05 – Exceptions and Debugging",

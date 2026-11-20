@@ -1,4 +1,3 @@
-import { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 
 const SENSITIVE_KEYS = new Set([
@@ -14,7 +13,7 @@ const SENSITIVE_KEYS = new Set([
   "betterAuthSecret",
 ]);
 
-function redactObject(input: unknown): unknown {
+export function redactObject(input: unknown): unknown {
   if (!input || typeof input !== "object") return input;
   if (Array.isArray(input)) return input.map(redactObject);
   const out: Record<string, unknown> = {};
@@ -60,18 +59,3 @@ export const logger = {
     );
   },
 };
-
-export function requestContextMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  const requestId =
-    (req.headers["x-request-id"] as string) || crypto.randomUUID();
-  (req as any).requestId = requestId;
-  res.setHeader("X-Request-Id", requestId);
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  next();
-}

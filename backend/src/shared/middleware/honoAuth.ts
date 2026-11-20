@@ -19,20 +19,49 @@ declare module "hono" {
   }
 }
 
+const STATIC_ALLOWED_ORIGINS = new Set([
+  "https://certify.studio",
+  "https://www.certify.studio",
+  "https://certify.pages.dev",
+  "https://certify-8fh.pages.dev",
+  "https://certify-ashy-sigma.vercel.app",
+]);
+
+const CERTIFY_PREVIEW_ORIGIN_RE =
+  /^https:\/\/([a-z0-9-]+\.)?certify(-8fh)?\.pages\.dev$/i;
+
+export function normalizeOrigin(headerValue: string | undefined): string | null {
+  if (!headerValue) return null;
+  const trimmed = headerValue.trim();
+  try {
+    return new URL(trimmed).origin.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Validates Origin/Referer for CSRF protection on cookie-authenticated state-changing operations.
  */
-function isAllowedOrigin(originHeader: string | undefined): boolean {
-  if (!originHeader) return false;
+export function isAllowedOrigin(rawHeader: string | undefined): boolean {
+  const origin = normalizeOrigin(rawHeader);
+  if (!origin) return false;
+
   if (
-    originHeader.startsWith("http://localhost:") ||
-    originHeader.startsWith("http://127.0.0.1:") ||
-    originHeader.endsWith(".pages.dev") ||
-    originHeader === config.corsOrigin
+    origin.startsWith("http://localhost:") ||
+    origin.startsWith("http://127.0.0.1:") ||
+    STATIC_ALLOWED_ORIGINS.has(origin) ||
+    CERTIFY_PREVIEW_ORIGIN_RE.test(origin)
   ) {
     return true;
   }
-  return false;
+
+  const configuredList = (config.corsOrigin || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+
+  return configuredList.includes(origin);
 }
 
 /**

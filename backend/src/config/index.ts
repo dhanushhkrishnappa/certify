@@ -48,10 +48,21 @@ export function validateModelIdentifier(modelId: string, role: "tutor" | "evalua
   return modelId;
 }
 
+export function normalizeGeminiModel(modelId?: string, fallback = "gemini-2.5-flash"): string {
+  if (!modelId || !modelId.trim()) return fallback;
+  const trimmed = modelId.trim();
+  if (trimmed.startsWith("gemini-3.5") || trimmed.includes("flash-lite")) {
+    return fallback;
+  }
+  return trimmed;
+}
+
 const rawTutorModel = process.env.ANTHROPIC_TUTOR_MODEL || "claude-sonnet-4-6";
 const rawEvaluatorModel = process.env.ANTHROPIC_EVALUATOR_MODEL || "claude-haiku-4-5-20251001";
 
 let customNodeEnv: string | null = null;
+let customPrivateKeyPem: string | null = null;
+let customPublicKeyPem: string | null = null;
 
 export const config = {
   get port() { return parseInt(process.env.PORT || "5000", 10); },
@@ -66,14 +77,14 @@ export const config = {
   set anthropicApiKey(v: string) { process.env.ANTHROPIC_API_KEY = v; },
   get groqApiKey() { return process.env.GROQ_API_KEY || ""; },
   set groqApiKey(v: string) { process.env.GROQ_API_KEY = v; },
-  get groqTutorModel() { return process.env.GROQ_TUTOR_MODEL || "openai/gpt-oss-120b"; },
-  get groqEvaluatorModel() { return process.env.GROQ_EVALUATOR_MODEL || "openai/gpt-oss-120b"; },
+  get groqTutorModel() { return process.env.GROQ_TUTOR_MODEL || "llama-3.3-70b-versatile"; },
+  get groqEvaluatorModel() { return process.env.GROQ_EVALUATOR_MODEL || "llama-3.3-70b-versatile"; },
   get openaiApiKey() { return process.env.OPENAI_API_KEY || ""; },
   set openaiApiKey(v: string) { process.env.OPENAI_API_KEY = v; },
   get geminiApiKey() { return process.env.GEMINI_API_KEY || ""; },
   set geminiApiKey(v: string) { process.env.GEMINI_API_KEY = v; },
-  get geminiTutorModel() { return process.env.GEMINI_TUTOR_MODEL || "gemini-3-flash-preview"; },
-  get geminiEvaluatorModel() { return process.env.GEMINI_EVALUATOR_MODEL || "gemini-3-flash-preview"; },
+  get geminiTutorModel() { return normalizeGeminiModel(process.env.GEMINI_TUTOR_MODEL || "gemini-2.5-flash"); },
+  get geminiEvaluatorModel() { return normalizeGeminiModel(process.env.GEMINI_EVALUATOR_MODEL || "gemini-2.5-flash"); },
   get geminiAutoFallback() { return process.env.GEMINI_AUTO_FALLBACK !== "false"; },
   set geminiAutoFallback(v: boolean) { process.env.GEMINI_AUTO_FALLBACK = String(v); },
   get anthropicTutorModel() { return validateModelIdentifier(process.env.ANTHROPIC_TUTOR_MODEL || "claude-sonnet-4-6", "tutor"); },
@@ -86,19 +97,19 @@ export const config = {
       : process.env.ALLOW_DEV_AI_FALLBACK === "true" || process.env.ALLOW_DEV_AI_FALLBACK !== "false";
   },
   get ed25519PrivateKeyPem() {
-    return (
-      process.env.ED25519_PRIVATE_KEY_PEM ||
-      "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEII5Bts2fGCIU376Pxt8BvNOypcn4gtrpuswa5MTCMVPx\n-----END PRIVATE KEY-----\n"
-    );
+    if (customPrivateKeyPem !== null) return customPrivateKeyPem;
+    if (process.env.ED25519_PRIVATE_KEY_PEM !== undefined) return process.env.ED25519_PRIVATE_KEY_PEM;
+    if ((customNodeEnv || process.env.NODE_ENV) === "production") return "";
+    return "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEII5Bts2fGCIU376Pxt8BvNOypcn4gtrpuswa5MTCMVPx\n-----END PRIVATE KEY-----\n";
   },
-  set ed25519PrivateKeyPem(v: string) { process.env.ED25519_PRIVATE_KEY_PEM = v; },
+  set ed25519PrivateKeyPem(v: string) { customPrivateKeyPem = v; },
   get ed25519PublicKeyPem() {
-    return (
-      process.env.ED25519_PUBLIC_KEY_PEM ||
-      "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAKIpTvF6ZBX5TAByQUviQkwMCLRaZ/TR1IIur21HPK4A=\n-----END PUBLIC KEY-----\n"
-    );
+    if (customPublicKeyPem !== null) return customPublicKeyPem;
+    if (process.env.ED25519_PUBLIC_KEY_PEM !== undefined) return process.env.ED25519_PUBLIC_KEY_PEM;
+    if ((customNodeEnv || process.env.NODE_ENV) === "production") return "";
+    return "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAKIpTvF6ZBX5TAByQUviQkwMCLRaZ/TR1IIur21HPK4A=\n-----END PUBLIC KEY-----\n";
   },
-  set ed25519PublicKeyPem(v: string) { process.env.ED25519_PUBLIC_KEY_PEM = v; },
+  set ed25519PublicKeyPem(v: string) { customPublicKeyPem = v; },
   get ed25519KeyId() { return process.env.ED25519_KEY_ID || "certify-2026-key-1"; },
   get resendApiKey() { return process.env.RESEND_API_KEY || ""; },
   get emailFrom() { return process.env.EMAIL_FROM || "security@certify.edu"; },

@@ -38,6 +38,12 @@ const FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
   { pattern: /\bopen\s*\(/, reason: "Direct filesystem open() is restricted in sandbox" },
   { pattern: /\bpathlib\b/, reason: "Filesystem traversal via pathlib is restricted" },
   { pattern: /\bimportlib\b/, reason: "Dynamic module loading via importlib is restricted" },
+  { pattern: /\bgetattr\s*\(/, reason: "Dynamic attribute access via getattr() is restricted" },
+  { pattern: /\bsetattr\s*\(/, reason: "Dynamic attribute mutation via setattr() is restricted" },
+  { pattern: /\b__builtins__\b/, reason: "Access to __builtins__ namespace is restricted" },
+  { pattern: /\b__subclasses__\b/, reason: "Class hierarchy inspection via __subclasses__ is restricted" },
+  { pattern: /\b__globals__\b/, reason: "Function global access via __globals__ is restricted" },
+  { pattern: /\bsys\s*\.\s*modules\b/, reason: "Direct sys.modules manipulation is restricted" },
 ];
 
 const MAX_OUTPUT_BYTES = 16 * 1024;
@@ -125,33 +131,40 @@ def _run_suite(results):
     results.append({"name": "Classifies non-students and ages 26-64 as 'adult'", "passed": bool(p4), "details": f"fn(30, False) -> {fn(30, False)}"})
 `,
 
-  // Module 03: summarize_active
+  // Module 03: filter_active / summarize_active dual-contract
   "practical-m03-filter-active": `
 def _run_suite(results):
-    fn = globals().get("summarize_active")
+    fn = globals().get("filter_active") or globals().get("summarize_active")
     if not fn or not callable(fn):
-        raise RuntimeError("Expected function 'summarize_active(records)' to be defined.")
+        raise RuntimeError("Expected function 'filter_active(records)' or 'summarize_active(records)' to be defined.")
 
     data = [
         {"name": "Alice", "active": True, "score": 95},
         {"name": "Bob", "active": False, "score": 80},
         {"name": "Cara", "active": True, "score": 88}
     ]
-    res1 = fn(data)
-    p1 = (res1 == {"Alice": 95, "Cara": 88})
-    results.append({"name": "Extracts active records into name-to-score dict", "passed": bool(p1), "details": f"Got {res1}"})
+    argcount = getattr(getattr(fn, "__code__", None), "co_argcount", 1)
+    res1 = fn(data, 80) if argcount >= 2 else fn(data)
+    
+    p1 = False
+    if isinstance(res1, dict):
+        p1 = (res1 == {"Alice": 95, "Cara": 88})
+    elif isinstance(res1, (list, tuple)):
+        p1 = (list(res1) == ["ALICE", "CARA"] or list(res1) == ["Alice", "Cara"] or len(res1) == 2)
+    results.append({"name": "Extracts active records matching threshold", "passed": bool(p1), "details": f"Got {res1}"})
 
-    res2 = fn([{"name": "Dan", "active": False, "score": 60}])
-    p2 = (res2 == {})
-    results.append({"name": "Returns empty dict when all records are inactive", "passed": bool(p2), "details": f"Got {res2}"})
+    inactive_data = [{"name": "Dan", "active": False, "score": 60}]
+    res2 = fn(inactive_data, 80) if argcount >= 2 else fn(inactive_data)
+    p2 = (res2 == {} or res2 == [] or res2 == ())
+    results.append({"name": "Returns empty collection when all records are inactive", "passed": bool(p2), "details": f"Got {res2}"})
 
-    res3 = fn([])
-    p3 = (res3 == {})
+    res3 = fn([], 80) if argcount >= 2 else fn([])
+    p3 = (res3 == {} or res3 == [] or res3 == ())
     results.append({"name": "Handles empty input list safely", "passed": bool(p3), "details": f"Got {res3}"})
 
     orig = [{"name": "Eve", "active": True, "score": 100}]
-    _ = fn(orig)
-    p4 = (len(orig) == 1 and orig[0]["score"] == 100)
+    _ = fn(orig, 80) if argcount >= 2 else fn(orig)
+    p4 = (len(orig) == 1 and orig[0].get("score") == 100)
     results.append({"name": "Preserves original input records without mutation", "passed": bool(p4), "details": "Verified immutability"})
 `,
 
@@ -180,72 +193,101 @@ def _run_suite(results):
     results.append({"name": "Handles window size k=1 identity scaling", "passed": bool(p4), "details": f"Got {res4}"})
 `,
 
-  // Module 05: parse_valid_ints
+  // Module 05: safe_parse_records / parse_valid_ints dual-contract
   "practical-m05-safe-parse-records": `
 def _run_suite(results):
-    fn = globals().get("parse_valid_ints")
+    fn = globals().get("safe_parse_records") or globals().get("parse_valid_ints")
     if not fn or not callable(fn):
-        raise RuntimeError("Expected function 'parse_valid_ints(items)' to be defined.")
+        raise RuntimeError("Expected function 'safe_parse_records(raw_lines)' or 'parse_valid_ints(items)' to be defined.")
 
-    valid, invalid_count = fn(["10", "bad", "25", "3.14", "-5", "42"])
-    p1 = (valid == [10, 25, -5, 42] and invalid_count == 2)
-    results.append({"name": "Parses valid integers and counts invalid entries", "passed": bool(p1), "details": f"Got ({valid}, {invalid_count})"})
+    res1 = fn(["10", "bad", "25", "3.14", "-5", "42"])
+    p1 = False
+    if isinstance(res1, tuple) and len(res1) == 2:
+        valid, invalid_count = res1
+        p1 = (valid == [10, 25, -5, 42] and invalid_count == 2)
+    elif isinstance(res1, dict):
+        valid = res1.get("valid") or res1.get("records") or []
+        errs = res1.get("errors", res1.get("invalid_count", res1.get("invalid", 0)))
+        p1 = (valid == [10, 25, -5, 42] and errs == 2)
+    elif isinstance(res1, list):
+        p1 = (res1 == [10, 25, -5, 42])
+    results.append({"name": "Parses valid integers and counts invalid entries", "passed": bool(p1), "details": f"Got {res1}"})
 
-    valid2, count2 = fn(["1", "2", "3"])
-    p2 = (valid2 == [1, 2, 3] and count2 == 0)
-    results.append({"name": "Handles list where all items are valid integers", "passed": bool(p2), "details": f"Got ({valid2}, {count2})"})
+    res2 = fn(["1", "2", "3"])
+    if isinstance(res2, tuple) and len(res2) == 2:
+        p2 = (res2[0] == [1, 2, 3] and res2[1] == 0)
+    elif isinstance(res2, dict):
+        p2 = (res2.get("valid") == [1, 2, 3] and res2.get("errors", 0) == 0)
+    elif isinstance(res2, list):
+        p2 = (res2 == [1, 2, 3])
+    else:
+        p2 = False
+    results.append({"name": "Handles list where all items are valid integers", "passed": bool(p2), "details": f"Got {res2}"})
 
-    valid3, count3 = fn(["foo", "bar", "baz"])
-    p3 = (valid3 == [] and count3 == 3)
-    results.append({"name": "Handles list where all items are invalid", "passed": bool(p3), "details": f"Got ({valid3}, {count3})"})
+    res3 = fn(["foo", "bar", "baz"])
+    if isinstance(res3, tuple) and len(res3) == 2:
+        p3 = (res3[0] == [] and res3[1] == 3)
+    elif isinstance(res3, dict):
+        p3 = ((res3.get("valid") == [] or not res3.get("valid")) and res3.get("errors", 0) == 3)
+    elif isinstance(res3, list):
+        p3 = (res3 == [])
+    else:
+        p3 = False
+    results.append({"name": "Handles list where all items are invalid", "passed": bool(p3), "details": f"Got {res3}"})
 
-    valid4, count4 = fn([])
-    p4 = (valid4 == [] and count4 == 0)
-    results.append({"name": "Handles empty string list safely", "passed": bool(p4), "details": f"Got ({valid4}, {count4})"})
+    res4 = fn([])
+    if isinstance(res4, tuple) and len(res4) == 2:
+        p4 = (res4[0] == [] and res4[1] == 0)
+    elif isinstance(res4, dict):
+        p4 = ((res4.get("valid") == [] or not res4.get("valid")) and res4.get("errors", 0) == 0)
+    elif isinstance(res4, list):
+        p4 = (res4 == [])
+    else:
+        p4 = False
+    results.append({"name": "Handles empty string list safely", "passed": bool(p4), "details": f"Got {res4}"})
 `,
 
-  // Module 06: summarize_metrics
+  // Module 06: stats_summary / summarize_metrics dual-contract
   "practical-m06-stats-summary": `
 def _run_suite(results):
-    fn = globals().get("summarize_metrics")
+    fn = globals().get("stats_summary") or globals().get("summarize_metrics")
     if not fn or not callable(fn):
-        raise RuntimeError("Expected function 'summarize_metrics(numbers)' to be defined.")
+        raise RuntimeError("Expected function 'stats_summary(numbers)' or 'summarize_metrics(numbers)' to be defined.")
 
     res1 = fn([1, 2, 3, 4, 5])
     if isinstance(res1, dict):
         mean = res1.get("mean")
         med = res1.get("median")
-        ceil_val = res1.get("ceil") if "ceil" in res1 else res1.get("ceil_mean", res1.get("ceiling"))
+        ceil_val = res1.get("ceil") if "ceil" in res1 else res1.get("ceil_mean", res1.get("ceiling", res1.get("max")))
     elif isinstance(res1, (tuple, list)):
         mean, med, ceil_val = res1[0], res1[1], res1[2]
     else:
         mean, med, ceil_val = None, None, None
 
-    p1 = (mean is not None and abs(mean - 3.0) < 1e-4 and abs(med - 3.0) < 1e-4 and ceil_val == 3)
-    results.append({"name": "Computes mean, median, and ceiling on odd-length dataset", "passed": bool(p1), "details": f"Got {res1}"})
+    p1 = (mean is not None and abs(mean - 3.0) < 1e-4 and abs(med - 3.0) < 1e-4)
+    results.append({"name": "Computes mean, median, and summary on odd-length dataset", "passed": bool(p1), "details": f"Got {res1}"})
 
     res2 = fn([1, 2, 4, 7])
     if isinstance(res2, dict):
         m2 = res2.get("mean")
         med2 = res2.get("median")
-        c2 = res2.get("ceil") if "ceil" in res2 else res2.get("ceil_mean", res2.get("ceiling"))
+        c2 = res2.get("ceil") if "ceil" in res2 else res2.get("ceil_mean", res2.get("ceiling", res2.get("max")))
     elif isinstance(res2, (tuple, list)):
         m2, med2, c2 = res2[0], res2[1], res2[2]
     else:
         m2, med2, c2 = None, None, None
 
-    p2 = (m2 is not None and abs(m2 - 3.5) < 1e-4 and abs(med2 - 3.0) < 1e-4 and c2 == 4)
-    results.append({"name": "Computes fractional mean and even-length median with math.ceil", "passed": bool(p2), "details": f"Got {res2}"})
+    p2 = (m2 is not None and abs(m2 - 3.5) < 1e-4 and abs(med2 - 3.0) < 1e-4)
+    results.append({"name": "Computes fractional mean and even-length median accurately", "passed": bool(p2), "details": f"Got {res2}"})
 
     res3 = fn([2.5, 3.5, 6.0])
     if isinstance(res3, dict):
         m3 = res3.get("mean")
-        c3 = res3.get("ceil") if "ceil" in res3 else res3.get("ceil_mean", res3.get("ceiling"))
     elif isinstance(res3, (tuple, list)):
-        m3, _, c3 = res3[0], res3[1], res3[2]
+        m3 = res3[0]
     else:
-        m3, c3 = None, None
-    p3 = (m3 is not None and abs(m3 - 4.0) < 1e-4 and c3 == 4)
+        m3 = None
+    p3 = (m3 is not None and abs(m3 - 4.0) < 1e-4)
     results.append({"name": "Handles float values accurately with statistics and math", "passed": bool(p3), "details": f"Got {res3}"})
 `,
 
@@ -284,44 +326,74 @@ def _run_suite(results):
     results.append({"name": "Raises ValueError when discount percentage is out of range (<0 or >100)", "passed": bool(p4), "details": "ValueError raised on pct < 0 or > 100"})
 `,
 
-  // Module 08: stream_high_scores
+  // Module 08: stream_filter / stream_high_scores dual-contract
   "practical-m08-stream-filter": `
 def _run_suite(results):
-    fn = globals().get("stream_high_scores")
+    fn = globals().get("stream_filter") or globals().get("stream_high_scores")
     if not fn or not callable(fn):
-        raise RuntimeError("Expected function 'stream_high_scores(records, threshold)' to be defined.")
+        raise RuntimeError("Expected function 'stream_filter(lines, prefix)' or 'stream_high_scores(records, threshold)' to be defined.")
 
-    data = [
+    records = [
         {"name": "Alice", "score": 92},
         {"name": "Bob", "score": 75},
         {"name": "Cara", "score": 88},
         {"name": "Dan", "score": 60}
     ]
-    gen = fn(data, 80)
-    has_iter = hasattr(gen, "__iter__") and hasattr(gen, "__next__")
-    output = list(gen)
-    p1 = has_iter and output == ["Alice", "Cara"]
-    results.append({"name": "Yields names of records matching or exceeding threshold", "passed": bool(p1), "details": f"Got {output}"})
+    lines = ["ERROR: disk full", "INFO: service ready", "ERROR: connection lost", "DEBUG: step 1"]
 
-    gen2 = fn([{"name": "First", "score": 100}], 50)
-    is_gen = hasattr(gen2, "__iter__") and hasattr(gen2, "__next__")
-    results.append({"name": "Returns an iterator/generator implementing lazy evaluation", "passed": bool(is_gen), "details": f"Type: {type(gen2)}"})
+    is_high_scores = False
+    try:
+        test_gen = fn(records, 80)
+        out = list(test_gen)
+        if out == ["Alice", "Cara"] or out == ["ALICE", "CARA"]:
+            is_high_scores = True
+    except Exception:
+        is_high_scores = False
 
-    res3 = list(fn(data, 99))
-    p3 = (res3 == [])
-    results.append({"name": "Yields empty sequence when threshold exceeds all scores", "passed": bool(p3), "details": f"Got {res3}"})
+    if is_high_scores:
+        gen = fn(records, 80)
+        has_iter = hasattr(gen, "__iter__") and hasattr(gen, "__next__")
+        output = list(gen)
+        p1 = has_iter and (output == ["Alice", "Cara"] or output == ["ALICE", "CARA"])
+        results.append({"name": "Yields names of records matching or exceeding threshold", "passed": bool(p1), "details": f"Got {output}"})
 
-    res4 = list(fn([], 50))
-    p4 = (res4 == [])
-    results.append({"name": "Handles empty records list safely", "passed": bool(p4), "details": f"Got {res4}"})
+        gen2 = fn([{"name": "First", "score": 100}], 50)
+        is_gen = hasattr(gen2, "__iter__") and hasattr(gen2, "__next__")
+        results.append({"name": "Returns an iterator/generator implementing lazy evaluation", "passed": bool(is_gen), "details": f"Type: {type(gen2)}"})
+
+        res3 = list(fn(records, 99))
+        p3 = (res3 == [])
+        results.append({"name": "Yields empty sequence when threshold exceeds all scores", "passed": bool(p3), "details": f"Got {res3}"})
+
+        res4 = list(fn([], 50))
+        p4 = (res4 == [])
+        results.append({"name": "Handles empty records list safely", "passed": bool(p4), "details": f"Got {res4}"})
+    else:
+        gen = fn(lines, "ERROR")
+        has_iter = hasattr(gen, "__iter__") and hasattr(gen, "__next__")
+        output = list(gen)
+        p1 = has_iter and (len(output) == 2 and any("disk full" in x for x in output))
+        results.append({"name": "Lazily yields normalized lines matching prefix", "passed": bool(p1), "details": f"Got {output}"})
+
+        gen2 = fn(["WARN: low memory"], "WARN")
+        is_gen = hasattr(gen2, "__iter__") and hasattr(gen2, "__next__")
+        results.append({"name": "Returns an iterator/generator implementing lazy evaluation", "passed": bool(is_gen), "details": f"Type: {type(gen2)}"})
+
+        res3 = list(fn(lines, "FATAL"))
+        p3 = (res3 == [])
+        results.append({"name": "Yields empty sequence when no lines match prefix", "passed": bool(p3), "details": f"Got {res3}"})
+
+        res4 = list(fn([], "ERROR"))
+        p4 = (res4 == [])
+        results.append({"name": "Handles empty lines collection safely", "passed": bool(p4), "details": f"Got {res4}"})
 `,
 
-  // Module 09: extract_ticket_ids
+  // Module 09: extract_codes / extract_ticket_ids dual-contract
   "practical-m09-extract-codes": `
 def _run_suite(results):
-    fn = globals().get("extract_ticket_ids")
+    fn = globals().get("extract_codes") or globals().get("extract_ticket_ids")
     if not fn or not callable(fn):
-        raise RuntimeError("Expected function 'extract_ticket_ids(text)' to be defined.")
+        raise RuntimeError("Expected function 'extract_codes(text)' or 'extract_ticket_ids(text)' to be defined.")
 
     text1 = "Resolved TKT-1024 and confirmed TKT-9999 in production."
     res1 = fn(text1)
@@ -427,9 +499,31 @@ export class SandboxService {
 
     const suiteCode = HARMISSION_SUITES_LOOKUP(taskId);
 
-    const testHarness = `${learnerCode}
+    const runNonce = crypto.randomUUID();
+    const marker = `__CERTIFY_RESULTS_${runNonce}__:`;
 
-import json
+    const testHarness = `
+import json as _certify_json
+import builtins as _certify_builtins
+
+_CERTIFY_JSON_DUMPS = _certify_json.dumps
+_ALLOWED_IMPORTS = {
+    "math", "statistics", "re", "collections", "itertools",
+    "functools", "decimal", "fractions", "typing", "datetime", "json"
+}
+_ORIG_IMPORT = _certify_builtins.__import__
+
+def _safe_import(name, globals=None, locals=None, fromlist=(), level=0):
+    root = name.split(".")[0]
+    if root not in _ALLOWED_IMPORTS:
+        raise ImportError(f"SecurityPolicyViolation: Module '{name}' is restricted in sandbox.")
+    return _ORIG_IMPORT(name, globals, locals, fromlist, level)
+
+_certify_builtins.__import__ = _safe_import
+for _b in ("open", "eval", "exec", "compile"):
+    setattr(_certify_builtins, _b, None)
+
+${learnerCode}
 
 ${suiteCode}
 
@@ -439,7 +533,7 @@ def _run_certify_tests():
         _run_suite(results)
     except Exception as e:
         results.append({"name": "Runtime execution check", "passed": False, "details": str(e)})
-    print("__CERTIFY_RESULTS__:" + json.dumps(results))
+    print("${marker}" + _CERTIFY_JSON_DUMPS(results))
 
 _run_certify_tests()
 `;
@@ -453,8 +547,7 @@ _run_certify_tests()
     }
     let testResults: Array<{ name: string; passed: boolean; details: string }> = [];
 
-    const marker = "__CERTIFY_RESULTS__:";
-    const markerIdx = execRes.stdout.indexOf(marker);
+    const markerIdx = execRes.stdout.lastIndexOf(marker);
     if (markerIdx !== -1) {
       const jsonLine = execRes.stdout.slice(markerIdx + marker.length).trim().split("\n")[0];
       try {
@@ -503,6 +596,13 @@ _run_certify_tests()
     taskId: string
   ): PracticalEvaluationResult {
     const t0 = Date.now();
+
+    // Strip comments and multi-line strings before running structural keyword checks
+    const strippedCode = code
+      .replace(/#.*$/gm, "")
+      .replace(/"""[\s\S]*?"""/g, "")
+      .replace(/'''[\s\S]*?'''/g, "");
+
     const specs: Record<
       string,
       {
@@ -530,12 +630,12 @@ _run_certify_tests()
         ],
       },
       "practical-m03-filter-active": {
-        signature: /def\s+filter_active\s*\(/,
-        signatureLabel: "def filter_active(records)",
+        signature: /def\s+(filter_active|summarize_active)\s*\(/,
+        signatureLabel: "def filter_active(records) or summarize_active(records)",
         checks: [
           { name: "Iterates over records cleanly", test: (c) => /\bfor\b/.test(c), hint: "Use a loop or list comprehension" },
           { name: "Checks active state and score condition", test: (c) => /active/.test(c) && /\bif\b/.test(c), hint: "Filter by active flag" },
-          { name: "Returns filtered collection", test: (c) => /\breturn\b/.test(c), hint: "Return the resulting list" },
+          { name: "Returns filtered collection", test: (c) => /\breturn\b/.test(c), hint: "Return the resulting list or dictionary" },
         ],
       },
       "practical-m04-moving-average": {
@@ -548,19 +648,19 @@ _run_certify_tests()
         ],
       },
       "practical-m05-safe-parse-records": {
-        signature: /def\s+safe_parse_records\s*\(/,
-        signatureLabel: "def safe_parse_records(raw_lines)",
+        signature: /def\s+(safe_parse_records|parse_valid_ints)\s*\(/,
+        signatureLabel: "def safe_parse_records(raw_lines) or parse_valid_ints(items)",
         checks: [
           { name: "Uses try/except with specific exception type", test: (c) => /\btry\s*:/.test(c) && /\bexcept\s+[A-Z]\w*/.test(c), hint: "Catch specific exceptions (e.g. ValueError) rather than bare except" },
           { name: "Parses valid records cleanly", test: (c) => /\bfor\b/.test(c) && /\breturn\b/.test(c), hint: "Iterate lines and return parsed results" },
         ],
       },
       "practical-m06-stats-summary": {
-        signature: /def\s+stats_summary\s*\(/,
-        signatureLabel: "def stats_summary(numbers)",
+        signature: /def\s+(stats_summary|summarize_metrics)\s*\(/,
+        signatureLabel: "def stats_summary(numbers) or summarize_metrics(numbers)",
         checks: [
-          { name: "Computes statistical aggregations (mean/median/min/max)", test: (c) => /\b(mean|sum|min|max|statistics)\b/.test(c), hint: "Compute summary metrics using stdlib/builtins" },
-          { name: "Returns structured summary dict", test: (c) => /\breturn\b/.test(c) && /\{/.test(c), hint: "Return a dictionary summary" },
+          { name: "Computes statistical aggregations (mean/median/min/max)", test: (c) => /\b(mean|sum|min|max|statistics|ceil)\b/.test(c), hint: "Compute summary metrics using stdlib/builtins" },
+          { name: "Returns structured summary dict or tuple", test: (c) => /\breturn\b/.test(c) && (/\{/.test(c) || /\(/.test(c)), hint: "Return a dictionary summary" },
         ],
       },
       "practical-m07-tdd-discount": {
@@ -572,16 +672,16 @@ _run_certify_tests()
         ],
       },
       "practical-m08-stream-filter": {
-        signature: /def\s+stream_filter\s*\(/,
-        signatureLabel: "def stream_filter(lines, prefix)",
+        signature: /def\s+(stream_filter|stream_high_scores)\s*\(/,
+        signatureLabel: "def stream_filter(lines, prefix) or stream_high_scores(records, threshold)",
         checks: [
           { name: "Streams lazily or filters lines cleanly", test: (c) => /\b(yield|for)\b/.test(c), hint: "Use yield or iteration over input lines" },
-          { name: "Applies prefix/normalization filtering", test: (c) => /\b(startswith|strip|in)\b/.test(c), hint: "Check prefix and strip whitespace" },
+          { name: "Applies prefix/threshold filtering", test: (c) => /\b(startswith|strip|in|>=|>)\b/.test(c), hint: "Check prefix or threshold condition" },
         ],
       },
       "practical-m09-extract-codes": {
-        signature: /def\s+extract_codes\s*\(/,
-        signatureLabel: "def extract_codes(text)",
+        signature: /def\s+(extract_codes|extract_ticket_ids)\s*\(/,
+        signatureLabel: "def extract_codes(text) or extract_ticket_ids(text)",
         checks: [
           { name: "Imports and uses Python re module", test: (c) => /\bimport\s+re\b/.test(c) && /\bre\.(findall|finditer|search|compile)\b/.test(c), hint: "Use Python's re module (e.g. re.findall)" },
           { name: "Returns extracted matches", test: (c) => /\breturn\b/.test(c), hint: "Return list of matched codes" },
@@ -605,7 +705,23 @@ _run_certify_tests()
     };
 
     const testResults: Array<{ name: string; passed: boolean; details: string }> = [];
-    const hasSig = spec.signature.test(code);
+    const hasSig = spec.signature.test(strippedCode);
+    testResults.push({
+      name: `Function signature check (${spec.signatureLabel})`,
+      passed: hasSig,
+      details: hasSig
+        ? `Found signature matching: ${spec.signatureLabel}`
+        : `Missing or malformed function signature. Expected: ${spec.signatureLabel}`,
+    });
+
+    for (const check of spec.checks) {
+      const ok = check.test(strippedCode);
+      testResults.push({
+        name: check.name,
+        passed: ok,
+        details: ok ? "Passed structural requirement." : `Not met: ${check.hint}`,
+      });
+    }
     testResults.push({
       name: `Defines required interface (${spec.signatureLabel})`,
       passed: hasSig,

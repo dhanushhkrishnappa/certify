@@ -46,8 +46,42 @@ storageHonoRouter.post(
   }
 );
 
-// Verify access to a private artifact
-storageHonoRouter.get("/:key", honoAuthMiddleware, async (c) => {
+// Upload binary artifact payload directly to storage (R2 bucket or local dev simulation)
+storageHonoRouter.put(
+  "/upload/:key{.*}",
+  honoAuthMiddleware,
+  honoRateLimiter({ maxRequests: 20, windowSeconds: 60, keyPrefix: "upload-bin" }),
+  async (c) => {
+    try {
+      const key = c.req.param("key") || "";
+      const user = c.get("user");
+
+      const access = await R2StorageService.authorizeArtifactAccess(key, user.id, user.role);
+      if (!access.authorized || !access.artifact) {
+        return c.json({ error: access.error || "Forbidden" }, 403);
+      }
+
+      const r2Bucket = (c.env as any)?.R2_BUCKET;
+      if (r2Bucket && typeof r2Bucket.put === "function") {
+        const bodyBuffer = await c.req.arrayBuffer();
+        await r2Bucket.put(key, bodyBuffer, {
+          httpMetadata: { contentType: access.artifact.mimeType },
+        });
+      }
+
+      return c.json({
+        uploaded: true,
+        storageKey: key,
+        mimeType: access.artifact.mimeType,
+      });
+    } catch (err: any) {
+      return c.json({ error: "Upload failed", details: err?.message }, 500);
+    }
+  }
+);
+
+// Verify access and metadata of a private artifact (handles multi-segment paths cleanly)
+storageHonoRouter.get("/:key{.*}", honoAuthMiddleware, async (c) => {
   try {
     const key = c.req.param("key") || "";
     const user = c.get("user");

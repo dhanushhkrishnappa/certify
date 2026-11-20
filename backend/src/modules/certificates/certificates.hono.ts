@@ -6,6 +6,8 @@ import { honoRateLimiter } from "../../shared/middleware/honoRateLimit.js";
 import { CertificationEvaluator, EvidenceComponents } from "../mastery/bkt.js";
 import { CredentialCryptoService } from "./crypto.service.js";
 import { EmailService } from "../email/email.service.js";
+import { ProgressionService } from "../progression/progression.service.js";
+import { config } from "../../config/index.js";
 
 export const certificatesHonoRouter = new Hono();
 
@@ -124,12 +126,26 @@ certificatesHonoRouter.get(
         );
       }
 
-      let keyId = "ed25519-2026-v1";
+      let keyId = certificate.keyId || config.ed25519KeyId || "certify-2026-key-1";
+      let ruleVersion = config.ruleVersion || "2026.1";
       try {
         const summary = JSON.parse(certificate.evidenceSummary);
         if (summary.keyId) keyId = summary.keyId;
+        if (summary.ruleVersion) ruleVersion = summary.ruleVersion;
       } catch {
         // Fallback default
+      }
+
+      // If keyId is not in active in-memory cache, look up DB signing_key_registry
+      let publicKeyPemOverride: string | undefined;
+      const knownKeys = CredentialCryptoService.getAllPublicKeys();
+      if (!knownKeys.some((k) => k.keyId === keyId)) {
+        const regEntry = await prisma.signingKeyRegistry.findUnique({
+          where: { keyId },
+        });
+        if (regEntry?.publicKeyPem) {
+          publicKeyPemOverride = regEntry.publicKeyPem;
+        }
       }
 
       const canonicalPayload = {
@@ -141,14 +157,15 @@ certificatesHonoRouter.get(
         enrollmentId: certificate.enrollment.id,
         issuedAt: certificate.issuedAt.toISOString(),
         recipientName: certificate.enrollment.user.fullName,
-        ruleVersion: "2026.1",
+        ruleVersion,
         tier: certificate.tier,
       };
 
       const isSignatureValid = CredentialCryptoService.verifyCredential(
         canonicalPayload,
         certificate.signatureHash,
-        keyId
+        keyId,
+        publicKeyPemOverride
       );
 
       const isOverallValid = certificate.status === "VALID" && isSignatureValid;
@@ -218,7 +235,32 @@ certificatesHonoRouter.post(
         });
       }
 
-      // 1. Deterministic Evidence Signals
+      // 1. Enforce Module and Practical Completion Gates
+      await ProgressionService.ensureInitialized(enrollment.id);
+      const moduleProgresses = await prisma.moduleProgress.findMany({
+        where: { enrollmentId: enrollment.id },
+      });
+
+      const totalModules = moduleProgresses.length || 10;
+      const completedModules = moduleProgresses.filter(
+        (m) => m.status === "COMPLETED" && m.practicalPassed
+      ).length;
+
+      if (completedModules < totalModules) {
+        return c.json(
+          {
+            error: "Certificate Requirements Not Met",
+            reasons: [
+              `Completed ${completedModules} of ${totalModules} required modules and practical tasks.`,
+            ],
+            completedModules,
+            totalModules,
+          },
+          400
+        );
+      }
+
+      // 2. Deterministic Evidence Signals (Zero Defaults - No Artificial Gifts)
       const masteries = enrollment.conceptMasteries;
       const totalConcepts = masteries.length;
       const sumP = masteries.reduce((acc, m) => acc + m.pMastery, 0);
@@ -230,15 +272,33 @@ certificatesHonoRouter.post(
       const practicalScore =
         practicalAttempts.length > 0
           ? Number((practicalAttempts.reduce((acc, a) => acc + (a.score || 0), 0) / practicalAttempts.length).toFixed(4))
-          : 0.85;
+          : 0;
 
       const vivaAttempts = enrollment.assessments.filter(
         (a) => a.assessmentType === "VIVA" && a.status === "EVALUATED" && typeof a.score === "number"
       );
       const vivaScore =
-        vivaAttempts.length > 0
-          ? Number((vivaAttempts.reduce((acc, a) => acc + (a.score || 0), 0) / vivaAttempts.length).toFixed(4))
-          : 0.82;
+        vivaAttempts.length >= 3
+          ? Number(
+              (
+                vivaAttempts.slice(-3).reduce((acc, a) => acc + (a.score || 0), 0) / 3
+              ).toFixed(4)
+            )
+          : 0;
+
+      if (vivaAttempts.length < 3 || vivaScore < 0.70) {
+        return c.json(
+          {
+            error: "Certificate Requirements Not Met",
+            reasons: [
+              `Oral Viva Defense incomplete or below 70% threshold (${vivaAttempts.length}/3 turns completed, score: ${(vivaScore * 100).toFixed(1)}%).`,
+            ],
+            vivaAttempts: vivaAttempts.length,
+            vivaScore,
+          },
+          400
+        );
+      }
 
       const masteredCount = masteries.filter((m) => m.pMastery >= 0.70).length;
       const consistency = totalConcepts > 0 ? Number((masteredCount / totalConcepts).toFixed(4)) : 0;
@@ -251,7 +311,7 @@ certificatesHonoRouter.post(
       const interactionDepth =
         dialogueEvidences.length > 0
           ? Number((demonstratedDialogue / dialogueEvidences.length).toFixed(4))
-          : 0.80;
+          : 0;
 
       const evidence: EvidenceComponents = {
         chapterMasteryScore: meanMastery,
@@ -295,6 +355,24 @@ certificatesHonoRouter.post(
 
       const { signature, keyId } = CredentialCryptoService.signCredential(canonicalPayload);
 
+      // Upsert active signing key into SigningKeyRegistry
+      const activeKeyMeta = CredentialCryptoService.getPublicKeyMetadata();
+      await prisma.signingKeyRegistry.upsert({
+        where: { keyId: activeKeyMeta.keyId },
+        update: {
+          publicKeyPem: activeKeyMeta.publicKeyPem,
+          keyFingerprint: activeKeyMeta.keyFingerprint,
+          status: "ACTIVE",
+        },
+        create: {
+          keyId: activeKeyMeta.keyId,
+          algorithm: "Ed25519",
+          publicKeyPem: activeKeyMeta.publicKeyPem,
+          keyFingerprint: activeKeyMeta.keyFingerprint,
+          status: "ACTIVE",
+        },
+      }).catch((e) => console.warn("[Certificates] Key registry upsert warning:", e?.message || e));
+
       const evidenceSummary = JSON.stringify({
         ruleVersion: "2026.1",
         courseTitle: enrollment.courseVersion.course.title,
@@ -318,6 +396,7 @@ certificatesHonoRouter.post(
             compositeScore: evaluation.compositeScore,
             evidenceSummary,
             signatureHash: signature,
+            keyId,
             status: "VALID",
           },
         }),

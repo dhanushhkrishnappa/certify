@@ -443,7 +443,32 @@ export class RubricEvaluatorService {
       });
     }
 
-    // 1. Update each RubricCriterionMastery deterministically
+    // 1. Pre-fetch all existing RubricCriterionMastery records in a single query (F-14 batching)
+    const targetCriterionIds = params.evaluation.criteriaResults
+      .filter((res) => !(params.evidenceType === "DIALOGUE_PROBE" && res.verdict === "MISSING"))
+      .map((res) => res.criterionId);
+
+    const existingMasteries = await prisma.rubricCriterionMastery.findMany({
+      where: {
+        enrollmentId: params.enrollmentId,
+        rubricCriterionId: { in: targetCriterionIds },
+      },
+    });
+    const existingMap = new Map(existingMasteries.map((m) => [m.rubricCriterionId, m]));
+
+    const criterionOperations: Array<{
+      res: typeof params.evaluation.criteriaResults[0];
+      isPositive: boolean;
+      nextP: number;
+      nextStatus: string;
+      bestScore: number;
+      demoCount: number;
+      failCount: number;
+      miscCount: number;
+      misconceptionTag: string | null;
+      lastEvidenceQuote: string | null;
+    }> = [];
+
     for (const res of params.evaluation.criteriaResults) {
       const threshold = critThresholdMap.get(res.criterionId) ?? 0.70;
       const isPositive =
@@ -452,20 +477,11 @@ export class RubricEvaluatorService {
         res.verdict === "MISCONCEPTION" ||
         (params.evidenceType === "CHAPTER_ASSESSMENT" && res.verdict === "MISSING");
 
-      // During casual Socratic dialogue, ignore MISSING on criteria not yet asked about;
-      // only record decisive DEMONSTRATED, PARTIAL, or MISCONCEPTION observations!
       if (params.evidenceType === "DIALOGUE_PROBE" && res.verdict === "MISSING") {
         continue;
       }
 
-      const existing = await prisma.rubricCriterionMastery.findUnique({
-        where: {
-          enrollmentId_rubricCriterionId: {
-            enrollmentId: params.enrollmentId,
-            rubricCriterionId: res.criterionId,
-          },
-        },
-      });
+      const existing = existingMap.get(res.criterionId);
 
       const prevP = existing?.pCriterion ?? 0.15;
       let nextP = prevP;
@@ -497,60 +513,24 @@ export class RubricEvaluatorService {
         nextStatus = "ATTEMPTED";
       }
 
-      await prisma.rubricCriterionMastery.upsert({
-        where: {
-          enrollmentId_rubricCriterionId: {
-            enrollmentId: params.enrollmentId,
-            rubricCriterionId: res.criterionId,
-          },
-        },
-        update: {
-          status: nextStatus,
-          pCriterion: nextP,
-          bestScore,
-          latestScore: res.score,
-          demonstratedCount: demoCount,
-          failedCount: failCount,
-          misconceptionCount: miscCount,
-          lastMisconception:
-            res.verdict === "MISCONCEPTION"
-              ? res.misconceptionTag || "CONCEPTUAL_ERROR"
-              : isPositive
-              ? null
-              : existing?.lastMisconception || null,
-          lastEvidenceQuote: res.evidenceQuote || existing?.lastEvidenceQuote || null,
-          lastEvaluatedAt: now,
-        },
-        create: {
-          enrollmentId: params.enrollmentId,
-          rubricCriterionId: res.criterionId,
-          status: nextStatus,
-          pCriterion: nextP,
-          bestScore,
-          latestScore: res.score,
-          demonstratedCount: demoCount,
-          failedCount: failCount,
-          misconceptionCount: miscCount,
-          lastMisconception:
-            res.verdict === "MISCONCEPTION" ? res.misconceptionTag || "CONCEPTUAL_ERROR" : null,
-          lastEvidenceQuote: res.evidenceQuote || null,
-          lastEvaluatedAt: now,
-        },
-      });
+      const misconceptionTag =
+        res.verdict === "MISCONCEPTION"
+          ? res.misconceptionTag || "CONCEPTUAL_ERROR"
+          : isPositive
+          ? null
+          : existing?.lastMisconception || null;
 
-      await prisma.masteryEvidence.create({
-        data: {
-          conceptMasteryId: conceptMastery.id,
-          rubricCriterionId: res.criterionId,
-          sectionId: params.sectionId || null,
-          evidenceType: params.evidenceType,
-          isDemonstrated: isPositive,
-          score: res.score,
-          confidence: res.confidence,
-          misconceptionTag: res.misconceptionTag || null,
-          evidenceQuote: res.evidenceQuote || null,
-          evaluatorReasoning: res.reasoning || null,
-        },
+      criterionOperations.push({
+        res,
+        isPositive,
+        nextP,
+        nextStatus,
+        bestScore,
+        demoCount,
+        failCount,
+        miscCount,
+        misconceptionTag,
+        lastEvidenceQuote: res.evidenceQuote || existing?.lastEvidenceQuote || null,
       });
 
       updatedCriteria.push({
@@ -559,11 +539,11 @@ export class RubricEvaluatorService {
         pCriterion: nextP,
         verdict: res.verdict,
         score: res.score,
-        misconceptionTag: res.misconceptionTag || null,
+        misconceptionTag,
       });
     }
 
-    // 2. Single Atomic Concept-Level BKT Update (handles BOTH positive & negative evidence!)
+    // 2. Compute Concept-Level BKT
     let nextConceptP = conceptMastery.pMastery;
     let nextState = conceptMastery.state;
     let remediationDelta = 0;
@@ -577,7 +557,6 @@ export class RubricEvaluatorService {
       const obs = params.evaluation.overallPassed && !params.evaluation.hasCriticalMisconception;
       nextConceptP = BayesianKnowledgeTracer.update(conceptMastery.pMastery, obs);
 
-      // Dialogue alone cannot push concept above 0.78 (checkpoint required for MASTERED >= 0.85)
       if (params.capDialogueMastery && params.evidenceType === "DIALOGUE_PROBE" && obs) {
         nextConceptP = Math.min(nextConceptP, 0.78);
       }
@@ -592,18 +571,75 @@ export class RubricEvaluatorService {
       } else {
         nextState = "LEARNING";
       }
-
-      await prisma.conceptMastery.update({
-        where: { id: conceptMastery.id },
-        data: {
-          pMastery: nextConceptP,
-          confidence: Math.min((conceptMastery.confidence || 0.2) + 0.12, 0.96),
-          state: nextState,
-          remediationCycles: { increment: remediationDelta },
-          lastAssessedAt: now,
-        },
-      });
     }
+
+    // 3. Execute all writes atomically in a single Prisma transaction (F-14)
+    await prisma.$transaction(async (tx) => {
+      for (const op of criterionOperations) {
+        await tx.rubricCriterionMastery.upsert({
+          where: {
+            enrollmentId_rubricCriterionId: {
+              enrollmentId: params.enrollmentId,
+              rubricCriterionId: op.res.criterionId,
+            },
+          },
+          update: {
+            status: op.nextStatus,
+            pCriterion: op.nextP,
+            bestScore: op.bestScore,
+            latestScore: op.res.score,
+            demonstratedCount: op.demoCount,
+            failedCount: op.failCount,
+            misconceptionCount: op.miscCount,
+            lastMisconception: op.misconceptionTag,
+            lastEvidenceQuote: op.lastEvidenceQuote,
+            lastEvaluatedAt: now,
+          },
+          create: {
+            enrollmentId: params.enrollmentId,
+            rubricCriterionId: op.res.criterionId,
+            status: op.nextStatus,
+            pCriterion: op.nextP,
+            bestScore: op.bestScore,
+            latestScore: op.res.score,
+            demonstratedCount: op.demoCount,
+            failedCount: op.failCount,
+            misconceptionCount: op.miscCount,
+            lastMisconception: op.misconceptionTag,
+            lastEvidenceQuote: op.lastEvidenceQuote,
+            lastEvaluatedAt: now,
+          },
+        });
+
+        await tx.masteryEvidence.create({
+          data: {
+            conceptMasteryId: conceptMastery.id,
+            rubricCriterionId: op.res.criterionId,
+            sectionId: params.sectionId || null,
+            evidenceType: params.evidenceType,
+            isDemonstrated: op.isPositive,
+            score: op.res.score,
+            confidence: op.res.confidence,
+            misconceptionTag: op.res.misconceptionTag || null,
+            evidenceQuote: op.res.evidenceQuote || null,
+            evaluatorReasoning: op.res.reasoning || null,
+          },
+        });
+      }
+
+      if (shouldUpdateConceptBkt) {
+        await tx.conceptMastery.update({
+          where: { id: conceptMastery.id },
+          data: {
+            pMastery: nextConceptP,
+            confidence: Math.min((conceptMastery.confidence || 0.2) + 0.12, 0.96),
+            state: nextState,
+            remediationCycles: { increment: remediationDelta },
+            lastAssessedAt: now,
+          },
+        });
+      }
+    });
 
     return {
       conceptPMastery: nextConceptP,

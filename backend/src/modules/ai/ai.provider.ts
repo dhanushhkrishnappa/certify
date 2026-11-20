@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { config } from "../../config/index.js";
+import { config, normalizeGeminiModel } from "../../config/index.js";
+import { RubricEvaluatorService, RubricCriterionInput } from "./rubric.evaluator.js";
 
 export class AIProviderError extends Error {
   public readonly statusCode: number;
@@ -109,11 +110,12 @@ Section Teaching Notes:
 ${(context.teachingContent || "First-principles Python semantics.").slice(0, 2200)}${ragNotes}${guardrailBlock}
 
 Core Pedagogical Directives (Direct Clarity + Socratic Anchor):
-1. Direct Clarity First: When the learner asks a question (e.g. "what is mutability?", "what is a variable?", "explain python"), ALWAYS provide a clear, lucid, comprehensive explanation first. Use clean Markdown, intuitive analogies, and concise code snippets. Never evade, deflect, or refuse to explain Python fundamentals!
-2. Anchor to Active Lesson: Connect your explanation directly to the active lesson and mental model: "${context.chapterTitle}" (${context.sectionTitle || ""}).
-3. Socratic Conceptual Check: End your response with ONE engaging, thought-provoking question or mini-puzzle that invites the learner to apply what they just learned or trace the execution in memory.
-4. Warm, Professional & Rigorous: Speak like an elite Computer Science educator (engaging, insightful, mathematically accurate). Avoid repetitive canned intros and artificial length constraints that degrade educational value.
-5. Progression Integrity: Never claim the learner has officially passed, unlocked, or completed sections/chapters/modules—the backend evaluates and tracks progression deterministically.`;
+1. Direct Answers First: When the learner asks a question or gives an answer, first directly validate or answer their question in 2–4 sentences with a 2–4 line Python code snippet whenever relevant. Never deflect, stall, or lecture with vague analogies.
+2. Resolve Pronouns & Context: When the learner uses pronouns like "it", "that", "this", or "why", resolve them directly against the immediately preceding message and code context.
+3. Concrete Guidance for "I Don't Know": When the learner says "I don't know", "not sure", or "idk", immediately provide a concrete 2–3 line Python code snippet explaining the concept directly—never respond with recipe, cooking, or cookie analogies.
+4. Single Socratic Question: Conclude your response with at most ONE focused Socratic question that prompts the learner to trace, predict, or apply the core concept.
+5. Warm, Professional & Rigorous: Speak like an elite Computer Science educator (engaging, insightful, mathematically accurate). Avoid repetitive canned intros.
+6. Progression Integrity: Never claim the learner has officially passed, unlocked, or completed sections/chapters/modules—the backend evaluates and tracks progression deterministically.`;
 }
 
 function generateIntelligentSocraticFallback(context: TutorStreamContext): string {
@@ -121,6 +123,20 @@ function generateIntelligentSocraticFallback(context: TutorStreamContext): strin
   const chapter = context.chapterTitle;
   const section = context.sectionTitle || chapter;
   const concept = context.concepts[0]?.name || "Python Execution";
+
+  // 0. I don't know / Uncertainty
+  if (/^(i don't know|idk|i do not know|not sure|no idea|confused|help|tell me)\b/i.test(query)) {
+    return (
+      `No problem at all! Let's look at a concrete Python example to build intuition for **${section}**:\n\n` +
+      `\`\`\`python\n` +
+      `x = 10\n` +
+      `y = x\n` +
+      `print(id(x) == id(y))  # True: both labels point to the same integer object\n` +
+      `\`\`\`\n` +
+      `Here, \`x\` and \`y\` share the exact same object on the heap until one is rebound.\n\n` +
+      `What do you think happens to \`y\` if we now write \`x = 20\`?`
+    );
+  }
 
   // 1. Greetings
   if (/^(hi|hello|hey|greetings|start|let'?s start|lets start)\b/i.test(query)) {
@@ -275,12 +291,10 @@ export class AIProvider {
       { role: "user", parts: [{ text: context.learnerMessage }] },
     ];
 
-    const candidateModels = [
-      config.geminiTutorModel || "gemini-3-flash-preview",
-      "gemini-3.5-flash",
-      "gemini-3.8-flash",
-      "gemini-flash-latest",
-    ];
+    const primaryModel = normalizeGeminiModel(config.geminiTutorModel);
+    const candidateModels = Array.from(
+      new Set([primaryModel, "gemini-2.5-flash", "gemini-2.0-flash"])
+    );
 
     let lastError: any = null;
 
@@ -298,7 +312,7 @@ export class AIProvider {
             },
             contents,
             generationConfig: {
-              maxOutputTokens: 800,
+              maxOutputTokens: 1200,
               temperature: 0.7,
             },
           }),
@@ -394,85 +408,116 @@ export class AIProvider {
       { role: "user", content: context.learnerMessage },
     ];
 
-    const model = (config as any).groqTutorModel || "openai/gpt-oss-120b";
     const apiKey = (config as any).groqApiKey;
     if (!apiKey) {
       throw new AIProviderError("GROQ_API_KEY is not configured", 503);
     }
 
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
+    const configuredModel = config.groqTutorModel || "llama-3.3-70b-versatile";
+    const candidateModels = Array.from(
+      new Set([configuredModel, "llama-3.3-70b-versatile", "llama-3.1-8b-instant"])
+    );
+
+    let lastError: any = null;
+
+    for (const model of candidateModels) {
+      if (signal?.aborted) break;
+      const isReasoningModel = model.includes("r1") || model.includes("reasoning");
+      const max_tokens = isReasoningModel ? 2048 : 1024;
+      const requestBody: any = {
         model,
         messages,
         temperature: 0.7,
-        max_tokens: 600,
+        max_tokens,
         stream: true,
-      }),
-      signal,
-    });
+      };
+      if (isReasoningModel) {
+        requestBody.reasoning_effort = "low";
+      }
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      throw new AIProviderError(`Groq API error: HTTP ${res.status} - ${errText}`, 502);
-    }
+      try {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(requestBody),
+          signal,
+        });
 
-    const reader = res.body?.getReader();
-    if (!reader) throw new AIProviderError("Groq stream body unavailable", 502);
-    const decoder = new TextDecoder();
-    let fullText = "";
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith("data: ")) continue;
-        const dataStr = trimmed.slice(6).trim();
-        if (dataStr === "[DONE]") break;
-        try {
-          const eventObj = JSON.parse(dataStr);
-          const delta = eventObj.choices?.[0]?.delta?.content;
-          if (delta) {
-            fullText += delta;
-            await onChunk(delta);
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "");
+          if (res.status === 503 || res.status === 429) {
+            console.warn(`[AIProvider] Groq model ${model} returned HTTP ${res.status}, trying fallback model...`);
+            await new Promise((r) => setTimeout(r, 400));
+            continue;
           }
-        } catch {
-          // skip
+          throw new AIProviderError(`Groq API error (${model}): HTTP ${res.status} - ${errText}`, 502);
         }
+
+        const reader = res.body?.getReader();
+        if (!reader) throw new AIProviderError("Groq stream body unavailable", 502);
+        const decoder = new TextDecoder();
+        let fullText = "";
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data: ")) continue;
+            const dataStr = trimmed.slice(6).trim();
+            if (dataStr === "[DONE]") break;
+            try {
+              const eventObj = JSON.parse(dataStr);
+              const delta = eventObj.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullText += delta;
+                await onChunk(delta);
+              }
+            } catch {
+              // skip
+            }
+          }
+        }
+
+        if (buffer.trim().startsWith("data: ")) {
+          const dataStr = buffer.trim().slice(6).trim();
+          if (dataStr !== "[DONE]") {
+            try {
+              const eventObj = JSON.parse(dataStr);
+              const delta = eventObj.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullText += delta;
+                await onChunk(delta);
+              }
+            } catch {
+              // skip
+            }
+          }
+        }
+
+        if (fullText.trim().length > 0) {
+          return {
+            fullText,
+            modelUsed: model,
+            promptVersion: config.promptVersion,
+            provider: "groq",
+          };
+        }
+      } catch (err: any) {
+        if (err.name === "AbortError") throw err;
+        lastError = err;
+        console.warn(`[AIProvider] Groq model ${model} failed (${err?.message}), trying next model...`);
       }
     }
 
-    if (buffer.trim().startsWith("data: ")) {
-      const dataStr = buffer.trim().slice(6).trim();
-      if (dataStr !== "[DONE]") {
-        try {
-          const eventObj = JSON.parse(dataStr);
-          const delta = eventObj.choices?.[0]?.delta?.content;
-          if (delta) {
-            fullText += delta;
-            await onChunk(delta);
-          }
-        } catch {
-          // skip
-        }
-      }
-    }
-
-    return {
-      fullText,
-      modelUsed: model,
-      promptVersion: config.promptVersion,
-      provider: "groq",
-    };
+    throw lastError || new AIProviderError("All Groq candidate models exhausted", 503);
   }
 
   public static async streamTutorReply(
@@ -759,46 +804,144 @@ Guidelines:
   }> {
     this.assertConfiguredOrFallbackAllowed();
     const text = (params.studentAnswer || "").trim();
-    const negated = hasNegationOrConfusion(text);
-    const stuffed = isKeywordStuffing(text);
-    const technicalTerms = [
-      "reference",
-      "memory",
-      "heap",
-      "mutable",
-      "immutable",
-      "complexity",
-      "o(n)",
-      "o(1)",
-      "generator",
-      "yield",
-      "dict",
-      "list",
-      "iteration",
-      "scope",
-      "exception",
-      "zerodivision",
-    ];
-    const lower = text.toLowerCase();
-    const hits = technicalTerms.filter((t) => lower.includes(t)).length;
-    const isDemonstrated = text.length >= 40 && !negated && !stuffed && hits >= 2;
-    const turnScore = isDemonstrated ? Math.min(0.96, 0.78 + hits * 0.04) : 0.35;
+
+    const turnRubricConfigs: Record<number, {
+      conceptName: string;
+      questionPrompt: string;
+      criteria: RubricCriterionInput[];
+    }> = {
+      1: {
+        conceptName: "Core Architecture & Memory Model",
+        questionPrompt:
+          "Turn 1 Defense Probe: Explain Python's execution model from source code to bytecode in CPython, detailing memory allocation on stack vs heap, reference counting, and object lifetimes.",
+        criteria: [
+          {
+            id: "viva-crit-t1-arch",
+            criterionStatement:
+              "Explains bytecode compilation, CPython VM execution, call stack, heap allocation, and reference counting.",
+            weight: 1.0,
+            tierRequired: "ADVANCED",
+            passingThreshold: 0.70,
+            expectedConceptsJson: JSON.stringify([
+              "bytecode",
+              "cpython",
+              "stack",
+              "heap",
+              "reference counting",
+              "memory",
+              "object",
+              "pvm",
+            ]),
+            misconceptionsJson: JSON.stringify([
+              {
+                tag: "compiled_to_native",
+                pattern: "\\bcompiles?\\s+directly\\s+to\\s+(machine\\s+code|binary|assembly)\\b",
+                explanation: "CPython executes bytecode via a virtual machine, not direct machine code.",
+              },
+            ]),
+          },
+        ],
+      },
+      2: {
+        conceptName: "Mutability, Aliasing & Concurrency Safety",
+        questionPrompt:
+          "Turn 2 Defense Probe: How does Python handle mutability and object references under concurrent access, shallow vs deep copying, and what are the architectural implications of the GIL on multithreading versus multiprocessing?",
+        criteria: [
+          {
+            id: "viva-crit-t2-mutability",
+            criterionStatement:
+              "Articulates in-place mutation, object references, shallow vs deep copying, and thread concurrency implications under the GIL.",
+            weight: 1.0,
+            tierRequired: "ADVANCED",
+            passingThreshold: 0.70,
+            expectedConceptsJson: JSON.stringify([
+              "mutable",
+              "immutable",
+              "reference",
+              "copy",
+              "gil",
+              "multiprocessing",
+              "thread",
+              "alias",
+            ]),
+            misconceptionsJson: JSON.stringify([
+              {
+                tag: "gil_parallel_cpu",
+                pattern: "\\bgil\\s+allows?\\s+true\\s+parallel\\s+cpu\\b",
+                explanation:
+                  "The GIL serializes thread execution, preventing parallel bytecode execution on multi-core CPUs.",
+              },
+            ]),
+          },
+        ],
+      },
+      3: {
+        conceptName: "Algorithmic Complexity & Generator Streaming at Scale",
+        questionPrompt:
+          "Turn 3 Defense Probe: If the dataset scales to 50 million records, how do you refactor processing using Python generators (yield), generator pipelines, and lazy evaluation to ensure O(1) memory complexity and optimal time complexity?",
+        criteria: [
+          {
+            id: "viva-crit-t3-generators",
+            criterionStatement:
+              "Analyzes time/space complexity and describes lazy generator pipelines maintaining O(1) auxiliary memory at scale.",
+            weight: 1.0,
+            tierRequired: "ADVANCED",
+            passingThreshold: 0.70,
+            expectedConceptsJson: JSON.stringify([
+              "generator",
+              "yield",
+              "lazy",
+              "o(1)",
+              "memory",
+              "stream",
+              "pipeline",
+              "complexity",
+            ]),
+            misconceptionsJson: JSON.stringify([
+              {
+                tag: "generator_stores_all",
+                pattern: "\\bgenerators?\\s+(stores?|holds?|loads?)\\s+(all|entire|whole)\\b",
+                explanation:
+                  "Generators evaluate on demand and maintain O(1) memory without materializing the dataset.",
+              },
+            ]),
+          },
+        ],
+      },
+    };
 
     const nextQuestions: Record<number, string> = {
       1: "Turn 2 Defense Probe: How would your implementation behave if a caller mutated one of the input dictionary's score lists concurrently, and how would you prevent unintended side effects?",
       2: "Turn 3 Defense Probe: If the input dataset scaled to 50 million records, how would you refactor your solution using Python generators (`yield`) to keep memory complexity at O(1)?",
     };
 
+    const turnConfig = turnRubricConfigs[params.turnNumber] || turnRubricConfigs[1];
+
+    const evalResult = await RubricEvaluatorService.evaluateResponse({
+      conceptName: turnConfig.conceptName,
+      questionPrompt: turnConfig.questionPrompt,
+      learnerText: text,
+      criteria: turnConfig.criteria,
+      mode: "CHECKPOINT",
+    });
+
+    const isDemonstrated = evalResult.overallPassed;
+    const turnScore = evalResult.weightedScore;
+
     return {
       isDemonstrated,
       turnScore: Number(turnScore.toFixed(4)),
-      feedback: isDemonstrated
-        ? `Turn ${params.turnNumber} defense verified with clear Python runtime reasoning.`
-        : `Turn ${params.turnNumber} response lacked specific runtime trade-off analysis or contained a conceptual error.`,
+      feedback:
+        evalResult.overallSummary ||
+        (isDemonstrated
+          ? `Turn ${params.turnNumber} defense verified with clear Python runtime reasoning.`
+          : `Turn ${params.turnNumber} response lacked specific runtime trade-off analysis or contained a conceptual error.`),
       followUpQuestion: params.turnNumber < 3 ? nextQuestions[params.turnNumber] || null : null,
-      modelUsed: this.isRealProviderConfigured()
-        ? config.anthropicEvaluatorModel
-        : "deterministic-viva-evaluator-v1",
+      modelUsed:
+        evalResult.evaluatorModel ||
+        (this.isRealProviderConfigured()
+          ? config.anthropicEvaluatorModel
+          : "deterministic-viva-evaluator-v2"),
     };
   }
 

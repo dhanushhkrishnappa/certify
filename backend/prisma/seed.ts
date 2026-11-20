@@ -53,6 +53,10 @@ function resolveCourseDir(): string {
 }
 
 async function main() {
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_PRODUCTION_SEED !== "true") {
+    throw new Error("CRITICAL: Destructive seed.ts execution is forbidden when NODE_ENV=production.");
+  }
+
   console.log("Seeding CERTIFY database with Python Fundamentals Curriculum v2.0.0...");
 
   const courseBaseDir = resolveCourseDir();

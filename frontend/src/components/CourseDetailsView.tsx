@@ -2006,7 +2006,7 @@ export const CourseDetailsView: React.FC<CourseDetailsViewProps> = ({
             if (res?.isPassed) {
               setFeedbackBanner({
                 type: "success",
-                text: res.progression?.unlockedPractical
+                text: (res.progressionOutcome?.unlockedPractical || res.progression?.unlockedPractical)
                   ? "Checkpoint passed! The Module Practical Task is now unlocked below."
                   : "Checkpoint passed! The next lesson is now unlocked.",
               });

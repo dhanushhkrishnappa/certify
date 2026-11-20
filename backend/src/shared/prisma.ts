@@ -3,8 +3,13 @@ import { Pool, neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { config } from "../config/index.js";
 
+// Detect Cloudflare Workers environment reliably even when nodejs_compat is enabled
+const isCloudflareWorker =
+  (typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers") ||
+  typeof (globalThis as any).WebSocketPair !== "undefined";
+
 // Ensure resilient DNS resolution for local Node dev against router DNS blocks
-if (typeof process !== "undefined" && process.release?.name === "node") {
+if (!isCloudflareWorker && typeof process !== "undefined" && process.release?.name === "node") {
   try {
     const dns = require("node:dns");
     const resolver = new dns.promises.Resolver();
@@ -64,9 +69,16 @@ function getPrismaClient(): PrismaClient {
   if (_clientInstance) return _clientInstance;
 
   const envUrl = typeof process !== "undefined" ? process.env?.DATABASE_URL : undefined;
-  const configUrl = config.databaseUrl && config.databaseUrl.startsWith("postgres") ? config.databaseUrl : undefined;
-  const fallbackUrl = "postgresql://neondb_owner:npg_MNS2lThuz7rQ@ep-falling-bar-azobl4io-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
-  const rawUrl = envUrl || configUrl || fallbackUrl;
+  const configUrl =
+    config.databaseUrl && config.databaseUrl.startsWith("postgres")
+      ? config.databaseUrl
+      : undefined;
+  const rawUrl = envUrl || configUrl;
+  if (!rawUrl) {
+    throw new Error(
+      "[Prisma] CRITICAL: DATABASE_URL environment variable must be explicitly configured to a PostgreSQL connection string. Hardcoded fallback URLs are forbidden."
+    );
+  }
 
   // Clean connection string (remove channel_binding if present to prevent handshake rejections)
   let dbUrl = rawUrl.replace(/([?&])channel_binding=[^&]+(&|$)/g, "$1").replace(/[?&]$/, "");
@@ -75,14 +87,14 @@ function getPrismaClient(): PrismaClient {
   }
 
   // Configure Neon transport
-  if (typeof process !== "undefined" && process.release?.name === "node") {
+  if (isCloudflareWorker) {
+    // Cloudflare Workers edge environment: use HTTP fetch transport
+    neonConfig.poolQueryViaFetch = true;
+  } else if (typeof process !== "undefined" && process.release?.name === "node") {
     try {
       const ws = require("ws");
       neonConfig.webSocketConstructor = ws;
     } catch {}
-  } else {
-    // Cloudflare Workers edge environment: use HTTP fetch transport
-    neonConfig.poolQueryViaFetch = true;
   }
 
   const pool = new Pool({ connectionString: dbUrl });

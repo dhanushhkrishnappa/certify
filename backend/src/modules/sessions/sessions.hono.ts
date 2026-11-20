@@ -17,6 +17,9 @@ import { config } from "../../config/index.js";
 
 export const sessionsHonoRouter = new Hono();
 
+export const stripMarkdownAsterisks = (t?: string | null): string =>
+  t ? t.replace(/^\*+|\*+$/g, "").trim() : "";
+
 // ─── GET /api/v1/courses/:slug/session ───────────────────────────────────────
 // Strictly Read-Only Session Context Query (Zero Database Mutations)
 sessionsHonoRouter.get("/courses/:slug/session", honoAuthMiddleware, async (c) => {
@@ -94,7 +97,7 @@ sessionsHonoRouter.get("/courses/:slug/session", honoAuthMiddleware, async (c) =
           },
         },
         messages: {
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: "desc" },
           take: 50,
         },
       },
@@ -141,8 +144,14 @@ sessionsHonoRouter.get("/courses/:slug/session", honoAuthMiddleware, async (c) =
                   turnsCompleted: secProgMap.get(activeSection.id)?.turnsCompleted || 0,
                 }
               : null,
-            chapter: session.chapter,
-            messages: session.messages,
+            chapter: {
+              ...session.chapter,
+              title: stripMarkdownAsterisks(session.chapter.title),
+            },
+            messages: session.messages
+              .slice()
+              .reverse()
+              .filter((m) => Boolean(m.content?.trim())),
           }
         : null,
       conceptMasteries,
@@ -347,7 +356,7 @@ sessionsHonoRouter.post("/courses/:slug/sessions", honoAuthMiddleware, async (c)
       },
     });
 
-    const cleanChapterTitle = session.chapter.title.replace(/^\*+\s*/, "").trim();
+    const cleanChapterTitle = stripMarkdownAsterisks(session.chapter.title);
     const sectionIntro = activeSection
       ? `\n\n**Active Section:** ${activeSection.title}\n**Objective:** ${activeSection.objective}`
       : "";
@@ -472,8 +481,8 @@ sessionsHonoRouter.post(
         },
         enrollment: true,
         messages: {
-          orderBy: { createdAt: "asc" },
-          take: 20,
+          orderBy: { createdAt: "desc" },
+          take: 16,
         },
       },
     });
@@ -513,7 +522,11 @@ sessionsHonoRouter.post(
     });
     recordUserActivity(user.id).catch(() => {});
 
-    const chatHistory = session.messages.map((m) => ({
+    const rawHistory = session.messages
+      .slice()
+      .reverse()
+      .filter((m) => Boolean(m.content?.trim()));
+    const chatHistory = rawHistory.map((m) => ({
       role: m.role as "user" | "assistant" | "system",
       content: m.content,
     }));
@@ -635,6 +648,23 @@ sessionsHonoRouter.post(
         console.warn("[Sessions] Hard-fenced RAG error:", ragErr);
       }
 
+      // Start Rubric Evaluation CONCURRENTLY with Socratic Tutor streaming (Guardrail #5)
+      const rubricEvalPromise = !driftResult.isDrifting
+        ? Promise.all(
+            currentChapter.concepts.map(async (concept) => {
+              const criteria = concept.rubrics.flatMap((r) => r.criteria);
+              if (criteria.length === 0) return null;
+              const evalResult = await RubricEvaluatorService.evaluateResponse({
+                conceptName: concept.name,
+                learnerText: content,
+                criteria,
+                mode: "DIALOGUE",
+              });
+              return { concept, criteria, evalResult };
+            })
+          ).then((items) => items.filter(Boolean))
+        : Promise.resolve([]);
+
       // Stream grounded Socratic Tutor reply with strict Section-Scoped Prompt Contract
       const streamRes = await AiProviderService.generateSocraticStream({
         courseTitle: "CERTIFY – Python Fundamentals",
@@ -674,23 +704,19 @@ sessionsHonoRouter.post(
         },
       });
 
-      // Deterministic Progression + Hybrid Rubric Evaluation (ONLY when on-topic / non-drifting)
+      // Deterministic Progression + Rubric Persistence (Strictly before SSE "done" event)
       if (!driftResult.isDrifting) {
         let bestRubricPassRatio = 0;
         let anyCriteriaUpdated = false;
 
-        // Evaluate learner dialogue against ALL concepts & rubric criteria in this chapter
-        for (const concept of currentChapter.concepts) {
-          const criteria = concept.rubrics.flatMap((r) => r.criteria);
-          if (criteria.length === 0) continue;
+        const evaluatedConcepts = (await rubricEvalPromise) as Array<{
+          concept: (typeof currentChapter.concepts)[0];
+          criteria: any[];
+          evalResult: any;
+        }>;
 
-          const evalResult = await RubricEvaluatorService.evaluateResponse({
-            conceptName: concept.name,
-            learnerText: content,
-            criteria,
-            mode: "DIALOGUE",
-          });
-
+        for (const item of evaluatedConcepts) {
+          const { concept, criteria, evalResult } = item;
           const persisted = await RubricEvaluatorService.persistEvaluationResults({
             enrollmentId: session.enrollmentId,
             conceptId: concept.id,
@@ -755,9 +781,12 @@ sessionsHonoRouter.post(
         }
 
         if (anyCriteriaUpdated || autoAdvanced) {
-          await AnalyticsService.recomputeSkillProfile(session.enrollmentId).catch((e) =>
-            console.warn("[Analytics] Recompute warning:", e?.message || e)
+          const recomputePromise = AnalyticsService.recomputeSkillProfile(session.enrollmentId).catch(
+            (e) => console.warn("[Analytics] Recompute warning:", e?.message || e)
           );
+          if (c.executionCtx && typeof (c.executionCtx as any).waitUntil === "function") {
+            (c.executionCtx as any).waitUntil(recomputePromise);
+          }
         }
       }
 

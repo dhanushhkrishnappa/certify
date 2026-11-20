@@ -13,7 +13,8 @@ import { AnalyticsService } from "../analytics/analytics.service.js";
 
 export const assessmentHonoRouter = new Hono();
 
-// Rate limiting for assessment submissions (15 req/min)
+// Rate limiting for assessment submissions scoped to authenticated learner (honoAuthMiddleware first)
+assessmentHonoRouter.use("/*", honoAuthMiddleware);
 assessmentHonoRouter.use(
   "/*",
   honoRateLimiter({ maxRequests: 15, windowSeconds: 60, keyPrefix: "assess" })
@@ -22,7 +23,7 @@ assessmentHonoRouter.use(
 // ─── GET /api/v1/assessments/chapters/:chapterId ─────────────────────────────
 // Returns checkpoint questions for a chapter (strictly lock-checked when enrolled).
 // Auto-provisions rubric-aligned conceptual questions if a chapter has 0 bank entries.
-assessmentHonoRouter.get("/chapters/:chapterId", honoAuthMiddleware, async (c) => {
+assessmentHonoRouter.get("/chapters/:chapterId", async (c) => {
   try {
     const chapterId = c.req.param("chapterId") || "";
     const user = c.get("user");
@@ -389,8 +390,8 @@ assessmentHonoRouter.post("/chapters/:chapterId/submit", honoAuthMiddleware, asy
 });
 
 // ─── POST /api/v1/assessments/final/viva ─────────────────────────────────────
-// Final AI Viva Defense Probe Turn (3-turn conversational oral defense)
-assessmentHonoRouter.post("/final/viva", honoAuthMiddleware, async (c) => {
+// Final AI Viva Defense Probe Turn (3-turn conversational oral defense tracked under a single attempt)
+assessmentHonoRouter.post("/final/viva", async (c) => {
   try {
     const body = await c.req.json().catch(() => ({}));
     const { enrollmentId, studentAnswer, turnNumber } = body;
@@ -405,6 +406,28 @@ assessmentHonoRouter.post("/final/viva", honoAuthMiddleware, async (c) => {
       return c.json({ error: "Forbidden: You do not own this enrollment" }, 403);
     }
 
+    // Completion Gate: Verify all 10 modules and practical tasks are completed before oral viva defense
+    await ProgressionService.ensureInitialized(enrollmentId);
+    const moduleProgresses = await prisma.moduleProgress.findMany({
+      where: { enrollmentId },
+    });
+    const totalModules = moduleProgresses.length || 10;
+    const completedModules = moduleProgresses.filter(
+      (m) => m.status === "COMPLETED" && m.practicalPassed
+    ).length;
+
+    if (completedModules < totalModules) {
+      return c.json(
+        {
+          error: "Prerequisites Not Met",
+          message: `You must complete all ${totalModules} modules and pass their practical tasks before taking the Final Oral Viva Defense. (${completedModules}/${totalModules} completed)`,
+          completedModules,
+          totalModules,
+        },
+        400
+      );
+    }
+
     const currentTurn = turnNumber || 1;
     const evalResult = await AiProviderService.evaluateVivaTurn({
       turnNumber: currentTurn,
@@ -412,34 +435,100 @@ assessmentHonoRouter.post("/final/viva", honoAuthMiddleware, async (c) => {
     });
 
     const vivaScore = evalResult.turnScore;
-    await prisma.$transaction(async (tx) => {
-      const attempt = await tx.assessmentAttempt.create({
+
+    // Track all 3 turns under a single AssessmentAttempt of type VIVA
+    let attempt = await prisma.assessmentAttempt.findFirst({
+      where: {
+        enrollmentId,
+        assessmentType: "VIVA",
+        status: "IN_PROGRESS",
+      },
+      include: { vivaTurns: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!attempt) {
+      if (currentTurn === 1) {
+        attempt = await prisma.assessmentAttempt.create({
+          data: {
+            enrollmentId,
+            assessmentType: "VIVA",
+            targetId: "final-viva-defense",
+            status: "IN_PROGRESS",
+            score: 0,
+          },
+          include: { vivaTurns: true },
+        });
+      } else {
+        attempt = await prisma.assessmentAttempt.findFirst({
+          where: { enrollmentId, assessmentType: "VIVA" },
+          include: { vivaTurns: true },
+          orderBy: { createdAt: "desc" },
+        });
+        if (!attempt) {
+          attempt = await prisma.assessmentAttempt.create({
+            data: {
+              enrollmentId,
+              assessmentType: "VIVA",
+              targetId: "final-viva-defense",
+              status: "IN_PROGRESS",
+              score: 0,
+            },
+            include: { vivaTurns: true },
+          });
+        }
+      }
+    }
+
+    await prisma.vivaDefenseTurn.upsert({
+      where: {
+        attemptId_turnNumber: {
+          attemptId: attempt.id,
+          turnNumber: currentTurn,
+        },
+      },
+      update: {
+        questionPrompt: body.questionPrompt || `Viva Oral Defense Question #${currentTurn}`,
+        studentAnswer,
+        turnScore: vivaScore,
+        isDemonstrated: evalResult.isDemonstrated,
+        feedback: evalResult.feedback,
+        followUpProbe: evalResult.followUpQuestion,
+        modelUsed: evalResult.modelUsed,
+      },
+      create: {
+        attemptId: attempt.id,
+        turnNumber: currentTurn,
+        questionPrompt: body.questionPrompt || `Viva Oral Defense Question #${currentTurn}`,
+        studentAnswer,
+        turnScore: vivaScore,
+        isDemonstrated: evalResult.isDemonstrated,
+        feedback: evalResult.feedback,
+        followUpProbe: evalResult.followUpQuestion,
+        modelUsed: evalResult.modelUsed,
+      },
+    });
+
+    // Finalize attempt when turn 3 is submitted
+    if (currentTurn >= 3) {
+      const allTurns = await prisma.vivaDefenseTurn.findMany({
+        where: { attemptId: attempt.id },
+      });
+      const meanVivaScore = Number(
+        (allTurns.reduce((acc, t) => acc + t.turnScore, 0) / (allTurns.length || 1)).toFixed(4)
+      );
+      await prisma.assessmentAttempt.update({
+        where: { id: attempt.id },
         data: {
-          enrollmentId,
-          assessmentType: "VIVA",
-          targetId: `turn-${currentTurn}`,
           status: "EVALUATED",
-          score: vivaScore,
+          score: meanVivaScore,
           completedAt: new Date(),
         },
       });
-
-      await tx.vivaDefenseTurn.create({
-        data: {
-          attemptId: attempt.id,
-          turnNumber: currentTurn,
-          questionPrompt: body.questionPrompt || `Viva Oral Defense Question #${currentTurn}`,
-          studentAnswer,
-          turnScore: vivaScore,
-          isDemonstrated: evalResult.isDemonstrated,
-          feedback: evalResult.feedback,
-          followUpProbe: evalResult.followUpQuestion,
-          modelUsed: evalResult.modelUsed,
-        },
-      });
-    });
+    }
 
     return c.json({
+      attemptId: attempt.id,
       turnNumber: currentTurn,
       isDemonstrated: evalResult.isDemonstrated,
       turnScore: evalResult.turnScore,

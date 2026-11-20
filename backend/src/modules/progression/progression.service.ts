@@ -451,9 +451,12 @@ export class ProgressionService {
       section.sectionType === "TECHNICAL_MECHANICS" ||
       section.sectionType === "PITFALLS_AND_DEBUGGING";
 
+    const hasComprehensionSignal =
+      nextRatio >= 0.35 || nextTurns >= Math.max(section.minTurns + 1, 2);
     const shouldAutoAdvance =
       isInteractiveSection &&
       nextTurns >= section.minTurns &&
+      hasComprehensionSignal &&
       existing?.status !== "COMPLETED";
 
     const nextStatus =
@@ -550,17 +553,17 @@ export class ProgressionService {
             },
           });
 
+          const isCheckpointUpcoming =
+            upcoming.sectionType === "CHAPTER_CHECKPOINT" ||
+            upcoming.sectionType === "MODULE_PRACTICAL";
+
           await tx.learningSession.update({
             where: { id: params.sessionId },
             data: {
               turnCount: { increment: 1 },
-              currentSectionId: upcoming.id,
-              phase:
-                upcoming.sectionType === "CHAPTER_CHECKPOINT"
-                  ? "CHECKING"
-                  : upcoming.sectionType === "MODULE_PRACTICAL"
-                  ? "ASSESSING"
-                  : "TEACHING",
+              ...(isCheckpointUpcoming
+                ? { phase: "PROBING" }
+                : { currentSectionId: upcoming.id, phase: "TEACHING" }),
             },
           });
         } else {

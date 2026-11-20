@@ -13,6 +13,7 @@ import { storageHonoRouter } from "./modules/storage/storage.hono.js";
 import { config } from "./config/index.js";
 import { logger } from "./shared/logger.js";
 import { LOGO_EMAIL_BASE64 } from "./modules/email/logoAsset.js";
+import { isAllowedOrigin } from "./shared/middleware/honoAuth.js";
 
 export const app = new Hono();
 
@@ -48,35 +49,17 @@ app.use(
 );
 
 // 3. Credential-Aware CORS Configuration
-const ALLOWED_ORIGIN_PATTERNS = [
-  "https://certify.studio",
-  "https://www.certify.studio",
-  "https://certify.pages.dev",
-  "https://certify-8fh.pages.dev",
-  "https://certify-ashy-sigma.vercel.app",
-];
-
 app.use(
   "*",
   cors({
     origin: (origin) => {
-      if (!origin) return "*";
-      if (
-        ALLOWED_ORIGIN_PATTERNS.includes(origin) ||
-        origin.endsWith(".certify.studio") ||
-        origin.endsWith(".pages.dev") ||
-        origin.endsWith(".vercel.app") ||
-        origin.startsWith("http://localhost:") ||
-        origin.startsWith("http://127.0.0.1:")
-      ) {
-        return origin;
-      }
-      return origin;
+      if (!origin) return "https://certify.studio";
+      return isAllowedOrigin(origin) ? origin : null;
     },
     credentials: true,
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
-    exposeHeaders: ["Retry-After", "X-Request-Id"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "Cookie", "X-Request-Id", "X-Requested-With"],
+    exposeHeaders: ["Retry-After", "X-Request-Id", "Set-Cookie"],
   })
 );
 
