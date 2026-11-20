@@ -12,6 +12,7 @@ import {
   ProgressionLockedError,
 } from "../progression/progression.service.js";
 import { AnalyticsService } from "../analytics/analytics.service.js";
+import { recordUserActivity } from "../auth/auth.hono.js";
 import { config } from "../../config/index.js";
 
 export const sessionsHonoRouter = new Hono();
@@ -501,7 +502,7 @@ sessionsHonoRouter.post(
       session.chapter.sections[0] ||
       null;
 
-    // Persist User Message
+    // Persist User Message & Record Real-time Activity
     await prisma.chatMessage.create({
       data: {
         sessionId: session.id,
@@ -510,6 +511,7 @@ sessionsHonoRouter.post(
         content,
       },
     });
+    recordUserActivity(user.id).catch(() => {});
 
     const chatHistory = session.messages.map((m) => ({
       role: m.role as "user" | "assistant" | "system",

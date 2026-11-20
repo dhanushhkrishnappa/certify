@@ -333,6 +333,200 @@ authHonoRouter.put("/profile", honoAuthMiddleware, async (c) => {
   }
 });
 
+// ─── GET /api/v1/auth/activity ──────────────────────────────────────────────
+authHonoRouter.get("/activity", async (c) => {
+  try {
+    let session = await auth.api.getSession({ headers: c.req.raw.headers });
+    let userId: string | undefined = session?.user?.id;
+
+    if (!userId) {
+      const authHeader = c.req.header("authorization");
+      const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+      if (bearerToken) {
+        const dbSession = await prisma.session.findUnique({
+          where: { token: bearerToken },
+          select: { userId: true, expiresAt: true },
+        });
+        if (dbSession && dbSession.expiresAt > new Date()) {
+          userId = dbSession.userId;
+        }
+      }
+    }
+
+    if (!userId) {
+      return c.json({ error: "Not authenticated" }, 401);
+    }
+
+    // 1. Query all real activity events from Neon database for this user
+    const [messages, sections, attempts, practicals, existingDaily] = await Promise.all([
+      prisma.chatMessage.findMany({
+        where: { session: { enrollment: { userId } } },
+        select: { createdAt: true },
+      }),
+      prisma.sectionProgress.findMany({
+        where: { enrollment: { userId }, status: "COMPLETED" },
+        select: { completedAt: true, updatedAt: true },
+      }),
+      prisma.assessmentAttempt.findMany({
+        where: { enrollment: { userId } },
+        select: { createdAt: true },
+      }),
+      prisma.practicalSubmission.findMany({
+        where: { attempt: { enrollment: { userId } } },
+        select: { submittedAt: true },
+      }),
+      prisma.dailyActivity.findMany({
+        where: { userId },
+        select: { activityDate: true, messagesCount: true, probesAnswered: true, minutesSpent: true },
+      }),
+    ]);
+
+    // Aggregate counts by UTC date 'YYYY-MM-DD'
+    const dateCounts = new Map<string, number>();
+
+    const recordDate = (d: Date | null | undefined, weight = 1) => {
+      if (!d) return;
+      const key = new Date(d).toISOString().slice(0, 10);
+      dateCounts.set(key, (dateCounts.get(key) || 0) + weight);
+    };
+
+    messages.forEach((m) => recordDate(m.createdAt, 1));
+    sections.forEach((s) => recordDate(s.completedAt || s.updatedAt, 1));
+    attempts.forEach((a) => recordDate(a.createdAt, 2));
+    practicals.forEach((p) => recordDate(p.submittedAt, 3));
+    existingDaily.forEach((ed) => {
+      const key = new Date(ed.activityDate).toISOString().slice(0, 10);
+      const total = ed.messagesCount + ed.probesAnswered;
+      if (!dateCounts.has(key) && total > 0) {
+        dateCounts.set(key, total);
+      }
+    });
+
+    // 2. Generate 16 weeks (112 days) up to today
+    const weeks = 16;
+    const daysPerWeek = 7;
+    const totalDays = weeks * daysPerWeek;
+    const now = new Date();
+    const matrix: Array<Array<{ date: string; dateStr: string; count: number; level: number }>> = [];
+
+    let totalContributions = 0;
+    let totalActiveDays = 0;
+
+    for (let w = 0; w < weeks; w++) {
+      const weekCol: Array<{ date: string; dateStr: string; count: number; level: number }> = [];
+      for (let d = 0; d < daysPerWeek; d++) {
+        const dayIndex = w * daysPerWeek + d;
+        const daysAgo = totalDays - 1 - dayIndex;
+        const cellDate = new Date(now);
+        cellDate.setUTCDate(now.getUTCDate() - daysAgo);
+
+        const dateIso = cellDate.toISOString().slice(0, 10);
+        const dateStr = cellDate.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+
+        const count = dateCounts.get(dateIso) || 0;
+        if (count > 0) {
+          totalActiveDays++;
+          totalContributions += count;
+        }
+
+        let level = 0;
+        if (count === 0) level = 0;
+        else if (count <= 2) level = 1;
+        else if (count <= 6) level = 2;
+        else if (count <= 14) level = 3;
+        else level = 4;
+
+        weekCol.push({ date: dateIso, dateStr, count, level });
+      }
+      matrix.push(weekCol);
+    }
+
+    // 3. Compute real streaks (Current Streak & Longest Streak)
+    const todayIso = now.toISOString().slice(0, 10);
+    const yesterdayDate = new Date(now);
+    yesterdayDate.setUTCDate(now.getUTCDate() - 1);
+    const yesterdayIso = yesterdayDate.toISOString().slice(0, 10);
+
+    let currentStreak = 0;
+    let checkDate = new Date(now);
+    if (!dateCounts.has(todayIso) && dateCounts.has(yesterdayIso)) {
+      checkDate = yesterdayDate;
+    }
+
+    while (true) {
+      const key = checkDate.toISOString().slice(0, 10);
+      if (dateCounts.has(key) && (dateCounts.get(key) || 0) > 0) {
+        currentStreak++;
+        checkDate.setUTCDate(checkDate.getUTCDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    // Longest streak across all recorded days
+    const sortedActiveDates = Array.from(dateCounts.keys()).sort();
+    let longestStreak = 0;
+    let tempStreak = 0;
+    let prevDate: Date | null = null;
+
+    for (const dStr of sortedActiveDates) {
+      const curDate = new Date(`${dStr}T00:00:00.000Z`);
+      if (prevDate) {
+        const diffDays = Math.round((curDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          tempStreak++;
+        } else {
+          tempStreak = 1;
+        }
+      } else {
+        tempStreak = 1;
+      }
+      prevDate = curDate;
+      if (tempStreak > longestStreak) {
+        longestStreak = tempStreak;
+      }
+    }
+
+    longestStreak = Math.max(longestStreak, currentStreak);
+
+    return c.json({
+      currentStreak,
+      longestStreak,
+      totalActiveDays,
+      totalContributions,
+      matrix,
+    });
+  } catch (err: any) {
+    return c.json({ error: "Failed to fetch user activity", details: err?.message }, 500);
+  }
+});
+
+// ─── Reusable Helper: Record Real-Time Activity ─────────────────────────────
+export async function recordUserActivity(userId: string, messagesCount = 1, minutesSpent = 2) {
+  try {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    await prisma.dailyActivity.upsert({
+      where: { userId_activityDate: { userId, activityDate: today } },
+      create: {
+        userId,
+        activityDate: today,
+        messagesCount,
+        minutesSpent,
+      },
+      update: {
+        messagesCount: { increment: messagesCount },
+        minutesSpent: { increment: minutesSpent },
+      },
+    });
+  } catch (err) {
+    console.warn("[DailyActivity] Failed to record activity:", err);
+  }
+}
+
 // ─── POST /api/v1/auth/resend-otp ──────────────────────────────────────────
 authHonoRouter.post("/resend-otp", async (c) => {
   try {
