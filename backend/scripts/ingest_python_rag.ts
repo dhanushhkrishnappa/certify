@@ -8,7 +8,7 @@ import { EmbeddingService } from "../src/modules/ai/embedding.service.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-interface IngestionChunk {
+export interface IngestionChunk {
   id: string;
   moduleSlug: string;
   moduleOrder: number;
@@ -45,7 +45,7 @@ function inferSectionOrderFromHeading(sectionText: string): number {
   return 4; // CHAPTER_CHECKPOINT / SUMMARY
 }
 
-function chunkLessonMarkdown(
+export function chunkLessonMarkdown(
   content: string,
   moduleSlug: string,
   moduleOrder: number,
@@ -97,11 +97,12 @@ function chunkLessonMarkdown(
   return chunks;
 }
 
-function chunkCommonMistakes(
+export function chunkCommonMistakes(
   content: string,
   moduleSlug: string,
   moduleOrder: number,
-  fileName: string
+  fileName: string,
+  defaultConceptSlug: string | null = null
 ): IngestionChunk[] {
   if (fileName.toLowerCase().includes("research")) {
     throw new Error("Security Policy Violation: research/ must never be ingested into RAG.");
@@ -127,13 +128,82 @@ function chunkCommonMistakes(
       id: `chunk-mst-${chunkId}`,
       moduleSlug,
       moduleOrder,
-      conceptSlug: null,
+      conceptSlug: defaultConceptSlug,
       sectionOrder: 3, // Pitfalls & Debugging section
       chunkType: "COMMON_MISTAKE",
       content: fullText,
       sourceFile: fileName,
     });
     index++;
+  }
+
+  return chunks;
+}
+
+export function chunkModuleExamplesAndExercises(
+  modDir: string,
+  moduleSlug: string,
+  moduleOrder: number,
+  defaultConceptSlug: string | null
+): IngestionChunk[] {
+  const chunks: IngestionChunk[] = [];
+  const modLabel = `Module ${String(moduleOrder).padStart(2, "0")}: ${moduleSlug}`;
+
+  // 1. Ingest examples/EXAMPLES_GUIDE.md + runnable examples/*.py
+  const examplesDir = path.join(modDir, "examples");
+  if (fs.existsSync(examplesDir)) {
+    const files = fs.readdirSync(examplesDir).sort();
+    for (const file of files) {
+      if (!file.endsWith(".md") && !file.endsWith(".py")) continue;
+      const raw = fs.readFileSync(path.join(examplesDir, file), "utf-8").trim();
+      if (!raw) continue;
+
+      const body = file.endsWith(".py")
+        ? `[Course: Python Fundamentals | ${modLabel} | Type: Verified Code Example (${file})]\n\n\`\`\`python\n${raw}\n\`\`\``
+        : `[Course: Python Fundamentals | ${modLabel} | Type: Examples Walkthrough]\n\n${raw}`;
+
+      const chunkId = crypto
+        .createHash("sha256")
+        .update(`${moduleSlug}:example:${file}`)
+        .digest("hex")
+        .slice(0, 32);
+
+      chunks.push({
+        id: `chunk-ex-${chunkId}`,
+        moduleSlug,
+        moduleOrder,
+        conceptSlug: defaultConceptSlug,
+        sectionOrder: 2, // Technical Mechanics & Code Trace
+        chunkType: "EXAMPLE",
+        content: body,
+        sourceFile: `examples/${file}`,
+      });
+    }
+  }
+
+  // 2. Ingest exercises/EXERCISES.md
+  const exercisesPath = path.join(modDir, "exercises", "EXERCISES.md");
+  if (fs.existsSync(exercisesPath)) {
+    const raw = fs.readFileSync(exercisesPath, "utf-8").trim();
+    if (raw) {
+      const body = `[Course: Python Fundamentals | ${modLabel} | Type: Guided Practice Exercises]\n\n${raw}`;
+      const chunkId = crypto
+        .createHash("sha256")
+        .update(`${moduleSlug}:exercises:EXERCISES.md`)
+        .digest("hex")
+        .slice(0, 32);
+
+      chunks.push({
+        id: `chunk-exr-${chunkId}`,
+        moduleSlug,
+        moduleOrder,
+        conceptSlug: defaultConceptSlug,
+        sectionOrder: 3, // Pitfalls & Practice
+        chunkType: "EXAMPLE",
+        content: body,
+        sourceFile: "exercises/EXERCISES.md",
+      });
+    }
   }
 
   return chunks;
@@ -189,6 +259,7 @@ export async function runIngestion(options: { isMock?: boolean } = {}) {
     const moduleSlug = modMeta.slug || modDirName.replace(/^module-\d+-/, "");
     const moduleOrder = modMeta.sequenceOrder || parseInt(modDirName.match(/\d+/)?.[0] || "1", 10);
 
+    let firstModuleConceptSlug: string | null = null;
     const lessonsDir = path.join(modDir, "lessons");
     if (fs.existsSync(lessonsDir)) {
       const lessonFiles = fs.readdirSync(lessonsDir).filter((f) => f.endsWith(".md")).sort();
@@ -196,6 +267,9 @@ export async function runIngestion(options: { isMock?: boolean } = {}) {
         const text = fs.readFileSync(path.join(lessonsDir, lf), "utf-8");
         const conceptMatch = text.match(/Concept ID:[^`\n]*`?([a-zA-Z0-9_-]+)`?/i);
         const conceptSlug = conceptMatch ? conceptMatch[1].trim() : null;
+        if (!firstModuleConceptSlug && conceptSlug) {
+          firstModuleConceptSlug = conceptSlug;
+        }
         allChunks.push(...chunkLessonMarkdown(text, moduleSlug, moduleOrder, conceptSlug, lf));
       }
     }
@@ -203,11 +277,17 @@ export async function runIngestion(options: { isMock?: boolean } = {}) {
     const mistakesPath = path.join(modDir, "common-mistakes", "COMMON_MISTAKES.md");
     if (fs.existsSync(mistakesPath)) {
       const text = fs.readFileSync(mistakesPath, "utf-8");
-      allChunks.push(...chunkCommonMistakes(text, moduleSlug, moduleOrder, "COMMON_MISTAKES.md"));
+      allChunks.push(
+        ...chunkCommonMistakes(text, moduleSlug, moduleOrder, "COMMON_MISTAKES.md", firstModuleConceptSlug)
+      );
     }
+
+    allChunks.push(
+      ...chunkModuleExamplesAndExercises(modDir, moduleSlug, moduleOrder, firstModuleConceptSlug)
+    );
   }
 
-  console.log(`Generated ${allChunks.length} section-scoped chunks across 10 modules.`);
+  console.log(`Generated ${allChunks.length} section-scoped chunks (lessons + mistakes + code examples + exercises) across 10 modules.`);
 
   // Remove only stale/legacy chunks not in current chunk set (makes ingestion resumable!)
   const validIds = allChunks.map((c) => c.id);

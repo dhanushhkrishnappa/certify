@@ -1,169 +1,199 @@
 import crypto from "crypto";
 import { config } from "../../config/index.js";
 
-export const ACTIVE_EMBEDDING_MODEL = "gemini-embedding-001";
-export const EMBEDDING_DIMENSION = 1536;
-
-function generateDeterministicVector(text: string): number[] {
-  const hash = crypto.createHash("sha256").update(text).digest();
-  const vec = new Array<number>(EMBEDDING_DIMENSION);
-  let sumSq = 0;
-  for (let i = 0; i < EMBEDDING_DIMENSION; i++) {
-    const byte = hash[i % hash.length];
-    const val = Math.sin(byte * (i + 1) + (i % 7));
-    vec[i] = val;
-    sumSq += val * val;
-  }
-  const norm = Math.sqrt(sumSq) || 1;
-  return vec.map((v) => v / norm);
-}
-
+/**
+ * Embedding Service (1536-Dimensional Vector Space)
+ *
+ * Uses Google's `gemini-embedding-001` with `outputDimensionality: 1536`
+ * to match the Neon PostgreSQL `vector(1536)` column and HNSW index.
+ *
+ * CRITICAL RAG INTEGRITY RULE:
+ * Never return synthetic SHA-256 sine-wave vectors during live runtime RAG queries
+ * (`allowSynthetic` defaults to `false` outside test/mock environments), because comparing
+ * a synthetic query vector against real `gemini-embedding-001` vectors in pgvector
+ * produces random cosine similarity noise and masks the PostgreSQL FTS fallback.
+ */
 export class EmbeddingService {
+  public static readonly MODEL_NAME = "gemini-embedding-001";
+  public static readonly DIMENSIONS = 1536;
+
   /**
-   * Generates a 1536-dim semantic embedding using Gemini `gemini-embedding-001`
-   * (unified across both ingestion and runtime Cloudflare Workers).
-   * Falls back to OpenAI `text-embedding-3-small` if configured, or deterministic vectors in test mode.
+   * Generates a 1536-dimensional embedding vector for a single text string.
    */
   public static async generateEmbedding(
     text: string,
-    options: { allowSynthetic?: boolean } = {}
-  ): Promise<{ vector: number[]; model: string } | null> {
-    const cleaned = (text || "").trim().slice(0, 6000);
-    if (!cleaned) return null;
+    options: { isMock?: boolean; allowSynthetic?: boolean } = {}
+  ): Promise<{ vector: number[]; model: string }> {
+    const cleanText = text.replace(/\s+/g, " ").trim();
+    const useSyntheticFallback =
+      Boolean(options.isMock) ||
+      Boolean(options.allowSynthetic) ||
+      config.nodeEnv === "test";
 
-    const geminiKey = process.env.GEMINI_API_KEY || config.geminiApiKey;
-    if (geminiKey) {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${ACTIVE_EMBEDDING_MODEL}:embedContent?key=${geminiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: `models/${ACTIVE_EMBEDDING_MODEL}`,
-              content: { parts: [{ text: cleaned }] },
-              outputDimensionality: EMBEDDING_DIMENSION,
-            }),
-          }
-        );
-
-        if (res.ok) {
-          const data: any = await res.json();
-          const values = data?.embedding?.values;
-          if (Array.isArray(values) && values.length === EMBEDDING_DIMENSION) {
-            return { vector: values, model: ACTIVE_EMBEDDING_MODEL };
-          }
-        } else {
-          console.warn(`[EmbeddingService] Gemini embedding HTTP ${res.status}`);
-        }
-      } catch (err: any) {
-        console.warn("[EmbeddingService] Gemini embedding error:", err?.message || err);
-      }
-    }
-
-    const openaiKey = process.env.OPENAI_API_KEY || config.openaiApiKey;
-    if (openaiKey) {
-      try {
-        const res = await fetch("https://api.openai.com/v1/embeddings", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${openaiKey}`,
-          },
-          body: JSON.stringify({
-            model: "text-embedding-3-small",
-            input: cleaned,
-          }),
-        });
-
-        if (res.ok) {
-          const data: any = await res.json();
-          const values = data?.data?.[0]?.embedding;
-          if (Array.isArray(values) && values.length === EMBEDDING_DIMENSION) {
-            return { vector: values, model: "text-embedding-3-small" };
-          }
-        }
-      } catch (err: any) {
-        console.warn("[EmbeddingService] OpenAI embedding error:", err?.message || err);
-      }
-    }
-
-    if (options.allowSynthetic || config.nodeEnv === "test" || config.allowDevAiFallback) {
+    if (options.isMock) {
       return {
-        vector: generateDeterministicVector(cleaned),
+        vector: this.generateDeterministicSyntheticVector(cleanText),
         model: "deterministic-synthetic-1536",
       };
     }
 
-    return null;
+    const apiKey = config.geminiApiKey;
+    if (!apiKey) {
+      if (useSyntheticFallback) {
+        return {
+          vector: this.generateDeterministicSyntheticVector(cleanText),
+          model: "deterministic-synthetic-1536",
+        };
+      }
+      throw new Error(
+        "GEMINI_API_KEY is required for live 1536-dimensional embedding generation."
+      );
+    }
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.MODEL_NAME}:embedContent?key=${apiKey}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: `models/${this.MODEL_NAME}`,
+          content: {
+            parts: [{ text: cleanText.slice(0, 8000) }],
+          },
+          outputDimensionality: this.DIMENSIONS,
+        }),
+      });
+
+      if (!response.ok) {
+        const errBody = await response.text().catch(() => "");
+        throw new Error(
+          `Gemini Embedding API error (${response.status}): ${errBody.slice(0, 300)}`
+        );
+      }
+
+      const data = (await response.json()) as {
+        embedding?: { values?: number[] };
+      };
+
+      const values = data?.embedding?.values;
+      if (!Array.isArray(values) || values.length !== this.DIMENSIONS) {
+        throw new Error(
+          `Invalid embedding dimensions returned: expected ${this.DIMENSIONS}, got ${values?.length ?? 0}`
+        );
+      }
+
+      return {
+        vector: this.normalizeL2(values),
+        model: this.MODEL_NAME,
+      };
+    } catch (err) {
+      if (useSyntheticFallback) {
+        return {
+          vector: this.generateDeterministicSyntheticVector(cleanText),
+          model: "deterministic-synthetic-1536",
+        };
+      }
+      throw err;
+    }
   }
 
   /**
-   * Batch embedding via Gemini `batchEmbedContents` (with per-item fallback).
+   * Batch generates 1536-dimensional embeddings using `batchEmbedContents`
+   * to minimize round-trips during curriculum ingestion.
    */
   public static async generateBatchEmbeddings(
     texts: string[],
-    options: { isMock?: boolean } = {}
+    options: { isMock?: boolean; allowSynthetic?: boolean } = {}
   ): Promise<{ vectors: number[][]; model: string }> {
+    const useSyntheticFallback =
+      Boolean(options.isMock) ||
+      Boolean(options.allowSynthetic) ||
+      config.nodeEnv === "test";
+
     if (options.isMock) {
       return {
-        vectors: texts.map((t) => generateDeterministicVector(t)),
+        vectors: texts.map((t) => this.generateDeterministicSyntheticVector(t)),
         model: "deterministic-synthetic-1536",
       };
     }
 
-    const geminiKey = process.env.GEMINI_API_KEY || config.geminiApiKey;
-    if (geminiKey) {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${ACTIVE_EMBEDDING_MODEL}:batchEmbedContents?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            requests: texts.map((t) => ({
-              model: `models/${ACTIVE_EMBEDDING_MODEL}`,
-              content: { parts: [{ text: t.slice(0, 6000) }] },
-              outputDimensionality: EMBEDDING_DIMENSION,
-            })),
-          }),
-        }
+    const apiKey = config.geminiApiKey;
+    if (!apiKey) {
+      if (useSyntheticFallback) {
+        return {
+          vectors: texts.map((t) => this.generateDeterministicSyntheticVector(t)),
+          model: "deterministic-synthetic-1536",
+        };
+      }
+      throw new Error("GEMINI_API_KEY is required for live batch embeddings.");
+    }
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.MODEL_NAME}:batchEmbedContents?key=${apiKey}`;
+
+    const requests = texts.map((text) => ({
+      model: `models/${this.MODEL_NAME}`,
+      content: {
+        parts: [{ text: text.replace(/\s+/g, " ").trim().slice(0, 8000) }],
+      },
+      outputDimensionality: this.DIMENSIONS,
+    }));
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requests }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text().catch(() => "");
+      throw new Error(
+        `Gemini Batch Embedding API error (${response.status}): ${errBody.slice(0, 300)}`
       );
-
-      if (res.ok) {
-        const data: any = await res.json();
-        const embeddings = (data?.embeddings || []).map((e: any) => e?.values);
-        if (embeddings.length === texts.length && embeddings.every((v: any) => Array.isArray(v) && v.length === EMBEDDING_DIMENSION)) {
-          return { vectors: embeddings, model: ACTIVE_EMBEDDING_MODEL };
-        }
-      } else {
-        const errText = await res.text().catch(() => "");
-        throw new Error(`Gemini batchEmbedContents HTTP ${res.status}: ${errText}`);
-      }
     }
 
-    const openaiKey = process.env.OPENAI_API_KEY || config.openaiApiKey;
-    if (openaiKey) {
-      const res = await fetch("https://api.openai.com/v1/embeddings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${openaiKey}`,
-        },
-        body: JSON.stringify({
-          model: "text-embedding-3-small",
-          input: texts.map((t) => t.slice(0, 8000)),
-        }),
-      });
-      if (!res.ok) {
-        throw new Error(`OpenAI Embeddings HTTP ${res.status}: ${await res.text()}`);
-      }
-      const data: any = await res.json();
-      return {
-        vectors: data.data.map((d: any) => d.embedding),
-        model: "text-embedding-3-small",
-      };
+    const data = (await response.json()) as {
+      embeddings?: Array<{ values?: number[] }>;
+    };
+
+    if (!Array.isArray(data.embeddings) || data.embeddings.length !== texts.length) {
+      throw new Error("Batch embedding count mismatch from Gemini API");
     }
 
-    throw new Error("Neither GEMINI_API_KEY nor OPENAI_API_KEY is configured for embedding ingestion.");
+    const vectors = data.embeddings.map((e) => {
+      if (!Array.isArray(e.values) || e.values.length !== this.DIMENSIONS) {
+        throw new Error(`Invalid dimension in batch item: ${e.values?.length}`);
+      }
+      return this.normalizeL2(e.values);
+    });
+
+    return { vectors, model: this.MODEL_NAME };
+  }
+
+  /**
+   * L2-normalizes a vector so cosine similarity and inner product are unit-consistent.
+   */
+  public static normalizeL2(vec: number[]): number[] {
+    let sumSq = 0;
+    for (let i = 0; i < vec.length; i++) {
+      sumSq += vec[i] * vec[i];
+    }
+    const norm = Math.sqrt(sumSq);
+    if (norm === 0) return vec;
+    return vec.map((v) => Number((v / norm).toFixed(6)));
+  }
+
+  /**
+   * Deterministic 1536-dim synthetic vector used ONLY in explicit `--mock` or unit test runs.
+   */
+  public static generateDeterministicSyntheticVector(seedText: string): number[] {
+    const hash = crypto.createHash("sha256").update(seedText).digest();
+    const vector: number[] = new Array(this.DIMENSIONS);
+    for (let i = 0; i < this.DIMENSIONS; i++) {
+      const byte = hash[i % hash.length];
+      const angle = (byte / 255) * Math.PI * 2 + i * 0.013;
+      vector[i] = Math.sin(angle);
+    }
+    return this.normalizeL2(vector);
   }
 }

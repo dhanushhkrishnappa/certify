@@ -20,3 +20,6 @@ build/
 # Brag video outputs
 brag-output/
 .neon
+
+# Archive files
+*.zip

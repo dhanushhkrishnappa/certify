@@ -722,20 +722,7 @@ _run_certify_tests()
         details: ok ? "Passed structural requirement." : `Not met: ${check.hint}`,
       });
     }
-    testResults.push({
-      name: `Defines required interface (${spec.signatureLabel})`,
-      passed: hasSig,
-      details: hasSig ? "Interface verified" : `Expected ${spec.signatureLabel}`,
-    });
 
-    for (const chk of spec.checks) {
-      const ok = hasSig && chk.test(code);
-      testResults.push({
-        name: chk.name,
-        passed: ok,
-        details: ok ? "Verified" : chk.hint,
-      });
-    }
 
     const testsRun = testResults.length;
     const testsPassed = testResults.filter((t) => t.passed).length;

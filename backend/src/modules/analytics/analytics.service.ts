@@ -295,6 +295,10 @@ export class AnalyticsService {
   /**
    * Produces the complete, auditable Learner Performance, Strengths & Weakpoints Report.
    */
+  public static async getLearnerSkillsReport(enrollmentId: string) {
+    return this.getSkillsReport(enrollmentId);
+  }
+
   public static async getSkillsReport(enrollmentId: string) {
     const skillProfiles = await this.recomputeSkillProfile(enrollmentId);
     const progression = await ProgressionService.getProgressionTree(enrollmentId);

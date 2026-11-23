@@ -87,6 +87,35 @@ export interface ConceptMastery {
   state?: string;
 }
 
+export interface SessionProgressionSnapshot {
+  enrollmentId: string;
+  moduleId: string;
+  moduleOrder: number;
+  moduleTitle: string;
+  moduleStatus: string;
+  practicalTaskId: string | null;
+  practicalPassed: boolean;
+  practicalScore: number | null;
+  chapterId: string;
+  chapterOrder: number;
+  chapterTitle: string;
+  chapterStatus: string;
+  checkpointScore: number | null;
+  activeSection: SectionProgressionNode | null;
+  sections: SectionProgressionNode[];
+  checkpointUnlocked: boolean;
+  practicalUnlocked: boolean;
+  demonstratedCriteriaCount: number;
+  totalCriteriaCount: number;
+  nextChapter: {
+    id: string;
+    title: string;
+    moduleOrder: number;
+    moduleTitle: string;
+    isUnlocked: boolean;
+    isNextModule: boolean;
+  } | null;
+}
 
 export interface LearningSessionContext {
   course: { id: string; slug: string; title: string };
@@ -94,9 +123,11 @@ export interface LearningSessionContext {
   session: {
     id: string;
     phase: string;
+    currentSectionId?: string | null;
     chapter: Chapter;
     messages: ChatMessage[];
   };
+  progressionSnapshot?: SessionProgressionSnapshot | null;
   conceptMasteries: ConceptMastery[];
   curriculum: Module[];
 }

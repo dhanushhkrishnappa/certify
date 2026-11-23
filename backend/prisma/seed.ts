@@ -266,7 +266,7 @@ async function main() {
       const content = fs.readFileSync(fullPath, "utf-8");
 
       const titleMatch = content.match(/^#\s+(.+)$/m);
-      const lessonTitleMatch = content.match(/Lesson Title:\s*(.+)$/m);
+      const lessonTitleMatch = content.match(/Lesson Title:\*?\*?\s*(.+)$/m);
       const title = lessonTitleMatch ? lessonTitleMatch[1].trim() : titleMatch ? titleMatch[1].trim() : lf;
 
       // Extract concept ID from metadata e.g. - **Concept ID:** `variables-and-object-references`

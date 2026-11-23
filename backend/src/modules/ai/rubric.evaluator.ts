@@ -1,28 +1,34 @@
-import { z } from "zod";
-import { prisma } from "../../shared/prisma.js";
 import { config } from "../../config/index.js";
-import { BayesianKnowledgeTracer } from "../mastery/bkt.js";
-import { hasNegationOrConfusion, isKeywordStuffing } from "./ai.provider.js";
+import { prisma } from "../../shared/prisma.js";
+import { BKTService, MasteryState } from "../mastery/bkt.js";
+import { normalizeGeminiModel } from "./ai.provider.js";
 
-export const CriterionVerdictSchema = z.object({
-  criterionId: z.string(),
-  verdict: z.enum(["DEMONSTRATED", "PARTIAL", "MISSING", "MISCONCEPTION"]),
-  score: z.number().min(0).max(1),
-  confidence: z.number().min(0).max(1),
-  evidenceQuote: z.string().max(300).default(""),
-  misconceptionTag: z.string().nullable().default(null),
-  reasoning: z.string().max(500).default(""),
-});
+export type CriterionVerdict = "DEMONSTRATED" | "PARTIAL" | "MISSING" | "MISCONCEPTION";
 
-export const RubricBatchEvaluationSchema = z.object({
-  criteriaResults: z.array(CriterionVerdictSchema),
-  overallSummary: z.string().max(600).default(""),
-});
+export interface CriterionEvaluationItem {
+  criterionId: string;
+  criterionCode: string | null;
+  verdict: CriterionVerdict;
+  score: number; // 0.0 to 1.0
+  confidence: number;
+  evidenceQuote: string;
+  misconceptionTag: string | null;
+  reasoning: string;
+}
 
-export type CriterionVerdict = z.infer<typeof CriterionVerdictSchema>;
+export interface HybridEvaluationResult {
+  criteriaResults: CriterionEvaluationItem[];
+  weightedScore: number;
+  overallPassed: boolean;
+  hasCriticalMisconception: boolean;
+  overallSummary: string;
+  nextTargetedProbe: string;
+  evaluatorModel: string;
+}
 
 export interface RubricCriterionInput {
   id: string;
+  criterionCode?: string | null;
   criterionStatement: string;
   weight: number;
   tierRequired: string;
@@ -32,619 +38,705 @@ export interface RubricCriterionInput {
   misconceptionsJson?: string | null;
 }
 
-export interface HybridEvaluationResult {
-  criteriaResults: CriterionVerdict[];
-  weightedScore: number;
-  overallPassed: boolean;
-  hasCriticalMisconception: boolean;
-  overallSummary: string;
-  evaluatorModel: string;
-}
-
 /**
- * Deterministic Stage-1 Pre-Checks + Offline Rubric Fallback.
- * Evaluates against each criterion's own expectedConceptsJson & misconceptionsJson
- * instead of a hardcoded global keyword list.
+ * 2-Stage Hybrid Rubric & Misconception Evaluator
+ *
+ * Stage 1: Deterministic AST / Regex / Misconception Trap & Keyword Signal Pre-Check
+ *          (Context-aware: correlates concise learner answers with the tutor's last question!)
+ * Stage 2: Structured JSON Schema LLM Rubric Grader (Gemini 2.5 Flash / Groq Llama 3.3 70B)
+ *          with deterministic Stage-1 fallback when external APIs are offline.
  */
-function deterministicEvaluateCriteria(params: {
-  learnerText: string;
-  criteria: RubricCriterionInput[];
-}): CriterionVerdict[] {
-  const text = (params.learnerText || "").trim();
-  const lower = text.toLowerCase();
-  const globalNegation = hasNegationOrConfusion(text);
-  const stuffed = text.length < 18 || isKeywordStuffing(text);
-
-  return params.criteria.map((crit) => {
-    // 1. Check criterion-specific misconception patterns
-    let detectedMisconception: string | null = null;
-    if (crit.misconceptionsJson) {
-      try {
-        const patterns: Array<{ tag: string; pattern: string; explanation: string }> =
-          JSON.parse(crit.misconceptionsJson);
-        for (const p of patterns) {
-          if (new RegExp(p.pattern, "i").test(text)) {
-            detectedMisconception = p.tag;
-            break;
-          }
-        }
-      } catch {
-        // ignore malformed json
-      }
-    }
-
-    if (detectedMisconception || globalNegation) {
-      return {
-        criterionId: crit.id,
-        verdict: "MISCONCEPTION",
-        score: 0.15,
-        confidence: 0.90,
-        evidenceQuote: text.slice(0, 200),
-        misconceptionTag: detectedMisconception || "CORE_SEMANTIC_NEGATION",
-        reasoning: `Response contained a conceptual contradiction against: "${crit.criterionStatement}".`,
-      };
-    }
-
-    if (stuffed) {
-      return {
-        criterionId: crit.id,
-        verdict: "MISSING",
-        score: 0.10,
-        confidence: 0.85,
-        evidenceQuote: text.slice(0, 120),
-        misconceptionTag: null,
-        reasoning: "Response was too brief or repetitive to verify conceptual understanding.",
-      };
-    }
-
-    // 2. Semantic signal coverage from criterion's own expected concepts + statement words
-    let expectedTerms: string[] = [];
-    if (crit.expectedConceptsJson) {
-      try {
-        expectedTerms = JSON.parse(crit.expectedConceptsJson);
-      } catch {
-        expectedTerms = [];
-      }
-    }
-    if (expectedTerms.length === 0) {
-      expectedTerms = crit.criterionStatement
-        .toLowerCase()
-        .replace(/[^a-z0-9_+#/\s-]/g, " ")
-        .split(/\s+/)
-        .filter((w) => w.length >= 4);
-    }
-
-    const uniqueExpected = Array.from(new Set(expectedTerms));
-    const hits = uniqueExpected.filter((t) => lower.includes(t.toLowerCase()));
-    const coverage = uniqueExpected.length > 0 ? hits.length / Math.min(uniqueExpected.length, 4) : 0;
-
-    if (text.length >= 35 && (hits.length >= 2 || coverage >= 0.5)) {
-      const score = Number(Math.min(0.95, 0.72 + coverage * 0.2).toFixed(3));
-      return {
-        criterionId: crit.id,
-        verdict: "DEMONSTRATED",
-        score,
-        confidence: 0.84,
-        evidenceQuote: text.slice(0, 200),
-        misconceptionTag: null,
-        reasoning: `Demonstrated rubric criterion with relevant concepts (${hits.slice(0, 4).join(", ")}).`,
-      };
-    }
-
-    if (hits.length === 1 && text.length >= 25) {
-      return {
-        criterionId: crit.id,
-        verdict: "PARTIAL",
-        score: 0.45,
-        confidence: 0.75,
-        evidenceQuote: text.slice(0, 200),
-        misconceptionTag: null,
-        reasoning: `Partially touched on "${hits[0]}", but needs deeper explanation of: "${crit.criterionStatement}".`,
-      };
-    }
-
-    return {
-      criterionId: crit.id,
-      verdict: "MISSING",
-      score: 0.15,
-      confidence: 0.80,
-      evidenceQuote: text.slice(0, 140),
-      misconceptionTag: null,
-      reasoning: `Did not yet address: "${crit.criterionStatement}".`,
-    };
-  });
-}
-
-async function callStructuredLLMEvaluator(params: {
-  conceptName: string;
-  questionPrompt?: string;
-  learnerText: string;
-  criteria: RubricCriterionInput[];
-}): Promise<{ parsed: z.infer<typeof RubricBatchEvaluationSchema>; model: string } | null> {
-  // Never call live external LLM APIs during unit tests unless explicitly opted in
-  if (config.nodeEnv === "test" && process.env.RUN_LIVE_EVAL_TESTS !== "true") {
-    return null;
-  }
-
-  const criteriaSpec = params.criteria
-    .map(
-      (c, i) =>
-        `${i + 1}. criterionId="${c.id}" | cognitiveLevel="${c.cognitiveLevel || "EXPLAIN"}" | tier="${c.tierRequired}" | statement="${c.criterionStatement}"`
-    )
-    .join("\n");
-
-  const systemPrompt = `You are a strict, objective Python Engineering Rubric Evaluator for CERTIFY.
-Evaluate the learner's response ONLY against the provided rubric criteria.
-Return STRICT JSON matching this exact schema:
-{
-  "criteriaResults": [
-    {
-      "criterionId": "<exact criterionId from list>",
-      "verdict": "DEMONSTRATED" | "PARTIAL" | "MISSING" | "MISCONCEPTION",
-      "score": <number 0.0 to 1.0>,
-      "confidence": <number 0.0 to 1.0>,
-      "evidenceQuote": "<short verbatim quote from learner text or empty string>",
-      "misconceptionTag": "<UPPER_SNAKE_CASE tag if verdict is MISCONCEPTION, else null>",
-      "reasoning": "<1-2 concise sentences explaining why>"
-    }
-  ],
-  "overallSummary": "<1-2 concise sentences summarizing strengths and gaps>"
-}
-Rules:
-- Reject keyword stuffing, vague hand-waving, or greetings ("hi", "ok", "yes") as MISSING (score <= 0.15).
-- If the learner states something factually false about Python semantics, mark MISCONCEPTION (score <= 0.20) with a descriptive UPPER_SNAKE_CASE misconceptionTag.
-- Only mark DEMONSTRATED (score >= 0.75) when the learner shows genuine conceptual or practical understanding of that specific criterion.
-- Output ONLY valid JSON with no markdown fences.`;
-
-  const userPrompt = `Concept: ${params.conceptName}
-${params.questionPrompt ? `Prompt/Question: ${params.questionPrompt}\n` : ""}Learner Response:
-"""
-${params.learnerText.slice(0, 2500)}
-"""
-
-Rubric Criteria to Evaluate:
-${criteriaSpec}`;
-
-  // 1. Primary: Gemini fast evaluator (`gemini-3-flash-preview`) with JSON MIME mode
-  const geminiKey = process.env.GEMINI_API_KEY || config.geminiApiKey;
-  if (geminiKey) {
-    try {
-      const model = config.geminiEvaluatorModel || "gemini-3-flash-preview";
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-            generationConfig: {
-              temperature: 0.1,
-              maxOutputTokens: 700,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
-
-      if (res.ok) {
-        const data: any = await res.json();
-        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const cleaned = rawText.replace(/^```json\s*|\s*```$/g, "").trim();
-        const parsed = RubricBatchEvaluationSchema.safeParse(JSON.parse(cleaned));
-        if (parsed.success && parsed.data.criteriaResults.length > 0) {
-          return { parsed: parsed.data, model };
-        }
-      }
-    } catch (err: any) {
-      console.warn("[RubricEvaluator] Gemini structured eval error:", err?.message || err);
-    }
-  }
-
-  // 2. Fallback: Groq fast evaluator
-  const groqKey = process.env.GROQ_API_KEY || (config as any).groqApiKey;
-  if (groqKey) {
-    try {
-      const model = (config as any).groqEvaluatorModel || "openai/gpt-oss-120b";
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${groqKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          temperature: 0.1,
-          max_tokens: 700,
-          response_format: { type: "json_object" },
-        }),
-      });
-
-      if (res.ok) {
-        const data: any = await res.json();
-        const rawText = data?.choices?.[0]?.message?.content || "";
-        const parsed = RubricBatchEvaluationSchema.safeParse(JSON.parse(rawText));
-        if (parsed.success && parsed.data.criteriaResults.length > 0) {
-          return { parsed: parsed.data, model };
-        }
-      }
-    } catch (err: any) {
-      console.warn("[RubricEvaluator] Groq structured eval error:", err?.message || err);
-    }
-  }
-
-  return null;
-}
-
 export class RubricEvaluatorService {
   /**
-   * 3-Stage Hybrid Rubric Evaluation:
-   *  Stage 1: Deterministic anti-gaming & misconception pre-checks
-   *  Stage 2: Strict Zod-validated LLM per-criterion evidence extraction
-   *  Stage 3: Pure deterministic backend weighted score computation
+   * Evaluates a learner's dialogue turn or checkpoint answer against all criteria for the concept.
    */
   public static async evaluateResponse(params: {
     conceptName: string;
     questionPrompt?: string;
+    lastTutorQuestion?: string | null;
     learnerText: string;
     criteria: RubricCriterionInput[];
     mode: "DIALOGUE" | "CHECKPOINT";
   }): Promise<HybridEvaluationResult> {
-    if (params.criteria.length === 0) {
+    const {
+      conceptName,
+      questionPrompt = `Demonstrate mastery of ${conceptName}`,
+      lastTutorQuestion,
+      learnerText,
+      criteria,
+      mode,
+    } = params;
+    const text = learnerText.trim();
+    const lower = text.toLowerCase();
+
+    // 1. Detect pure greetings / meta-commands vs. genuine technical answers
+    const isPureGreetingOrCommand =
+      /^(hi|hello|hey|yo|ok|okay|thanks|thank you|next|skip|move on|continue|help|\?+)$/i.test(
+        text
+      );
+    const hasTechnicalSignal =
+      /`[^`]+`|\b(def|return|print|list|dict|tuple|set|int|float|str|bool|if|elif|else|for|while|try|except|class|self|import|id|type|len|range|true|false|none|error|mutable|immutable|reference|heap|indent|loop|function|variable|object|memory|slice|index|key|value)\b|[=\[\]{}()<>+\-*/:]/i.test(
+        text
+      ) || /\b\d+\b/.test(text);
+
+    const isTrivialMessage =
+      isPureGreetingOrCommand ||
+      (mode === "CHECKPOINT"
+        ? text.length < 15 || this.isKeywordStuffing(text)
+        : (text.length < 6 && !hasTechnicalSignal) || this.isKeywordStuffing(text));
+
+    // Stage 1: Deterministic per-criterion signal & misconception scan
+    const stage1Results: CriterionEvaluationItem[] = criteria.map((crit) => {
+      if (isTrivialMessage) {
+        return {
+          criterionId: crit.id,
+          criterionCode: crit.criterionCode || null,
+          verdict: "MISSING",
+          score: 0.05,
+          confidence: 0.95,
+          evidenceQuote: text.slice(0, 80),
+          misconceptionTag: null,
+          reasoning:
+            "Response is a greeting, command, or too brief to demonstrate conceptual understanding.",
+        };
+      }
+
+      // Check deterministic misconception patterns first
+      const misconceptions = this.parseMisconceptions(crit.misconceptionsJson);
+      for (const m of misconceptions) {
+        try {
+          const regex = new RegExp(m.pattern, "i");
+          if (regex.test(text)) {
+            return {
+              criterionId: crit.id,
+              criterionCode: crit.criterionCode || null,
+              verdict: "MISCONCEPTION",
+              score: 0.1,
+              confidence: 0.92,
+              evidenceQuote: text.slice(0, 140),
+              misconceptionTag: m.tag,
+              reasoning: `Detected conceptual misconception (${m.tag}): ${m.explanation}`,
+            };
+          }
+        } catch {
+          // Ignore malformed regex
+        }
+      }
+
+      const expectedTerms = this.parseExpectedConcepts(
+        crit.expectedConceptsJson,
+        crit.criterionStatement
+      );
+      const uniqueExpected = Array.from(new Set(expectedTerms));
+
+      // Match tokens directly in learner text
+      const learnerHits = uniqueExpected.filter((t) => lower.includes(t.toLowerCase()));
+
+      // In DIALOGUE mode, if the tutor asked a targeted question about this criterion,
+      // check whether the tutor's question established the criterion context and the learner supplied the answer!
+      const tutorQuestionContext = (lastTutorQuestion || questionPrompt || "").toLowerCase();
+      const questionContextHits =
+        mode === "DIALOGUE"
+          ? uniqueExpected.filter((t) => tutorQuestionContext.includes(t.toLowerCase()))
+          : [];
+
+      const combinedHits = Array.from(new Set([...learnerHits, ...questionContextHits]));
+      const learnerCoverage =
+        uniqueExpected.length > 0 ? learnerHits.length / uniqueExpected.length : 0;
+      const contextualCoverage =
+        uniqueExpected.length > 0 ? combinedHits.length / uniqueExpected.length : 0;
+
+      const hasReasoningConnective =
+        /\b(because|since|therefore|means|points?\s+to|references?|mutat|immutab|raises?|returns?|evaluates?|prints?|outputs?|creates?|binds?|heap|memory|same\s+object|new\s+object)\b/i.test(
+          text
+        );
+
+      let verdict: CriterionVerdict = "MISSING";
+      let score = 0.15;
+      let reasoning = `Did not yet address: ${crit.criterionStatement}`;
+
+      if (
+        (text.length >= 30 && (learnerHits.length >= 2 || learnerCoverage >= 0.45)) ||
+        (mode === "DIALOGUE" &&
+          text.length >= 12 &&
+          hasTechnicalSignal &&
+          learnerHits.length >= 1 &&
+          (hasReasoningConnective || contextualCoverage >= 0.45))
+      ) {
+        verdict = "DEMONSTRATED";
+        score = Math.min(0.95, Number((0.74 + learnerCoverage * 0.22).toFixed(2)));
+        reasoning = `Accurately explained key mechanics (${
+          learnerHits.slice(0, 4).join(", ") || "verified answer to tutor probe"
+        }) satisfying criterion.`;
+      } else if (
+        learnerHits.length >= 1 ||
+        (mode === "DIALOGUE" && hasTechnicalSignal && questionContextHits.length >= 2 && text.length >= 8)
+      ) {
+        verdict = "PARTIAL";
+        score = 0.52;
+        reasoning = `Partially addressed (${
+          learnerHits.concat(questionContextHits).slice(0, 3).join(", ")
+        }), but needs a deeper causal explanation or trace.`;
+      }
+
       return {
-        criteriaResults: [],
-        weightedScore: 0,
-        overallPassed: false,
-        hasCriticalMisconception: false,
-        overallSummary: "No rubric criteria configured.",
-        evaluatorModel: "none",
+        criterionId: crit.id,
+        criterionCode: crit.criterionCode || null,
+        verdict,
+        score,
+        confidence: 0.78,
+        evidenceQuote: text.slice(0, 140),
+        misconceptionTag: null,
+        reasoning,
       };
-    }
-
-    const text = (params.learnerText || "").trim();
-
-    // Stage 1: Hard deterministic pre-checks (always enforced, LLM cannot override)
-    const preCheckResults = deterministicEvaluateCriteria({
-      learnerText: text,
-      criteria: params.criteria,
     });
 
-    const isTrivialMessage = text.length < 18 || isKeywordStuffing(text);
-    const preCheckMap = new Map(preCheckResults.map((r) => [r.criterionId, r]));
-
-    let finalResults: CriterionVerdict[] = preCheckResults;
-    let overallSummary = "";
-    let evaluatorModel = "deterministic-rubric-v2";
-
-    // Stage 2: Call structured LLM judge for substantive learner messages
-    if (!isTrivialMessage) {
-      const llmEval = await callStructuredLLMEvaluator({
-        conceptName: params.conceptName,
-        questionPrompt: params.questionPrompt,
-        learnerText: text,
-        criteria: params.criteria,
-      });
-
-      if (llmEval) {
-        evaluatorModel = llmEval.model;
-        overallSummary = llmEval.parsed.overallSummary;
-        const llmById = new Map(llmEval.parsed.criteriaResults.map((r) => [r.criterionId, r]));
-
-        // Merge Stage 1 hard misconception overrides with Stage 2 LLM evidence
-        finalResults = params.criteria.map((crit) => {
-          const pre = preCheckMap.get(crit.id)!;
-          if (pre.verdict === "MISCONCEPTION") {
-            return pre; // Deterministic misconception detector always wins
-          }
-          return llmById.get(crit.id) || pre;
-        });
-      }
+    // If trivial message, skip Stage 2 LLM call to save latency and tokens
+    if (isTrivialMessage || criteria.length === 0) {
+      return this.compileFinalResult(stage1Results, criteria, "stage1-deterministic");
     }
 
-    // Stage 3: Pure deterministic backend weighted score math
-    let totalWeight = 0;
-    let earnedWeight = 0;
+    // Stage 2: Structured LLM Rubric Evaluation (Gemini or Groq)
+    try {
+      const llmEval = await this.runStage2LlmEvaluation({
+        conceptName,
+        questionPrompt: lastTutorQuestion
+          ? `${questionPrompt}\nMost Recent Tutor Probe: "${lastTutorQuestion}"`
+          : questionPrompt,
+        learnerText: text,
+        criteria,
+        stage1Results,
+      });
+      if (llmEval) {
+        return llmEval;
+      }
+    } catch (err: any) {
+      console.warn(
+        "[RubricEvaluator] Stage 2 LLM fallback to Stage 1 deterministic:",
+        err?.message || err
+      );
+    }
+
+    return this.compileFinalResult(stage1Results, criteria, "stage1-deterministic");
+  }
+
+  private static async runStage2LlmEvaluation(params: {
+    conceptName: string;
+    questionPrompt?: string;
+    learnerText: string;
+    criteria: RubricCriterionInput[];
+    stage1Results: CriterionEvaluationItem[];
+  }): Promise<HybridEvaluationResult | null> {
+    const { conceptName, questionPrompt, learnerText, criteria, stage1Results } = params;
+
+    const criteriaBlock = criteria
+      .map(
+        (c, idx) =>
+          `${idx + 1}. id="${c.id}" code="${c.criterionCode || `R${idx + 1}`}" weight=${c.weight} level=${c.cognitiveLevel || "EXPLAIN"}: "${c.criterionStatement}"`
+      )
+      .join("\n");
+
+    const systemPrompt = `You are the CERTIFY Psychometric Rubric Evaluator for Python Engineering.
+Evaluate the learner's response strictly against each listed rubric criterion.
+IMPORTANT:
+- If the learner is answering the "Most Recent Tutor Probe", evaluate their answer in the context of that probe.
+- Credit concise, technically accurate answers (e.g., predicting exact variable output, naming the right exception, or explaining object reference behavior) as DEMONSTRATED (score >= 0.75) for the criterion being probed.
+- If the learner states a factual Python falsehood (e.g., "lists are immutable", "tuples can be modified in place", "b = a copies a list", "default arguments reset every call"), mark verdict="MISCONCEPTION" and score <= 0.15.
+- Return ONLY valid JSON matching this schema:
+{
+  "criteriaResults": [
+    {
+      "criterionId": "string",
+      "verdict": "DEMONSTRATED" | "PARTIAL" | "MISSING" | "MISCONCEPTION",
+      "score": number (0.0 to 1.0),
+      "confidence": number (0.0 to 1.0),
+      "evidenceQuote": "exact substring from learner response",
+      "misconceptionTag": "string or null",
+      "reasoning": "1 concise sentence explaining why"
+    }
+  ],
+  "overallSummary": "1-2 sentence diagnostic summary",
+  "nextTargetedProbe": "1 Socratic follow-up question targeting the highest-weight unmet criterion"
+}`;
+
+    const userPrompt = `Concept: ${conceptName}
+Context / Question Prompt: ${questionPrompt}
+Rubric Criteria:
+${criteriaBlock}
+
+Learner Response:
+"""
+${learnerText}
+"""`;
+
+    if (config.geminiApiKey && (config.aiProvider === "gemini" || !config.groqApiKey)) {
+      return await this.evaluateWithGemini(systemPrompt, userPrompt, criteria, stage1Results);
+    }
+
+    if (config.groqApiKey) {
+      return await this.evaluateWithGroq(systemPrompt, userPrompt, criteria, stage1Results);
+    }
+
+    return null;
+  }
+
+  private static async evaluateWithGemini(
+    systemPrompt: string,
+    userPrompt: string,
+    criteria: RubricCriterionInput[],
+    stage1Results: CriterionEvaluationItem[]
+  ): Promise<HybridEvaluationResult | null> {
+    const model = normalizeGeminiModel(config.geminiEvaluatorModel, "gemini-2.5-flash");
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${config.geminiApiKey}`;
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        generationConfig: {
+          temperature: 0.0,
+          maxOutputTokens: 900,
+          responseMimeType: "application/json",
+        },
+      }),
+    });
+
+    if (!res.ok) return null;
+    const data = (await res.json()) as any;
+    const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawJson) return null;
+
+    return this.parseAndMergeLlmJson(rawJson, criteria, stage1Results, model);
+  }
+
+  private static async evaluateWithGroq(
+    systemPrompt: string,
+    userPrompt: string,
+    criteria: RubricCriterionInput[],
+    stage1Results: CriterionEvaluationItem[]
+  ): Promise<HybridEvaluationResult | null> {
+    const rawGroqModel = (config as any).groqEvaluatorModel || config.groqModel || "llama-3.3-70b-versatile";
+    const model = rawGroqModel.includes("gpt-oss") ? "llama-3.3-70b-versatile" : rawGroqModel;
+
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.groqApiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.0,
+        max_tokens: 900,
+        response_format: { type: "json_object" },
+      }),
+    });
+
+    if (!res.ok) return null;
+    const data = (await res.json()) as any;
+    const rawJson = data?.choices?.[0]?.message?.content;
+    if (!rawJson) return null;
+
+    return this.parseAndMergeLlmJson(rawJson, criteria, stage1Results, model);
+  }
+
+  private static parseAndMergeLlmJson(
+    rawJson: string,
+    criteria: RubricCriterionInput[],
+    stage1Results: CriterionEvaluationItem[],
+    modelName: string
+  ): HybridEvaluationResult | null {
+    try {
+      const parsed = JSON.parse(rawJson);
+      const llmItems: any[] = Array.isArray(parsed.criteriaResults) ? parsed.criteriaResults : [];
+
+      const merged: CriterionEvaluationItem[] = criteria.map((crit, idx) => {
+        const s1 = stage1Results[idx];
+        // Never allow LLM to override a deterministic Stage-1 MISCONCEPTION catch
+        if (s1 && s1.verdict === "MISCONCEPTION") {
+          return s1;
+        }
+
+        const found =
+          llmItems.find((item) => item.criterionId === crit.id) || llmItems[idx];
+        if (!found) return s1;
+
+        const verdict: CriterionVerdict = [
+          "DEMONSTRATED",
+          "PARTIAL",
+          "MISSING",
+          "MISCONCEPTION",
+        ].includes(found.verdict)
+          ? found.verdict
+          : s1.verdict;
+
+        const rawScore =
+          typeof found.score === "number"
+            ? Math.max(0, Math.min(1, found.score))
+            : s1.score;
+
+        return {
+          criterionId: crit.id,
+          criterionCode: crit.criterionCode || null,
+          verdict,
+          score: Number(rawScore.toFixed(2)),
+          confidence:
+            typeof found.confidence === "number" ? found.confidence : 0.85,
+          evidenceQuote: String(found.evidenceQuote || s1.evidenceQuote).slice(
+            0,
+            180
+          ),
+          misconceptionTag:
+            found.misconceptionTag ||
+            (verdict === "MISCONCEPTION" ? "CONCEPTUAL_MISCONCEPTION" : null),
+          reasoning: String(found.reasoning || s1.reasoning).slice(0, 280),
+        };
+      });
+
+      return this.compileFinalResult(
+        merged,
+        criteria,
+        modelName,
+        parsed.overallSummary,
+        parsed.nextTargetedProbe
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  private static compileFinalResult(
+    items: CriterionEvaluationItem[],
+    criteria: RubricCriterionInput[],
+    evaluatorModel: string,
+    customSummary?: string,
+    customProbe?: string
+  ): HybridEvaluationResult {
+    let weightedSum = 0;
+    let weightTotal = 0;
     let hasCriticalMisconception = false;
 
-    const critWeightMap = new Map(params.criteria.map((c) => [c.id, c.weight || 1.0]));
-
-    for (const res of finalResults) {
-      const w = critWeightMap.get(res.criterionId) || 1.0;
-      totalWeight += w;
-      earnedWeight += w * res.score;
-      if (res.verdict === "MISCONCEPTION") {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const weight = criteria[i]?.weight ?? 0.5;
+      weightedSum += item.score * weight;
+      weightTotal += weight;
+      if (item.verdict === "MISCONCEPTION") {
         hasCriticalMisconception = true;
       }
     }
 
-    const weightedScore = totalWeight > 0 ? Number((earnedWeight / totalWeight).toFixed(4)) : 0;
-    const overallPassed = weightedScore >= 0.70 && !hasCriticalMisconception;
+    const weightedScore =
+      weightTotal > 0 ? Number((weightedSum / weightTotal).toFixed(4)) : 0;
 
-    if (!overallSummary) {
-      const demoCount = finalResults.filter((r) => r.verdict === "DEMONSTRATED").length;
-      overallSummary = hasCriticalMisconception
-        ? `Conceptual misconception detected in ${params.conceptName}. Targeted remediation recommended.`
-        : overallPassed
-        ? `Demonstrated ${demoCount}/${finalResults.length} rubric criteria for ${params.conceptName}.`
-        : `Addressed ${demoCount}/${finalResults.length} rubric criteria (${Math.round(weightedScore * 100)}%). Review unmet criteria before advancing.`;
-    }
+    const unmet = items.find((it) => it.verdict !== "DEMONSTRATED");
+    const unmetCrit = criteria.find((c) => c.id === unmet?.criterionId);
+
+    const overallSummary =
+      customSummary ||
+      (hasCriticalMisconception
+        ? `Conceptual misconception detected: ${
+            items.find((i) => i.verdict === "MISCONCEPTION")?.reasoning
+          }`
+        : weightedScore >= 0.7
+        ? "Strong rubric alignment demonstrated across core criteria."
+        : `Partial understanding shown (${Math.round(
+            weightedScore * 100
+          )}%). Focus next on: ${
+            unmetCrit?.criterionStatement || "deeper runtime mechanics"
+          }.`);
+
+    const nextTargetedProbe =
+      customProbe ||
+      (unmetCrit
+        ? `Can you trace how Python handles this in practice: ${unmetCrit.criterionStatement}?`
+        : "How would you verify this behavior with a concrete Python edge case?");
 
     return {
-      criteriaResults: finalResults,
+      criteriaResults: items,
       weightedScore,
-      overallPassed,
+      overallPassed: weightedScore >= 0.70 && !hasCriticalMisconception,
       hasCriticalMisconception,
       overallSummary,
+      nextTargetedProbe,
       evaluatorModel,
     };
   }
 
   /**
-   * Atomically persists per-criterion RubricCriterionMastery, ConceptMastery (BKT positive + negative),
-   * and MasteryEvidence audit records. Pure deterministic backend math.
+   * Persists per-criterion mastery rows AND updates ConceptMastery via BKT
+   * (supporting BOTH positive and negative evidence!).
    */
   public static async persistEvaluationResults(params: {
     enrollmentId: string;
     conceptId: string;
     sectionId?: string | null;
-    evidenceType: "DIALOGUE_PROBE" | "CHAPTER_ASSESSMENT" | "PRACTICAL_TASK" | "VIVA";
+    evidenceType: "DIALOGUE_PROBE" | "CHAPTER_ASSESSMENT";
     evaluation: HybridEvaluationResult;
     criteria: RubricCriterionInput[];
     capDialogueMastery?: boolean;
   }): Promise<{
     conceptPMastery: number;
-    conceptState: string;
-    updatedCriteria: Array<{
-      criterionId: string;
-      status: string;
-      pCriterion: number;
-      verdict: string;
-      score: number;
-      misconceptionTag: string | null;
-    }>;
+    conceptState: MasteryState;
+    demonstratedCriteriaCount: number;
+    totalCriteriaCount: number;
+    newlyDemonstratedStatements: string[];
   }> {
-    const now = new Date();
-    const critThresholdMap = new Map(
-      params.criteria.map((c) => [c.id, c.passingThreshold ?? 0.70])
-    );
+    const {
+      enrollmentId,
+      conceptId,
+      sectionId,
+      evidenceType,
+      evaluation,
+      criteria,
+      capDialogueMastery = false,
+    } = params;
 
-    const updatedCriteria: Array<{
-      criterionId: string;
-      status: string;
-      pCriterion: number;
-      verdict: string;
-      score: number;
-      misconceptionTag: string | null;
-    }> = [];
+    const newlyDemonstratedStatements: string[] = [];
 
-    // Ensure ConceptMastery row exists (prevents FK crash on null id)
-    let conceptMastery = await prisma.conceptMastery.findUnique({
-      where: {
-        enrollmentId_conceptId: {
-          enrollmentId: params.enrollmentId,
-          conceptId: params.conceptId,
-        },
-      },
-    });
-
-    if (!conceptMastery) {
-      conceptMastery = await prisma.conceptMastery.create({
-        data: {
-          enrollmentId: params.enrollmentId,
-          conceptId: params.conceptId,
-          pMastery: 0.15,
-          confidence: 0.2,
-          state: "UNENCOUNTERED",
+    // 1. Upsert each RubricCriterionMastery row
+    for (const item of evaluation.criteriaResults) {
+      const existing = await prisma.rubricCriterionMastery.findUnique({
+        where: {
+          enrollmentId_rubricCriterionId: {
+            enrollmentId,
+            rubricCriterionId: item.criterionId,
+          },
         },
       });
-    }
-
-    // 1. Pre-fetch all existing RubricCriterionMastery records in a single query (F-14 batching)
-    const targetCriterionIds = params.evaluation.criteriaResults
-      .filter((res) => !(params.evidenceType === "DIALOGUE_PROBE" && res.verdict === "MISSING"))
-      .map((res) => res.criterionId);
-
-    const existingMasteries = await prisma.rubricCriterionMastery.findMany({
-      where: {
-        enrollmentId: params.enrollmentId,
-        rubricCriterionId: { in: targetCriterionIds },
-      },
-    });
-    const existingMap = new Map(existingMasteries.map((m) => [m.rubricCriterionId, m]));
-
-    const criterionOperations: Array<{
-      res: typeof params.evaluation.criteriaResults[0];
-      isPositive: boolean;
-      nextP: number;
-      nextStatus: string;
-      bestScore: number;
-      demoCount: number;
-      failCount: number;
-      miscCount: number;
-      misconceptionTag: string | null;
-      lastEvidenceQuote: string | null;
-    }> = [];
-
-    for (const res of params.evaluation.criteriaResults) {
-      const threshold = critThresholdMap.get(res.criterionId) ?? 0.70;
-      const isPositive =
-        res.verdict === "DEMONSTRATED" && res.score >= threshold && res.confidence >= 0.70;
-      const isNegative =
-        res.verdict === "MISCONCEPTION" ||
-        (params.evidenceType === "CHAPTER_ASSESSMENT" && res.verdict === "MISSING");
-
-      if (params.evidenceType === "DIALOGUE_PROBE" && res.verdict === "MISSING") {
-        continue;
-      }
-
-      const existing = existingMap.get(res.criterionId);
 
       const prevP = existing?.pCriterion ?? 0.15;
+      const isCorrectSignal =
+        item.verdict === "DEMONSTRATED"
+          ? true
+          : item.verdict === "MISCONCEPTION"
+          ? false
+          : null;
+
       let nextP = prevP;
-      if (isPositive) {
-        nextP = BayesianKnowledgeTracer.update(prevP, true);
-        if (params.capDialogueMastery && params.evidenceType === "DIALOGUE_PROBE") {
-          nextP = Math.min(nextP, 0.78);
-        }
-      } else if (isNegative) {
-        nextP = BayesianKnowledgeTracer.update(prevP, false);
+      if (isCorrectSignal === true) {
+        nextP = BKTService.updateMastery(prevP, true, {
+          pT: 0.22,
+          pS: 0.08,
+          pG: 0.15,
+        });
+      } else if (isCorrectSignal === false) {
+        nextP = BKTService.updateMastery(prevP, false, {
+          pT: 0.05,
+          pS: 0.08,
+          pG: 0.15,
+        });
+      } else if (item.verdict === "PARTIAL") {
+        nextP = Number(Math.min(0.68, Math.max(prevP, (prevP + item.score) / 2)).toFixed(4));
       }
 
-      const demoCount = (existing?.demonstratedCount || 0) + (isPositive ? 1 : 0);
-      const failCount = (existing?.failedCount || 0) + (isNegative ? 1 : 0);
+      const bestScore = Math.max(existing?.bestScore ?? 0, item.score);
+      const demCount =
+        (existing?.demonstratedCount ?? 0) +
+        (item.verdict === "DEMONSTRATED" ? 1 : 0);
+      const failCount =
+        (existing?.failedCount ?? 0) +
+        (item.verdict === "MISSING" || item.verdict === "MISCONCEPTION" ? 1 : 0);
       const miscCount =
-        (existing?.misconceptionCount || 0) + (res.verdict === "MISCONCEPTION" ? 1 : 0);
-      const bestScore = Math.max(existing?.bestScore || 0, res.score);
+        (existing?.misconceptionCount ?? 0) +
+        (item.verdict === "MISCONCEPTION" ? 1 : 0);
 
-      let nextStatus = existing?.status || "ATTEMPTED";
-      if (res.verdict === "MISCONCEPTION") {
-        nextStatus = "ATTEMPTED";
-      } else if (nextP >= 0.85 && demoCount >= 2 && params.evidenceType !== "DIALOGUE_PROBE") {
-        nextStatus = "MASTERED";
-      } else if (nextP >= 0.70 && demoCount >= 1) {
-        nextStatus = "DEMONSTRATED";
-      } else if (res.verdict === "PARTIAL" || bestScore >= 0.4) {
-        nextStatus = "PARTIAL";
-      } else {
-        nextStatus = "ATTEMPTED";
+      let status = "ATTEMPTED";
+      if (nextP >= 0.85 && demCount >= 2) status = "MASTERED";
+      else if (item.verdict === "DEMONSTRATED" || bestScore >= 0.7) {
+        status = "DEMONSTRATED";
+        if (existing?.status !== "DEMONSTRATED" && existing?.status !== "MASTERED") {
+          const matchedCrit = criteria.find((c) => c.id === item.criterionId);
+          if (matchedCrit) {
+            newlyDemonstratedStatements.push(matchedCrit.criterionStatement);
+          }
+        }
+      } else if (item.verdict === "PARTIAL" || bestScore >= 0.45) {
+        status = "PARTIAL";
       }
 
-      const misconceptionTag =
-        res.verdict === "MISCONCEPTION"
-          ? res.misconceptionTag || "CONCEPTUAL_ERROR"
-          : isPositive
-          ? null
-          : existing?.lastMisconception || null;
-
-      criterionOperations.push({
-        res,
-        isPositive,
-        nextP,
-        nextStatus,
-        bestScore,
-        demoCount,
-        failCount,
-        miscCount,
-        misconceptionTag,
-        lastEvidenceQuote: res.evidenceQuote || existing?.lastEvidenceQuote || null,
-      });
-
-      updatedCriteria.push({
-        criterionId: res.criterionId,
-        status: nextStatus,
-        pCriterion: nextP,
-        verdict: res.verdict,
-        score: res.score,
-        misconceptionTag,
+      await prisma.rubricCriterionMastery.upsert({
+        where: {
+          enrollmentId_rubricCriterionId: {
+            enrollmentId,
+            rubricCriterionId: item.criterionId,
+          },
+        },
+        update: {
+          status,
+          pCriterion: nextP,
+          latestScore: item.score,
+          bestScore,
+          demonstratedCount: demCount,
+          failedCount: failCount,
+          misconceptionCount: miscCount,
+          lastMisconception:
+            item.verdict === "MISCONCEPTION"
+              ? item.misconceptionTag || item.reasoning
+              : existing?.lastMisconception,
+          lastEvidenceQuote: item.evidenceQuote,
+          lastEvaluatedAt: new Date(),
+        },
+        create: {
+          enrollmentId,
+          rubricCriterionId: item.criterionId,
+          status,
+          pCriterion: nextP,
+          latestScore: item.score,
+          bestScore: item.score,
+          demonstratedCount: item.verdict === "DEMONSTRATED" ? 1 : 0,
+          failedCount:
+            item.verdict === "MISSING" || item.verdict === "MISCONCEPTION" ? 1 : 0,
+          misconceptionCount: item.verdict === "MISCONCEPTION" ? 1 : 0,
+          lastMisconception:
+            item.verdict === "MISCONCEPTION"
+              ? item.misconceptionTag || item.reasoning
+              : null,
+          lastEvidenceQuote: item.evidenceQuote,
+          lastEvaluatedAt: new Date(),
+        },
       });
     }
 
-    // 2. Compute Concept-Level BKT
-    let nextConceptP = conceptMastery.pMastery;
-    let nextState = conceptMastery.state;
-    let remediationDelta = 0;
-
-    const shouldUpdateConceptBkt =
-      params.evidenceType === "CHAPTER_ASSESSMENT" ||
-      params.evaluation.overallPassed ||
-      params.evaluation.hasCriticalMisconception;
-
-    if (shouldUpdateConceptBkt) {
-      const obs = params.evaluation.overallPassed && !params.evaluation.hasCriticalMisconception;
-      nextConceptP = BayesianKnowledgeTracer.update(conceptMastery.pMastery, obs);
-
-      if (params.capDialogueMastery && params.evidenceType === "DIALOGUE_PROBE" && obs) {
-        nextConceptP = Math.min(nextConceptP, 0.78);
-      }
-
-      if (params.evaluation.hasCriticalMisconception || (!obs && nextConceptP < 0.60)) {
-        nextState = "NEEDS_REMEDIATION";
-        remediationDelta = 1;
-      } else if (nextConceptP >= 0.90) {
-        nextState = "ADVANCED";
-      } else if (nextConceptP >= 0.85) {
-        nextState = "MASTERED";
-      } else {
-        nextState = "LEARNING";
-      }
-    }
-
-    // 3. Execute all writes atomically in a single Prisma transaction (F-14)
-    await prisma.$transaction(async (tx) => {
-      for (const op of criterionOperations) {
-        await tx.rubricCriterionMastery.upsert({
-          where: {
-            enrollmentId_rubricCriterionId: {
-              enrollmentId: params.enrollmentId,
-              rubricCriterionId: op.res.criterionId,
-            },
-          },
-          update: {
-            status: op.nextStatus,
-            pCriterion: op.nextP,
-            bestScore: op.bestScore,
-            latestScore: op.res.score,
-            demonstratedCount: op.demoCount,
-            failedCount: op.failCount,
-            misconceptionCount: op.miscCount,
-            lastMisconception: op.misconceptionTag,
-            lastEvidenceQuote: op.lastEvidenceQuote,
-            lastEvaluatedAt: now,
-          },
-          create: {
-            enrollmentId: params.enrollmentId,
-            rubricCriterionId: op.res.criterionId,
-            status: op.nextStatus,
-            pCriterion: op.nextP,
-            bestScore: op.bestScore,
-            latestScore: op.res.score,
-            demonstratedCount: op.demoCount,
-            failedCount: op.failCount,
-            misconceptionCount: op.miscCount,
-            lastMisconception: op.misconceptionTag,
-            lastEvidenceQuote: op.lastEvidenceQuote,
-            lastEvaluatedAt: now,
-          },
-        });
-
-        await tx.masteryEvidence.create({
-          data: {
-            conceptMasteryId: conceptMastery.id,
-            rubricCriterionId: op.res.criterionId,
-            sectionId: params.sectionId || null,
-            evidenceType: params.evidenceType,
-            isDemonstrated: op.isPositive,
-            score: op.res.score,
-            confidence: op.res.confidence,
-            misconceptionTag: op.res.misconceptionTag || null,
-            evidenceQuote: op.res.evidenceQuote || null,
-            evaluatorReasoning: op.res.reasoning || null,
-          },
-        });
-      }
-
-      if (shouldUpdateConceptBkt) {
-        await tx.conceptMastery.update({
-          where: { id: conceptMastery.id },
-          data: {
-            pMastery: nextConceptP,
-            confidence: Math.min((conceptMastery.confidence || 0.2) + 0.12, 0.96),
-            state: nextState,
-            remediationCycles: { increment: remediationDelta },
-            lastAssessedAt: now,
-          },
-        });
-      }
+    // 2. Update ConceptMastery (both positive AND negative BKT updates!)
+    let cm = await prisma.conceptMastery.findUnique({
+      where: {
+        enrollmentId_conceptId: {
+          enrollmentId,
+          conceptId,
+        },
+      },
     });
 
+    const currentP = cm?.pMastery ?? 0.15;
+    let newP = currentP;
+
+    if (evaluation.hasCriticalMisconception) {
+      // Negative BKT update when learner expresses a misconception
+      newP = BKTService.updateMastery(currentP, false, {
+        pT: 0.05,
+        pS: 0.1,
+        pG: 0.15,
+      });
+    } else if (evaluation.weightedScore >= 0.7) {
+      // Positive BKT update when rubric score >= 0.70
+      newP = BKTService.updateMastery(currentP, true, {
+        pT: evidenceType === "CHAPTER_ASSESSMENT" ? 0.25 : 0.18,
+        pS: 0.08,
+        pG: 0.15,
+      });
+      if (capDialogueMastery) {
+        // Socratic dialogue alone caps at 0.84; formal checkpoint assessment unlocks >= 0.85
+        newP = Math.min(newP, 0.84);
+      }
+    } else if (evidenceType === "CHAPTER_ASSESSMENT" && evaluation.weightedScore < 0.5) {
+      // Failed formal checkpoint lowers BKT mastery
+      newP = BKTService.updateMastery(currentP, false, {
+        pT: 0.05,
+        pS: 0.1,
+        pG: 0.15,
+      });
+    }
+
+    const newState = BKTService.determineState(newP, true);
+
+    cm = await prisma.conceptMastery.upsert({
+      where: {
+        enrollmentId_conceptId: {
+          enrollmentId,
+          conceptId,
+        },
+      },
+      update: {
+        pMastery: newP,
+        state: newState,
+        lastAssessedAt: new Date(),
+      },
+      create: {
+        enrollmentId,
+        conceptId,
+        pMastery: newP,
+        state: newState,
+        lastAssessedAt: new Date(),
+      },
+    });
+
+    await prisma.masteryEvidence.create({
+      data: {
+        conceptMasteryId: cm.id,
+        sectionId: sectionId || null,
+        evidenceType,
+        isDemonstrated:
+          evaluation.weightedScore >= 0.7 && !evaluation.hasCriticalMisconception,
+        confidence: evaluation.weightedScore,
+        score: evaluation.weightedScore,
+        misconceptionTag: evaluation.hasCriticalMisconception
+          ? evaluation.criteriaResults.find((r) => r.verdict === "MISCONCEPTION")
+              ?.misconceptionTag || "MISCONCEPTION"
+          : null,
+        evidenceQuote: evaluation.overallSummary.slice(0, 280),
+      },
+    });
+
+    // Compute total demonstrated criteria for this concept
+    const allCritMasteries = await prisma.rubricCriterionMastery.findMany({
+      where: {
+        enrollmentId,
+        rubricCriterionId: { in: criteria.map((c) => c.id) },
+      },
+    });
+    const demonstratedCount = allCritMasteries.filter(
+      (m) => m.status === "DEMONSTRATED" || m.status === "MASTERED" || m.bestScore >= 0.7
+    ).length;
+
     return {
-      conceptPMastery: nextConceptP,
-      conceptState: nextState,
-      updatedCriteria,
+      conceptPMastery: newP,
+      conceptState: newState,
+      demonstratedCriteriaCount: demonstratedCount,
+      totalCriteriaCount: criteria.length,
+      newlyDemonstratedStatements,
     };
+  }
+
+  private static isKeywordStuffing(text: string): boolean {
+    const words = text.toLowerCase().split(/\s+/).filter(Boolean);
+    if (words.length < 6) return false;
+    const unique = new Set(words);
+    return unique.size / words.length < 0.35;
+  }
+
+  private static parseExpectedConcepts(
+    jsonStr: string | null | undefined,
+    statement: string
+  ): string[] {
+    if (jsonStr) {
+      try {
+        const parsed = JSON.parse(jsonStr);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {}
+    }
+    return statement
+      .toLowerCase()
+      .replace(/[^a-z0-9_\s-]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length >= 4);
+  }
+
+  private static parseMisconceptions(
+    jsonStr: string | null | undefined
+  ): Array<{ tag: string; pattern: string; explanation: string }> {
+    if (!jsonStr) return [];
+    try {
+      const parsed = JSON.parse(jsonStr);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   }
 }

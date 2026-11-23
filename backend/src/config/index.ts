@@ -79,6 +79,8 @@ export const config = {
   set groqApiKey(v: string) { process.env.GROQ_API_KEY = v; },
   get groqTutorModel() { return process.env.GROQ_TUTOR_MODEL || "llama-3.3-70b-versatile"; },
   get groqEvaluatorModel() { return process.env.GROQ_EVALUATOR_MODEL || "llama-3.3-70b-versatile"; },
+  get groqModel() { return this.groqEvaluatorModel; },
+  set groqModel(v: string) { process.env.GROQ_EVALUATOR_MODEL = v; },
   get openaiApiKey() { return process.env.OPENAI_API_KEY || ""; },
   set openaiApiKey(v: string) { process.env.OPENAI_API_KEY = v; },
   get geminiApiKey() { return process.env.GEMINI_API_KEY || ""; },

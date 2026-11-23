@@ -26,6 +26,7 @@ describe("AIProvider Auto-Fallback to Gemini", () => {
   it("automatically fails over to Gemini when Anthropic returns 429 rate/token limit", async () => {
     const streamGeminiSpy = vi.spyOn(AIProvider, "streamGeminiReply").mockResolvedValue({
       fullText: "Socratic response generated seamlessly via Gemini fallback",
+      model: "gemini-2.5-flash",
       modelUsed: "gemini-2.5-flash",
       promptVersion: config.promptVersion,
       provider: "gemini",
@@ -61,6 +62,7 @@ describe("AIProvider Auto-Fallback to Gemini", () => {
     config.aiProvider = "gemini";
     const streamGeminiSpy = vi.spyOn(AIProvider, "streamGeminiReply").mockResolvedValue({
       fullText: "Direct Gemini response",
+      model: "gemini-2.5-flash",
       modelUsed: "gemini-2.5-flash",
       promptVersion: config.promptVersion,
       provider: "gemini",

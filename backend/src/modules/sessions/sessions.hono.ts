@@ -1,30 +1,321 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { prisma } from "../../shared/prisma.js";
-import { honoAuthMiddleware, verifyEnrollmentOwnership } from "../../shared/middleware/honoAuth.js";
+import { honoAuthMiddleware } from "../../shared/middleware/honoAuth.js";
 import { honoRateLimiter } from "../../shared/middleware/honoRateLimit.js";
-import { AiProviderService } from "../ai/ai.provider.js";
 import { RAGService } from "../ai/rag.service.js";
-import { DriftService } from "../ai/drift.service.js";
+import {
+  AiProviderService,
+  extractPreviousTutorQuestions,
+  type ProgressionTransitionNotice,
+} from "../ai/ai.provider.js";
+import { DriftDetectionService } from "../ai/drift.service.js";
 import { RubricEvaluatorService } from "../ai/rubric.evaluator.js";
 import {
   ProgressionService,
   ProgressionLockedError,
 } from "../progression/progression.service.js";
 import { AnalyticsService } from "../analytics/analytics.service.js";
-import { recordUserActivity } from "../auth/auth.hono.js";
-import { config } from "../../config/index.js";
 
 export const sessionsHonoRouter = new Hono();
 
-export const stripMarkdownAsterisks = (t?: string | null): string =>
-  t ? t.replace(/^\*+|\*+$/g, "").trim() : "";
+const cleanTitle = (t?: string | null) => (t ? t.replace(/^\*+\s*/, "").trim() : "");
+
+/**
+ * Helper: Builds a rich live progression snapshot for the active chapter & module
+ * so LearningStudio can render the live section stepper, rubric mastery bar,
+ * Checkpoint CTA, Practical CTA, and Next Chapter / Next Module transitions.
+ */
+async function buildSessionProgressionSnapshot(params: {
+  enrollmentId: string;
+  chapterId: string;
+  currentSectionId?: string | null;
+}) {
+  const { enrollmentId, chapterId, currentSectionId } = params;
+
+  const chapter = await prisma.chapter.findUnique({
+    where: { id: chapterId },
+    include: {
+      module: {
+        include: {
+          chapters: {
+            orderBy: { sequenceOrder: "asc" },
+            select: { id: true, title: true, sequenceOrder: true },
+          },
+        },
+      },
+      sections: { orderBy: { sequenceOrder: "asc" } },
+      concepts: {
+        orderBy: { sequenceOrder: "asc" },
+        include: { rubrics: { include: { criteria: true } } },
+      },
+    },
+  });
+
+  if (!chapter) return null;
+
+  const [sectionProgRows, chapterProg, moduleProg, allModules, allChapterProgs] =
+    await Promise.all([
+      prisma.sectionProgress.findMany({
+        where: {
+          enrollmentId,
+          sectionId: { in: chapter.sections.map((s) => s.id) },
+        },
+      }),
+      prisma.chapterProgress.findUnique({
+        where: {
+          enrollmentId_chapterId: { enrollmentId, chapterId },
+        },
+      }),
+      prisma.moduleProgress.findUnique({
+        where: {
+          enrollmentId_moduleId: { enrollmentId, moduleId: chapter.module.id },
+        },
+      }),
+      prisma.module.findMany({
+        where: { courseVersionId: chapter.module.courseVersionId },
+        orderBy: { sequenceOrder: "asc" },
+        include: {
+          chapters: {
+            orderBy: { sequenceOrder: "asc" },
+            select: { id: true, title: true, sequenceOrder: true },
+          },
+        },
+      }),
+      prisma.chapterProgress.findMany({
+        where: { enrollmentId },
+      }),
+    ]);
+
+  const secProgMap = new Map(sectionProgRows.map((sp) => [sp.sectionId, sp]));
+  const chapProgMap = new Map(allChapterProgs.map((cp) => [cp.chapterId, cp]));
+
+  const allCriteria = chapter.concepts.flatMap((c) =>
+    c.rubrics.flatMap((r) => r.criteria)
+  );
+  const critMasteries = await prisma.rubricCriterionMastery.findMany({
+    where: {
+      enrollmentId,
+      rubricCriterionId: { in: allCriteria.map((c) => c.id) },
+    },
+  });
+  const critMasteryMap = new Map(
+    critMasteries.map((cm) => [cm.rubricCriterionId, cm])
+  );
+
+  const demonstratedCriteriaCount = allCriteria.filter((c) => {
+    const m = critMasteryMap.get(c.id);
+    return m && (m.status === "DEMONSTRATED" || m.status === "MASTERED" || m.bestScore >= 0.7);
+  }).length;
+
+  const sections = chapter.sections.map((s) => {
+    const sp = secProgMap.get(s.id);
+    return {
+      id: s.id,
+      sectionType: s.sectionType,
+      title: s.title,
+      objective: s.objective,
+      sequenceOrder: s.sequenceOrder,
+      minTurns: s.minTurns,
+      status: sp?.status || (s.sequenceOrder === 1 ? "IN_PROGRESS" : "LOCKED"),
+      turnsCompleted: sp?.turnsCompleted || 0,
+      rubricPassRatio: sp?.rubricPassRatio || 0,
+      readyToAdvance:
+        sp?.status === "COMPLETED" ||
+        ((sp?.turnsCompleted || 0) >= s.minTurns &&
+          (sp?.rubricPassRatio || 0) >= 0.35),
+    };
+  });
+
+  const activeSec =
+    sections.find((s) => s.id === currentSectionId) ||
+    sections.find((s) => s.status === "IN_PROGRESS" || s.status === "UNLOCKED") ||
+    sections[0];
+
+  const checkpointSec = sections.find((s) => s.sectionType === "CHAPTER_CHECKPOINT");
+  const practicalSec = sections.find((s) => s.sectionType === "MODULE_PRACTICAL");
+  const s3Sec = sections.find((s) => s.sequenceOrder === 3);
+
+  const checkpointUnlocked = Boolean(
+    checkpointSec &&
+      (checkpointSec.status !== "LOCKED" ||
+        chapterProg?.status === "AWAITING_CHECKPOINT" ||
+        chapterProg?.status === "COMPLETED" ||
+        s3Sec?.status === "COMPLETED")
+  );
+
+  const practicalUnlocked = Boolean(
+    practicalSec &&
+      (practicalSec.status !== "LOCKED" ||
+        (chapterProg?.status === "COMPLETED" && !moduleProg?.practicalPassed))
+  );
+
+  // Determine next chapter in current module or first chapter of next module
+  let nextChapter: {
+    id: string;
+    title: string;
+    moduleOrder: number;
+    moduleTitle: string;
+    isUnlocked: boolean;
+    isNextModule: boolean;
+  } | null = null;
+
+  const nextInModule = chapter.module.chapters.find(
+    (ch) => ch.sequenceOrder === chapter.sequenceOrder + 1
+  );
+  if (nextInModule) {
+    const np = chapProgMap.get(nextInModule.id);
+    nextChapter = {
+      id: nextInModule.id,
+      title: cleanTitle(nextInModule.title),
+      moduleOrder: chapter.module.sequenceOrder,
+      moduleTitle: chapter.module.title,
+      isUnlocked: Boolean(np && np.status !== "LOCKED"),
+      isNextModule: false,
+    };
+  } else {
+    const nextMod = allModules.find(
+      (m) => m.sequenceOrder === chapter.module.sequenceOrder + 1
+    );
+    if (nextMod && nextMod.chapters[0]) {
+      const np = chapProgMap.get(nextMod.chapters[0].id);
+      nextChapter = {
+        id: nextMod.chapters[0].id,
+        title: cleanTitle(nextMod.chapters[0].title),
+        moduleOrder: nextMod.sequenceOrder,
+        moduleTitle: nextMod.title,
+        isUnlocked: Boolean(np && np.status !== "LOCKED"),
+        isNextModule: true,
+      };
+    }
+  }
+
+  return {
+    enrollmentId,
+    moduleId: chapter.module.id,
+    moduleOrder: chapter.module.sequenceOrder,
+    moduleTitle: chapter.module.title,
+    moduleStatus: moduleProg?.status || "IN_PROGRESS",
+    practicalTaskId: chapter.module.practicalTaskId || null,
+    practicalPassed: moduleProg?.practicalPassed || false,
+    practicalScore: moduleProg?.practicalScore ?? null,
+    chapterId: chapter.id,
+    chapterOrder: chapter.sequenceOrder,
+    chapterTitle: cleanTitle(chapter.title),
+    chapterStatus: chapterProg?.status || "IN_PROGRESS",
+    checkpointScore: chapterProg?.checkpointScore ?? null,
+    activeSection: activeSec || null,
+    sections,
+    checkpointUnlocked,
+    practicalUnlocked,
+    demonstratedCriteriaCount,
+    totalCriteriaCount: allCriteria.length,
+    nextChapter,
+  };
+}
+
+// ─── GET /api/v1/courses/:slug/progression ──────────────────────────────────
+sessionsHonoRouter.get(
+  "/courses/:slug/progression",
+  honoAuthMiddleware,
+  async (c) => {
+    try {
+      const slug = c.req.param("slug") || "";
+      const user = c.get("user");
+
+      const course = await prisma.course.findUnique({
+        where: { slug },
+        include: {
+          versions: { where: { isActive: true }, take: 1 },
+        },
+      });
+
+      if (!course || !course.versions[0]) {
+        return c.json({ error: "Course not found" }, 404);
+      }
+
+      const activeVersion = course.versions[0];
+      let enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_courseVersionId: {
+            userId: user.id,
+            courseVersionId: activeVersion.id,
+          },
+        },
+      });
+
+      if (!enrollment) {
+        enrollment = await prisma.enrollment.create({
+          data: {
+            userId: user.id,
+            courseVersionId: activeVersion.id,
+            currentTier: "EASY",
+            status: "ACTIVE",
+          },
+        });
+      }
+
+      const progression = await ProgressionService.getProgressionTree(
+        enrollment.id
+      );
+      return c.json({ progression });
+    } catch (err: any) {
+      return c.json(
+        { error: "Failed to fetch course progression", details: err?.message },
+        500
+      );
+    }
+  }
+);
+
+// ─── GET /api/v1/courses/:slug/skills-report ────────────────────────────────
+sessionsHonoRouter.get(
+  "/courses/:slug/skills-report",
+  honoAuthMiddleware,
+  async (c) => {
+    try {
+      const slug = c.req.param("slug") || "";
+      const user = c.get("user");
+
+      const course = await prisma.course.findUnique({
+        where: { slug },
+        include: { versions: { where: { isActive: true }, take: 1 } },
+      });
+
+      if (!course || !course.versions[0]) {
+        return c.json({ error: "Course not found" }, 404);
+      }
+
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_courseVersionId: {
+            userId: user.id,
+            courseVersionId: course.versions[0].id,
+          },
+        },
+      });
+
+      if (!enrollment) {
+        return c.json({ error: "Not enrolled in this course", enrolled: false }, 404);
+      }
+
+      const report = await AnalyticsService.getLearnerSkillsReport(
+        enrollment.id
+      );
+      return c.json({ report });
+    } catch (err: any) {
+      return c.json(
+        { error: "Failed to generate skills report", details: err?.message },
+        500
+      );
+    }
+  }
+);
 
 // ─── GET /api/v1/courses/:slug/session ───────────────────────────────────────
-// Strictly Read-Only Session Context Query (Zero Database Mutations)
 sessionsHonoRouter.get("/courses/:slug/session", honoAuthMiddleware, async (c) => {
   try {
-    const slug = c.req.param("slug");
+    const slug = c.req.param("slug") || "";
     const user = c.get("user");
 
     const course = await prisma.course.findUnique({
@@ -42,914 +333,8 @@ sessionsHonoRouter.get("/courses/:slug/session", honoAuthMiddleware, async (c) =
                     sections: { orderBy: { sequenceOrder: "asc" } },
                     concepts: {
                       orderBy: { sequenceOrder: "asc" },
-                      include: { rubrics: { include: { criteria: true } } },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!course || !course.versions[0]) {
-      return c.json({ error: "Course not found" }, 404);
-    }
-
-    const activeVersion = course.versions[0];
-
-    // Query Enrollment (Strictly Read-Only)
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseVersionId: {
-          userId: user.id,
-          courseVersionId: activeVersion.id,
-        },
-      },
-    });
-
-    if (!enrollment) {
-      return c.json(
-        {
-          error: "Learner is not enrolled in this course version. Please enroll first.",
-          enrolled: false,
-          course: { id: course.id, slug: course.slug, title: course.title },
-        },
-        404
-      );
-    }
-
-    // Query Active Session (Strictly Read-Only)
-    const session = await prisma.learningSession.findFirst({
-      where: {
-        enrollmentId: enrollment.id,
-        isActive: true,
-      },
-      include: {
-        chapter: {
-          include: {
-            module: true,
-            sections: { orderBy: { sequenceOrder: "asc" } },
-            concepts: {
-              include: { rubrics: { include: { criteria: true } } },
-            },
-          },
-        },
-        messages: {
-          orderBy: { createdAt: "desc" },
-          take: 50,
-        },
-      },
-    });
-
-    const [conceptMasteries, sectionProgresses] = await Promise.all([
-      prisma.conceptMastery.findMany({
-        where: { enrollmentId: enrollment.id },
-        include: { concept: true },
-      }),
-      prisma.sectionProgress.findMany({
-        where: { enrollmentId: enrollment.id },
-      }),
-    ]);
-
-    const secProgMap = new Map(sectionProgresses.map((sp) => [sp.sectionId, sp]));
-    const activeSection = session
-      ? session.chapter.sections.find((s) => s.id === session.currentSectionId) ||
-        session.chapter.sections[0] ||
-        null
-      : null;
-
-    return c.json({
-      course: { id: course.id, slug: course.slug, title: course.title },
-      enrollment: {
-        id: enrollment.id,
-        currentTier: enrollment.currentTier,
-        status: enrollment.status,
-      },
-      session: session
-        ? {
-            id: session.id,
-            phase: session.phase,
-            currentSectionId: activeSection?.id || null,
-            activeSection: activeSection
-              ? {
-                  id: activeSection.id,
-                  sectionType: activeSection.sectionType,
-                  title: activeSection.title,
-                  objective: activeSection.objective,
-                  sequenceOrder: activeSection.sequenceOrder,
-                  minTurns: activeSection.minTurns,
-                  status: secProgMap.get(activeSection.id)?.status || "UNLOCKED",
-                  turnsCompleted: secProgMap.get(activeSection.id)?.turnsCompleted || 0,
-                }
-              : null,
-            chapter: {
-              ...session.chapter,
-              title: stripMarkdownAsterisks(session.chapter.title),
-            },
-            messages: session.messages
-              .slice()
-              .reverse()
-              .filter((m) => Boolean(m.content?.trim())),
-          }
-        : null,
-      conceptMasteries,
-      curriculum: activeVersion.modules,
-    });
-  } catch (err: any) {
-    return c.json({ error: "Failed to load session context", details: err?.message }, 500);
-  }
-});
-
-// ─── GET /api/v1/courses/:slug/progression ───────────────────────────────────
-// Returns backend-authoritative lock tree (Modules -> Chapters -> Sections -> Criteria)
-sessionsHonoRouter.get("/courses/:slug/progression", honoAuthMiddleware, async (c) => {
-  try {
-    const slug = c.req.param("slug");
-    const user = c.get("user");
-
-    const course = await prisma.course.findUnique({
-      where: { slug },
-      include: { versions: { where: { isActive: true }, take: 1 } },
-    });
-
-    if (!course || !course.versions[0]) {
-      return c.json({ error: "Course not found" }, 404);
-    }
-
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseVersionId: {
-          userId: user.id,
-          courseVersionId: course.versions[0].id,
-        },
-      },
-    });
-
-    if (!enrollment) {
-      return c.json({ error: "Learner is not enrolled in this course.", enrolled: false }, 404);
-    }
-
-    const tree = await ProgressionService.getProgressionTree(enrollment.id);
-    return c.json({ progression: tree });
-  } catch (err: any) {
-    return c.json({ error: "Failed to load progression tree", details: err?.message }, 500);
-  }
-});
-
-// ─── GET /api/v1/enrollments/:enrollmentId/skills-report ─────────────────────
-// Returns deterministic Strengths, Weakpoints, Cognitive Breakdown & Rubric Matrix
-sessionsHonoRouter.get("/enrollments/:enrollmentId/skills-report", honoAuthMiddleware, async (c) => {
-  try {
-    const enrollmentId = c.req.param("enrollmentId") || "";
-    const user = c.get("user");
-
-    const ownership = await verifyEnrollmentOwnership(enrollmentId, user.id);
-    if (ownership.status === "forbidden") {
-      return c.json({ error: "Forbidden: You do not own this enrollment" }, 403);
-    }
-    if (ownership.status === "not_found") {
-      return c.json({ error: "Enrollment not found" }, 404);
-    }
-
-    const report = await AnalyticsService.getSkillsReport(enrollmentId);
-    return c.json({ report });
-  } catch (err: any) {
-    return c.json({ error: "Failed to compute skills report", details: err?.message }, 500);
-  }
-});
-
-// ─── GET /api/v1/courses/:slug/skills-report ─────────────────────────────────
-sessionsHonoRouter.get("/courses/:slug/skills-report", honoAuthMiddleware, async (c) => {
-  try {
-    const slug = c.req.param("slug");
-    const user = c.get("user");
-
-    const course = await prisma.course.findUnique({
-      where: { slug },
-      include: { versions: { where: { isActive: true }, take: 1 } },
-    });
-    if (!course || !course.versions[0]) {
-      return c.json({ error: "Course not found" }, 404);
-    }
-
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseVersionId: {
-          userId: user.id,
-          courseVersionId: course.versions[0].id,
-        },
-      },
-    });
-    if (!enrollment) {
-      return c.json({ error: "Not enrolled in this course" }, 404);
-    }
-
-    const report = await AnalyticsService.getSkillsReport(enrollment.id);
-    return c.json({ report });
-  } catch (err: any) {
-    return c.json({ error: "Failed to compute skills report", details: err?.message }, 500);
-  }
-});
-
-// ─── POST /api/v1/courses/:slug/sessions ─────────────────────────────────────
-// Explicit POST to Start/Switch Learning Session (STRICTLY GATED BY LOCK STATE)
-sessionsHonoRouter.post("/courses/:slug/sessions", honoAuthMiddleware, async (c) => {
-  try {
-    const slug = c.req.param("slug");
-    const body = await c.req.json().catch(() => ({}));
-    const user = c.get("user");
-
-    const course = await prisma.course.findUnique({
-      where: { slug },
-      include: {
-        versions: {
-          where: { isActive: true },
-          include: {
-            modules: {
-              orderBy: { sequenceOrder: "asc" },
-              include: {
-                chapters: { orderBy: { sequenceOrder: "asc" } },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!course || !course.versions[0]) {
-      return c.json({ error: "Course not found" }, 404);
-    }
-
-    const activeVersion = course.versions[0];
-    const enrollment = await prisma.enrollment.findUnique({
-      where: {
-        userId_courseVersionId: {
-          userId: user.id,
-          courseVersionId: activeVersion.id,
-        },
-      },
-    });
-
-    if (!enrollment) {
-      return c.json({ error: "You must enroll in this course before starting a session." }, 400);
-    }
-
-    await ProgressionService.ensureInitialized(enrollment.id);
-
-    let targetChapterId = body.chapterId || enrollment.currentChapterId;
-    if (!targetChapterId) {
-      const firstChapter = activeVersion.modules[0]?.chapters[0];
-      if (!firstChapter) {
-        return c.json({ error: "No chapters available in this course." }, 400);
-      }
-      targetChapterId = firstChapter.id;
-    }
-
-    // HARD BACKEND GATE: Prevent jumping into any locked module or chapter!
-    try {
-      await ProgressionService.assertChapterUnlocked(enrollment.id, targetChapterId);
-    } catch (lockErr: any) {
-      if (lockErr instanceof ProgressionLockedError) {
-        return c.json(lockErr.toJSON(), 403);
-      }
-      throw lockErr;
-    }
-
-    const activeSection = await ProgressionService.resolveActiveSection(
-      enrollment.id,
-      targetChapterId,
-      body.sectionId || null
-    );
-
-    // Deactivate previous active sessions
-    await prisma.learningSession.updateMany({
-      where: { enrollmentId: enrollment.id, isActive: true },
-      data: { isActive: false },
-    });
-
-    // Reuse or create session for this chapter
-    const session = await prisma.learningSession.create({
-      data: {
-        enrollmentId: enrollment.id,
-        chapterId: targetChapterId,
-        currentSectionId: activeSection?.id || null,
-        phase:
-          activeSection?.sectionType === "CHAPTER_CHECKPOINT"
-            ? "CHECKING"
-            : activeSection?.sectionType === "MODULE_PRACTICAL"
-            ? "ASSESSING"
-            : "TEACHING",
-        isActive: true,
-      },
-      include: {
-        chapter: {
-          include: {
-            module: true,
-            sections: { orderBy: { sequenceOrder: "asc" } },
-            concepts: {
-              include: { rubrics: { include: { criteria: true } } },
-            },
-          },
-        },
-      },
-    });
-
-    const cleanChapterTitle = stripMarkdownAsterisks(session.chapter.title);
-    const sectionIntro = activeSection
-      ? `\n\n**Active Section:** ${activeSection.title}\n**Objective:** ${activeSection.objective}`
-      : "";
-
-    const initialMessage = await prisma.chatMessage.create({
-      data: {
-        sessionId: session.id,
-        sender: "AI_TUTOR",
-        role: "assistant",
-        content:
-          `Welcome to **${session.chapter.module.title} → ${cleanChapterTitle}**!${sectionIntro}\n\n` +
-          `Let's build your intuition step by step. In your own words, what do you already know about **${session.chapter.concepts[0]?.name || cleanChapterTitle}**?`,
-      },
-    });
-
-    return c.json(
-      {
-        message: "Session started successfully",
-        session: {
-          id: session.id,
-          phase: session.phase,
-          currentSectionId: activeSection?.id || null,
-          activeSection: activeSection
-            ? {
-                id: activeSection.id,
-                sectionType: activeSection.sectionType,
-                title: activeSection.title,
-                objective: activeSection.objective,
-                sequenceOrder: activeSection.sequenceOrder,
-                minTurns: activeSection.minTurns,
-              }
-            : null,
-          chapter: session.chapter,
-          messages: [initialMessage],
-        },
-      },
-      201
-    );
-  } catch (err: any) {
-    return c.json({ error: "Failed to create session", details: err?.message }, 500);
-  }
-});
-
-// ─── POST /api/v1/sessions/:sessionId/sections/advance ───────────────────────
-// Deterministically advances Section S_k -> S_{k+1} ONLY if backend gate is satisfied
-sessionsHonoRouter.post(
-  "/sessions/:sessionId/sections/advance",
-  honoAuthMiddleware,
-  async (c) => {
-    try {
-      const sessionId = c.req.param("sessionId") || "";
-      const user = c.get("user");
-
-      const session = await prisma.learningSession.findUnique({
-        where: { id: sessionId },
-        include: { enrollment: true },
-      });
-      if (!session) {
-        return c.json({ error: "Session not found" }, 404);
-      }
-      if (session.enrollment.userId !== user.id) {
-        return c.json({ error: "Forbidden: You do not own this session" }, 403);
-      }
-
-      const result = await ProgressionService.advanceSection(session.enrollmentId, sessionId);
-
-      // Post a concise backend transition message in the chat log
-      if (result.nextSection) {
-        await prisma.chatMessage.create({
-          data: {
-            sessionId,
-            sender: "AI_TUTOR",
-            role: "assistant",
-            content:
-              `Section completed: **${result.completedSection.title}**.\n\n` +
-              `Now starting **${result.nextSection.title}**.\n**Objective:** ${result.nextSection.objective}`,
-          },
-        });
-      }
-
-      return c.json({
-        message: "Advanced to next section",
-        ...result,
-      });
-    } catch (err: any) {
-      if (err instanceof ProgressionLockedError) {
-        return c.json(err.toJSON(), 403);
-      }
-      return c.json({ error: "Failed to advance section", details: err?.message }, 500);
-    }
-  }
-);
-
-// ─── POST /api/v1/sessions/:sessionId/messages ───────────────────────────────
-// Hard-Fenced Scoped RAG + Drift Guardrail + Hybrid Rubric Evaluation + SSE Stream
-sessionsHonoRouter.post(
-  "/sessions/:sessionId/messages",
-  honoAuthMiddleware,
-  honoRateLimiter({ maxRequests: 20, windowSeconds: 60, keyPrefix: "tutor-stream" }),
-  async (c) => {
-    const sessionId = c.req.param("sessionId");
-    const user = c.get("user");
-    const body = await c.req.json().catch(() => ({}));
-    const content = (body.content || body.message || "").trim();
-
-    if (!content) {
-      return c.json({ error: "Content is required" }, 400);
-    }
-
-    const session = await prisma.learningSession.findUnique({
-      where: { id: sessionId },
-      include: {
-        chapter: {
-          include: {
-            module: true,
-            sections: { orderBy: { sequenceOrder: "asc" } },
-            concepts: {
-              orderBy: { sequenceOrder: "asc" },
-              include: { rubrics: { include: { criteria: true } } },
-            },
-          },
-        },
-        enrollment: true,
-        messages: {
-          orderBy: { createdAt: "desc" },
-          take: 16,
-        },
-      },
-    });
-
-    if (!session) {
-      return c.json({ error: "Session not found" }, 404);
-    }
-
-    if (session.enrollment.userId !== user.id) {
-      return c.json({ error: "Forbidden: You do not own this learning session" }, 403);
-    }
-
-    // HARD BACKEND GATE: Verify chapter is unlocked
-    try {
-      await ProgressionService.assertChapterUnlocked(session.enrollmentId, session.chapterId);
-    } catch (lockErr: any) {
-      if (lockErr instanceof ProgressionLockedError) {
-        return c.json(lockErr.toJSON(), 403);
-      }
-      throw lockErr;
-    }
-
-    // Resolve active section
-    const activeSection =
-      session.chapter.sections.find((s) => s.id === session.currentSectionId) ||
-      session.chapter.sections[0] ||
-      null;
-
-    // Persist User Message & Record Real-time Activity
-    await prisma.chatMessage.create({
-      data: {
-        sessionId: session.id,
-        sender: "USER",
-        role: "user",
-        content,
-      },
-    });
-    recordUserActivity(user.id).catch(() => {});
-
-    const rawHistory = session.messages
-      .slice()
-      .reverse()
-      .filter((m) => Boolean(m.content?.trim()));
-    const chatHistory = rawHistory.map((m) => ({
-      role: m.role as "user" | "assistant" | "system",
-      content: m.content,
-    }));
-    chatHistory.push({ role: "user", content });
-
-    const currentChapter = session.chapter;
-    const currentModule = currentChapter.module;
-    const activeConcept = currentChapter.concepts[0];
-    const allChapterCriteria = currentChapter.concepts.flatMap((cn) =>
-      cn.rubrics.flatMap((r) => r.criteria)
-    );
-
-    // Load unmet rubric criteria & known misconceptions for targeted Socratic probing
-    const existingCriterionMasteries = await prisma.rubricCriterionMastery.findMany({
-      where: {
-        enrollmentId: session.enrollmentId,
-        rubricCriterionId: { in: allChapterCriteria.map((cr) => cr.id) },
-      },
-    });
-    const critMasteryMap = new Map(
-      existingCriterionMasteries.map((m) => [m.rubricCriterionId, m])
-    );
-
-    const unmetCriteria = allChapterCriteria
-      .filter((cr) => {
-        const st = critMasteryMap.get(cr.id)?.status;
-        return st !== "DEMONSTRATED" && st !== "MASTERED";
-      })
-      .map((cr) => cr.criterionStatement);
-
-    const knownMisconceptions = existingCriterionMasteries
-      .filter((m) => Boolean(m.lastMisconception))
-      .map((m) => m.lastMisconception as string);
-
-    // Layer 1 & 2 Anti-Topic-Drift & Skip-Attempt Guardrail
-    const driftResult = DriftService.classifyMessage({
-      message: content,
-      activeModuleOrder: currentModule.sequenceOrder,
-      activeModuleTitle: currentModule.title,
-      activeChapterTitle: currentChapter.title,
-      activeSectionTitle: activeSection?.title || currentChapter.title,
-      activeSectionObjective:
-        activeSection?.objective || `Master ${activeConcept?.name || currentChapter.title}`,
-      activeConceptName: activeConcept?.name || currentChapter.title,
-    });
-
-    if (driftResult.isDrifting) {
-      await DriftService.logDriftEvent({
-        sessionId: session.id,
-        enrollmentId: session.enrollmentId,
-        activeChapterId: currentChapter.id,
-        activeSectionId: activeSection?.id || null,
-        driftResult,
-        learnerMessage: content,
-      });
-    }
-
-    return streamSSE(c, async (stream) => {
-      let fullAssistantReply = "";
-
-      if (driftResult.isDrifting) {
-        await stream.writeSSE({
-          event: "drift_redirect",
-          data: JSON.stringify({
-            classification: driftResult.classification,
-            targetModuleTitle: driftResult.detectedTargetModuleTitle || null,
-            activeModuleTitle: currentModule.title,
-            activeSectionTitle: activeSection?.title || currentChapter.title,
-          }),
-        });
-      }
-
-      // Deterministic immediate redirect on explicit SKIP_ATTEMPT (zero LLM cost, zero state change)
-      if (driftResult.classification === "SKIP_ATTEMPT" && driftResult.deterministicReply) {
-        fullAssistantReply = driftResult.deterministicReply;
-        await stream.writeSSE({
-          event: "token",
-          data: JSON.stringify({ chunk: fullAssistantReply }),
-        });
-
-        const savedMsg = await prisma.chatMessage.create({
-          data: {
-            sessionId: session.id,
-            sender: "AI_TUTOR",
-            role: "assistant",
-            content: fullAssistantReply,
-            metadata: JSON.stringify({ guardrail: "SKIP_ATTEMPT_BLOCKED" }),
-          },
-        });
-
-        await stream.writeSSE({
-          event: "done",
-          data: JSON.stringify({ messageId: savedMsg.id }),
-        });
-        return;
-      }
-
-      // Hard-Fenced Scoped RAG Retrieval (strictly <= activeModuleOrder, section-boosted)
-      let ragChunks: string[] = [];
-      try {
-        const cleanModSlug =
-          currentModule.slug ||
-          currentModule.title
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^module-\d+-/, "");
-
-        const ragResults = await RAGService.retrieveContext({
-          chapterId: currentChapter.id,
-          sectionId: activeSection?.id,
-          moduleSlug: cleanModSlug,
-          moduleOrder: currentModule.sequenceOrder,
-          allowPrerequisites: true,
-          query: content,
-          topK: 3,
-        });
-        ragChunks = ragResults.map((r) => r.content);
-      } catch (ragErr) {
-        console.warn("[Sessions] Hard-fenced RAG error:", ragErr);
-      }
-
-      // Start Rubric Evaluation CONCURRENTLY with Socratic Tutor streaming (Guardrail #5)
-      const rubricEvalPromise = !driftResult.isDrifting
-        ? Promise.all(
-            currentChapter.concepts.map(async (concept) => {
-              const criteria = concept.rubrics.flatMap((r) => r.criteria);
-              if (criteria.length === 0) return null;
-              const evalResult = await RubricEvaluatorService.evaluateResponse({
-                conceptName: concept.name,
-                learnerText: content,
-                criteria,
-                mode: "DIALOGUE",
-              });
-              return { concept, criteria, evalResult };
-            })
-          ).then((items) => items.filter(Boolean))
-        : Promise.resolve([]);
-
-      // Stream grounded Socratic Tutor reply with strict Section-Scoped Prompt Contract
-      const streamRes = await AiProviderService.generateSocraticStream({
-        courseTitle: "CERTIFY – Python Fundamentals",
-        moduleTitle: currentModule.title,
-        chapterTitle: currentChapter.title,
-        sectionTitle: activeSection?.title,
-        sectionObjective: activeSection?.objective,
-        teachingContent: activeSection?.content || currentChapter.teachingContent,
-        conceptName: activeConcept?.name || currentChapter.title,
-        unmetCriteria,
-        knownMisconceptions,
-        guardrailDirective: driftResult.guardrailDirective,
-        history: chatHistory,
-        ragContextChunks: ragChunks,
-        onChunk: async (chunk: string) => {
-          fullAssistantReply += chunk;
-          await stream.writeSSE({
-            event: "token",
-            data: JSON.stringify({ chunk }),
-          });
-        },
-        signal: c.req.raw.signal,
-      });
-
-      const savedAssistantMsg = await prisma.chatMessage.create({
-        data: {
-          sessionId: session.id,
-          sender: "AI_TUTOR",
-          role: "assistant",
-          content: fullAssistantReply,
-          metadata: JSON.stringify({
-            model: streamRes.modelUsed || config.geminiTutorModel,
-            sectionId: activeSection?.id || null,
-            drift: driftResult.classification,
-            streamed: true,
-          }),
-        },
-      });
-
-      // Deterministic Progression + Rubric Persistence (Strictly before SSE "done" event)
-      if (!driftResult.isDrifting) {
-        let bestRubricPassRatio = 0;
-        let anyCriteriaUpdated = false;
-
-        const evaluatedConcepts = (await rubricEvalPromise) as Array<{
-          concept: (typeof currentChapter.concepts)[0];
-          criteria: any[];
-          evalResult: any;
-        }>;
-
-        for (const item of evaluatedConcepts) {
-          const { concept, criteria, evalResult } = item;
-          const persisted = await RubricEvaluatorService.persistEvaluationResults({
-            enrollmentId: session.enrollmentId,
-            conceptId: concept.id,
-            sectionId: activeSection?.id || null,
-            evidenceType: "DIALOGUE_PROBE",
-            evaluation: evalResult,
-            criteria,
-            capDialogueMastery: true, // Checkpoint required for MASTERED (>= 0.85)
-          });
-
-          bestRubricPassRatio = Math.max(bestRubricPassRatio, evalResult.weightedScore);
-
-          if (persisted.updatedCriteria.length > 0) {
-            anyCriteriaUpdated = true;
-            await stream.writeSSE({
-              event: "rubric_update",
-              data: JSON.stringify({
-                conceptId: concept.id,
-                conceptName: concept.name,
-                pMastery: persisted.conceptPMastery,
-                state: persisted.conceptState,
-                weightedScore: evalResult.weightedScore,
-                updatedCriteria: persisted.updatedCriteria,
-              }),
-            });
-
-            // Legacy compatibility event for existing clients/tests
-            await stream.writeSSE({
-              event: "state_update",
-              data: JSON.stringify({
-                conceptId: concept.id,
-                conceptName: concept.name,
-                pMastery: persisted.conceptPMastery,
-                state: persisted.conceptState,
-                evidenceQuote: content.slice(0, 180),
-              }),
-            });
-          }
-        }
-
-        const isSubstantiveTurn = content.trim().length >= 12;
-        let autoAdvanced = false;
-        if (activeSection && isSubstantiveTurn) {
-          const sectionTurnState = await ProgressionService.recordSectionTurn({
-            enrollmentId: session.enrollmentId,
-            chapterId: currentChapter.id,
-            moduleId: currentModule.id,
-            sectionId: activeSection.id,
-            sessionId: session.id,
-            rubricPassRatio: bestRubricPassRatio,
-          });
-          autoAdvanced = Boolean(sectionTurnState.autoAdvanced);
-
-          await stream.writeSSE({
-            event: "section_status",
-            data: JSON.stringify({
-              sectionId: activeSection.id,
-              sectionType: activeSection.sectionType,
-              ...sectionTurnState,
-            }),
-          });
-        }
-
-        if (anyCriteriaUpdated || autoAdvanced) {
-          const recomputePromise = AnalyticsService.recomputeSkillProfile(session.enrollmentId).catch(
-            (e) => console.warn("[Analytics] Recompute warning:", e?.message || e)
-          );
-          if (c.executionCtx && typeof (c.executionCtx as any).waitUntil === "function") {
-            (c.executionCtx as any).waitUntil(recomputePromise);
-          }
-        }
-      }
-
-      await stream.writeSSE({
-        event: "done",
-        data: JSON.stringify({ messageId: savedAssistantMsg.id }),
-      });
-    });
-  }
-);
-
-// ─── POST /api/v1/courses/:slug/chat ─────────────────────────────────────────
-// Public Guest Preview (Strictly locked to Module 01 -> Lesson 01 -> Section 1)
-sessionsHonoRouter.post(
-  "/courses/:slug/chat",
-  honoRateLimiter({ maxRequests: 30, windowSeconds: 60, keyPrefix: "public-chat" }),
-  async (c) => {
-    const slug = c.req.param("slug") || "";
-    const body = await c.req.json().catch(() => ({}));
-    const content = (body.content || body.message || "").trim();
-    const history = Array.isArray(body.history) ? body.history : [];
-
-    if (!content) {
-      return c.json({ error: "Content is required" }, 400);
-    }
-
-    const course = await prisma.course.findUnique({
-      where: { slug },
-      include: {
-        versions: {
-          where: { isActive: true },
-          include: {
-            modules: {
-              take: 1,
-              orderBy: { sequenceOrder: "asc" },
-              include: {
-                chapters: {
-                  take: 1,
-                  orderBy: { sequenceOrder: "asc" },
-                  include: {
-                    sections: { take: 1, orderBy: { sequenceOrder: "asc" } },
-                    concepts: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const activeVersion = course?.versions[0];
-    const firstMod = activeVersion?.modules[0];
-    const firstChapter = firstMod?.chapters[0];
-    const firstSection = firstChapter?.sections[0];
-    const firstConcept = firstChapter?.concepts[0];
-
-    const driftResult = DriftService.classifyMessage({
-      message: content,
-      activeModuleOrder: 1,
-      activeModuleTitle: firstMod?.title || "Module 01 – Python Foundations",
-      activeChapterTitle: firstChapter?.title || "Python Execution & Indentation",
-      activeSectionTitle: firstSection?.title || "1. Core Intuition & Mental Model",
-      activeSectionObjective:
-        firstSection?.objective || "Build intuition for Python execution and indentation.",
-      activeConceptName: firstConcept?.name || "Python Foundations",
-    });
-
-    return streamSSE(c, async (stream) => {
-      if (driftResult.classification === "SKIP_ATTEMPT" && driftResult.deterministicReply) {
-        await stream.writeSSE({
-          event: "token",
-          data: JSON.stringify({
-            chunk:
-              driftResult.deterministicReply +
-              "\n\n*(Sign in & enroll to track verified mastery and unlock Modules 02–10.)*",
-          }),
-        });
-        await stream.writeSSE({
-          event: "done",
-          data: JSON.stringify({ messageId: "public-" + Date.now() }),
-        });
-        return;
-      }
-
-      let ragChunks: string[] = [];
-      try {
-        const ragResults = await RAGService.retrieveContext({
-          chapterId: firstChapter?.id,
-          sectionId: firstSection?.id,
-          moduleSlug: firstMod?.slug || "python-foundations",
-          moduleOrder: 1,
-          allowPrerequisites: false,
-          query: content,
-          topK: 3,
-        });
-        ragChunks = ragResults.map((r) => r.content);
-      } catch (ragErr) {
-        console.warn("[PublicChat] RAG retrieval error:", ragErr);
-      }
-
-      const chatHistory = history.map((h: any) => ({
-        role: h.role as "user" | "assistant" | "system",
-        content: h.content,
-      }));
-      chatHistory.push({ role: "user", content });
-
-      await AiProviderService.generateSocraticStream({
-        courseTitle: course?.title || "CERTIFY – Python Fundamentals",
-        moduleTitle: firstMod?.title || "Module 01 – Python Foundations (Guest Preview)",
-        chapterTitle: firstChapter?.title || "Python Execution & Indentation",
-        sectionTitle: firstSection?.title,
-        sectionObjective: firstSection?.objective,
-        teachingContent:
-          firstSection?.content ||
-          firstChapter?.teachingContent ||
-          "First-principles Python semantics.",
-        conceptName: firstConcept?.name || "Python Fundamentals",
-        guardrailDirective: driftResult.guardrailDirective,
-        history: chatHistory,
-        ragContextChunks: ragChunks,
-        onChunk: async (chunk: string) => {
-          await stream.writeSSE({
-            event: "token",
-            data: JSON.stringify({ chunk }),
-          });
-        },
-        signal: c.req.raw.signal,
-      });
-
-      await stream.writeSSE({
-        event: "done",
-        data: JSON.stringify({ messageId: "public-" + Date.now() }),
-      });
-    });
-  }
-);
-
-// ─── POST /api/v1/sessions/:sessionId/advance ────────────────────────────────
-// Strictly Gated Chapter Advancement (Requires Current Chapter COMPLETED & Next UNLOCKED!)
-sessionsHonoRouter.post("/sessions/:sessionId/advance", honoAuthMiddleware, async (c) => {
-  try {
-    const sessionId = c.req.param("sessionId");
-    const user = c.get("user");
-
-    const currentSession = await prisma.learningSession.findUnique({
-      where: { id: sessionId },
-      include: {
-        chapter: { include: { module: true } },
-        enrollment: {
-          include: {
-            courseVersion: {
-              include: {
-                modules: {
-                  orderBy: { sequenceOrder: "asc" },
-                  include: {
-                    chapters: {
-                      orderBy: { sequenceOrder: "asc" },
                       include: {
-                        sections: { orderBy: { sequenceOrder: "asc" } },
-                        concepts: {
-                          include: { rubrics: { include: { criteria: true } } },
-                        },
+                        rubrics: { include: { criteria: true } },
                       },
                     },
                   },
@@ -961,129 +346,1106 @@ sessionsHonoRouter.post("/sessions/:sessionId/advance", honoAuthMiddleware, asyn
       },
     });
 
-    if (!currentSession) {
-      return c.json({ error: "Session not found" }, 404);
+    if (!course || !course.versions[0]) {
+      return c.json({ error: "Course not found" }, 404);
     }
 
-    if (currentSession.enrollment.userId !== user.id) {
-      return c.json({ error: "Forbidden: You do not own this session" }, 403);
-    }
+    const activeVersion = course.versions[0];
 
-    await ProgressionService.ensureInitialized(currentSession.enrollmentId);
-
-    // HARD GATE: Current chapter MUST be COMPLETED before advancing!
-    const currentChProg = await prisma.chapterProgress.findUnique({
+    const enrollment = await prisma.enrollment.findUnique({
       where: {
-        enrollmentId_chapterId: {
-          enrollmentId: currentSession.enrollmentId,
-          chapterId: currentSession.chapterId,
+        userId_courseVersionId: {
+          userId: user.id,
+          courseVersionId: activeVersion.id,
         },
-      },
-    });
-
-    if (!currentChProg || currentChProg.status !== "COMPLETED") {
-      return c.json(
-        new ProgressionLockedError({
-          message: `Cannot advance past "${currentSession.chapter.title}". Complete all sections, pass the Chapter Checkpoint (>= 70%), and pass the Module Practical Task (if final chapter) first.`,
-          lockedEntity: {
-            type: "CHAPTER",
-            id: currentSession.chapterId,
-            title: currentSession.chapter.title,
-          },
-          prerequisites: [
-            {
-              type: "CHAPTER",
-              id: currentSession.chapterId,
-              title: currentSession.chapter.title,
-              status: currentChProg?.status || "IN_PROGRESS",
-              missingCriteria: [
-                "Complete all lesson sections",
-                "Pass Chapter Conceptual Checkpoint (>= 70%)",
-              ],
-            },
-          ],
-        }).toJSON(),
-        403
-      );
-    }
-
-    const allChapters = currentSession.enrollment.courseVersion.modules.flatMap((m) => m.chapters);
-    const currentIndex = allChapters.findIndex((ch) => ch.id === currentSession.chapterId);
-    const nextChapter = allChapters[currentIndex + 1];
-
-    if (!nextChapter) {
-      return c.json({
-        completedCourse: true,
-        message: "All modules and chapters completed! You are ready for final certification.",
-      });
-    }
-
-    // Also verify next chapter & its module are officially UNLOCKED
-    try {
-      await ProgressionService.assertChapterUnlocked(currentSession.enrollmentId, nextChapter.id);
-    } catch (lockErr: any) {
-      if (lockErr instanceof ProgressionLockedError) {
-        return c.json(lockErr.toJSON(), 403);
-      }
-      throw lockErr;
-    }
-
-    await prisma.learningSession.update({
-      where: { id: sessionId },
-      data: { isActive: false, phase: "COMPLETED" },
-    });
-
-    await prisma.enrollment.update({
-      where: { id: currentSession.enrollmentId },
-      data: { currentChapterId: nextChapter.id },
-    });
-
-    const firstSection = nextChapter.sections[0] || null;
-    const newSession = await prisma.learningSession.create({
-      data: {
-        enrollmentId: currentSession.enrollmentId,
-        chapterId: nextChapter.id,
-        currentSectionId: firstSection?.id || null,
-        phase: "TEACHING",
-        isActive: true,
       },
       include: {
-        chapter: {
+        conceptMasteries: {
           include: {
-            module: true,
-            sections: { orderBy: { sequenceOrder: "asc" } },
-            concepts: {
-              include: { rubrics: { include: { criteria: true } } },
+            concept: { select: { id: true, slug: true, name: true } },
+          },
+        },
+        sessions: {
+          where: { isActive: true },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          include: {
+            chapter: {
+              include: {
+                sections: { orderBy: { sequenceOrder: "asc" } },
+                concepts: true,
+              },
+            },
+            messages: {
+              orderBy: { createdAt: "asc" },
+              take: 50,
             },
           },
         },
       },
     });
 
-    const initialMessage = await prisma.chatMessage.create({
-      data: {
-        sessionId: newSession.id,
-        sender: "AI_TUTOR",
-        role: "assistant",
-        content:
-          `Welcome to **${newSession.chapter.module.title} → ${nextChapter.title}**!\n\n` +
-          (firstSection ? `**Active Section:** ${firstSection.title}\n**Objective:** ${firstSection.objective}\n\n` : "") +
-          `Ready to build intuition for **${nextChapter.concepts[0]?.name || nextChapter.title}**?`,
-      },
-    });
+    if (!enrollment) {
+      return c.json({ error: "Not enrolled in this course", enrolled: false }, 404);
+    }
+
+    await ProgressionService.ensureInitialized(enrollment.id);
+
+    const activeSession = enrollment.sessions[0] || null;
+
+    if (activeSession && !activeSession.currentSectionId) {
+      const firstSec = activeSession.chapter.sections[0];
+      if (firstSec) {
+        activeSession.currentSectionId = firstSec.id;
+        await prisma.learningSession.update({
+          where: { id: activeSession.id },
+          data: { currentSectionId: firstSec.id },
+        });
+      }
+    }
+
+    const progressionSnapshot = activeSession
+      ? await buildSessionProgressionSnapshot({
+          enrollmentId: enrollment.id,
+          chapterId: activeSession.chapterId,
+          currentSectionId: activeSession.currentSectionId,
+        })
+      : null;
 
     return c.json({
-      completedCourse: false,
-      session: {
-        id: newSession.id,
-        phase: newSession.phase,
-        currentSectionId: firstSection?.id || null,
-        activeSection: firstSection,
-        chapter: newSession.chapter,
-        messages: [initialMessage],
+      course: {
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
       },
+      enrollment: {
+        id: enrollment.id,
+        currentTier: enrollment.currentTier,
+        status: enrollment.status,
+      },
+      session: activeSession
+        ? {
+            id: activeSession.id,
+            phase: activeSession.phase,
+            currentSectionId: activeSession.currentSectionId,
+            chapter: {
+              ...activeSession.chapter,
+              title: cleanTitle(activeSession.chapter.title),
+            },
+            messages: activeSession.messages.map((m: any) => ({
+              id: m.id,
+              role: m.sender === "LEARNER" ? "user" : "assistant",
+              sender: m.sender,
+              content: m.content,
+              createdAt: m.createdAt,
+            })),
+          }
+        : null,
+      progressionSnapshot,
+      conceptMasteries: enrollment.conceptMasteries.map((cm: any) => ({
+        conceptId: cm.conceptId,
+        conceptSlug: cm.concept.slug,
+        conceptName: cm.concept.name,
+        pMastery: cm.pMastery,
+        state: cm.state,
+        attemptCount: cm.remediationCycles || 0,
+      })),
+      curriculum: activeVersion.modules,
     });
   } catch (err: any) {
-    return c.json({ error: "Failed to advance chapter", details: err?.message }, 500);
+    return c.json(
+      { error: "Failed to load learning session", details: err?.message },
+      500
+    );
   }
 });
+
+// ─── POST /api/v1/courses/:slug/sessions ─────────────────────────────────────
+sessionsHonoRouter.post(
+  "/courses/:slug/sessions",
+  honoAuthMiddleware,
+  async (c) => {
+    try {
+      const slug = c.req.param("slug") || "";
+      const user = c.get("user");
+      const body = await c.req.json().catch(() => ({}));
+      const { chapterId } = body;
+
+      const course = await prisma.course.findUnique({
+        where: { slug },
+        include: {
+          versions: {
+            where: { isActive: true },
+            include: {
+              modules: {
+                orderBy: { sequenceOrder: "asc" },
+                include: {
+                  chapters: {
+                    orderBy: { sequenceOrder: "asc" },
+                    include: {
+                      sections: { orderBy: { sequenceOrder: "asc" } },
+                      concepts: { orderBy: { sequenceOrder: "asc" } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!course || !course.versions[0]) {
+        return c.json({ error: "Course not found" }, 404);
+      }
+
+      const activeVersion = course.versions[0];
+      const allChapters = activeVersion.modules.flatMap((m) => m.chapters);
+
+      if (allChapters.length === 0) {
+        return c.json({ error: "Course has no chapters configured" }, 400);
+      }
+
+      let enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_courseVersionId: {
+            userId: user.id,
+            courseVersionId: activeVersion.id,
+          },
+        },
+      });
+
+      if (!enrollment) {
+        enrollment = await prisma.enrollment.create({
+          data: {
+            userId: user.id,
+            courseVersionId: activeVersion.id,
+            currentTier: "EASY",
+            status: "ACTIVE",
+          },
+        });
+      }
+
+      await ProgressionService.ensureInitialized(enrollment.id);
+
+      let targetChapter = chapterId
+        ? allChapters.find((ch) => ch.id === chapterId)
+        : undefined;
+
+      if (!targetChapter) {
+        const currentChapProg = await prisma.chapterProgress.findFirst({
+          where: {
+            enrollmentId: enrollment.id,
+            status: { in: ["IN_PROGRESS", "UNLOCKED", "AWAITING_CHECKPOINT", "REMEDIATING"] },
+          },
+          include: { chapter: { include: { module: true } } },
+          orderBy: [
+            { chapter: { module: { sequenceOrder: "asc" } } },
+            { chapter: { sequenceOrder: "asc" } },
+          ],
+        });
+        targetChapter =
+          allChapters.find((ch) => ch.id === currentChapProg?.chapterId) ||
+          allChapters[0];
+      }
+
+      try {
+        await ProgressionService.assertChapterUnlocked(
+          enrollment.id,
+          targetChapter.id
+        );
+      } catch (lockErr: any) {
+        if (lockErr instanceof ProgressionLockedError) {
+          return c.json(lockErr.toJSON(), 403);
+        }
+        throw lockErr;
+      }
+
+      const allConcepts = allChapters.flatMap((ch) => ch.concepts);
+      for (const concept of allConcepts) {
+        await prisma.conceptMastery.upsert({
+          where: {
+            enrollmentId_conceptId: {
+              enrollmentId: enrollment.id,
+              conceptId: concept.id,
+            },
+          },
+          update: {},
+          create: {
+            enrollmentId: enrollment.id,
+            conceptId: concept.id,
+            pMastery: concept.defaultP0,
+            state: "INITIAL",
+          },
+        });
+      }
+
+      await prisma.learningSession.updateMany({
+        where: { enrollmentId: enrollment.id, isActive: true },
+        data: { isActive: false },
+      });
+
+      const activeSecProgress = await prisma.sectionProgress.findFirst({
+        where: {
+          enrollmentId: enrollment.id,
+          section: { chapterId: targetChapter.id },
+          status: { in: ["IN_PROGRESS", "UNLOCKED"] },
+        },
+        include: { section: true },
+        orderBy: { section: { sequenceOrder: "asc" } },
+      });
+
+      const targetSection =
+        activeSecProgress?.section || targetChapter.sections[0] || null;
+
+      const newSession = await prisma.learningSession.create({
+        data: {
+          enrollmentId: enrollment.id,
+          chapterId: targetChapter.id,
+          currentSectionId: targetSection?.id || null,
+          phase: "DIAGNOSTIC",
+          isActive: true,
+        },
+        include: {
+          chapter: {
+            include: {
+              sections: { orderBy: { sequenceOrder: "asc" } },
+              concepts: true,
+            },
+          },
+        },
+      });
+
+      const cleanChapTitle = cleanTitle(targetChapter.title);
+      const conceptList = targetChapter.concepts.map((c) => c.name).join(", ");
+      const secTitle = targetSection
+        ? targetSection.title
+        : "1. Core Intuition & Mental Model";
+      const secObjective = targetSection
+        ? targetSection.objective
+        : `Build an accurate mental model of ${conceptList || cleanChapTitle}.`;
+
+      const welcomeText = `Welcome to **${cleanChapTitle}**!\n\nWe are starting in **${secTitle}**.\n- **Section Objective:** ${secObjective}\n- **Core Concept:** ${
+        conceptList || cleanChapTitle
+      }\n\n**Your Turn:** Have you worked with **${
+        conceptList || cleanChapTitle
+      }** in Python before, or would you like to build intuition from first principles with a quick code trace?`;
+
+      const initialMsg = await prisma.chatMessage.create({
+        data: {
+          sessionId: newSession.id,
+          sender: "AI_TUTOR",
+          content: welcomeText,
+        },
+      });
+
+      const progressionSnapshot = await buildSessionProgressionSnapshot({
+        enrollmentId: enrollment.id,
+        chapterId: newSession.chapterId,
+        currentSectionId: newSession.currentSectionId,
+      });
+
+      return c.json(
+        {
+          message: "Learning session started",
+          enrollmentId: enrollment.id,
+          session: {
+            id: newSession.id,
+            phase: newSession.phase,
+            currentSectionId: newSession.currentSectionId,
+            chapter: {
+              ...newSession.chapter,
+              title: cleanChapTitle,
+            },
+            activeSection: targetSection,
+            messages: [
+              {
+                id: initialMsg.id,
+                role: "assistant",
+                sender: initialMsg.sender,
+                content: initialMsg.content,
+                createdAt: initialMsg.createdAt,
+              },
+            ],
+          },
+          progressionSnapshot,
+        },
+        201
+      );
+    } catch (err: any) {
+      return c.json(
+        { error: "Failed to start session", details: err?.message },
+        500
+      );
+    }
+  }
+);
+
+// ─── POST /api/v1/sessions/:sessionId/sections/advance ───────────────────────
+sessionsHonoRouter.post(
+  "/sessions/:sessionId/sections/advance",
+  honoAuthMiddleware,
+  async (c) => {
+    try {
+      const sessionId = c.req.param("sessionId") || "";
+      const user = c.get("user");
+      const session = await prisma.learningSession.findUnique({
+        where: { id: sessionId },
+        include: { enrollment: true },
+      });
+      if (!session || session.enrollment.userId !== user.id) {
+        return c.json({ error: "Session not found" }, 404);
+      }
+      const result = await ProgressionService.advanceSection(
+        session.enrollmentId,
+        sessionId
+      );
+      return c.json(result);
+    } catch (err: any) {
+      if (err instanceof ProgressionLockedError) {
+        return c.json(err.toJSON(), 403);
+      }
+      return c.json(
+        { error: "Failed to advance section", details: err?.message },
+        400
+      );
+    }
+  }
+);
+
+// ─── POST /api/v1/sessions/:sessionId/advance ────────────────────────────────
+sessionsHonoRouter.post(
+  "/sessions/:sessionId/advance",
+  honoAuthMiddleware,
+  async (c) => {
+    try {
+      const sessionId = c.req.param("sessionId") || "";
+      const user = c.get("user");
+
+      const currentSession = await prisma.learningSession.findUnique({
+        where: { id: sessionId },
+        include: {
+          enrollment: {
+            include: {
+              courseVersion: {
+                include: {
+                  modules: {
+                    orderBy: { sequenceOrder: "asc" },
+                    include: {
+                      chapters: {
+                        orderBy: { sequenceOrder: "asc" },
+                        include: {
+                          sections: { orderBy: { sequenceOrder: "asc" } },
+                          concepts: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          chapter: true,
+        },
+      });
+
+      if (!currentSession || currentSession.enrollment.userId !== user.id) {
+        return c.json({ error: "Session not found or unauthorized" }, 404);
+      }
+
+      const currentChapProg = await prisma.chapterProgress.findUnique({
+        where: {
+          enrollmentId_chapterId: {
+            enrollmentId: currentSession.enrollmentId,
+            chapterId: currentSession.chapterId,
+          },
+        },
+      });
+
+      if (!currentChapProg || currentChapProg.status !== "COMPLETED") {
+        return c.json(
+          {
+            error: "PROGRESSION_LOCKED",
+            code: "CHAPTER_CHECKPOINT_REQUIRED",
+            message: `You must complete all sections and pass the Conceptual Checkpoint (score >= 70%) for "${cleanTitle(currentSession.chapter.title)}" before advancing to the next chapter.`,
+          },
+          403
+        );
+      }
+
+      const allChapters =
+        currentSession.enrollment.courseVersion.modules.flatMap(
+          (m) => m.chapters
+        );
+      const currentIdx = allChapters.findIndex(
+        (ch) => ch.id === currentSession.chapterId
+      );
+
+      if (currentIdx === -1 || currentIdx + 1 >= allChapters.length) {
+        return c.json({
+          message: "You have reached the final chapter of this course!",
+          isCourseComplete: true,
+        });
+      }
+
+      const nextChapter = allChapters[currentIdx + 1];
+
+      try {
+        await ProgressionService.assertChapterUnlocked(
+          currentSession.enrollmentId,
+          nextChapter.id
+        );
+      } catch (lockErr: any) {
+        if (lockErr instanceof ProgressionLockedError) {
+          return c.json(lockErr.toJSON(), 403);
+        }
+        throw lockErr;
+      }
+
+      await prisma.learningSession.update({
+        where: { id: sessionId },
+        data: { isActive: false, phase: "COMPLETED" },
+      });
+
+      const firstSection = nextChapter.sections[0] || null;
+
+      const nextSession = await prisma.learningSession.create({
+        data: {
+          enrollmentId: currentSession.enrollmentId,
+          chapterId: nextChapter.id,
+          currentSectionId: firstSection?.id || null,
+          phase: "DIAGNOSTIC",
+          isActive: true,
+        },
+        include: {
+          chapter: {
+            include: {
+              sections: { orderBy: { sequenceOrder: "asc" } },
+              concepts: true,
+            },
+          },
+        },
+      });
+
+      const cleanNextTitle = cleanTitle(nextChapter.title);
+      const conceptList = nextChapter.concepts.map((c) => c.name).join(", ");
+      const welcomeText = `Welcome to **${cleanNextTitle}**!\n\nWe are beginning in **${
+        firstSection?.title || "1. Core Intuition & Mental Model"
+      }**.\n- **Section Objective:** ${
+        firstSection?.objective || `Master ${conceptList}`
+      }\n\n**Your Turn:** How does **${conceptList}** connect to what you just proved in the previous chapter?`;
+
+      const initialMsg = await prisma.chatMessage.create({
+        data: {
+          sessionId: nextSession.id,
+          sender: "AI_TUTOR",
+          content: welcomeText,
+        },
+      });
+
+      const progressionSnapshot = await buildSessionProgressionSnapshot({
+        enrollmentId: currentSession.enrollmentId,
+        chapterId: nextSession.chapterId,
+        currentSectionId: nextSession.currentSectionId,
+      });
+
+      return c.json({
+        message: "Advanced to next chapter",
+        isCourseComplete: false,
+        session: {
+          id: nextSession.id,
+          phase: nextSession.phase,
+          currentSectionId: nextSession.currentSectionId,
+          chapter: {
+            ...nextSession.chapter,
+            title: cleanNextTitle,
+          },
+          activeSection: firstSection,
+          messages: [
+            {
+              id: initialMsg.id,
+              role: "assistant",
+              sender: initialMsg.sender,
+              content: initialMsg.content,
+              createdAt: initialMsg.createdAt,
+            },
+          ],
+        },
+        progressionSnapshot,
+      });
+    } catch (err: any) {
+      return c.json(
+        { error: "Failed to advance chapter", details: err?.message },
+        500
+      );
+    }
+  }
+);
+
+// ─── POST /api/v1/sessions/:sessionId/messages ───────────────────────────────
+// Stateful Pedagogical Director Pipeline:
+// 1. Drift & Boundary Gate
+// 2. Pre-Generation Hybrid Rubric Evaluation (evaluates learner's reply in context of tutor's last question!)
+// 3. Pre-Generation Section Progression Advance (S1 -> S2 -> S3 -> S4 Checkpoint Unlock)
+// 4. Hard-Fenced Section-Aware RAG Retrieval (for the newly active section!)
+// 5. Anti-Repetition Structured Socratic Tutor Streaming (acknowledges mastery & announces transitions inline!)
+sessionsHonoRouter.post(
+  "/sessions/:sessionId/messages",
+  honoAuthMiddleware,
+  honoRateLimiter({ maxRequests: 25, windowSeconds: 60, keyPrefix: "ai-session-msg" }),
+  async (c) => {
+    try {
+      const sessionId = c.req.param("sessionId") || "";
+      const body = await c.req.json().catch(() => ({}));
+      const { content } = body;
+      const user = c.get("user");
+
+      if (!content || typeof content !== "string" || !content.trim()) {
+        return c.json({ error: "Message content is required" }, 400);
+      }
+
+      const trimmedContent = content.trim();
+
+      const learningSession = await prisma.learningSession.findUnique({
+        where: { id: sessionId },
+        include: {
+          enrollment: {
+            include: {
+              courseVersion: { include: { course: true } },
+              conceptMasteries: true,
+            },
+          },
+          chapter: {
+            include: {
+              module: true,
+              sections: { orderBy: { sequenceOrder: "asc" } },
+              concepts: {
+                orderBy: { sequenceOrder: "asc" },
+                include: {
+                  rubrics: { include: { criteria: true } },
+                },
+              },
+            },
+          },
+          messages: {
+            orderBy: { createdAt: "desc" },
+            take: 20,
+          },
+        },
+      });
+
+      if (!learningSession) {
+        return c.json({ error: "Learning session not found" }, 404);
+      }
+
+      if (learningSession.enrollment.userId !== user.id) {
+        return c.json(
+          { error: "Forbidden: You do not own this learning session" },
+          403
+        );
+      }
+
+      await ProgressionService.ensureInitialized(learningSession.enrollmentId);
+      const historyChronological = [...learningSession.messages].reverse();
+
+      // Extract the tutor's most recent question so concise learner answers are evaluated in context!
+      const lastAssistantMsg = [...historyChronological]
+        .reverse()
+        .find((m) => m.sender === "AI_TUTOR");
+      const lastTutorQuestions = lastAssistantMsg
+        ? lastAssistantMsg.content.match(/[^.!?\n]{10,}\?/g)
+        : null;
+      const lastTutorQuestion =
+        lastTutorQuestions && lastTutorQuestions.length > 0
+          ? lastTutorQuestions[lastTutorQuestions.length - 1].trim()
+          : null;
+
+      const previousTutorQuestions = extractPreviousTutorQuestions(
+        historyChronological.map((m) => ({
+          role: m.sender === "LEARNER" ? ("user" as const) : ("assistant" as const),
+          content: m.content,
+        }))
+      );
+
+      // 1. Save Learner Message
+      await prisma.chatMessage.create({
+        data: {
+          sessionId: learningSession.id,
+          sender: "LEARNER",
+          content: trimmedContent,
+        },
+      });
+
+      // 2. Resolve Active Section & Target Concept
+      let activeSection =
+        learningSession.chapter.sections.find(
+          (s) => s.id === learningSession.currentSectionId
+        ) ||
+        learningSession.chapter.sections[0] ||
+        null;
+
+      const targetConcept = learningSession.chapter.concepts[0];
+      const existingMastery = learningSession.enrollment.conceptMasteries.find(
+        (cm) => cm.conceptId === targetConcept?.id
+      );
+      let currentPMastery = existingMastery?.pMastery ?? 0.15;
+      const currentModuleOrder = learningSession.chapter.module.sequenceOrder;
+
+      // 3. Curriculum Boundary & Drift Detection
+      const driftResult = await DriftDetectionService.detectAndLogDrift({
+        enrollmentId: learningSession.enrollmentId,
+        sessionId: learningSession.id,
+        currentModuleOrder,
+        currentModuleTitle: learningSession.chapter.module.title,
+        currentChapterTitle: cleanTitle(learningSession.chapter.title),
+        currentSectionId: activeSection?.id || null,
+        currentSectionTitle: activeSection?.title || "Current Section",
+        userMessage: trimmedContent,
+      });
+
+      // 4. PRE-GENERATION Rubric Evaluation & Section Progression Advance
+      // Evaluating BEFORE generating the tutor reply allows the tutor to immediately validate
+      // newly demonstrated criteria and smoothly announce S1->S2->S3->S4 transitions on the same turn!
+      const allCriteria =
+        targetConcept?.rubrics.flatMap((r) => r.criteria) || [];
+
+      let evaluation: Awaited<ReturnType<typeof RubricEvaluatorService.evaluateResponse>> | null =
+        null;
+      let persistedRubric: Awaited<
+        ReturnType<typeof RubricEvaluatorService.persistEvaluationResults>
+      > | null = null;
+      let sectionTurnStatus: Awaited<
+        ReturnType<typeof ProgressionService.recordSectionTurn>
+      > | null = null;
+      let progressionTransition: ProgressionTransitionNotice | null = null;
+      let detectedMisconception: string | null = null;
+
+      if (targetConcept && !driftResult.isDrift) {
+        evaluation = await RubricEvaluatorService.evaluateResponse({
+          conceptName: targetConcept.name,
+          questionPrompt:
+            activeSection?.objective ||
+            `Demonstrate mastery of ${targetConcept.name}`,
+          lastTutorQuestion,
+          learnerText: trimmedContent,
+          criteria: allCriteria,
+          mode: "DIALOGUE",
+        });
+
+        const miscItem = evaluation.criteriaResults.find(
+          (r) => r.verdict === "MISCONCEPTION"
+        );
+        if (miscItem) {
+          detectedMisconception = miscItem.reasoning;
+        }
+
+        persistedRubric = await RubricEvaluatorService.persistEvaluationResults({
+          enrollmentId: learningSession.enrollmentId,
+          conceptId: targetConcept.id,
+          sectionId: activeSection?.id || null,
+          evidenceType: "DIALOGUE_PROBE",
+          evaluation,
+          criteria: allCriteria,
+          capDialogueMastery: true,
+        });
+
+        currentPMastery = persistedRubric.conceptPMastery;
+
+        if (activeSection) {
+          const previousSectionTitle = activeSection.title;
+          const previousSectionId = activeSection.id;
+
+          sectionTurnStatus = await ProgressionService.recordSectionTurn({
+            enrollmentId: learningSession.enrollmentId,
+            sessionId: learningSession.id,
+            sectionId: activeSection.id,
+            chapterId: learningSession.chapterId,
+            moduleId: learningSession.chapter.moduleId,
+            rubricPassRatio: evaluation.weightedScore,
+          });
+
+          const nextSecId = sectionTurnStatus.nextSection?.id;
+          if (
+            sectionTurnStatus.autoAdvanced &&
+            nextSecId &&
+            nextSecId !== previousSectionId
+          ) {
+            const newlyActiveSection =
+              learningSession.chapter.sections.find(
+                (s) => s.id === nextSecId
+              ) || activeSection;
+            activeSection = newlyActiveSection;
+
+            progressionTransition = {
+              type: "SECTION_ADVANCED",
+              fromSectionTitle: previousSectionTitle,
+              toSectionTitle: newlyActiveSection.title,
+              toSectionObjective: newlyActiveSection.objective,
+              message: `Completed "${previousSectionTitle}" and unlocked "${newlyActiveSection.title}".`,
+            };
+          } else if (
+            sectionTurnStatus.nextSection?.sectionType === "CHAPTER_CHECKPOINT" ||
+            sectionTurnStatus.sectionStatus === "CHECKPOINT_UNLOCKED"
+          ) {
+            const checkpointSec = learningSession.chapter.sections.find(
+              (s) => s.sectionType === "CHAPTER_CHECKPOINT"
+            );
+            progressionTransition = {
+              type: "CHECKPOINT_UNLOCKED",
+              fromSectionTitle: previousSectionTitle,
+              toSectionTitle: checkpointSec?.title || "4. Conceptual Checkpoint",
+              toSectionObjective:
+                checkpointSec?.objective ||
+                "Pass the Chapter Conceptual Checkpoint to unlock the next chapter.",
+              message: `All guided learning sections for "${cleanTitle(
+                learningSession.chapter.title
+              )}" are complete! The Conceptual Checkpoint (Section 4) is now unlocked.`,
+            };
+          }
+        }
+
+        // Update LearnerSkillProfile asynchronously
+        AnalyticsService.recomputeSkillProfile(
+          learningSession.enrollmentId
+        ).catch((e) =>
+          console.warn("[Analytics] Background recompute error:", e?.message)
+        );
+      }
+
+      // 5. Refresh Criterion Mastery Ledger after this turn's update
+      const criterionMasteries = await prisma.rubricCriterionMastery.findMany({
+        where: {
+          enrollmentId: learningSession.enrollmentId,
+          rubricCriterionId: { in: allCriteria.map((c) => c.id) },
+        },
+      });
+      const masteryByCritId = new Map(
+        criterionMasteries.map((cm) => [cm.rubricCriterionId, cm])
+      );
+
+      const demonstratedCriteria: string[] = [];
+      const unmetCriteria: string[] = [];
+      let targetCriterion: {
+        code: string | null;
+        statement: string;
+        cognitiveLevel: string;
+      } | null = null;
+
+      for (const crit of allCriteria) {
+        const cm = masteryByCritId.get(crit.id);
+        if (
+          cm &&
+          (cm.status === "DEMONSTRATED" ||
+            cm.status === "MASTERED" ||
+            cm.bestScore >= 0.7)
+        ) {
+          demonstratedCriteria.push(crit.criterionStatement);
+        } else {
+          unmetCriteria.push(crit.criterionStatement);
+          if (!targetCriterion) {
+            targetCriterion = {
+              code: crit.criterionCode || null,
+              statement: crit.criterionStatement,
+              cognitiveLevel: crit.cognitiveLevel || "EXPLAIN",
+            };
+          }
+        }
+      }
+
+      // 6. Retrieve Hard-Fenced Section-Aware RAG Chunks for the (possibly newly advanced) activeSection
+      const ragChunks = await RAGService.retrieveScopedContext({
+        chapterId: learningSession.chapterId,
+        sectionId: activeSection?.id || null,
+        conceptId: targetConcept?.id || null,
+        activeConceptName: targetConcept?.name || learningSession.chapter.title,
+        maxModuleOrder: currentModuleOrder,
+        userQuery: trimmedContent,
+        limit: 4,
+      });
+
+      const sectionTeachingContent =
+        activeSection?.content && activeSection.content.length > 40
+          ? activeSection.content
+          : learningSession.chapter.teachingContent;
+
+      // 7. Stream Structured Socratic Tutor Response + Live Progression Snapshot via SSE
+      return streamSSE(c, async (stream) => {
+        let fullAiResponse = "";
+
+        if (driftResult.isDrift) {
+          await stream.writeSSE({
+            event: "drift_redirect",
+            data: JSON.stringify({
+              driftType: driftResult.driftType,
+              targetModuleTitle: driftResult.targetModuleTitle,
+              message: driftResult.redirectMessage,
+            }),
+          });
+        }
+
+        const aiResult = await AiProviderService.streamTutorReply(
+          {
+            courseTitle:
+              learningSession.enrollment.courseVersion.course.title,
+            moduleTitle: learningSession.chapter.module.title,
+            moduleOrder: currentModuleOrder,
+            chapterTitle: cleanTitle(learningSession.chapter.title),
+            sectionTitle: activeSection?.title || "1. Core Intuition",
+            sectionType: activeSection?.sectionType || "CONCEPT_INTUITION",
+            sectionObjective:
+              activeSection?.objective ||
+              "Build first-principles conceptual mastery.",
+            sectionOrder: activeSection?.sequenceOrder || 1,
+            totalSections: learningSession.chapter.sections.length || 4,
+            conceptName: targetConcept?.name ?? learningSession.chapter.title,
+            teachingContent: sectionTeachingContent,
+            ragContextChunks: ragChunks,
+            currentMastery: currentPMastery,
+            tier: learningSession.enrollment.currentTier,
+            turnNumber: historyChronological.length + 1,
+            lastTutorQuestion,
+            previousTutorQuestions,
+            targetCriterion,
+            justDemonstratedCriteria:
+              persistedRubric?.newlyDemonstratedStatements || [],
+            unmetCriteria,
+            demonstratedCriteria,
+            detectedMisconception,
+            progressionTransition,
+            driftWarning: driftResult.isDrift
+              ? {
+                  driftType: driftResult.driftType || "OFF_TOPIC",
+                  targetModuleTitle: driftResult.targetModuleTitle,
+                  message: driftResult.redirectMessage || "",
+                }
+              : null,
+            userMessage: trimmedContent,
+            history: historyChronological.map((m) => ({
+              role: m.sender === "LEARNER" ? "user" : "assistant",
+              content: m.content,
+            })),
+          },
+          async (tokenChunk) => {
+            fullAiResponse += tokenChunk;
+            await stream.writeSSE({
+              event: "token",
+              data: JSON.stringify({ chunk: tokenChunk }),
+            });
+          }
+        );
+
+        // Save complete Tutor response to database
+        const aiMessage = await prisma.chatMessage.create({
+          data: {
+            sessionId: learningSession.id,
+            sender: "AI_TUTOR",
+            content: aiResult.fullText || fullAiResponse,
+          },
+        });
+
+        // Emit rubric & BKT mastery telemetry
+        if (targetConcept && evaluation && persistedRubric) {
+          await stream.writeSSE({
+            event: "rubric_update",
+            data: JSON.stringify({
+              conceptId: targetConcept.id,
+              conceptName: targetConcept.name,
+              weightedScore: evaluation.weightedScore,
+              hasCriticalMisconception: evaluation.hasCriticalMisconception,
+              overallSummary: evaluation.overallSummary,
+              criteriaResults: evaluation.criteriaResults,
+              demonstratedCriteriaCount:
+                persistedRubric.demonstratedCriteriaCount,
+              totalCriteriaCount: persistedRubric.totalCriteriaCount,
+              newlyDemonstratedStatements:
+                persistedRubric.newlyDemonstratedStatements,
+            }),
+          });
+
+          await stream.writeSSE({
+            event: "state_update",
+            data: JSON.stringify({
+              conceptId: targetConcept.id,
+              conceptName: targetConcept.name,
+              previousMastery: existingMastery?.pMastery ?? 0.15,
+              newMastery: persistedRubric.conceptPMastery,
+              state: persistedRubric.conceptState,
+              isDemonstrated:
+                evaluation.weightedScore >= 0.7 &&
+                !evaluation.hasCriticalMisconception,
+              confidence: evaluation.weightedScore,
+              reasoning: evaluation.overallSummary,
+            }),
+          });
+        }
+
+        // Build complete progression snapshot so frontend studio updates its stepper & CTAs immediately
+        const progressionSnapshot = await buildSessionProgressionSnapshot({
+          enrollmentId: learningSession.enrollmentId,
+          chapterId: learningSession.chapterId,
+          currentSectionId: activeSection?.id || learningSession.currentSectionId,
+        });
+
+        await stream.writeSSE({
+          event: "section_status",
+          data: JSON.stringify({
+            ...(sectionTurnStatus || {}),
+            progressionTransition,
+            progressionSnapshot,
+          }),
+        });
+
+        await stream.writeSSE({
+          event: "done",
+          data: JSON.stringify({
+            messageId: aiMessage.id,
+            provider: aiResult.provider,
+            model: aiResult.model,
+            progressionSnapshot,
+          }),
+        });
+      });
+    } catch (err: any) {
+      return c.json(
+        { error: "Failed to process message", details: err?.message },
+        500
+      );
+    }
+  }
+);
+
+// ─── POST /api/v1/courses/:slug/chat ─────────────────────────────────────────
+// Public/Guest Course Socratic Streaming Endpoint (Scoped RAG + Curriculum Director)
+sessionsHonoRouter.post(
+  "/courses/:slug/chat",
+  honoRateLimiter({ maxRequests: 15, windowSeconds: 60, keyPrefix: "ai-public-chat" }),
+  async (c) => {
+    try {
+      const slug = c.req.param("slug") || "";
+      const body = await c.req.json().catch(() => ({}));
+      const message = typeof body.message === "string" ? body.message : typeof body.content === "string" ? body.content : "";
+      const history = Array.isArray(body.history) ? body.history : [];
+
+      if (!message || !message.trim()) {
+        return c.json({ error: "message is required" }, 400);
+      }
+
+      const course = await prisma.course.findUnique({
+        where: { slug },
+        include: {
+          versions: {
+            where: { isActive: true },
+            include: {
+              modules: {
+                orderBy: { sequenceOrder: "asc" },
+                take: 1,
+                include: {
+                  chapters: {
+                    orderBy: { sequenceOrder: "asc" },
+                    take: 1,
+                    include: {
+                      sections: { orderBy: { sequenceOrder: "asc" } },
+                      concepts: {
+                        include: { rubrics: { include: { criteria: true } } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const firstModule = course?.versions?.[0]?.modules?.[0];
+      const firstChapter = firstModule?.chapters?.[0];
+      const firstSection = firstChapter?.sections?.[0];
+      const firstConcept = firstChapter?.concepts?.[0];
+      const allCriteria =
+        firstConcept?.rubrics?.flatMap((r) => r.criteria) || [];
+
+      const ragChunks = firstChapter
+        ? await RAGService.retrieveScopedContext({
+            chapterId: firstChapter.id,
+            sectionId: firstSection?.id || null,
+            conceptId: firstConcept?.id || null,
+            activeConceptName: firstConcept?.name || firstChapter.title,
+            maxModuleOrder: 1,
+            userQuery: message.trim(),
+            limit: 4,
+          })
+        : [];
+
+      const sanitizedHistory = Array.isArray(history)
+        ? history.slice(-10).map((m: any) => ({
+            role: (m.role === "assistant" ? "assistant" : "user") as
+              | "user"
+              | "assistant",
+            content: String(m.content || ""),
+          }))
+        : [];
+
+      return streamSSE(c, async (stream) => {
+        const aiResult = await AiProviderService.streamTutorReply(
+          {
+            courseTitle: course?.title || "Python Fundamentals",
+            moduleTitle: firstModule?.title || "Module 01: Python Foundations",
+            moduleOrder: 1,
+            chapterTitle:
+              cleanTitle(firstChapter?.title) ||
+              "Python Execution Model, REPL, Scripts & Indentation",
+            sectionTitle:
+              firstSection?.title || "1. Core Intuition & Mental Model",
+            sectionType: firstSection?.sectionType || "CONCEPT_INTUITION",
+            sectionObjective:
+              firstSection?.objective ||
+              "Build an accurate first-principles mental model.",
+            sectionOrder: firstSection?.sequenceOrder || 1,
+            totalSections: firstChapter?.sections?.length || 4,
+            conceptName:
+              firstConcept?.name ||
+              "Python Execution Model, REPL, Scripts & Indentation",
+            teachingContent:
+              firstSection?.content ||
+              firstChapter?.teachingContent ||
+              "Focus on first-principles software engineering concepts, runtime mechanics, and clean syntax.",
+            ragContextChunks: ragChunks,
+            currentMastery: 0.25,
+            tier: "EASY",
+            turnNumber: sanitizedHistory.length + 1,
+            previousTutorQuestions:
+              extractPreviousTutorQuestions(sanitizedHistory),
+            targetCriterion: allCriteria[0]
+              ? {
+                  code: allCriteria[0].criterionCode || null,
+                  statement: allCriteria[0].criterionStatement,
+                  cognitiveLevel: allCriteria[0].cognitiveLevel || "EXPLAIN",
+                }
+              : null,
+            unmetCriteria: allCriteria.map((cr) => cr.criterionStatement),
+            userMessage: message.trim(),
+            history: sanitizedHistory,
+          },
+          async (tokenChunk) => {
+            await stream.writeSSE({
+              event: "token",
+              data: JSON.stringify({ chunk: tokenChunk }),
+            });
+          }
+        );
+
+        await stream.writeSSE({
+          event: "done",
+          data: JSON.stringify({
+            provider: aiResult.provider,
+            model: aiResult.model,
+          }),
+        });
+      });
+    } catch (err: any) {
+      return c.json(
+        { error: "Failed to stream tutor response", details: err?.message },
+        500
+      );
+    }
+  }
+);

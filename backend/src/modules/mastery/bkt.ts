@@ -40,7 +40,30 @@ export class BayesianKnowledgeTracer {
     const pNext = pPosterior + (1 - pPosterior) * pT;
     return Number(Math.min(Math.max(pNext, 0.01), 0.99).toFixed(4));
   }
+
+  public static updateMastery = BayesianKnowledgeTracer.update;
+
+  public static determineState(
+    pMastery: number,
+    isDemonstrated: boolean,
+    hasCriticalMisconception: boolean = false
+  ): MasteryState {
+    if (hasCriticalMisconception) return "NEEDS_REMEDIATION";
+    if (pMastery >= 0.90) return "ADVANCED";
+    if (pMastery >= 0.70) return "MASTERED";
+    if (pMastery >= 0.30) return "LEARNING";
+    return "UNENCOUNTERED";
+  }
 }
+
+export type MasteryState =
+  | "UNENCOUNTERED"
+  | "LEARNING"
+  | "NEEDS_REMEDIATION"
+  | "MASTERED"
+  | "ADVANCED";
+
+export const BKTService = BayesianKnowledgeTracer;
 
 export interface EvidenceComponents {
   chapterMasteryScore: number;    // Mean P(Mastery) across all chapters (0.0 - 1.0)

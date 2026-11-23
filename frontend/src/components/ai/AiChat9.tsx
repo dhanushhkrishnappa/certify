@@ -123,6 +123,8 @@ export interface AiChat9Props {
   courseSlug?: string;
   user?: User | null;
   initialMessages?: ChatMessage[];
+  progressionBar?: React.ReactNode;
+  progressionActionBanner?: React.ReactNode;
   onExit?: () => void;
   onNewChat?: () => void;
   onSendMessage?: (message: string, model: AIModel, effort: ReasoningEffort) => Promise<string | void>;
@@ -135,10 +137,13 @@ export interface AiChat9Props {
 }
 
 export const AiChat9: React.FC<AiChat9Props> = ({
+  initialTitle,
   courseTitle = "Python Fundamentals",
   courseSlug: _courseSlug = "python-fundamentals",
   user,
   initialMessages = [],
+  progressionBar,
+  progressionActionBanner,
   onExit,
   onNewChat,
   onSendMessage,
@@ -150,10 +155,11 @@ export const AiChat9: React.FC<AiChat9Props> = ({
   // Initialize with clean empty messages by default so the centered welcome screen appears
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
 
-  // Sync messages whenever initialMessages updates (e.g. when session finishes loading or user switches)
+  // Sync messages whenever initialMessages updates (e.g. when session finishes loading or chapter advances)
   useEffect(() => {
     setMessages(initialMessages || []);
   }, [initialMessages]);
+
   const [inputText, setInputText] = useState("");
   const [attachment, setAttachment] = useState<ChatAttachment | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -388,7 +394,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
           value={inputText}
           onChange={handleTextareaChange}
           onKeyDown={handleKeyDown}
-          placeholder={`Ask your Socratic tutor about ${courseTitle}...`}
+          placeholder={`Ask your Socratic tutor about ${initialTitle || courseTitle}...`}
           className="font-chat w-full bg-transparent text-[15px] text-[#f4f4f5] placeholder:text-zinc-500 resize-none outline-none leading-relaxed tracking-[-0.008em] max-h-[160px]"
         />
 
@@ -452,7 +458,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
       {/* Expanded Bounded Rich-Black Chat Box */}
       <div className="relative z-10 w-full max-w-[1080px] h-full min-h-0 flex flex-col rounded-[22px] border border-white/[0.09] bg-[#09090b] shadow-[0_28px_90px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden">
         {/* Pinned Top Bar inside Box */}
-        <header className="w-full px-6 sm:px-8 py-4 border-b border-white/[0.07] bg-[#0c0c0e] flex items-center justify-between shrink-0">
+        <header className="w-full px-6 sm:px-8 py-3.5 border-b border-white/[0.07] bg-[#0c0c0e] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {onExit && (
               <button
@@ -469,7 +475,7 @@ export const AiChat9: React.FC<AiChat9Props> = ({
               <span className="text-zinc-600 font-light select-none">/</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)] shrink-0" />
               <h2 className="font-chat text-[13.5px] font-medium text-[#f4f4f5] tracking-[-0.012em] truncate">
-                {courseTitle}
+                {initialTitle ? `${courseTitle} · ${initialTitle}` : courseTitle}
               </h2>
             </div>
           </div>
@@ -481,18 +487,21 @@ export const AiChat9: React.FC<AiChat9Props> = ({
                 if (onNewChat) onNewChat();
               }}
               className="text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer shrink-0"
-              title="Start new thread"
+              title="Restart current chapter thread"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>New Chat</span>
+              <span>Reset Thread</span>
             </button>
           )}
         </header>
 
+        {/* Live Section & Rubric Progression Bar */}
+        {progressionBar}
+
         {/* Scrollable Message Stream Area (Previous chats scroll up cleanly inside this box) */}
         <main
           ref={scrollContainerRef}
-          className="flex-1 min-h-0 w-full overflow-y-auto px-6 sm:px-10 py-8 space-y-7 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/[0.12] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.24]"
+          className="flex-1 min-h-0 w-full overflow-y-auto px-6 sm:px-10 py-7 space-y-7 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/[0.12] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.24]"
         >
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center px-4">
@@ -561,6 +570,9 @@ export const AiChat9: React.FC<AiChat9Props> = ({
             </>
           )}
         </main>
+
+        {/* Contextual Action Banner when Checkpoint, Practical, or Next Chapter/Module is Unlocked */}
+        {progressionActionBanner}
 
         {/* Pinned Bottom Composer Bar (Always visible & anchored inside the rich black box) */}
         <footer className="w-full px-6 sm:px-8 py-4 border-t border-white/[0.07] bg-[#0b0b0d] shrink-0">

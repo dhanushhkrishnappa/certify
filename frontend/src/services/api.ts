@@ -472,7 +472,7 @@ export const api = {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ content, history }),
+      body: JSON.stringify({ message: content, content, history }),
       signal,
     });
 

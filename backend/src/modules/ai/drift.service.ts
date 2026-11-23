@@ -11,6 +11,10 @@ export type DriftClassification =
 export interface DriftCheckResult {
   classification: DriftClassification;
   isDrifting: boolean;
+  isDrift?: boolean;
+  driftType?: string;
+  targetModuleTitle?: string | null;
+  redirectMessage?: string;
   detectedTargetModuleOrder?: number;
   detectedTargetModuleSlug?: string;
   detectedTargetModuleTitle?: string;
@@ -233,4 +237,45 @@ export class DriftService {
       console.warn("[DriftService] Failed to log drift event:", err?.message || err);
     }
   }
+
+  public static async detectAndLogDrift(params: {
+    enrollmentId: string;
+    sessionId: string;
+    currentModuleOrder: number;
+    currentModuleTitle: string;
+    currentChapterTitle: string;
+    currentSectionId?: string | null;
+    currentSectionTitle?: string;
+    userMessage: string;
+  }): Promise<DriftCheckResult> {
+    const classification = this.classifyMessage({
+      message: params.userMessage,
+      activeModuleOrder: params.currentModuleOrder,
+      activeModuleTitle: params.currentModuleTitle,
+      activeChapterTitle: params.currentChapterTitle,
+      activeSectionTitle: params.currentSectionTitle || "Current Section",
+      activeSectionObjective: "",
+      activeConceptName: params.currentChapterTitle,
+    });
+
+    classification.isDrift = classification.isDrifting;
+    classification.driftType = classification.classification;
+    classification.targetModuleTitle = classification.detectedTargetModuleTitle;
+    classification.redirectMessage = classification.deterministicReply;
+
+    if (classification.isDrifting) {
+      await this.logDriftEvent({
+        enrollmentId: params.enrollmentId,
+        sessionId: params.sessionId,
+        activeChapterId: "",
+        activeSectionId: params.currentSectionId,
+        driftResult: classification,
+        learnerMessage: params.userMessage,
+      });
+    }
+
+    return classification;
+  }
 }
+
+export const DriftDetectionService = DriftService;
