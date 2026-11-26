@@ -23,3 +23,7 @@ brag-output/
 
 # Archive files
 *.zip
+
+# Local Documentation Suite (private / local-only)
+docs/
+
