@@ -12,7 +12,6 @@ import type {
   CourseDetail,
   LearningSessionContext,
   Question,
-  Certificate,
   PublicVerification,
 } from "../types/index.js";
 import { API_BASE, API_ORIGIN } from "../constants/api.js";
@@ -91,25 +90,6 @@ export const api = {
 
     if (data.token) {
       localStorage.setItem("certify_token", data.token);
-    }
-
-    return data;
-  },
-
-  /**
-   * Update the user profile (dob, persona, image, bio, etc.)
-   */
-  async updateProfile(profileData: Partial<User>): Promise<{ user: User }> {
-    const res = await fetch(`${API_BASE}/auth/profile`, {
-      method: "PUT",
-      headers: getHeaders(),
-      credentials: "include",
-      body: JSON.stringify(profileData),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || "Failed to update profile");
     }
 
     return data;
@@ -227,24 +207,6 @@ export const api = {
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.error || "Failed to reset password");
-    }
-
-    return data;
-  },
-
-  /**
-   * Verify an email address with a token.
-   */
-  async verifyEmail(token: string, email?: string): Promise<{ message: string; user?: User }> {
-    const res = await fetch(`${API_BASE}/auth/verify-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, email }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || "Failed to verify email");
     }
 
     return data;
@@ -567,22 +529,6 @@ export const api = {
     return data;
   },
 
-  async conductVivaTurn(
-    enrollmentId: string,
-    questionId: string,
-    studentAnswer: string,
-    turnNumber: number
-  ): Promise<any> {
-    const res = await fetch(`${API_BASE}/assessments/final/viva`, {
-      method: "POST",
-      headers: getHeaders(),
-      credentials: "include",
-      body: JSON.stringify({ enrollmentId, questionId, studentAnswer, turnNumber }),
-    });
-    if (!res.ok) throw new Error("Failed to process viva defense turn");
-    return res.json();
-  },
-
   // ─── Certificates ─────────────────────────────────────────────────────────
 
   async getMyCertificates(): Promise<{
@@ -621,22 +567,6 @@ export const api = {
       credentials: "include",
     });
     if (!res.ok) throw new Error("Failed to load user activity");
-    return res.json();
-  },
-
-  async issueCertificate(
-    enrollmentId: string
-  ): Promise<{ certificate: Certificate; verificationUrl: string }> {
-    const res = await fetch(`${API_BASE}/certificates/issue`, {
-      method: "POST",
-      headers: getHeaders(),
-      credentials: "include",
-      body: JSON.stringify({ enrollmentId }),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Requirements not met for certificate");
-    }
     return res.json();
   },
 

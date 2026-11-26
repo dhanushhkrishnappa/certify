@@ -6,7 +6,6 @@ import { CatalogView } from "./components/CatalogView.js";
 import { CourseDetailsView } from "./components/CourseDetailsView.js";
 import { MyLearningView } from "./components/MyLearningView.js";
 import { LearningStudio } from "./components/LearningStudio.js";
-import { ChapterAssessmentView } from "./components/ChapterAssessmentView.js";
 import { FinalAssessmentView } from "./components/FinalAssessmentView.js";
 import { CertificationResultView } from "./components/CertificationResultView.js";
 import { CredentialsListView } from "./components/CredentialsListView.js";
@@ -30,7 +29,6 @@ export type CertifyView =
   | "mylearning"
   | "studio"
   | "assessments"
-  | "chapter-assessment"
   | "final-assessment"
   | "result"
   | "credentials"
@@ -62,7 +60,6 @@ const getViewFromPath = (): CertifyView => {
     mylearning: "mylearning",
     dashboard: "dashboard",
     studio: "studio",
-    "chapter-assessment": "chapter-assessment",
     "final-assessment": "final-assessment",
     assessments: "final-assessment",
     result: "result",
@@ -361,7 +358,6 @@ const AppContent: React.FC = () => {
 
   const isFullscreenWorkflow = [
     "studio",
-    "chapter-assessment",
     "final-assessment",
     "result",
     "credential-details",
@@ -493,16 +489,6 @@ const AppContent: React.FC = () => {
                 onNavigateVerify={handleNavigateVerify}
                 onNavigate={(v) => setCurrentView(v as CertifyView)}
                 onLogout={handleLogout}
-              />
-            )}
-
-            {/* Screen 6: Chapter Assessment */}
-            {currentView === "chapter-assessment" && (
-              <ChapterAssessmentView
-                courseSlug={selectedCourseSlug}
-                chapterTitle="Memory Model & Mutability"
-                onNavigate={(v) => setCurrentView(v as CertifyView)}
-                onComplete={() => setCurrentView("studio")}
               />
             )}
 

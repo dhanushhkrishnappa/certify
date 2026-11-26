@@ -2,31 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const nodeEnv = process.env.NODE_ENV || "development";
-const rawJwtSecret = process.env.JWT_SECRET;
-
-// Fail-fast security assertions for production (evaluated at request runtime, not script build validation)
-export function assertJwtSecretConfigured(): void {
-  const nodeEnv = process.env.NODE_ENV || "development";
-  const rawJwtSecret = process.env.JWT_SECRET;
-  if (
-    nodeEnv === "production" &&
-    (!rawJwtSecret ||
-      rawJwtSecret === "certify_super_secure_jwt_secret_dev_key_2026" ||
-      rawJwtSecret === "certify_jwt_secret_dev_change_in_production")
-  ) {
-    throw new Error(
-      "CRITICAL SECURITY ERROR: JWT_SECRET must be explicitly set to a strong secret in production."
-    );
-  }
-}
-
-// In production, development AI fallback is strictly forbidden
-const allowDevAiFallback =
-  nodeEnv === "production"
-    ? false
-    : process.env.ALLOW_DEV_AI_FALLBACK === "true" ||
-    process.env.ALLOW_DEV_AI_FALLBACK !== "false";
-
 // Whitelist & Retired Model Validation
 export const RETIRED_MODELS = new Set([
   "claude-3-7-sonnet",
@@ -56,9 +31,6 @@ export function normalizeGeminiModel(modelId?: string, fallback = "gemini-2.5-fl
   }
   return trimmed;
 }
-
-const rawTutorModel = process.env.ANTHROPIC_TUTOR_MODEL || "claude-sonnet-4-6";
-const rawEvaluatorModel = process.env.ANTHROPIC_EVALUATOR_MODEL || "claude-haiku-4-5-20251001";
 
 let customNodeEnv: string | null = null;
 let customPrivateKeyPem: string | null = null;

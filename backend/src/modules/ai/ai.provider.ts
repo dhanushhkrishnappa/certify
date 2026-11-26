@@ -51,8 +51,6 @@ export const RubricEvaluationOutputSchema = z.object({
   promptVersion: z.string(),
 });
 
-export type RubricEvaluationOutput = z.infer<typeof RubricEvaluationOutputSchema>;
-
 const NEGATION_PATTERNS = [
   /\bvariables?\s+are\s+not\s+(references?|pointers?|bound)\b/i,
   /\bnever\s+(binds?|references?|mutates?|yields?)\b/i,
@@ -124,16 +122,6 @@ export interface TutorStreamContext {
   userMessage?: string;
   learnerMessage?: string;
   history: Array<{ role: "user" | "assistant"; content: string }>;
-}
-
-export type SocraticPromptContext = TutorStreamContext;
-
-export interface DialogueEvaluationResult {
-  isDemonstrated: boolean;
-  confidence: number;
-  reasoning: string;
-  extractedSnippet: string;
-  modelUsed: string;
 }
 
 /**

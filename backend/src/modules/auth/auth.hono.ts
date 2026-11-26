@@ -144,16 +144,11 @@ authHonoRouter.post(
 
       // Check legacy/fallback passwordHash
       if (!passwordMatches && dbUser.passwordHash) {
-        const bcrypt = await import("bcryptjs").catch(() => null);
-        if (bcrypt && dbUser.passwordHash.startsWith("$2")) {
-          passwordMatches = await bcrypt.default.compare(password, dbUser.passwordHash).catch(() => false);
-        } else {
-          const { verifyPassword } = await import("better-auth/crypto");
-          passwordMatches = await verifyPassword({
-            hash: dbUser.passwordHash,
-            password,
-          }).catch(() => false);
-        }
+        const { verifyPassword } = await import("better-auth/crypto");
+        passwordMatches = await verifyPassword({
+          hash: dbUser.passwordHash,
+          password,
+        }).catch(() => false);
 
         // If matched via fallback, upgrade Account password to Better Auth hash
         if (passwordMatches) {
@@ -515,29 +510,6 @@ authHonoRouter.get("/activity", async (c) => {
     return c.json({ error: "Failed to fetch user activity", details: err?.message }, 500);
   }
 });
-
-// ─── Reusable Helper: Record Real-Time Activity ─────────────────────────────
-export async function recordUserActivity(userId: string, messagesCount = 1, minutesSpent = 2) {
-  try {
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    await prisma.dailyActivity.upsert({
-      where: { userId_activityDate: { userId, activityDate: today } },
-      create: {
-        userId,
-        activityDate: today,
-        messagesCount,
-        minutesSpent,
-      },
-      update: {
-        messagesCount: { increment: messagesCount },
-        minutesSpent: { increment: minutesSpent },
-      },
-    });
-  } catch (err) {
-    console.warn("[DailyActivity] Failed to record activity:", err);
-  }
-}
 
 // ─── POST /api/v1/auth/resend-otp ──────────────────────────────────────────
 authHonoRouter.post(
